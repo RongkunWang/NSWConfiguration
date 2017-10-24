@@ -1,0 +1,35 @@
+// Prototype ideas on how the classes will be used
+
+ConfigReader reader(dbconnection);
+
+VMM vmm(vmm_address);
+
+VMMSet vmms(); // Set of VMMs, for instance 
+
+for (auto address : address_list){ // One can loop over e-links that belongs to swROD
+  vmms.add(address);
+}
+
+auto config = reader.read_config(vmm_address) ; // Read configuration for specific FE.
+config.set_attribute("attribute_name",value);   // Change some attribute from read configuration
+vmm.write_config(config.bytestream()); // Write the configuration to VMM
+
+auto current_config = vmm.read_config();
+
+auto allconfig = reader.read_config() ; // Read all configuration, as bytestream?
+vmms.write_config(allconfig.bytestream());           // Write all configuration to set of VMMs
+
+vmm.set_attribute("attribute_name",value); // Setting single attribute instead of sending the whole configuration
+
+vmms.set_attribute("attribute_name",value); // Setting single attribute in all VMMs
+
+auto current_value = vmm.get_attribute("attribute_name"); // Reading attributes from VMM
+
+
+// What happens if we store some configuration in OKS, and some in configuration database?
+// Then we'd need access to OKS data from this class, or have to pass it as argument (as in set_attribute)
+// We can access OKS in the DAQ-aware part of the code (swROD?) and send configuration as ptree to this class
+
+
+
+
