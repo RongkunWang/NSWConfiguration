@@ -1,0 +1,17 @@
+x86_64-*/
+i686-*/
+cmt/*
+!cmt/requirements
+*.o
+*.a
+*.so
+*.rpm
+*.class
+*.jar
+*.gz
+*.bz
+*.tar
+*~
+*.bak
+*.png
+*.pyc
