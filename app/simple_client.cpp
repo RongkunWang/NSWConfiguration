@@ -33,7 +33,7 @@ int main(int argc, char ** argv)
     //std::string endpoint = "opc.tcp://localhost:48010";
 
     std::string endpoint = "opc.tcp://pcatlnswfelix01:4841";
-    //std::string endpoint = "opc.tcp://127.0.0.1:4841";
+        //std::string endpoint = "opc.tcp://127.0.0.1:4841";
 
     if (argc > 1) {
       endpoint = argv[1];

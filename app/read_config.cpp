@@ -7,7 +7,7 @@
 int main(int argc, const char *argv[]) {
   ConfigReader reader("file:///afs/cern.ch/user/c/cyildiz/public/nsw-work/nsw-configuration/data/dummy_config.json");
   auto config = reader.read_config();
-  write_json(std::cout, config);
+  write_json(std::cout, config); // output ptree content
 
   return 0;
 }
