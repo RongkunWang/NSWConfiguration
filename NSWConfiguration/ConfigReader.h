@@ -8,6 +8,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 using boost::property_tree::ptree;
 
@@ -33,6 +34,16 @@ class JsonApi: public ConfigReaderApi {
 
  public:
   explicit JsonApi(std::string file_path): m_file_path(file_path) {}
+  virtual ptree & read();
+  virtual ptree read(std::string element_name);
+};
+
+class XmlApi: public ConfigReaderApi {
+ private:
+  std::string m_file_path;
+
+ public:
+  explicit XmlApi(std::string file_path): m_file_path(file_path) {}
   virtual ptree & read();
   virtual ptree read(std::string element_name);
 };
@@ -66,5 +77,4 @@ class ConfigReader {
   }
 };
 #endif  // INC_CONFIGREADER_H_
-
 
