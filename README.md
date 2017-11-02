@@ -14,4 +14,5 @@
 * Client implementation will be probably be provided by ATLAS DCS team.
 * For prototyping, we can use a free client implementation as `freeopcua`
 
-
+## Issue Tracker:
+* [ATLNSWDAQ: ATLAS NSW DAQ Software JIRA](https://its.cern.ch/jira/projects/ATLNSWDAQ)
