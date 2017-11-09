@@ -3,8 +3,8 @@
 // * A base class that use OPC Client to write/read to FE,
 // * Derived classes (VMM etc..) to fill specific parts
 
-#ifndef INC_VMM_H_
-#define INC_VMM_H_
+#ifndef NSWCONFIGURATION_VMM_H_
+#define NSWCONFIGURATION_VMM_H_
 
 class FE {
  private:
@@ -28,5 +28,5 @@ class VMM: public FE {
   VMM();
   ~VMM();
 };
-#endif  // INC_VMM_H_
+#endif  // NSWCONFIGURATION_VMM_H_
 

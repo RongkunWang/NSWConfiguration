@@ -12,8 +12,8 @@
 
 using boost::property_tree::ptree;
 
-#ifndef INC_CONFIGREADER_H_
-#define INC_CONFIGREADER_H_
+#ifndef NSWCONFIGURATION_CONFIGREADER_H_
+#define NSWCONFIGURATION_CONFIGREADER_H_
 
 class ConfigReaderApi {
  protected:
@@ -59,6 +59,16 @@ class OracleApi: public ConfigReaderApi {
   ptree read(std::string element_name);
 };
 
+class OksApi: public ConfigReaderApi {
+ private:
+  std::string m_file_path;
+
+ public:
+  explicit OksApi(std::string file_path): m_file_path(file_path) {}
+  virtual ptree & read();
+  virtual ptree read(std::string element_name);
+};
+
 class ConfigReader {
  private:
   std::string m_connection_string;
@@ -76,5 +86,5 @@ class ConfigReader {
     return m_api->read(element_name);
   }
 };
-#endif  // INC_CONFIGREADER_H_
+#endif  // NSWCONFIGURATION_CONFIGREADER_H_
 
