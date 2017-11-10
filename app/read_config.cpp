@@ -18,5 +18,9 @@ int main(int argc, const char *argv[]) {
     auto config3 = reader3.read_config();
     // write_json(std::cout, config);
 
+    ConfigReader reader4("oracle:hostname");
+    reader4.read_config();
+    // write_json(std::cout, config);
+
     return 0;
 }

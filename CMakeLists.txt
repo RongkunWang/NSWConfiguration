@@ -22,7 +22,7 @@ tdaq_add_executable(simple_client app/simple_client.cpp
   LINK_LIBRARIES opcuaprotocol opcuacore opcuaclient Boost::boost LibXml2
 )
 
-tdaq_add_library(configreader src/ConfigReader.cpp
+tdaq_add_library(configreader src/ConfigReader.cpp src/ConfigReaderApi.cpp
   LINK_LIBRARIES Boost::boost
 )
 
