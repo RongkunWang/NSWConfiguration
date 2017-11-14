@@ -6,9 +6,9 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigReaderApi.h"
 
-ConfigReader::ConfigReader(const std::string connection_string, const std::vector<std::string> components): 
+ConfigReader::ConfigReader(const std::string connection_string, const std::vector<std::string> components):
     m_connection_string(connection_string),
-    m_components(components){
+    m_components(components) {
     // Open db, json file or oracle db
     if (m_connection_string.find("json://") == 0) {
         std::string file_path = m_connection_string.substr(std::string("json://").length());
@@ -23,8 +23,8 @@ ConfigReader::ConfigReader(const std::string connection_string, const std::vecto
     }
 }
 
-ConfigReader::ConfigReader(const std::string connection_string): 
-    m_connection_string(connection_string){
+ConfigReader::ConfigReader(const std::string connection_string):
+    m_connection_string(connection_string) {
     // Open db, json file or oracle db
     if (m_connection_string.find("json://") == 0) {
         std::string file_path = m_connection_string.substr(std::string("json://").length());

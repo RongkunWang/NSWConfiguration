@@ -2,9 +2,9 @@
 // We could have few implementations: json, oracle etc.
 // Use bridge design pattern to implement multiple implementations?
 
-#include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -30,7 +30,7 @@ class ConfigReader {
 
   ptree read_config() {
     return m_api->read();
-    // TODO: Verify there is "global config" and at least one VMM/FE instance
+    // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
   }
 
   ptree read_config(std::string element_name) {
