@@ -1,6 +1,6 @@
 // Implementation of Config Db Reader
 // We could have few implementations: json, oracle etc.
-// Use bridge design pattern to implement multiple implementations?
+// Uses bridge design pattern to implement multiple implementations
 
 #include <iostream>
 #include <string>
@@ -20,11 +20,11 @@ class ConfigReaderApi {
   ptree m_config;  /// Ptree that holds all configuration
 
  public:
-  /// Read the whole config db and dump it in the m_config tree, return a reference to the m_config
+  /// Read the whole config db and dump it in the m_config tree
   virtual ptree & read() = 0;
 
-  /// Read specific part of config db
-  virtual ptree read(std::string element_name) = 0;
+  /// Read configuration of a single front end element
+  virtual ptree read(std::string element_name);
   virtual ~ConfigReaderApi() {}
 };
 
@@ -34,8 +34,7 @@ class JsonApi: public ConfigReaderApi {
 
  public:
   explicit JsonApi(std::string file_path): m_file_path(file_path) {}
-  virtual ptree & read();
-  virtual ptree read(std::string element_name);
+  ptree & read();
 };
 
 class XmlApi: public ConfigReaderApi {
@@ -44,8 +43,8 @@ class XmlApi: public ConfigReaderApi {
 
  public:
   explicit XmlApi(std::string file_path): m_file_path(file_path) {}
-  virtual ptree & read();
-  virtual ptree read(std::string element_name);
+  ptree & read();
+  ptree read(std::string element_name) override;
 };
 
 class OracleApi: public ConfigReaderApi {
@@ -56,7 +55,7 @@ class OracleApi: public ConfigReaderApi {
   explicit OracleApi(std::string db_connection) {}
   ~OracleApi() {std::cout << "Closing oracle db..." << std::endl;}
   ptree & read();
-  ptree read(std::string element_name);
+  ptree read(std::string element_name) override;
 };
 
 class OksApi: public ConfigReaderApi {
@@ -65,8 +64,8 @@ class OksApi: public ConfigReaderApi {
 
  public:
   explicit OksApi(std::string file_path): m_file_path(file_path) {}
-  virtual ptree & read();
-  virtual ptree read(std::string element_name);
+  ptree & read();
+  ptree read(std::string element_name) override;
 };
 
 #endif  // NSWCONFIGURATION_CONFIGREADERAPI_H_
