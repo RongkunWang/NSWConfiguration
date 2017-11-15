@@ -107,20 +107,20 @@ nsw::VMMCodec::VMMCodec() {
 }
 
 std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config0(ptree config) {
-    return build_global_config(config, GlobalRegisters::global0);
+    return build_global_config(config, nsw::GlobalRegisters::global0);
 }
 
 std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config1(ptree config) {
-    return build_global_config(config, GlobalRegisters::global1);
+    return build_global_config(config, nsw::GlobalRegisters::global1);
 }
 
-std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config(ptree config, GlobalRegisters type) {
+std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config(ptree config, nsw::GlobalRegisters type) {
     auto constexpr N = nsw::VMMCodec::nbits_global;
 
     std::vector<name_size_t> vname_size;
-    if (type == GlobalRegisters::global0) {
+    if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
-    } else if (type == GlobalRegisters::global1) {
+    } else if (type == nsw::GlobalRegisters::global1) {
         vname_size = m_global_name_size1;
     }
 
@@ -169,6 +169,10 @@ std::bitset<nsw::VMMCodec::nbits_channel> nsw::VMMCodec::build_channel_config(pt
     std::cout << result << std::endl;
 
     return result;
+}
+
+std::bitset<nsw::VMMCodec::nbits> nsw::VMMCodec::build_config(ptree config) {
+    return nsw::concatenate(build_global_config0(config), build_channel_config(config), build_global_config1(config));
 }
 
 std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::build_channel_register_map(ptree config) {

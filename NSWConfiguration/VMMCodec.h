@@ -7,14 +7,18 @@
 
 #include <boost/property_tree/ptree.hpp>
 
+#include "NSWConfiguration/Utility.h"
+
 using boost::property_tree::ptree;
 
 #ifndef NSWCONFIGURATION_VMMCODEC_H_
 #define NSWCONFIGURATION_VMMCODEC_H_
 
-enum class GlobalRegisters {global0, global1};
 
 namespace nsw {
+
+enum class GlobalRegisters {global0, global1};
+
 /// Class to encode/decode VMM configuration between ptrees and bytestreams
 class VMMCodec {
  public:
@@ -26,16 +30,17 @@ class VMMCodec {
     static constexpr size_t nbits_global = 96;  /// Size of globals registers (32 * 3)
     static constexpr size_t nbits_channel = 1536;  /// Size of channel registers (24 * 64)
 
-    std::bitset<nbits_global> build_global_config(ptree config, GlobalRegisters type);
     std::bitset<nbits_global> build_global_config0(ptree config);
     std::bitset<nbits_global> build_global_config1(ptree config);
     std::bitset<nbits_channel> build_channel_config(ptree config);
-    // std::bitset<nbits_channel> build_config(ptree config) {}
+    std::bitset<nbits> build_config(ptree config);
     // ptree bitset_to_ptree(std::bitset<nbits> bs) {}
 
  private:
     /// Creates a vector for each channel register, such that element ["sd"][4] is sd value for 4th channel
     std::map<std::string, std::vector<unsigned>> build_channel_register_map(ptree config);
+
+    std::bitset<nbits_global> build_global_config(ptree config, GlobalRegisters type);
 
     void check_overflow(size_t register_size, unsigned value, std::string register_name);
 

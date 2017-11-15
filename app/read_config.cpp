@@ -31,9 +31,8 @@ int main(int argc, const char *argv[]) {
     write_json(std::cout, vmm0);
 
     nsw::VMMCodec vmmcodec;
-    vmmcodec.build_global_config0(vmm0);
-    vmmcodec.build_global_config1(vmm0);
-    vmmcodec.build_channel_config(vmm0);
+    auto bs = vmmcodec.build_config(vmm0);
+    std::cout << bs << std::endl;
 
     return 0;
 }
