@@ -57,7 +57,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"stpp", 1});
     m_global_name_size0.push_back({"res00", 1});
 
-    m_global_name_size0.push_back({"reset0", 5});
+    m_global_name_size0.push_back({"res", 5});
     m_global_name_size0.push_back({"slvs", 1});
     m_global_name_size0.push_back({"s32", 1});
     m_global_name_size0.push_back({"stcr", 1});
@@ -77,7 +77,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"slvs6b", 1});
     m_global_name_size0.push_back({"sL0enaV", 1});
     m_global_name_size0.push_back({"nu1", 8});
-    m_global_name_size0.push_back({"reset1", 2});
+    m_global_name_size0.push_back({"reset", 2});
 
     m_global_name_size1.push_back({"nu2", 31});
     m_global_name_size1.push_back({"nskipm", 1});
@@ -181,7 +181,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::build_channel_regist
         size_t register_size = name_size.second;
 
         ptree ptemp = config.get_child(register_name);
-        std::cout << register_name;
+        std::cout << register_name << " : ";
         if (ptemp.empty()) {
             unsigned value =  config.get<unsigned>(register_name);
             check_overflow(register_size, value, register_name);
