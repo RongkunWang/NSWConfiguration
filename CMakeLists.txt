@@ -22,7 +22,7 @@ tdaq_add_executable(simple_client app/simple_client.cpp
   LINK_LIBRARIES opcuaprotocol opcuacore opcuaclient Boost::boost LibXml2
 )
 
-tdaq_add_library(configreader src/ConfigReader.cpp src/ConfigReaderApi.cpp src/VMMCodec.cpp
+tdaq_add_library(configreader src/ConfigReader.cpp src/ConfigReaderApi.cpp src/VMMCodec.cpp src/Utility.cpp
   LINK_LIBRARIES Boost::boost
 )
 
@@ -36,3 +36,8 @@ tdaq_add_executable(test_vmmcodec test/test_vmmcodec.cpp
       LINK_LIBRARIES Boost::unit_test_framework)
 
 add_test(NAME vmmcodec COMMAND test_vmmcodec)
+
+tdaq_add_executable(test_utility test/test_utility.cpp src/Utility.cpp
+      LINK_LIBRARIES Boost::unit_test_framework)
+
+add_test(NAME utility COMMAND test_utility)
