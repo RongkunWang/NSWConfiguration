@@ -1,6 +1,6 @@
 tdaq_package() #This will make a package called NSWConfiguration
 
-#set(CMAKE_CXX_FLAGS " -std=c++14 -Wall -fPIC") 
+#set(CMAKE_CXX_FLAGS " -std=c++14 -Wall -fPIC")
 
 find_package(LibXml2 REQUIRED)
 #find_package(Boost COMPONENTS system program_options REQUIRED )
@@ -29,3 +29,10 @@ tdaq_add_library(configreader src/ConfigReader.cpp src/ConfigReaderApi.cpp src/V
 tdaq_add_executable(read_config app/read_config.cpp
   LINK_LIBRARIES configreader
 )
+
+# Testing
+
+tdaq_add_executable(test_vmmcodec test/test_vmmcodec.cpp
+      LINK_LIBRARIES Boost::unit_test_framework)
+
+add_test(NAME vmmcodec COMMAND test_vmmcodec)
