@@ -1,6 +1,8 @@
+#include <map>
 #include <cmath>
 #include <string>
 #include <exception>
+#include <vector>
 
 #include "NSWConfiguration/VMMCodec.h"
 

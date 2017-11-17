@@ -1,0 +1,30 @@
+# See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
+
+image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+#
+# Run before each job
+#
+before_script:
+    - echo 'New job started'
+
+#
+# Run after each job
+#
+after_script:
+    - echo 'Job finished'
+
+#
+# Job stages
+#
+stages:
+    - build
+    - test
+    - deploy
+
+#
+# Job: run CppLint
+#
+run_cpplint:
+    stage: test
+    script:
+        - cpplint --linelength=120 --filter=-legal ./src/* ./NSWConfiguration/* ./app/* ./test/*
