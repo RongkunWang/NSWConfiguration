@@ -1,3 +1,8 @@
+// VMM Encoder/Decoder class to convert ptree/bitsets to each other
+
+#ifndef NSWCONFIGURATION_VMMCODEC_H_
+#define NSWCONFIGURATION_VMMCODEC_H_
+
 #include <bitset>
 #include <iostream>
 #include <vector>
@@ -10,9 +15,6 @@
 #include "NSWConfiguration/Utility.h"
 
 using boost::property_tree::ptree;
-
-#ifndef NSWCONFIGURATION_VMMCODEC_H_
-#define NSWCONFIGURATION_VMMCODEC_H_
 
 
 namespace nsw {

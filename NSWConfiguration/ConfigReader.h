@@ -2,6 +2,9 @@
 // We could have few implementations: json, oracle etc.
 // Use bridge design pattern to implement multiple implementations?
 
+#ifndef NSWCONFIGURATION_CONFIGREADER_H_
+#define NSWCONFIGURATION_CONFIGREADER_H_
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -13,9 +16,6 @@
 #include "NSWConfiguration/ConfigReaderApi.h"
 
 using boost::property_tree::ptree;
-
-#ifndef NSWCONFIGURATION_CONFIGREADER_H_
-#define NSWCONFIGURATION_CONFIGREADER_H_
 
 class ConfigReader {
  private:

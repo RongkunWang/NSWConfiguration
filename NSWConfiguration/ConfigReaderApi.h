@@ -2,6 +2,9 @@
 // We could have few implementations: json, oracle etc.
 // Uses bridge design pattern to implement multiple implementations
 
+#ifndef NSWCONFIGURATION_CONFIGREADERAPI_H_
+#define NSWCONFIGURATION_CONFIGREADERAPI_H_
+
 #include <iostream>
 #include <string>
 #include <memory>
@@ -11,9 +14,6 @@
 #include "boost/property_tree/xml_parser.hpp"
 
 using boost::property_tree::ptree;
-
-#ifndef NSWCONFIGURATION_CONFIGREADERAPI_H_
-#define NSWCONFIGURATION_CONFIGREADERAPI_H_
 
 class ConfigReaderApi {
  protected:

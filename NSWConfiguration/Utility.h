@@ -1,9 +1,10 @@
 // Utility functions
-#include <iostream>
-#include <bitset>
 
 #ifndef NSWCONFIGURATION_UTILITY_H_
 #define NSWCONFIGURATION_UTILITY_H_
+
+#include <iostream>
+#include <bitset>
 
 namespace nsw {
 
