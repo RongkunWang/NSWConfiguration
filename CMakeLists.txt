@@ -35,7 +35,7 @@ tdaq_add_executable(nsw_read_config app/read_config.cpp
 tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
       LINK_LIBRARIES Boost::unit_test_framework)
 
-add_test(NAME vmmcodec COMMAND test_vmmcodec)
+add_test(NAME vmmcodec COMMAND nsw_test_vmmcodec)
 
 tdaq_add_executable(nsw_test_utility test/test_utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework)

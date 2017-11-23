@@ -6,12 +6,12 @@
 
 #include "NSWConfiguration/VMMCodec.h"
 
-constexpr size_t nsw::VMMCodec::nbits;
-constexpr size_t nsw::VMMCodec::nbits_global;
-constexpr size_t nsw::VMMCodec::nbits_channel;
-constexpr size_t nsw::VMMCodec::nchannels;
+constexpr size_t nsw::VMMCodec::NBITS_TOTAL;
+constexpr size_t nsw::VMMCodec::NBITS_GLOBAL;
+constexpr size_t nsw::VMMCodec::NBITS_CHANNEL;
+constexpr size_t nsw::VMMCodec::NCHANNELS;
 
-void nsw::VMMCodec::check_overflow(size_t register_size, unsigned value, std::string register_name) {
+void nsw::VMMCodec::checkOverflow(size_t register_size, unsigned value, std::string register_name) {
     if (std::pow(2, register_size) <= value) {
         std::string err = "Overflow, register: " + register_name + ", max value: "
                            + std::to_string(std::pow(2, register_size)-1)
@@ -108,18 +108,18 @@ nsw::VMMCodec::VMMCodec() {
     m_channel_name_size.push_back({"nu4", 3});
 }
 
-std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config0(ptree config) {
-    return build_global_config(config, nsw::GlobalRegisters::global0);
+std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig0(ptree config) {
+    return buildGlobalConfig(config, nsw::GlobalRegisters::global0);
 }
 
-std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config1(ptree config) {
-    return build_global_config(config, nsw::GlobalRegisters::global1);
+std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig1(ptree config) {
+    return buildGlobalConfig(config, nsw::GlobalRegisters::global1);
 }
 
-std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config(ptree config, nsw::GlobalRegisters type) {
-    auto constexpr N = nsw::VMMCodec::nbits_global;
+std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters type) {
+    auto constexpr N = nsw::VMMCodec::NBITS_GLOBAL;
 
-    std::vector<name_size_t> vname_size;
+    std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
     } else if (type == nsw::GlobalRegisters::global1) {
@@ -141,21 +141,21 @@ std::bitset<nsw::VMMCodec::nbits_global> nsw::VMMCodec::build_global_config(ptre
         global = global | (temp << position);
         position = position + register_size;
 
-        check_overflow(register_size, value, register_name);
+        checkOverflow(register_size, value, register_name);
     }
     std::cout << global << std::endl;
 
     return global;
 }
 
-std::bitset<nsw::VMMCodec::nbits_channel> nsw::VMMCodec::build_channel_config(ptree config) {
-    auto constexpr Nch = nsw::VMMCodec::nchannels;
-    auto constexpr N = nsw::VMMCodec::nbits_channel;
+std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptree config) {
+    auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
+    auto constexpr N = nsw::VMMCodec::NBITS_CHANNEL;
 
     std::bitset<N> result;
     std::bitset<N> temp;
 
-    auto ch_reg_map = build_channel_register_map(config);
+    auto ch_reg_map = buildChannelRegisterMap(config);
 
     size_t position = 0;
     for (size_t channel = 0; channel < Nch; channel++) {
@@ -173,12 +173,12 @@ std::bitset<nsw::VMMCodec::nbits_channel> nsw::VMMCodec::build_channel_config(pt
     return result;
 }
 
-std::bitset<nsw::VMMCodec::nbits> nsw::VMMCodec::build_config(ptree config) {
-    return nsw::concatenate(build_global_config0(config), build_channel_config(config), build_global_config1(config));
+std::bitset<nsw::VMMCodec::NBITS_TOTAL> nsw::VMMCodec::buildConfig(ptree config) {
+    return nsw::concatenate(buildGlobalConfig0(config), buildChannelConfig(config), buildGlobalConfig1(config));
 }
 
-std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::build_channel_register_map(ptree config) {
-    auto constexpr Nch = nsw::VMMCodec::nchannels;
+std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegisterMap(ptree config) {
+    auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
     std::map<std::string, std::vector<unsigned>> result;
 
     for (auto name_size : m_channel_name_size) {
@@ -190,7 +190,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::build_channel_regist
         std::cout << register_name << " : ";
         if (ptemp.empty()) {
             unsigned value =  config.get<unsigned>(register_name);
-            check_overflow(register_size, value, register_name);
+            checkOverflow(register_size, value, register_name);
             for (size_t i = 0; i < Nch; i++) {
                 vtemp.push_back(value);
                 std::cout << value << ", ";
@@ -199,7 +199,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::build_channel_regist
             size_t i = 0;
             for (ptree::iterator iter = ptemp.begin(); iter != ptemp.end(); iter++) {
                 unsigned value = iter->second.get<unsigned>("");
-                check_overflow(register_size, value, register_name);
+                checkOverflow(register_size, value, register_name);
                 vtemp.push_back(value);
                 std::cout << value << ", ";
                 i++;

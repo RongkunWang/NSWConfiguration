@@ -6,9 +6,9 @@
 #include <memory>
 #include <vector>
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/xml_parser.hpp"
 
 #include "NSWConfiguration/ConfigReaderApi.h"
 
@@ -28,12 +28,12 @@ class ConfigReader {
   explicit ConfigReader(const std::string connection_string);
   ~ConfigReader();
 
-  ptree read_config() {
+  ptree readConfig() {
     return m_api->read();
     // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
   }
 
-  ptree read_config(std::string element_name) {
+  ptree readConfig(std::string element_name) {
     return m_api->read(element_name);
   }
 };
