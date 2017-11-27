@@ -36,6 +36,8 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options
 )
 
+tdaq_add_schema(schema/NSWConfig.schema.xml)
+
 # Testing
 
 tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
