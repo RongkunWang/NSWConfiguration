@@ -31,6 +31,7 @@ class ConfigReader {
   ptree readConfig() {
     return m_api->read();
     // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
+    // TODO(cyildiz): if (!m_components.empty()) Get Only relevant components config
   }
 
   ptree readConfig(std::string element_name) {

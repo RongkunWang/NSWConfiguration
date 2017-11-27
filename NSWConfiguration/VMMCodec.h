@@ -1,4 +1,6 @@
 // VMM Encoder/Decoder class to convert ptree/bitsets to each other
+// This is a singleton function that should be created as follows:
+// nsw::VMMCodec& vmmcodec = nsw::VMMCodec::Instance();
 
 #ifndef NSWCONFIGURATION_VMMCODEC_H_
 #define NSWCONFIGURATION_VMMCODEC_H_
@@ -24,25 +26,29 @@ enum class GlobalRegisters {global0, global1};
 /// Class to encode/decode VMM configuration between ptrees and bytestreams
 class VMMCodec {
  public:
-    VMMCodec();
-    ~VMMCodec() {}
+    static VMMCodec& Instance();
 
     static constexpr size_t NCHANNELS = 64;
     static constexpr size_t NBITS_GLOBAL = 32 * 3;  /// Size of globals registers
     static constexpr size_t NBITS_CHANNEL = 24 * NCHANNELS;  /// Size of channel registers
     static constexpr size_t NBITS_TOTAL = NBITS_CHANNEL + 2*NBITS_GLOBAL;  /// total number of bits
 
-    std::bitset<NBITS_GLOBAL> buildGlobalConfig0(ptree config);
-    std::bitset<NBITS_GLOBAL> buildGlobalConfig1(ptree config);
-    std::bitset<NBITS_CHANNEL> buildChannelConfig(ptree config);
     std::bitset<NBITS_TOTAL> buildConfig(ptree config);
     // ptree bitset_to_ptree(std::bitset<NBITS_TOTAL> bs) {}
 
  private:
+    /// Private VMMCodec for singleton class
+    VMMCodec();
+    ~VMMCodec() { std::cout << "Destroying VMMCodec" << std::endl;}
+
     /// Creates a vector for each channel register, such that element ["sd"][4] is sd value for 4th channel
     std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);
 
     std::bitset<NBITS_GLOBAL> buildGlobalConfig(ptree config, GlobalRegisters type);
+
+    std::bitset<NBITS_GLOBAL> buildGlobalConfig0(ptree config);
+    std::bitset<NBITS_GLOBAL> buildGlobalConfig1(ptree config);
+    std::bitset<NBITS_CHANNEL> buildChannelConfig(ptree config);
 
     void checkOverflow(size_t register_size, unsigned value, std::string register_name);
 
@@ -54,5 +60,6 @@ class VMMCodec {
     std::vector<NameSizeType> m_global_name_size1;
     std::vector<NameSizeType> m_channel_name_size;
 };
-#endif  // NSWCONFIGURATION_VMMCODEC_H_
 }  // namespace nsw
+
+#endif  // NSWCONFIGURATION_VMMCODEC_H_

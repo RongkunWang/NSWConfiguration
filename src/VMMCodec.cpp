@@ -16,12 +16,12 @@ void nsw::VMMCodec::checkOverflow(size_t register_size, unsigned value, std::str
         std::string err = "Overflow, register: " + register_name + ", max value: "
                            + std::to_string(std::pow(2, register_size)-1)
                            + ", actual value: " + std::to_string(value);
-        throw std::runtime_error(err);
+        throw std::runtime_error(err);  // TODO(cyildiz): convert to ers
     }
 }
 
 nsw::VMMCodec::VMMCodec() {
-    std::cout << "Constructor, building lookup vectors" << std::endl;
+    std::cout << "Constructing VMM Codec, building lookup vectors" << std::endl;
     // We could read these mappings from a configuration file, but these are not supposed to change in time,
     // It may be better to keep them hardcoded
 
@@ -108,6 +108,11 @@ nsw::VMMCodec::VMMCodec() {
     m_channel_name_size.push_back({"nu4", 3});
 }
 
+nsw::VMMCodec& nsw::VMMCodec::Instance() {
+    static nsw::VMMCodec c;
+    return c;
+}
+
 std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig0(ptree config) {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global0);
 }
@@ -122,8 +127,10 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
     std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
+        std::cout << "Global 0 " << std::endl;
     } else if (type == nsw::GlobalRegisters::global1) {
         vname_size = m_global_name_size1;
+        std::cout << "Global 1 " << std::endl;
     }
 
     std::bitset<N> global;
@@ -135,8 +142,9 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
     for (auto name_size : vname_size) {
         std::string register_name = name_size.first;
         size_t register_size = name_size.second;
+        std::cout << register_name << " : " << register_size << " -> ";
         unsigned value = config.get<unsigned>(register_name);
-        std::cout << register_name << " : " << register_size << " -> " << value << std::endl;
+        std::cout << value << std::endl;
         temp = value;
         global = global | (temp << position);
         position = position + register_size;
@@ -145,6 +153,7 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
     }
     std::cout << global << std::endl;
 
+    std::cout << "Finished global" << std::endl;
     return global;
 }
 
