@@ -31,6 +31,11 @@ tdaq_add_executable(nsw_read_config app/read_config.cpp
   LINK_LIBRARIES nswconfig
 )
 
+tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options
+)
+
 # Testing
 
 tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
