@@ -22,13 +22,13 @@ MESSAGE(STATUS "LCG Software Tag: ${LCG_TAG}")
 #  LINK_LIBRARIES opcuaprotocol opcuacore opcuaclient Boost::boost LibXml2
 #)
 
-tdaq_add_library(nswconfigreader src/ConfigReader.cpp src/ConfigReaderApi.cpp
+tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp src/Utility.cpp
   LINK_LIBRARIES Boost::boost
 )
 
 tdaq_add_executable(nsw_read_config app/read_config.cpp
-  LINK_LIBRARIES nswconfigreader
+  LINK_LIBRARIES nswconfig
 )
 
 # Testing
