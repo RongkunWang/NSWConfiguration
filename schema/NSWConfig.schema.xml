@@ -86,7 +86,7 @@
 </include>
 
  <class name="NSWConfigApplication" description="NSW Configuration Application that configures FE for multiple swROD">
-  <superclass name="RunControlApplicationBase"/>
+  <superclass name="RunControlApplication"/>
   <relationship name="SwROD" description="Link to swROD applications" class-type="Application" low-cc="zero" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/>
  <!-- <relationship name="SwROD" description="Link to swROD applications" class-type="swROD" low-cc="one" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/> -->
  </class>
