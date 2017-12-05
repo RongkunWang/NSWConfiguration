@@ -17,6 +17,7 @@
 
 using boost::property_tree::ptree;
 
+namespace nsw {
 class ConfigReader {
  private:
   std::string m_connection_string;
@@ -38,5 +39,6 @@ class ConfigReader {
     return m_api->read(element_name);
   }
 };
+}  // namespace nsw
 #endif  // NSWCONFIGURATION_CONFIGREADER_H_
 
