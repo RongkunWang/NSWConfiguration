@@ -7,7 +7,8 @@
 nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
     // Can we have multiple init() in the same application?
-    UaPlatformLayer::init();
+    // Do we need this at all?
+    // UaPlatformLayer::init();
 
     std::string opc_connection = "opc.tcp://" + server_ip_port;
 
@@ -25,6 +26,7 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t da
 
     UaByteString bs;
     bs.setByteString(data_size, data);
+    std::cout << "Node: " << node << ", Data size: " << data_size << ", data: " << data << std::endl;
 
     try {
         ss.writeWrite(bs);

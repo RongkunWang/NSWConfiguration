@@ -19,7 +19,7 @@
 #include "SpiSlave.h"
 
 // From: open62541-compat
-#include "uaplatformlayer.h"
+// #include "uaplatformlayer.h"
 
 #include "NSWConfiguration/OpcClient.h"
 
