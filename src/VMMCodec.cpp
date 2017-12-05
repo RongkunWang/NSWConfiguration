@@ -25,6 +25,8 @@ nsw::VMMCodec::VMMCodec() {
     // We could read these mappings from a configuration file, but these are not supposed to change in time,
     // It may be better to keep them hardcoded
 
+    // TODO(cyildiz): Implement a mechanism to ignore the non used bits (nu...)
+
     m_global_name_size0.push_back({"sp", 1});
     m_global_name_size0.push_back({"sdp", 1});
     m_global_name_size0.push_back({"sbmx", 1});

@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #include "boost/property_tree/ptree.hpp"
 
@@ -14,23 +15,23 @@ nsw::VMMConfig::VMMConfig(ptree vmmconfig): m_config(vmmconfig) {
 }
 
 std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray() {
-    //TODO(cyildiz): implement
+    // TODO(cyildiz): implement
     return std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8>();
 }
 
 std::vector<uint8_t> nsw::VMMConfig::getByteVector() {
-    //TODO(cyildiz): implement
-    return {0,0,0,0,0,0,0,0,0,0,0,0};
+    // TODO(cyildiz): implement
+    return {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 }
 
 void nsw::VMMConfig::setRegister(std::string register_name, unsigned value) {
-    //TODO(cyildiz): implement
+    // TODO(cyildiz): implement
 }
 
 void nsw::VMMConfig::setAllChannelRegisters(std::string register_name, unsigned value) {
-    //TODO(cyildiz): implement
+    // TODO(cyildiz): implement
 }
 
 void nsw::VMMConfig::setChannelRegister(size_t channel, std::string register_name, unsigned value) {
-    //TODO(cyildiz): implement
+    // TODO(cyildiz): implement
 }

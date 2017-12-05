@@ -5,6 +5,7 @@
 
 #include <bitset>
 #include <string>
+#include <vector>
 
 #include "boost/property_tree/ptree.hpp"
 
@@ -27,7 +28,7 @@ class VMMConfig {
     ~VMMConfig() {}
 
     std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> getByteArray();  /// Create btye array from the bitset
-    std::vector<uint8_t> getByteVector(); /// Create a vector of bytes
+    std::vector<uint8_t> getByteVector();  /// Create a vector of bytes
     std::string getOpcServerIp() {return m_opcserver_ip;}
     std::string getVmmAddress() {return m_vmm_address;}
 
