@@ -87,7 +87,8 @@
     },
     "A01":{
         "VMM_L01_M01_00":{
-            "OpcAddress": "scaFelix1.spi.vmm0",
+            "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
+            "OpcNodeId": "scaFelix1.spi.vmm0",
             "sdt_dac":122,
             "sd" : [4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
@@ -95,7 +96,8 @@
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15]
         },
         "VMM_L01_M01_01":{
-            "OpcAddress": "scaFelix1.spi.vmm1",
+            "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
+            "OpcNodeId": "scaFelix1.spi.vmm1",
             "sdt_dac":122,
             "sd" : [4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,

@@ -37,7 +37,9 @@ class OpcClient {
     explicit OpcClient(std::string server_ip_port);
     ~OpcClient() {}
 
-    void writeSpiSlave(std::string node_address, std::vector<uint8_t> data);
+    // vector may not be the best option...
+    void writeSpiSlave(std::string node, std::vector<uint8_t> data);
+    void writeSpiSlaveRaw(std::string node, uint8_t* data, size_t data_size);
 };
 }  // namespace nsw
 

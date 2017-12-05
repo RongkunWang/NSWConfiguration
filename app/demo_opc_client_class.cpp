@@ -11,9 +11,9 @@ int main() {
 
     std::vector<uint8_t> vmmconfig = {0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x14};
 
+    std::string node = "scaFelix1.spi.vmm0";
     while (1) {
-        client.writeSpiSlave("scaFelix1.spi.vmm0", vmmconfig);
+        client.writeSpiSlave(node, vmmconfig);
         usleep(1000000);
     }
 }
-

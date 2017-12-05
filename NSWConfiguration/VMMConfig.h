@@ -8,6 +8,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "NSWConfiguration/VMMCodec.h"
+
 using boost::property_tree::ptree;
 
 namespace nsw {
@@ -25,6 +27,7 @@ class VMMConfig {
     ~VMMConfig() {}
 
     std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> getByteArray();  /// Create btye array from the bitset
+    std::vector<uint8_t> getByteVector(); /// Create a vector of bytes
     std::string getOpcServerIp() {return m_opcserver_ip;}
     std::string getVmmAddress() {return m_vmm_address;}
 

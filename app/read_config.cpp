@@ -4,6 +4,7 @@
 #include <string>
 
 #include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/VMMCodec.h"
 #include "NSWConfiguration/VMMConfig.h"
 
@@ -38,15 +39,15 @@ int main(int argc, const char *argv[]) {
     // bs = vmmcodec.buildConfig(vmmconfig1);
     // std::cout << bs << std::endl;
 
-    std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcAddress")  << std::endl;
-    std::cout << "vmm1 sca address: " << vmmconfig1.get<std::string>("OpcAddress")  << std::endl;
+    std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
+    std::cout << "vmm1 sca address: " << vmmconfig1.get<std::string>("OpcServerIp")  << std::endl;
 
     nsw::VMMConfig vmm0(vmmconfig0);
     // vmm0.set_register("sbmx",1);
     // vmm0.set_all_channel_register("sd",4);  // Set all sd to 4
     // vmm0.set_channel_register("sd",15,4);  // Set sd of 15th channel to 4
-    // ConfigSender cs;
-    // cs.sendConfig(vmm0); // Get opc address and send config.
+    nsw::ConfigSender cs;
+    cs.sendVmmConfig(vmm0); // Get opc address and send config.
 
 
 
