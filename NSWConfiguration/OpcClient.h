@@ -26,22 +26,20 @@
 namespace nsw {
 
 class OpcClient {
-
  private:
     std::string m_server_ipport;
-    //std::unique_ptr<UaClientSdk::UaSession> m_session;
-    //std::shared_ptr<UaClientSdk::UaSession> m_session;
+
+    // TODO(cyildiz): Should we use a unique_ptr/shared_ptr instead of this?
     UaClientSdk::UaSession* m_session;
 
  public:
     /// Initialize Opc Platform Layer and creates a UaSession
-    OpcClient(std::string server_ip_port);
-    ~OpcClient() {};
+    explicit OpcClient(std::string server_ip_port);
+    ~OpcClient() {}
 
     void writeSpiSlave(std::string node_address, std::vector<uint8_t> data);
 };
-
-}
+}  // namespace nsw
 
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_
 
