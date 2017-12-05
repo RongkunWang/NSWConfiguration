@@ -64,12 +64,26 @@ include_directories(${OPC_OPEN62541_PATH}/include)
 
 file(GLOB OPC_GENERATED_CLIENT_SRCS ${GENERATED_DIR}/*.cpp)
 
+tdaq_add_library(nswopcclient
+        src/OpcClient.cpp
+        ${OPC_QUASAR_PATH}/src/ClientSessionFactory.cpp
+        ${OPC_GENERATED_CLIENT_SRCS}
+  LINK_LIBRARIES
+        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
+        ${OPC_OPEN62541_PATH}/open62541/build/libopen62541.a
+        rt
+)
+
 tdaq_add_executable(demo_opc_client
         app/demo_opc_client.cpp
         ${OPC_QUASAR_PATH}/src/ClientSessionFactory.cpp
         ${OPC_GENERATED_CLIENT_SRCS}
     LINK_LIBRARIES
-        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.a
+        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
         ${OPC_OPEN62541_PATH}/open62541/build/libopen62541.a
         rt
+)
+
+tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
+    LINK_LIBRARIES nswopcclient
 )
