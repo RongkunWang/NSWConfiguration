@@ -14,6 +14,10 @@ nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip
 
     // TODO(cyildiz): Handle connection exceptions
     m_session = ClientSessionFactory::connect(opc_connection.c_str());
+    if (!m_session) {
+        std::cout << "Connection error!" << std::endl;
+        exit(0);
+    }
 }
 
 void nsw::OpcClient::writeSpiSlave(std::string node, std::vector<uint8_t> cdata) {
