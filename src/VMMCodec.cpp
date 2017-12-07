@@ -35,7 +35,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"sbfm", 1});
     m_global_name_size0.push_back({"slg", 1});
     m_global_name_size0.push_back({"sm", 6});
-    m_global_name_size0.push_back({"scmx", 1});
+    m_global_name_size0.push_back({"scmx", 1}); //TODO(cyildiz): scmx and sm are connected. Handle it in the code
     m_global_name_size0.push_back({"sfa", 1});
     m_global_name_size0.push_back({"sfam", 1});
     m_global_name_size0.push_back({"st", 2});
@@ -97,17 +97,17 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size1.push_back({"offset", 12});
     m_global_name_size1.push_back({"nu3", 8});
 
-    m_channel_name_size.push_back({"sc", 1});
-    m_channel_name_size.push_back({"sl", 1});
-    m_channel_name_size.push_back({"st", 1});
-    m_channel_name_size.push_back({"sth", 1});
-    m_channel_name_size.push_back({"sm", 1});
-    m_channel_name_size.push_back({"smx", 1});
-    m_channel_name_size.push_back({"sd", 5});
-    m_channel_name_size.push_back({"sz10b", 5});
-    m_channel_name_size.push_back({"sz8b", 4});
-    m_channel_name_size.push_back({"sz6b", 3});
-    m_channel_name_size.push_back({"nu4", 3});
+    m_channel_name_size.push_back({"channel_sc", 1});
+    m_channel_name_size.push_back({"channel_sl", 1});
+    m_channel_name_size.push_back({"channel_st", 1});
+    m_channel_name_size.push_back({"channel_sth", 1});
+    m_channel_name_size.push_back({"channel_sm", 1});
+    m_channel_name_size.push_back({"channel_smx", 1});
+    m_channel_name_size.push_back({"channel_sd", 5});
+    m_channel_name_size.push_back({"channel_sz10b", 5});
+    m_channel_name_size.push_back({"channel_sz8b", 4});
+    m_channel_name_size.push_back({"channel_sz6b", 3});
+    m_channel_name_size.push_back({"channel_nu4", 3});
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {

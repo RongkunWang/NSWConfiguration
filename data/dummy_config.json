@@ -6,20 +6,20 @@
         "sbft":0,
         "sbfp":0,
         "sbfm":0,
-        "slg":0,
+        "slg":1,
         "sm":0,  
-        "scmx":0,
+        "scmx":1,
         "sfa":0,
         "sfam":0,
         "st":0, 
         "sfm":0,
-        "sg":0,
+        "sg":2,
         "sng":0,
         "stot":0,
         "sttt":0,
         "ssh":0,
         "stc":0,
-        "sdt_dac":0,
+        "sdt_dac":300,
 
         "sdp_dac":0,
         "sc10b":0, 
@@ -73,24 +73,24 @@
         "offset":0,
         "nu3":0, 
     
-        "sc":0, 
-        "sl":0, 
-        "st":0, 
-        "sth":0,
-        "sm":0, 
-        "smx":0, 
-        "sd":0,
-        "sz10b":0,
-        "sz8b":0,
-        "sz6b":0,
-        "nu4":0
+        "channel_sc":0, 
+        "channel_sl":0, 
+        "channel_st":0, 
+        "channel_sth":0,
+        "channel_sm":0, 
+        "channel_smx":0, 
+        "channel_sd":0,
+        "channel_sz10b":0,
+        "channel_sz8b":0,
+        "channel_sz6b":0,
+        "channel_nu4":0
     },
     "A01":{
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
             "OpcNodeId": "scaFelix1.spi.vmm0",
             "sdt_dac":122,
-            "sd" : [4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
+            "channel_sd" : [4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
                     4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15]
@@ -99,10 +99,7 @@
             "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
             "OpcNodeId": "scaFelix1.spi.vmm1",
             "sdt_dac":122,
-            "sd" : [4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
-                    4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
-                    4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15,
-                    4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15, 4, 12, 5, 15]
+            "channel_sd" : 25
         }
     }
 }
