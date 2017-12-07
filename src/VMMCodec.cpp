@@ -35,7 +35,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"sbfm", 1});
     m_global_name_size0.push_back({"slg", 1});
     m_global_name_size0.push_back({"sm", 6});
-    m_global_name_size0.push_back({"scmx", 1}); //TODO(cyildiz): scmx and sm are connected. Handle it in the code
+    m_global_name_size0.push_back({"scmx", 1});  // TODO(cyildiz): scmx and sm are connected. Handle it in the code
     m_global_name_size0.push_back({"sfa", 1});
     m_global_name_size0.push_back({"sfam", 1});
     m_global_name_size0.push_back({"st", 2});
@@ -61,7 +61,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"stpp", 1});
     m_global_name_size0.push_back({"res00", 1});
 
-    m_global_name_size0.push_back({"res", 5});
+    m_global_name_size0.push_back({"res", 4});
     m_global_name_size0.push_back({"slvs", 1});
     m_global_name_size0.push_back({"s32", 1});
     m_global_name_size0.push_back({"stcr", 1});
@@ -107,7 +107,7 @@ nsw::VMMCodec::VMMCodec() {
     m_channel_name_size.push_back({"channel_sz10b", 5});
     m_channel_name_size.push_back({"channel_sz8b", 4});
     m_channel_name_size.push_back({"channel_sz6b", 3});
-    m_channel_name_size.push_back({"channel_nu4", 3});
+    m_channel_name_size.push_back({"channel_nu4", 1});
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {
@@ -135,27 +135,26 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
         std::cout << "Global 1 " << std::endl;
     }
 
-    std::bitset<N> global;
-    std::bitset<N> temp;
+    std::string bitstr = "";
 
-    std::cout << "Ptree" << std::endl;
-
-    size_t position = 0;
     for (auto name_size : vname_size) {
         std::string register_name = name_size.first;
         size_t register_size = name_size.second;
-        std::cout << register_name << " : " << register_size << " -> ";
         unsigned value = config.get<unsigned>(register_name);
-        std::cout << value << std::endl;
-        temp = value;
-        global = global | (temp << position);
-        position = position + register_size;
 
         checkOverflow(register_size, value, register_name);
-    }
-    std::cout << global << std::endl;
 
-    std::cout << "Finished global" << std::endl;
+        // TODO(cyildiz): Verify which of the following should be used for each register
+        auto str = reversedBits(value, register_size);
+        //auto str = bits(value, register_size);
+        bitstr = str + bitstr;
+
+        std::cout << register_name << " : " << register_size << " -> ";
+        std::cout << value << " - reversed: " << str << std::endl;
+    }
+
+    std::bitset<N> global(bitstr);
+    std::cout << "global regs: " << global << std::endl;
     return global;
 }
 
@@ -168,6 +167,7 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
 
     auto ch_reg_map = buildChannelRegisterMap(config);
 
+    // TODO(cyildiz): Verify bit orderings are correct
     size_t position = 0;
     for (size_t channel = 0; channel < Nch; channel++) {
         for (auto name_size : m_channel_name_size) {
@@ -185,7 +185,7 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
 }
 
 std::bitset<nsw::VMMCodec::NBITS_TOTAL> nsw::VMMCodec::buildConfig(ptree config) {
-    return nsw::concatenate(buildGlobalConfig0(config), buildChannelConfig(config), buildGlobalConfig1(config));
+    return nsw::concatenate(buildGlobalConfig1(config), buildChannelConfig(config), buildGlobalConfig0(config));
 }
 
 std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegisterMap(ptree config) {

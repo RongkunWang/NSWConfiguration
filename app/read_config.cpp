@@ -43,7 +43,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "vmm1 sca address: " << vmmconfig1.get<std::string>("OpcServerIp")  << std::endl;
 
     nsw::VMMConfig vmm0(vmmconfig0);
-    // nsw::VMMConfig vmm1(vmmconfig1);
+    nsw::VMMConfig vmm1(vmmconfig1);
     // vmm0.set_register("sbmx",1);
     // vmm0.set_all_channel_register("sd",4);  // Set all sd to 4
     // vmm0.set_channel_register("sd",15,4);  // Set sd of 15th channel to 4

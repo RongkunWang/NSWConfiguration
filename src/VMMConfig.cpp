@@ -12,6 +12,8 @@ nsw::VMMConfig::VMMConfig(ptree vmmconfig): m_config(vmmconfig) {
     m_opcserver_ip = m_config.get<std::string>("OpcServerIp");
     m_vmm_address = m_config.get<std::string>("OpcNodeId");
     m_bitset = codec.buildConfig(m_config);
+    std::cout << m_bitset << std::endl;
+    std::cout << nsw::bitsetToHexString(m_bitset) << std::endl;
 }
 
 std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray() {

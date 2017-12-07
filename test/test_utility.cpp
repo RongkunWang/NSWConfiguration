@@ -29,7 +29,6 @@ BOOST_AUTO_TEST_CASE(reversedBits_test) {
     BOOST_TEST(nsw::reversedBits(3, 10) == "1100000000");
 }
 
-
 BOOST_AUTO_TEST_CASE(bitsetToHexString_test) {
     auto b1 = std::bitset<8>("10101011");
     BOOST_TEST(nsw::bitsetToHexString(b1) == "ab");

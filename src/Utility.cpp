@@ -12,3 +12,10 @@ std::string nsw::reversedBits(unsigned value, size_t nbits) {
     std::reverse(str.begin(), str.end());
     return str;
 }
+
+std::string bits(unsigned value, size_t nbits) {
+    std::bitset<32> b(value);
+    auto str = b.to_string();
+    str = str.substr(str.size()-nbits, str.size());
+    return str;
+}
