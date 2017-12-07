@@ -32,7 +32,7 @@ tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
 
 add_test(NAME vmmcodec COMMAND nsw_test_vmmcodec)
 
-tdaq_add_executable(nsw_test_utility test/test_utility.cpp
+tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework)
 
 add_test(NAME utility COMMAND nsw_test_utility)
