@@ -25,10 +25,10 @@ std::bitset<N1 + N2 + N3> concatenate(std::bitset<N1> b1, std::bitset<N2> b2, st
 }
 
 /// Returns bit pattern for the value
-std::string bits(unsigned value, size_t nbits);
+std::string bitString(unsigned value, size_t nbits);
 
 /// Reverses a bit pattern of a long and returns string with reversed bits
-std::string reversedBits(unsigned value, size_t nbits);
+std::string reversedBitString(unsigned value, size_t nbits);
 
 /// Convert bitset to string of hex numbers
 template<size_t N>

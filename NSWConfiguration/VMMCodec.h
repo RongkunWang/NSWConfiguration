@@ -59,6 +59,11 @@ class VMMCodec {
     std::vector<NameSizeType> m_global_name_size0;
     std::vector<NameSizeType> m_global_name_size1;
     std::vector<NameSizeType> m_channel_name_size;
+
+    /// List of register names, whose bits are reversed in the bitstream
+    /// For instance, if value of a bitreversed register with size 5 is 3,
+    /// it will be put in bitstream as 11000 (instead of 00011)
+    std::vector<std::string> m_bitreversed_registers;
 };
 }  // namespace nsw
 

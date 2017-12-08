@@ -19,14 +19,14 @@ BOOST_AUTO_TEST_CASE(concatenate_test) {
     BOOST_TEST(nsw::concatenate(b3, b4, b5) == std::bitset<49>("1111101010101011111111111111111111111111111111000"));
 }
 
-BOOST_AUTO_TEST_CASE(reversedBits_test) {
+BOOST_AUTO_TEST_CASE(reversedBitString_test) {
     auto b = std::bitset<8>("10101011");
     unsigned u = b.to_ulong();
-    BOOST_TEST(nsw::reversedBits(u, 8) == "11010101");
+    BOOST_TEST(nsw::reversedBitString(u, 8) == "11010101");
 
-    BOOST_TEST(nsw::reversedBits(3, 4) == "1100");
+    BOOST_TEST(nsw::reversedBitString(3, 4) == "1100");
 
-    BOOST_TEST(nsw::reversedBits(3, 10) == "1100000000");
+    BOOST_TEST(nsw::reversedBitString(3, 10) == "1100000000");
 }
 
 BOOST_AUTO_TEST_CASE(bitsetToHexString_test) {

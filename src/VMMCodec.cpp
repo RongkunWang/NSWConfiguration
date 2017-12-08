@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "NSWConfiguration/VMMCodec.h"
+#include "NSWConfiguration/Utility.h"
 
 constexpr size_t nsw::VMMCodec::NBITS_TOTAL;
 constexpr size_t nsw::VMMCodec::NBITS_GLOBAL;
@@ -108,6 +109,14 @@ nsw::VMMCodec::VMMCodec() {
     m_channel_name_size.push_back({"channel_sz8b", 4});
     m_channel_name_size.push_back({"channel_sz6b", 3});
     m_channel_name_size.push_back({"channel_nu4", 1});
+
+    // TODO(cyildiz): Verify this is a complete list of reversed registers
+    m_bitreversed_registers.push_back("sm");
+    m_bitreversed_registers.push_back("st");
+    m_bitreversed_registers.push_back("sg");
+    m_bitreversed_registers.push_back("sdt_dac");
+    m_bitreversed_registers.push_back("spt_dac");
+
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {
@@ -144,9 +153,14 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
 
         checkOverflow(register_size, value, register_name);
 
-        // TODO(cyildiz): Verify which of the following should be used for each register
-        auto str = reversedBits(value, register_size);
-        //auto str = bits(value, register_size);
+        std::string str;
+        auto iter = std::find(m_bitreversed_registers.begin(),m_bitreversed_registers.end(),register_name);
+        if (iter != m_bitreversed_registers.end())
+        {
+            str = reversedBitString(value, register_size);
+        } else {
+            str = bitString(value, register_size);
+        }
         bitstr = str + bitstr;
 
         std::cout << register_name << " : " << register_size << " -> ";
@@ -162,12 +176,13 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
     auto constexpr N = nsw::VMMCodec::NBITS_CHANNEL;
 
+    // TODO(cyildiz): Verify bit orderings are correct, and convert it to using
+    // string operations instead of bitset operations
     std::bitset<N> result;
     std::bitset<N> temp;
 
     auto ch_reg_map = buildChannelRegisterMap(config);
 
-    // TODO(cyildiz): Verify bit orderings are correct
     size_t position = 0;
     for (size_t channel = 0; channel < Nch; channel++) {
         for (auto name_size : m_channel_name_size) {
