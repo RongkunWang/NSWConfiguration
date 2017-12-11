@@ -37,20 +37,8 @@ tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
 
 add_test(NAME utility COMMAND nsw_test_utility)
 
-# Directory of the Quasar OPC Client Generator header files
-# This files are generated depending on OPC Tree on the server
-# See: https://github.com/quasar-team/UaoForQuasar.git
-if (DEFINED ENV{OPC_QUASAR_PATH})
-    set(OPC_QUASAR_PATH $ENV{OPC_QUASAR_PATH})
-    message("OPC_QUASAR_PATH: " ${OPC_QUASAR_PATH})
-else()
-    message( FATAL_ERROR "OPC_QUASAR_PATH environment variable not defined!" )
-endif()
-
-include_directories(${OPC_QUASAR_PATH}/include)
-include_directories(${OPC_QUASAR_PATH}/generated)
-
-set(GENERATED_DIR ${OPC_QUASAR_PATH}/generated)
+# Generated headers and ClientSessionFactory.h from submodule
+include_directories(UaoClientForOpcUaSca/include)
 
 # Directory of open source OPCUA SDK
 # https://github.com/quasar-team/open62541-compat.git
@@ -64,11 +52,11 @@ endif()
 
 include_directories(${OPC_OPEN62541_PATH}/include)
 
-file(GLOB OPC_GENERATED_CLIENT_SRCS ${GENERATED_DIR}/*.cpp)
+file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*.cpp)
 
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
-        ${OPC_QUASAR_PATH}/src/ClientSessionFactory.cpp
+        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
         ${OPC_GENERATED_CLIENT_SRCS}
   LINK_LIBRARIES
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
@@ -78,7 +66,7 @@ tdaq_add_library(nswopcclient
 
 tdaq_add_executable(demo_opc_client
         app/demo_opc_client.cpp
-        ${OPC_QUASAR_PATH}/src/ClientSessionFactory.cpp
+        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
         ${OPC_GENERATED_CLIENT_SRCS}
     LINK_LIBRARIES
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so

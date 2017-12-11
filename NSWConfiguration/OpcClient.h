@@ -11,14 +11,13 @@
 #include <memory>
 #include <vector>
 
-// TODO(cyildiz): Include headers with directories to avoid confusion
 // From UaoForQuasar
-#include "ClientSessionFactory.h"
+#include "UaoClientForOpcUaSca/include/ClientSessionFactory.h"
 
 // Generated  files
-#include "SpiSlave.h"
+#include "UaoClientForOpcUaSca/include/SpiSlave.h"
 
-// From: open62541-compat
+// From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
 
 #include "NSWConfiguration/OpcClient.h"

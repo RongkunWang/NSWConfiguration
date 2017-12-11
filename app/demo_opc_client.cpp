@@ -3,13 +3,12 @@
 
 #include <iostream>
 
-// TODO(cyildiz): Include headers with directories to avoid confusion
 // From UaoForQuasar
-#include "ClientSessionFactory.h"
+#include "UaoClientForOpcUaSca/include/ClientSessionFactory.h"
 
 // Generated  files
-#include "SpiSlave.h"
-#include "AnalogInput.h"
+#include "UaoClientForOpcUaSca/include/SpiSlave.h"
+#include "UaoClientForOpcUaSca/include/AnalogInput.h"
 
 // From: open62541-compat
 #include "uaplatformlayer.h"
