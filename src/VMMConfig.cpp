@@ -17,13 +17,25 @@ nsw::VMMConfig::VMMConfig(ptree vmmconfig): m_config(vmmconfig) {
 }
 
 std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray() {
-    // TODO(cyildiz): implement
+    // TODO(cyildiz): implement? or ditch...
     return std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8>();
 }
 
 std::vector<uint8_t> nsw::VMMConfig::getByteVector() {
-    // TODO(cyildiz): implement
-    return {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    auto bitstr = m_bitset.to_string();
+    std::vector<uint8_t> vec;
+    std::string substr;
+    uint8_t byte;
+    // Go 8 bit at a time and convert it to hex
+    for (size_t pos; pos < nsw::VMMCodec::NBITS_TOTAL; pos=pos+8) {
+        substr = bitstr.substr(pos, 8);
+        // std::cout << "substr: " << substr << std::endl;
+        byte = static_cast<uint8_t> (std::stoi(substr, nullptr, 2));
+        vec.push_back(byte);
+        // std::cout << std::hex << "0x" << unsigned(byte) << std::endl;
+    }
+    // std::cout << "Vector size: " << std::dec << vec.size() << std::endl;
+    return vec;
 }
 
 void nsw::VMMConfig::setRegister(std::string register_name, unsigned value) {

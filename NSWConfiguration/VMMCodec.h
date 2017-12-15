@@ -18,7 +18,6 @@
 
 using boost::property_tree::ptree;
 
-
 namespace nsw {
 
 enum class GlobalRegisters {global0, global1};

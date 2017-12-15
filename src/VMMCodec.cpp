@@ -116,7 +116,6 @@ nsw::VMMCodec::VMMCodec() {
     m_bitreversed_registers.push_back("sg");
     m_bitreversed_registers.push_back("sdt_dac");
     m_bitreversed_registers.push_back("spt_dac");
-
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {
@@ -154,9 +153,8 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
         checkOverflow(register_size, value, register_name);
 
         std::string str;
-        auto iter = std::find(m_bitreversed_registers.begin(),m_bitreversed_registers.end(),register_name);
-        if (iter != m_bitreversed_registers.end())
-        {
+        auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
+        if (iter != m_bitreversed_registers.end()) {
             str = reversedBitString(value, register_size);
         } else {
             str = bitString(value, register_size);

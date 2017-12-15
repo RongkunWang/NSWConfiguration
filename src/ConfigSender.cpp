@@ -16,6 +16,6 @@ void nsw::ConfigSender::sendRaw(std::string opcserver_ipport, std::string node, 
 }
 
 void nsw::ConfigSender::sendVmmConfig(nsw::VMMConfig cfg) {
-    auto data = cfg.getByteArray();
+    auto data = cfg.getByteVector();
     sendRaw(cfg.getOpcServerIp(), cfg.getVmmAddress(), data.data(), data.size());
 }
