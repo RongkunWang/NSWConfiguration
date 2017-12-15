@@ -10,24 +10,19 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/ROCCodec.h"
+#include "NSWConfiguration/FEConfig.h"
 
 using boost::property_tree::ptree;
 
 namespace nsw {
 
-class ROCConfig {
+class ROCConfig: public FEConfig {
  private:
     ROCCodec& codec = ROCCodec::Instance();
-    std::string m_opcserver_ip;
-    std::string m_address;
-    ptree m_config;
 
  public:
     explicit ROCConfig(ptree vmmconfig);
     ~ROCConfig() {}
-
-    std::string getOpcServerIp() {return m_opcserver_ip;}
-    std::string getAddress() {return m_address;}
 };
 }  // namespace nsw
 
