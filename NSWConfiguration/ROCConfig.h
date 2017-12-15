@@ -19,7 +19,7 @@ class ROCConfig {
  private:
     ROCCodec& codec = ROCCodec::Instance();
     std::string m_opcserver_ip;
-    std::string m_vmm_address;
+    std::string m_address;
     ptree m_config;
 
  public:
@@ -27,7 +27,7 @@ class ROCConfig {
     ~ROCConfig() {}
 
     std::string getOpcServerIp() {return m_opcserver_ip;}
-    std::string getVmmAddress() {return m_vmm_address;}
+    std::string getAddress() {return m_address;}
 };
 }  // namespace nsw
 
