@@ -1,7 +1,5 @@
 tdaq_package() #This will make a package called NSWConfiguration
 
-#set(CMAKE_CXX_FLAGS " -std=c++14 -Wall -fPIC")
-
 # This may be useful for compatibility with external packages such as OPC client
 SET(LCG_TAG $ENV{LCGPLAT} )
 
