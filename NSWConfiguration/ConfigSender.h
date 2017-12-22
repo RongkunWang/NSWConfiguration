@@ -9,6 +9,7 @@
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
+#include "NSWConfiguration/ROCConfig.h"
 
 namespace nsw {
 class ConfigSender {
@@ -17,6 +18,9 @@ class ConfigSender {
     std::map<std::string, std::unique_ptr<nsw::OpcClient>> m_clients;
     /* data */
 
+    /// Add new client if it connects to a new Opc Server
+    void addOpcClientIfNew(std::string opcserver_ipport);
+
  public:
     ConfigSender();
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
@@ -24,10 +28,15 @@ class ConfigSender {
     /// High level send function
     void sendVmmConfig(nsw::VMMConfig vmm);
 
-    /// Low level send function
-    void sendRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+    /// High level send function
+    void sendRocConfig(nsw::ROCConfig roc);
+
+    /// Low level Spi send function
+    void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+
+    /// Low level I2C send function
+    void sendI2CRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 };
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_CONFIGSENDER_H_
-
