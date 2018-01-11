@@ -20,3 +20,14 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
     std::reverse(str.begin(), str.end());
     return str;
 }
+
+std::string nsw::getElementType(std::string element_name) {
+    if (element_name.find("VMM") != std::string::npos) {
+        return "VMM";
+    } else if (element_name.find("ROC") != std::string::npos) {
+        return "ROC";
+    } else {
+        auto err = "Type not VMM or ROC!. Unknown front end element: " + element_name;
+        throw std::runtime_error(err);
+    }
+}

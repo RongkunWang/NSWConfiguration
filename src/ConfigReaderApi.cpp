@@ -4,14 +4,24 @@
 #include <string>
 
 #include "NSWConfiguration/ConfigReaderApi.h"
+#include "NSWConfiguration/Utility.h"
 
 ptree ConfigReaderApi::read(std::string element) {
+    if (nsw::getElementType(element) == "VMM") {
+        return readVMM(element);
+    } else if (nsw::getElementType(element) == "ROC") {
+        return readROC(element);
+    }
+}
+
+ptree ConfigReaderApi::readVMM(std::string element) {
     ptree tree;
-    std::cout << "Reading configuration for " << element << std::endl;
+    std::cout << "Reading configuration for VMM: " << element << std::endl;
 
-    // First put common config, then override with vmm specific config
-    tree = m_config.get_child("common_config");
+    // Create tree with default values from common config
+    tree = m_config.get_child("vmm_common_config");
 
+    // Go over elements and overwrite the values from common config
     ptree temp = m_config.get_child(element);
     for (ptree::iterator iter = temp.begin(); iter != temp.end(); iter++) {
         std::string name = iter->first;
@@ -20,17 +30,24 @@ ptree ConfigReaderApi::read(std::string element) {
         // if no child, put as data, otherwise add child
         if (iter->second.empty()) {
             std::cout << "data";
-            tree.put(name, iter->second.data());
-        } else {  // An array, instead of data points
-            // TODO(cyildiz): Check if name is one of channel registers:
-            // {"sc", "sl", "st", "sth", "sm", "smx", "sd", "sz10b", "sz8b", "sz6b"}
-            tree.erase(name);  // Remove sd, as it will be added as a child tree
-            tree.add_child(name, iter->second);
+            tree.put(name, iter->second.data());  // This overwrites the value from common config
+        } else {  // This is a array, thus should be a channel register
+            if (name.find("channel")!= 0) {
+                throw std::runtime_error("Expecting channel register, got this instead: " + name);
+            }
+            tree.erase(name);  // Remove common config value for register
+            tree.add_child(name, iter->second);  // Add it as a child tree
             std::cout << "tree";
         }
         std::cout << "\n";
     }
 
+    return tree;
+}
+
+ptree ConfigReaderApi::readROC(std::string element) {
+    ptree tree;
+    // TODO(cyildiz)
     return tree;
 }
 
@@ -60,18 +77,8 @@ ptree & XmlApi::read() {
     return m_config;
 }
 
-ptree XmlApi::read(std::string element) {
-    ptree tree;
-    return tree;
-}
-
 ptree & OracleApi::read() {
     return m_config;
-}
-
-ptree OracleApi::read(std::string element) {
-    ptree tree;
-    return tree;
 }
 
 ptree & OksApi::read() {
@@ -85,9 +92,4 @@ ptree & OksApi::read() {
       throw;
     }
   return m_config;
-}
-
-ptree OksApi::read(std::string element) {
-    ptree tree;
-    return tree;
 }

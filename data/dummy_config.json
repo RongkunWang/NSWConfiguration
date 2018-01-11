@@ -1,5 +1,5 @@
 {
-    "common_config":{
+    "vmm_common_config":{
         "sp":0,
         "sdp":0,
         "sbmx":1,

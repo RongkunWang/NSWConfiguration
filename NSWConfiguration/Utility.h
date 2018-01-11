@@ -41,5 +41,7 @@ std::string bitsetToHexString(std::bitset<N> b) {
     return ss.str();
 }
 
+std::string getElementType(std::string);
+
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

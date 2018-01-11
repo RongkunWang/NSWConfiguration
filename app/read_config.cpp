@@ -29,12 +29,15 @@ int main(int argc, const char *argv[]) {
     // write_json(std::cout, config);
 
     auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
+    std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
+    write_json(std::cout, vmmconfig0);
     // nsw::VMMCodec& vmmcodec0 = nsw::VMMCodec::Instance();
     // auto bs = vmmcodec0.buildConfig(vmmconfig0);
     // td::cout << bs << std::endl;
 
     auto vmmconfig1 = reader1.readConfig("A01.VMM_L01_M01_01");
-    // write_json(std::cout, vmmconfig1);
+    std::cout << "vmm_config for A01.VMM_L01_M01_01\n";
+    write_json(std::cout, vmmconfig1);
     // nsw::VMMCodec& vmmcodec = nsw::VMMCodec::Instance();
     // bs = vmmcodec.buildConfig(vmmconfig1);
     // std::cout << bs << std::endl;

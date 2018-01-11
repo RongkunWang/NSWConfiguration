@@ -25,6 +25,8 @@ class ConfigReaderApi {
 
   /// Read configuration of a single front end element
   virtual ptree read(std::string element_name);
+  virtual ptree readVMM(std::string element_name);
+  virtual ptree readROC(std::string element_name);
   virtual ~ConfigReaderApi() {}
 };
 
@@ -44,7 +46,6 @@ class XmlApi: public ConfigReaderApi {
  public:
   explicit XmlApi(std::string file_path): m_file_path(file_path) {}
   ptree & read();
-  ptree read(std::string element_name) override;
 };
 
 class OracleApi: public ConfigReaderApi {
@@ -55,7 +56,6 @@ class OracleApi: public ConfigReaderApi {
   explicit OracleApi(std::string db_connection) {}
   ~OracleApi() {std::cout << "Closing oracle db..." << std::endl;}
   ptree & read();
-  ptree read(std::string element_name) override;
 };
 
 class OksApi: public ConfigReaderApi {
@@ -65,7 +65,6 @@ class OksApi: public ConfigReaderApi {
  public:
   explicit OksApi(std::string file_path): m_file_path(file_path) {}
   ptree & read();
-  ptree read(std::string element_name) override;
 };
 
 #endif  // NSWCONFIGURATION_CONFIGREADERAPI_H_
