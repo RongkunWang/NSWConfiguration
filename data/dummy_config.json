@@ -89,6 +89,19 @@
     },
     "A01":{
         "ROC_L01_M01":{
+            "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
+            "OpcNodeId": "scaFelix1.spi.vmm0",
+            "0": {
+                "l1_first": 0,
+                "even_parity": 1,
+                "roc_id": 0
+            },
+            "1": {
+                "sroc3": 0,
+                "sroc2": 0,
+                "sroc1": 0,
+                "sroc0": 0
+            }
         },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswdev01.cern.ch:4841",

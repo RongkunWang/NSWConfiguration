@@ -43,5 +43,7 @@ std::string bitsetToHexString(std::bitset<N> b) {
 
 std::string getElementType(std::string);
 
+void checkOverflow(size_t register_size, unsigned value, std::string register_name);
+
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

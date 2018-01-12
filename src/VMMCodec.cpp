@@ -1,5 +1,4 @@
 #include <map>
-#include <cmath>
 #include <string>
 #include <exception>
 #include <vector>
@@ -11,15 +10,6 @@ constexpr size_t nsw::VMMCodec::NBITS_TOTAL;
 constexpr size_t nsw::VMMCodec::NBITS_GLOBAL;
 constexpr size_t nsw::VMMCodec::NBITS_CHANNEL;
 constexpr size_t nsw::VMMCodec::NCHANNELS;
-
-void nsw::VMMCodec::checkOverflow(size_t register_size, unsigned value, std::string register_name) {
-    if (std::pow(2, register_size) <= value) {
-        std::string err = "Overflow, register: " + register_name + ", max value: "
-                           + std::to_string(std::pow(2, register_size)-1)
-                           + ", actual value: " + std::to_string(value);
-        throw std::runtime_error(err);  // TODO(cyildiz): convert to ers
-    }
-}
 
 nsw::VMMCodec::VMMCodec() {
     std::cout << "Constructing VMM Codec, building lookup vectors" << std::endl;

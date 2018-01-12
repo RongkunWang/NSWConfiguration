@@ -46,8 +46,8 @@ ptree ConfigReaderApi::readVMM(std::string element) {
 }
 
 ptree ConfigReaderApi::readROC(std::string element) {
-    ptree tree;
-    // TODO(cyildiz)
+    // TODO(cyildiz): First read common config, then put element specific config
+    ptree tree = m_config.get_child(element);
     return tree;
 }
 
