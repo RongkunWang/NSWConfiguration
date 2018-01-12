@@ -5,6 +5,10 @@ SET(LCG_TAG $ENV{LCGPLAT} )
 
 MESSAGE(STATUS "LCG Software Tag: ${LCG_TAG}")
 
+tdaq_add_executable(read_roc app/read_roc.cpp
+  LINK_LIBRARIES Boost::boost
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp

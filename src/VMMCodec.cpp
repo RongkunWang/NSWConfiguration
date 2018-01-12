@@ -140,7 +140,7 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
         size_t register_size = name_size.second;
         unsigned value = config.get<unsigned>(register_name);
 
-        checkOverflow(register_size, value, register_name);
+        nsw::checkOverflow(register_size, value, register_name);
 
         std::string str;
         auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
@@ -204,7 +204,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
         std::cout << register_name << " : ";
         if (ptemp.empty()) {
             unsigned value =  config.get<unsigned>(register_name);
-            checkOverflow(register_size, value, register_name);
+            nsw::checkOverflow(register_size, value, register_name);
             for (size_t i = 0; i < Nch; i++) {
                 vtemp.push_back(value);
                 std::cout << value << ", ";
@@ -213,7 +213,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
             size_t i = 0;
             for (ptree::iterator iter = ptemp.begin(); iter != ptemp.end(); iter++) {
                 unsigned value = iter->second.get<unsigned>("");
-                checkOverflow(register_size, value, register_name);
+                nsw::checkOverflow(register_size, value, register_name);
                 vtemp.push_back(value);
                 std::cout << value << ", ";
                 i++;
