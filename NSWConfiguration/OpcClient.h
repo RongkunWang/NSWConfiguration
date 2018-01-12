@@ -16,6 +16,7 @@
 
 // Generated  files
 #include "UaoClientForOpcUaSca/include/SpiSlave.h"
+#include "UaoClientForOpcUaSca/include/I2cDevice.h"
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
@@ -39,8 +40,13 @@ class OpcClient {
     // vector may not be the best option...
     void writeSpiSlave(std::string node, std::vector<uint8_t> data);
     void writeSpiSlaveRaw(std::string node, uint8_t* data, size_t data_size);
+
+    void writeI2c(std::string node, std::vector<uint8_t> data);
+    void writeI2cRaw(std::string node, uint8_t* data, size_t data_size);
+
+    // Read back the I2c
+    std::vector<uint8_t> readI2c(std::string node);
 };
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_
-

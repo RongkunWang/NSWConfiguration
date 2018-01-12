@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
@@ -34,8 +35,11 @@ class ConfigSender {
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
-    /// Low level I2C send function
-    void sendI2CRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+    /// Low level I2c send function
+    void sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+
+    // Read back I2c register as vector
+    std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node);
 };
 }  // namespace nsw
 

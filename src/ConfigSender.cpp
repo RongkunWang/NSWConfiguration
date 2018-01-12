@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "NSWConfiguration/ConfigSender.h"
 
@@ -17,9 +18,14 @@ void nsw::ConfigSender::sendSpiRaw(std::string opcserver_ipport, std::string nod
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
 }
 
-void nsw::ConfigSender::sendI2CRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
+void nsw::ConfigSender::sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
-    m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
+    m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
+}
+
+std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, std::string node) {
+    addOpcClientIfNew(opcserver_ipport);
+    m_clients[opcserver_ipport]->readI2c(node);
 }
 
 void nsw::ConfigSender::sendVmmConfig(nsw::VMMConfig cfg) {
@@ -29,9 +35,9 @@ void nsw::ConfigSender::sendVmmConfig(nsw::VMMConfig cfg) {
 
 void nsw::ConfigSender::sendRocConfig(nsw::ROCConfig cfg) {
     // auto roc_registers = cfg.getRegisters();
-    // Loop over each I2C config of the ROC
+    // Loop over each I2c config of the ROC
     // auto (auto register : registers) {
     //     data = register.getByteVector();
-    //     sendI2CRaw(cfg.getOpcServerIp(), register.getAddress(), data.data(), data.size());
+    //     sendI2cRaw(cfg.getOpcServerIp(), register.getAddress(), data.data(), data.size());
     // }
 }
