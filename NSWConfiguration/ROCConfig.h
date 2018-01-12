@@ -21,7 +21,7 @@ class ROCConfig: public FEConfig {
     ROCCodec& codec = ROCCodec::Instance();
 
  public:
-    explicit ROCConfig(ptree vmmconfig);
+    explicit ROCConfig(ptree config);
     ~ROCConfig() {}
 };
 }  // namespace nsw

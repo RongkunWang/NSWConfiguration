@@ -85,7 +85,11 @@
         "channel_sz6b":0,
         "channel_nu4":0
     },
+    "roc_common_config":{
+    },
     "A01":{
+        "ROC_L01_M01":{
+        },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
             "OpcNodeId": "scaFelix1.spi.vmm0",

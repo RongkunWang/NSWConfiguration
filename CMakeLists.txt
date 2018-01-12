@@ -7,7 +7,9 @@ MESSAGE(STATUS "LCG Software Tag: ${LCG_TAG}")
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
-                 src/VMMCodec.cpp src/VMMConfig.cpp src/FEConfig.cpp
+                 src/FEConfig.cpp
+                 src/VMMCodec.cpp src/VMMConfig.cpp
+                 src/ROCCodec.cpp src/ROCConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
 )

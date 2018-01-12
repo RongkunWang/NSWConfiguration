@@ -15,3 +15,6 @@ cmt/*
 *.bak
 *.png
 *.pyc
+*swp
+cscope*
+tags

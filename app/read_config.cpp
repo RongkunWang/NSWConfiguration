@@ -5,8 +5,8 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/VMMCodec.h"
 #include "NSWConfiguration/VMMConfig.h"
+#include "NSWConfiguration/ROCConfig.h"
 
 int main(int argc, const char *argv[]) {
     std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
@@ -45,14 +45,20 @@ int main(int argc, const char *argv[]) {
     std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
     std::cout << "vmm1 sca address: " << vmmconfig1.get<std::string>("OpcServerIp")  << std::endl;
 
+
     nsw::VMMConfig vmm0(vmmconfig0);
     nsw::VMMConfig vmm1(vmmconfig1);
     // vmm0.set_register("sbmx",1);
     // vmm0.set_all_channel_register("sd",4);  // Set all sd to 4
     // vmm0.set_channel_register("sd",15,4);  // Set sd of 15th channel to 4
+
+    auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
+    nsw::ROCConfig roc0(rocconfig0);
+
     nsw::ConfigSender cs;
 
     cs.sendVmmConfig(vmm0);
+    cs.sendRocConfig(roc0);
 
     // cs.sendVmmConfig(vmm1);
 
