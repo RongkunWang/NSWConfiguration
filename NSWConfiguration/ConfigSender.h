@@ -38,6 +38,12 @@ class ConfigSender {
     /// Low level I2c send function
     void sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
+    /// Low level GPIO send function
+    void sendGPIO(std::string opcserver_ipport, std::string node, bool data);
+
+    /// Read  back GPIO register
+    bool readGPIO(std::string opcserver_ipport, std::string node);
+
     // Read back I2c register as vector
     std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node);
 };

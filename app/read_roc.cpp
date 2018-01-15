@@ -51,7 +51,7 @@ int main() {
     }
 
     // Read ROC Config
-    std::string base_dir = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/"
+    std::string base_dir = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/";
     std::string file_path = base_dir + "/data/roc_dummy_config.json";
     ptree config;
     try {

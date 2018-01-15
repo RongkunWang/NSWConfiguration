@@ -23,6 +23,16 @@ void nsw::ConfigSender::sendI2cRaw(std::string opcserver_ipport, std::string nod
     m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
 }
 
+void nsw::ConfigSender::sendGPIO(std::string opcserver_ipport, std::string node, bool data) {
+    addOpcClientIfNew(opcserver_ipport);
+    m_clients[opcserver_ipport]->writeGPIO(node, data);
+}
+
+bool nsw::ConfigSender::readGPIO(std::string opcserver_ipport, std::string node) {
+    addOpcClientIfNew(opcserver_ipport);
+    return m_clients[opcserver_ipport]->readGPIO(node);
+}
+
 std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, std::string node) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->readI2c(node);
