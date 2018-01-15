@@ -64,6 +64,31 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
     }
 }
 
+void nsw::OpcClient::writeGPIO(std::string node, bool data) {
+    DigitalIO gpio(m_session, UaNodeId(node.c_str(), 2));
+
+    try {
+        gpio.writeValue(data);
+        std::cout << "Written value: " << data << " to node: " << node << std::endl;
+    } catch (const std::exception& e) {
+        // TODO(cyildiz) handle exception properly
+        std::cout << "Can't write GPIO: " <<  e.what() << std::endl;
+    }
+}
+
+bool nsw::OpcClient::readGPIO(std::string node) {
+    DigitalIO gpio(m_session, UaNodeId(node.c_str(), 2));
+    bool value = false;
+
+    try {
+        value = gpio.readValue();
+    } catch (const std::exception& e) {
+        // TODO(cyildiz) handle exception properly
+        std::cout << "Can't read GPIO: " <<  e.what() << std::endl;
+    }
+    return value;
+}
+
 std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
     I2cDevice i2cnode(m_session, UaNodeId(node.c_str(), 2));
 

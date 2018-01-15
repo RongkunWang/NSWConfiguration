@@ -10,6 +10,7 @@
 // Generated  files
 #include "UaoClientForOpcUaSca/include/SpiSlave.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
+#include "UaoClientForOpcUaSca/include/DigitalIO.h"
 #include "UaoClientForOpcUaSca/include/I2cDevice.h"
 
 // From: open62541-compat
@@ -34,6 +35,10 @@ int main() {
     auto tds_reg0name = sca + ".TDS.Register 0";
     I2cDevice tds_reg0(session, UaNodeId(tds_reg0name.c_str(), 2));
 
+    auto gpio_node = sca + ".gpio.led2";
+
+    DigitalIO gpio(session, UaNodeId(gpio_node.c_str(), 2));
+
     OpcUa_Byte data[] =  { 0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x14 };
     UaByteString bs;
     bs.setByteString(sizeof data, data);
@@ -43,6 +48,7 @@ int main() {
     bs2.setByteString(sizeof data2, data2);
 
     double temperature;
+    bool gpio_value = true;
 
     while (1) {
         try {
@@ -62,6 +68,17 @@ int main() {
         auto length = bsread.length();
         std::cout << "Read back, length: " << length << " data[0]: "
                   << static_cast<unsigned>(byteread[0]) << std::endl;
+
+        try {
+            gpio_value = !gpio_value;
+            gpio.writeValue(gpio_value);
+            std::cout << "Written value: " << gpio_value << " to node: " << gpio_node << std::endl;
+        } catch (const std::exception& e) {
+            std::cout << "Can't write GPIO: " <<  e.what() << std::endl;
+        }
+
+        auto gpio_read = gpio.readValue();
+        std::cout << "Reading back gpio: " << gpio_read << std::endl;
 
         usleep(1000000);
     }
