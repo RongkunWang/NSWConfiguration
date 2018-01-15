@@ -35,7 +35,7 @@ bool nsw::ConfigSender::readGPIO(std::string opcserver_ipport, std::string node)
 
 std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, std::string node) {
     addOpcClientIfNew(opcserver_ipport);
-    m_clients[opcserver_ipport]->readI2c(node);
+    return m_clients[opcserver_ipport]->readI2c(node);
 }
 
 void nsw::ConfigSender::sendVmmConfig(nsw::VMMConfig cfg) {
