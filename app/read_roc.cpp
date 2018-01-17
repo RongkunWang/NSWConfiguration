@@ -64,6 +64,12 @@ int main() {
     auto rocconfig = config.get_child("ROC_L01_M01");
     write_json(std::cout, rocconfig);
 
+    /* The classified way:
+    nsw::ConfigReader reader1("json://" + base_dir + "dummy_config.json");
+    auto config1 = reader1.readConfig();
+    auto rocconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
+    */
+
     // Map of (address, bitstream for the register) TODO(cyildiz): This should be part of the base class
     std::map<std::string, std::string> bitstream;
     for (auto e : ar) {
@@ -93,6 +99,12 @@ int main() {
         // TODO(cyiliz): Put tempstr in a new map
         bitstream[name] = tempstr;
     }
+
+    /* The classified way
+    nsw::ROCConfig roc(rocconfig0);
+    nsw::ConfigSender cs;
+    cs.sendRocConfig(roc0);
+    */
 
     return 0;
 }

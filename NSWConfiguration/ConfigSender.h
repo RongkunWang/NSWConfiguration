@@ -27,10 +27,10 @@ class ConfigSender {
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
 
     /// High level send function
-    void sendVmmConfig(nsw::VMMConfig vmm);
+    void sendVmmConfig(const nsw::VMMConfig& vmm);
 
     /// High level send function
-    void sendRocConfig(nsw::ROCConfig roc);
+    void sendRocConfig(const nsw::ROCConfig& roc);
 
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);

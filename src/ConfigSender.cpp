@@ -38,12 +38,12 @@ std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, st
     return m_clients[opcserver_ipport]->readI2c(node);
 }
 
-void nsw::ConfigSender::sendVmmConfig(nsw::VMMConfig cfg) {
+void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     auto data = cfg.getByteVector();
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendRocConfig(nsw::ROCConfig cfg) {
+void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& cfg) {
     // auto roc_registers = cfg.getRegisters();
     // Loop over each I2c config of the ROC
     // auto (auto register : registers) {

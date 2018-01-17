@@ -19,7 +19,7 @@ std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray()
     return std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8>();
 }
 
-std::vector<uint8_t> nsw::VMMConfig::getByteVector() {
+std::vector<uint8_t> nsw::VMMConfig::getByteVector() const {
     auto bitstr = m_bitset.to_string();
     std::vector<uint8_t> vec;
     std::string substr;

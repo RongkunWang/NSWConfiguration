@@ -53,8 +53,10 @@ int main(int argc, const char *argv[]) {
     // vmm0.set_channel_register("sd",15,4);  // Set sd of 15th channel to 4
 
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
+    std::cout << "ROC Config:"  << std::endl;
     write_json(std::cout, rocconfig0);
     nsw::ROCConfig roc0(rocconfig0);
+    roc0.dump();
 
     nsw::ConfigSender cs;
 

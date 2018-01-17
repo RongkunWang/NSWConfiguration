@@ -10,19 +10,17 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/ROCCodec.h"
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/I2cFEConfig.h"
 
 using boost::property_tree::ptree;
 
 namespace nsw {
 
-class ROCConfig: public FEConfig {
- private:
-    ROCCodec& codec = ROCCodec::Instance();
-
+class ROCConfig: public I2cFEConfig {
  public:
     explicit ROCConfig(ptree config);
     ~ROCConfig() {}
+    ROCConfig(const ROCConfig&) = delete;
 };
 }  // namespace nsw
 

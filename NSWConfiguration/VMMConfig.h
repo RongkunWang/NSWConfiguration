@@ -26,7 +26,7 @@ class VMMConfig: public FEConfig {
     ~VMMConfig() {}
 
     std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> getByteArray();  /// Create btye array from the bitset
-    std::vector<uint8_t> getByteVector();  /// Create a vector of bytes
+    std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 
     void setRegister(std::string register_name, unsigned value);
     void setAllChannelRegisters(std::string register_name, unsigned value);

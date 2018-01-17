@@ -21,8 +21,8 @@ class FEConfig {
     explicit FEConfig(ptree config);
     virtual ~FEConfig() {}
 
-    std::string getOpcServerIp() {return m_opcserver_ip;}
-    std::string getAddress() {return m_address;}
+    std::string getOpcServerIp() const {return m_opcserver_ip;}
+    std::string getAddress() const {return m_address;}
 };
 
 }  // namespace nsw

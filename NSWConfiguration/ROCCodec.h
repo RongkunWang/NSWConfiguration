@@ -1,6 +1,4 @@
 // ROC Encoder/Decoder class to convert ptree/bitsets to each other
-// This is a singleton function that should be created as follows:
-// nsw::ROCCodec& roccodec = nsw::ROCCodec::Instance();
 
 #ifndef NSWCONFIGURATION_ROCCODEC_H_
 #define NSWCONFIGURATION_ROCCODEC_H_
@@ -15,20 +13,20 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/I2cFECodec.h"
 
 using boost::property_tree::ptree;
 
 namespace nsw {
 
-/// Class to encode/decode ROC configuration between ptrees and bytestreams
-class ROCCodec {
+//! Class to encode/decode ROC configuration between ptrees and bytestreams
+class ROCCodec: public I2cFECodec {
  public:
-    static ROCCodec& Instance();
-
- private:
-    /// Private ROCCodec for singleton class
     ROCCodec();
     ~ROCCodec() { std::cout << "Destroying ROCCodec" << std::endl;}
+
+    // Set ROC registers
+    void setRegisterMapping();
 };
 }  // namespace nsw
 
