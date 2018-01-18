@@ -60,8 +60,8 @@ int main(int argc, const char *argv[]) {
 
     nsw::ConfigSender cs;
 
-    cs.sendVmmConfig(vmm0);
     cs.sendRocConfig(roc0);
+    cs.sendVmmConfig(vmm0);
 
     // cs.sendVmmConfig(vmm1);
 

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigSender.h"
+#include "NSWConfiguration/Utility.h"
 
 nsw::ConfigSender::ConfigSender() {
 }
@@ -43,11 +44,16 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& cfg) {
-    // auto roc_registers = cfg.getRegisters();
-    // Loop over each I2c config of the ROC
-    // auto (auto register : registers) {
-    //     data = register.getByteVector();
-    //     sendI2cRaw(cfg.getOpcServerIp(), register.getAddress(), data.data(), data.size());
-    // }
+void nsw::ConfigSender::sendI2cFEConfig(const nsw::I2cFEConfig& cfg) {
+    std::cout << "LALALAL" << std::endl;
+    auto addr_bitstr = cfg.getBitstreamMap();
+    for (auto ab : addr_bitstr) {
+        auto address = cfg.getAddress() + ab.first; // Full I2C address
+        auto bitstr = ab.second;
+        auto data = nsw::stringToByteVector(bitstr);
+        for (auto d: data){
+            std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
+        }
+        sendI2cRaw(cfg.getOpcServerIp(), address, data.data(), data.size());
+    }
 }
