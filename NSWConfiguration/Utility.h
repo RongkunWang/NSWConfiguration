@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <vector>
 
 namespace nsw {
 
@@ -44,6 +45,8 @@ std::string bitsetToHexString(std::bitset<N> b) {
 std::string getElementType(std::string);
 
 void checkOverflow(size_t register_size, unsigned value, std::string register_name);
+
+std::vector<uint8_t> stringToByteVector(std::string bitstr);
 
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

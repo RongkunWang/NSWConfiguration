@@ -43,3 +43,18 @@ void nsw::checkOverflow(size_t register_size, unsigned value, std::string regist
     }
 }
 
+std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
+    std::vector<uint8_t> vec;
+    std::string substr;
+    uint8_t byte;
+    // Go 8 bit at a time and convert it to hex
+    for (size_t pos; pos < bitstr.length(); pos=pos+8) {
+        substr = bitstr.substr(pos, 8);
+        // std::cout << "substr: " << substr << std::endl;
+        byte = static_cast<uint8_t> (std::stoi(substr, nullptr, 2));
+        vec.push_back(byte);
+        // std::cout << std::hex << "0x" << unsigned(byte) << std::endl;
+    }
+    // std::cout << "Vector size: " << std::dec << vec.size() << std::endl;
+    return vec;
+}
