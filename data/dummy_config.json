@@ -94,7 +94,7 @@
             "0": {
                 "l1_first": 0,
                 "even_parity": 1,
-                "roc_id": 0
+                "roc_id": 1
             },
             "1": {
                 "sroc3": 0,

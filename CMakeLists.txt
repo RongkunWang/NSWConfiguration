@@ -12,9 +12,9 @@ tdaq_add_executable(read_roc app/read_roc.cpp
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
-                 src/I2cFECodec.cpp src/I2cFEConfig.cpp
+                 src/I2cFEConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
-                 src/ROCCodec.cpp src/ROCConfig.cpp
+                 src/ROCConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
 )
