@@ -65,6 +65,8 @@ class I2cFEConfig: public FEConfig {
     explicit I2cFEConfig(ptree config): FEConfig(config) {}
     ~I2cFEConfig() {}
 
+    i2c::AddressBitstreamMap getBitstreamMap() const { return m_address_bitstream;}
+
     I2cFEConfig(const I2cFEConfig&) = delete;
 
     void dump();

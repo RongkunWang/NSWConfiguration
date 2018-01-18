@@ -42,3 +42,22 @@ BOOST_AUTO_TEST_CASE(bitsetToHexString_test) {
     auto b4 = std::bitset<24>("000000100000111101010101");
     BOOST_TEST(nsw::bitsetToHexString(b4) == "020f55");
 }
+
+BOOST_AUTO_TEST_CASE(stringToByteVector_test) {
+    std::string s = "00000000";
+    auto vec = nsw::stringToByteVector(s);
+    BOOST_TEST(vec[0]==0);
+    BOOST_TEST(vec.size()=1);
+    vec.empty();
+
+    s = "00000010";
+    vec = nsw::stringToByteVector(s);
+    BOOST_TEST(vec[0]==2);
+    BOOST_TEST(vec.size()=1);
+
+    s = "0000001010000000";
+    vec = nsw::stringToByteVector(s);
+    BOOST_TEST(vec[0]==2);
+    BOOST_TEST(vec[1]==128);
+    BOOST_TEST(vec.size()=2);
+}

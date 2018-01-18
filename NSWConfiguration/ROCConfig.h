@@ -26,7 +26,7 @@ class ROCCodec: public I2cFECodec {
     ~ROCCodec() { std::cout << "Destroying ROCCodec" << std::endl;}
 
     // Set ROC registers
-    void setRegisterMapping();
+    void setRegisterMapping() override;
 };
 
 class ROCConfig: public I2cFEConfig {
