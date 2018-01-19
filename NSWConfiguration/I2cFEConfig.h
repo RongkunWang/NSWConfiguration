@@ -1,4 +1,9 @@
 #include <memory>
+#include <utility>
+#include <map>
+#include <string>
+#include <vector>
+
 
 #ifndef NSWCONFIGURATION_I2CFECONFIG_H_
 #define NSWCONFIGURATION_I2CFECONFIG_H_

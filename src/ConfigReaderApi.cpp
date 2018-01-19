@@ -47,8 +47,11 @@ ptree ConfigReaderApi::readVMM(std::string element) {
 
 ptree ConfigReaderApi::readROC(std::string element) {
     // TODO(cyildiz): First read common config, then put element specific config
-    ptree tree = m_config.get_child(element);
-    return tree;
+    ptree tree = m_config.get_child("roc_common_config");
+    ptree roc = m_config.get_child(element);  // roc specific config
+
+    // return tree;
+    return roc;
 }
 
 ptree & JsonApi::read() {

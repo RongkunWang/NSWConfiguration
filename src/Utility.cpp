@@ -1,6 +1,7 @@
 #include <string>
 #include <exception>
 #include <cmath>
+#include <vector>
 
 #include "NSWConfiguration/Utility.h"
 
