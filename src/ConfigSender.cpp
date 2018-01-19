@@ -45,13 +45,13 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
 }
 
 void nsw::ConfigSender::sendI2cFEConfig(const nsw::I2cFEConfig& cfg) {
-    std::cout << "LALALAL" << std::endl;
+    std::cout << "Sending I2c configuration to " << cfg.getAddress() << std::endl;
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
-        auto address = cfg.getAddress() + ab.first; // Full I2C address
+        auto address = cfg.getAddress() + "." + ab.first;  // Full I2C address
         auto bitstr = ab.second;
         auto data = nsw::stringToByteVector(bitstr);
-        for (auto d: data){
+        for (auto d : data) {
             std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
         }
         sendI2cRaw(cfg.getOpcServerIp(), address, data.data(), data.size());

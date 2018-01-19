@@ -32,7 +32,8 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t da
 
     UaByteString bs;
     bs.setByteString(data_size, data);
-    std::cout << "Node: " << node << ", Data size: " << data_size << ", data: " << data << std::endl;
+    std::cout << "Node: " << node << ", Data size: " << data_size
+              << ", data[0]: " << static_cast<unsigned>(data[0]) << std::endl;
 
     try {
         ss.writeWrite(bs);
@@ -53,7 +54,8 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
 
     UaByteString bs;
     bs.setByteString(data_size, data);
-    std::cout << "Node: " << node << ", Data size: " << data_size << ", data: " << data << std::endl;
+    std::cout << "Node: " << node << ", Data size: " << data_size
+              << ", data[0]: " << static_cast<unsigned>(data[0]) << std::endl;
 
     try {
         i2cnode.writeSend(bs);

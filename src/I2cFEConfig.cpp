@@ -41,18 +41,18 @@ nsw::i2c::AddressBitstreamMap nsw::I2cFECodec::buildConfig(ptree config) {
             auto register_name = rs.first;
             auto size = rs.second;
 
-            auto u = child.get<unsigned>(register_name);
-            // checkOverflow
-            std::cout << register_name << " -> " << u << std::endl;
+            auto value = child.get<unsigned>(register_name);
+            nsw::checkOverflow(size, value, register_name);
+            std::cout << register_name << " -> " << value << std::endl;
 
             // TODO(cyildiz): Large enough to take any register
-            std::bitset<32> bs(u);
+            std::bitset<32> bs(value);
             auto stringbs = bs.to_string();
             stringbs = stringbs.substr(stringbs.size()-size, stringbs.size());
-            // std::cout << stringbs << std::endl;
+            // std::cout << "substr:" << stringbs << std::endl;
             tempstr += stringbs;
         }
-        std::cout << tempstr << std::endl;
+        // std::cout << tempstr << std::endl;
         bitstreams[address] = tempstr;
     }
     return bitstreams;
