@@ -1,0 +1,206 @@
+{
+    "vmm_common_config":{
+        "sp":0,
+        "sdp":0,
+        "sbmx":1,
+        "sbft":0,
+        "sbfp":0,
+        "sbfm":0,
+        "slg":1,
+        "sm":0,
+        "scmx":1,
+        "sfa":0,
+        "sfam":0,
+        "st":0,
+        "sfm":0,
+        "sg":2,
+        "sng":0,
+        "stot":0,
+        "sttt":0,
+        "ssh":0,
+        "stc":0,
+        "sdt_dac":0,
+
+        "sdp_dac":0,
+        "sc10b":0,
+        "sc8b":0,
+        "sc6b":0,
+        "s8b":0,
+        "s6b":0,
+        "s10b":0,
+        "sdcks":0,
+        "sdcka":0,
+        "sdck6b":0,
+        "sdrv":0,
+        "stpp":0,
+        "res00":0,
+
+        "res":0,
+        "slvs":0,
+        "s32":0,
+        "stcr":0,
+        "ssart":0,
+        "srec":0,
+        "stlc":0,
+        "sbip":0,
+        "srat":0,
+        "sfrst":0,
+        "slvsbc":0,
+        "slvstp":0,
+        "slvstk":0,
+        "slvsdt":0,
+        "slvsart":0,
+        "slvstki":0,
+        "slvsena":0,
+        "slvs6b":0,
+        "sL0enaV":0,
+        "nu1":0,
+        "reset":0,
+
+        "nu2":0,
+        "nskipm":0,
+
+        "sL0cktest":0,
+        "sL0dckinv":0,
+        "sL0ckinv":0,
+        "sL0ena":0,
+        "truncate":0,
+        "nskip":0,
+        "window":0,
+        "rollover":0,
+
+        "l0offset":0,
+        "offset":0,
+        "nu3":0,
+
+        "channel_sc":0,
+        "channel_sl":0,
+        "channel_st":0,
+        "channel_sth":0,
+        "channel_sm":0,
+        "channel_smx":0,
+        "channel_sd":0,
+        "channel_sz10b":0,
+        "channel_sz8b":0,
+        "channel_sz6b":0,
+        "channel_nu4":0
+    },
+    "roc_common_config":{
+            "0": {
+                "l1_first": 0,
+                "even_parity": 1,
+                "roc_id": 1
+            },
+            "1": {
+                "sroc3": 0,
+                "sroc2": 0,
+                "sroc1": 0,
+                "sroc0": 0
+            },
+            "70": {
+                "ePllInstantLock":0,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":0,
+                "ePllCap":0
+            },
+            "86": {
+                "ePllInstantLock":0,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":0,
+                "ePllCap":0
+            },
+            "102": {
+                "ePllInstantLock":0,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":0,
+                "ePllCap":0
+            },
+            "112": {
+                "ePllInstantLock":0,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":0,
+                "ePllCap":0
+            }
+    },
+    "A01":{
+        "ROC_L01_M01":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).MMFE8 ROC",
+            "ePllVMM0reg70": {
+                "ePllInstantLock":1,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":1,
+                "ePllCap":2
+            },
+            "ePllVMM1reg86": {
+                "ePllInstantLock":1,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":1,
+                "ePllCap":2
+            },
+            "ePllTDCreg102": {
+                "ePllInstantLock":1,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":1,
+                "ePllCap":2
+            },
+            "Register112": {
+                "ePllInstantLock":1,
+                "ePllReset":0,
+                "bypassPLL":0,
+                "ePllLockEn":0,
+                "ePllReferenceFrequency":1,
+                "ePllCap":2
+            },
+            "VMM_ENA_INVreg122": {
+                "VMM_ENA_INV":255
+            }
+        },
+        "VMM_L01_M01_00":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm0"
+        },
+        "VMM_L01_M01_01":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm1"
+        },
+        "VMM_L01_M01_02":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm2"
+        },
+        "VMM_L01_M01_03":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm3"
+        },
+        "VMM_L01_M01_04":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm4"
+        },
+        "VMM_L01_M01_05":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm5"
+        },
+        "VMM_L01_M01_06":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm6"
+        },
+        "VMM_L01_M01_07":{
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm7"
+        }
+    }
+}
