@@ -138,33 +138,33 @@
                 "ePllInstantLock":1,
                 "ePllReset":0,
                 "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":1,
-                "ePllCap":2
+                "ePllLockEn":1,
+                "ePllCap":2,
+                "ePllReferenceFrequency":1
             },
             "ePllVMM1reg86": {
                 "ePllInstantLock":1,
                 "ePllReset":0,
                 "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":1,
-                "ePllCap":2
+                "ePllLockEn":1,
+                "ePllCap":2,
+                "ePllReferenceFrequency":1
             },
             "ePllTDCreg102": {
                 "ePllInstantLock":1,
                 "ePllReset":0,
                 "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":1,
-                "ePllCap":2
+                "ePllLockEn":1,
+                "ePllCap":2,
+                "ePllReferenceFrequency":1
             },
             "Register112": {
                 "ePllInstantLock":1,
                 "ePllReset":0,
                 "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":1,
-                "ePllCap":2
+                "ePllLockEn":1,
+                "ePllCap":2,
+                "ePllReferenceFrequency":1
             },
             "VMM_ENA_INVreg122": {
                 "VMM_ENA_INV":255

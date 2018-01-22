@@ -23,7 +23,7 @@ void nsw::ROCCodec::setRegisterMapping() {
     // m_addr_reg["1"] = std::move(reg_size);
 
      reg_size = {{"ePllInstantLock", 1}, {"ePllReset", 1}, {"bypassPLL", 1},
-                 {"ePllLockEn", 1}, {"ePllReferenceFrequency", 2}, {"ePllCap", 2}};
+                 {"ePllLockEn", 1}, {"ePllCap", 2}, {"ePllReferenceFrequency", 2}};
      m_addr_reg["ePllVMM0reg70"] = reg_size;
      m_addr_reg["ePllVMM1reg86"] = reg_size;
      m_addr_reg["ePllTDCreg102"] = reg_size;
