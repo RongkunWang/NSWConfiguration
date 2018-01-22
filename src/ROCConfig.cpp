@@ -27,7 +27,7 @@ void nsw::ROCCodec::setRegisterMapping() {
      m_addr_reg["ePllVMM0reg70"] = reg_size;
      m_addr_reg["ePllVMM1reg86"] = reg_size;
      m_addr_reg["ePllTDCreg102"] = reg_size;
-     m_addr_reg["Register112"] = reg_size;
+     m_addr_reg["register112"] = reg_size;
 
      reg_size = {{"VMM_ENA_INV", 8}};
      m_addr_reg["VMM_ENA_INVreg122"] = std::move(reg_size);

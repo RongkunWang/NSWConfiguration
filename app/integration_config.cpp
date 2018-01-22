@@ -19,25 +19,56 @@ int main(int argc, const char *argv[]) {
     // ROC Config
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
     std::cout << "ROC Config:"  << std::endl;
-    write_json(std::cout, rocconfig0);
+    // write_json(std::cout, rocconfig0);
     nsw::ROCConfig roc0(rocconfig0);
-    roc0.dump();
+    // roc0.dump();
 
     nsw::ConfigSender cs;
 
-    cs.sendRocConfig(roc0);
+    // Send all ROC config
+    // cs.sendRocConfig(roc0);
 
-    /*
+    // Seqence of actions to send ROC config
+    auto opc_ip = roc0.getOpcServerIp();
+    auto sca_roc_address = roc0.getAddress();
+    size_t size = 1;
+    uint8_t data[1] = {static_cast<uint8_t>(0x19)};
+
+    std::string sca_address = "SCA on Felix (elink 0x80)";
+
+    // 1. Reset all logics
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 0);
+
+    // 2. set rocSResetN to 1
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 1);
+
+    // 3. Initialize registers:
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllVMM0reg70", data, size);
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllVMM1reg86", data, size);
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllTDCreg102", data, size);
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".register112",  data, size);
+
+    // 4.
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 1);
+    // 5.
+    cs.sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
+
+
+    data[0] = {static_cast<uint8_t>(0xff)};
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".register112",  data, size);
+
     auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
-    std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
-    write_json(std::cout, vmmconfig0);
-
-    std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
+    // std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
+    // write_json(std::cout, vmmconfig0);
+    // std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
 
     nsw::VMMConfig vmm0(vmmconfig0);
 
     cs.sendVmmConfig(vmm0);
-    */
+
+    data[0] = {static_cast<uint8_t>(0x0)};
 
     return 0;
 }

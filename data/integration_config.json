@@ -133,7 +133,7 @@
     "A01":{
         "ROC_L01_M01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).MMFE8 ROC",
+            "OpcNodeId": "SCA on Felix (elink 0x80).mmfe8RocPllCoreAnalog",
             "ePllVMM0reg70": {
                 "ePllInstantLock":1,
                 "ePllReset":0,
@@ -158,7 +158,7 @@
                 "ePllCap":2,
                 "ePllReferenceFrequency":1
             },
-            "Register112": {
+            "register112": {
                 "ePllInstantLock":1,
                 "ePllReset":0,
                 "bypassPLL":0,
