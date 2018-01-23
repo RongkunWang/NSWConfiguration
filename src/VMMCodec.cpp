@@ -105,7 +105,13 @@ nsw::VMMCodec::VMMCodec() {
     m_bitreversed_registers.push_back("st");
     m_bitreversed_registers.push_back("sg");
     m_bitreversed_registers.push_back("sdt_dac");
-    m_bitreversed_registers.push_back("spt_dac");
+    m_bitreversed_registers.push_back("sdp_dac");
+    // m_bitreversed_registers.push_back("truncate");
+    // m_bitreversed_registers.push_back("l0offset");
+     std::cout << "Reversed regs:" << std::endl;
+    for (auto m : m_bitreversed_registers) {
+        std::cout << m << std::endl;
+    }
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {
@@ -142,17 +148,19 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
 
         nsw::checkOverflow(register_size, value, register_name);
 
+
+        std::cout << register_name << " : " << register_size << " -> ";
+
         std::string str;
         auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
         if (iter != m_bitreversed_registers.end()) {
             str = reversedBitString(value, register_size);
+            std::cout << value << " - reversed: " << str << std::endl;
         } else {
             str = bitString(value, register_size);
+            std::cout << value << " - regular: " << str << std::endl;
         }
         bitstr = str + bitstr;
-
-        std::cout << register_name << " : " << register_size << " -> ";
-        std::cout << value << " - reversed: " << str << std::endl;
     }
 
     std::bitset<N> global(bitstr);
