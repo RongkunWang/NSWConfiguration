@@ -38,6 +38,12 @@ class ConfigSender {
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
+    /// Low level Spi send function
+    void sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
+
+    /// Low level I2c send function
+    void sendI2c(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
+
     /// Low level I2c send function
     void sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 

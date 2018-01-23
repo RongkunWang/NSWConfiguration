@@ -23,7 +23,11 @@ tdaq_add_executable(nsw_read_config app/read_config.cpp
   LINK_LIBRARIES nswconfig
 )
 
-tdaq_add_executable(nsw_integration_config app/integration_config.cpp
+tdaq_add_executable(nsw_integration_roc_config app/integration_roc_config.cpp
+  LINK_LIBRARIES nswconfig
+)
+
+tdaq_add_executable(nsw_integration_tds_config app/integration_tds_config.cpp
   LINK_LIBRARIES nswconfig
 )
 

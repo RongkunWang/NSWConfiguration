@@ -19,9 +19,19 @@ void nsw::ConfigSender::sendSpiRaw(std::string opcserver_ipport, std::string nod
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
 }
 
+void nsw::ConfigSender::sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata) {
+    addOpcClientIfNew(opcserver_ipport);
+    m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, vdata.data(), vdata.size());
+}
+
 void nsw::ConfigSender::sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
+}
+
+void nsw::ConfigSender::sendI2c(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata) {
+    addOpcClientIfNew(opcserver_ipport);
+    m_clients[opcserver_ipport]->writeI2cRaw(node, vdata.data(), vdata.size());
 }
 
 void nsw::ConfigSender::sendGPIO(std::string opcserver_ipport, std::string node, bool data) {

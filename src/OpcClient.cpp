@@ -108,3 +108,8 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
 
     return result;
 }
+
+double nsw::OpcClient::readAnalogOutput(std::string node) {
+    AnalogInput ainode(m_session, UaNodeId(node.c_str(), 2));
+    return ainode.readValue();
+}

@@ -7,6 +7,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/OpcClient.h"
 
 int main(int argc, const char *argv[]) {
     std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
@@ -14,7 +15,6 @@ int main(int argc, const char *argv[]) {
     auto config1 = reader1.readConfig();
     write_json(std::cout, config1);
     // write_xml(std::cout, config1);
-
 
     // ROC Config
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
@@ -32,7 +32,7 @@ int main(int argc, const char *argv[]) {
     auto opc_ip = roc0.getOpcServerIp();
     auto sca_roc_address = roc0.getAddress();
     size_t size = 1;
-    uint8_t data[1] = {static_cast<uint8_t>(0x19)};
+    uint8_t data[] = {0x19};
 
     std::string sca_address = "SCA on Felix (elink 0x80)";
 
@@ -68,7 +68,10 @@ int main(int argc, const char *argv[]) {
 
     cs.sendVmmConfig(vmm0);
 
-    data[0] = {static_cast<uint8_t>(0x0)};
+    // Read adcs:
+    nsw::OpcClient client(opc_ip);
+    std::string adc_address = sca_address + ".";
+    client.readAnalogOutput(adc_address);
 
     return 0;
 }

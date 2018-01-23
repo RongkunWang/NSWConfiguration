@@ -18,6 +18,7 @@
 #include "UaoClientForOpcUaSca/include/SpiSlave.h"
 #include "UaoClientForOpcUaSca/include/I2cDevice.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
+#include "UaoClientForOpcUaSca/include/AnalogInput.h"
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
@@ -50,6 +51,8 @@ class OpcClient {
 
     // Read back the I2c
     std::vector<uint8_t> readI2c(std::string node);
+
+    double readAnalogOutput(std::string node);
 };
 }  // namespace nsw
 
