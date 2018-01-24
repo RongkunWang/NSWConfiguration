@@ -23,6 +23,9 @@ int main(int argc, const char *argv[]) {
     nsw::ROCConfig roc0(rocconfig0);
     // roc0.dump();
 
+    auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
+    nsw::VMMConfig vmm0(vmmconfig0);
+
     nsw::ConfigSender cs;
 
     // Send all ROC config
@@ -56,17 +59,19 @@ int main(int argc, const char *argv[]) {
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
 
 
-    data[0] = {static_cast<uint8_t>(0xff)};
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".register112",  data, size);
 
-    auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
     // std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
     // write_json(std::cout, vmmconfig0);
     // std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
 
-    nsw::VMMConfig vmm0(vmmconfig0);
+    data[0] = {static_cast<uint8_t>(0xff)};
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".VMM_ENA_INVreg122",  data, size);
 
     cs.sendVmmConfig(vmm0);
+
+    data[0] = {static_cast<uint8_t>(0x0)};
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".VMM_ENA_INVreg122",  data, size);
 
     // Read adcs:
     nsw::OpcClient client(opc_ip);

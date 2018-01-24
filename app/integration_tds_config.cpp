@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
@@ -17,6 +18,8 @@ int main(int argc, const char *argv[]) {
     std::string sca_tds_address =  sca_base_address + ".TDS";
     std::vector<uint8_t> data;
 
+
+    // DO SAME ACTIONS for configuring ROC!
     /*
     // GPIOs
     cs.sendGPIO(opc_ip, sca_address + ".gpio.1", 0);
