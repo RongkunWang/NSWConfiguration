@@ -47,36 +47,49 @@ int main(int argc, const char *argv[]) {
     uint8_t data[] = {0x19};
 
     std::string sca_address = "SCA on Felix (elink 0x80)";
-    std::string sca_roc_address_digital = sca_address + "mmfe8RocPllCoreDigital";
+    std::string sca_roc_address_digital = sca_address + ".mmfe8RocCoreDigital";
 
     // 1. Reset all logics
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 0);
 
+    sleep(1);
     // 2. set rocSResetN to 1
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 1);
 
-    // sleep(2);
+    sleep(1);
 
     // 3. Initialize registers:
+    data[0] = 0x3f;
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllVMM0reg70", data, size);
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllVMM1reg86", data, size);
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllTDCreg102", data, size);
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".register112",  data, size);
 
+    data[0] = 0x3f;
+    cs.sendI2cRaw(opc_ip, sca_roc_address_digital + ".sRocEnable", data, size); //TODO This should stay 0x3
+
+
     // sleep(2);
 
     // 4.
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 1);
+
+    std::cout << "Waiting for ROC Pll locks..." << std::endl;
+    bool roc_locked = 0;
+    while (!roc_locked){
+        bool rPll1 = cs.readGPIO(opc_ip, sca_address + ".gpio.rocPllLocked");
+        bool rPll2 = cs.readGPIO(opc_ip, sca_address + ".gpio.rocPllRocLocked");
+        roc_locked = rPll1 & rPll2;
+        std::cout << "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2 << std::endl;
+        sleep(1);
+    }
+
     // 5.
     cs.sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
 
-    // sleep(1);
-
-    cs.sendI2cRaw(opc_ip, sca_roc_address + ".register112",  data, size);
-
-    // sleep(1);
+    sleep(1);
 
     // std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
     // write_json(std::cout, vmmconfig0);
@@ -107,8 +120,6 @@ int main(int argc, const char *argv[]) {
             0x00, 0x00, 0x00, 0x00, 0x02, 0x80, 0x34, 0x84, 0xc0, 0x10, 0x22, 0x20
             // last bit is sp (polarity) and it is the last bit to be written to VMM
     };
-    // sleep(4);
-
 
     cs.sendSpi(opc_ip, "SCA on Felix (elink 0x80).spi.vmm0", vmmConfigurationData);
     cs.sendSpi(opc_ip, "SCA on Felix (elink 0x80).spi.vmm1", vmmConfigurationData);
@@ -116,17 +127,20 @@ int main(int argc, const char *argv[]) {
     // cs.sendVmmConfig(vmm0);
     // cs.sendVmmConfig(vmm7);
 
-    // sleep(4);
+    // sleep(1);
 
     // Set back the register
     data[0] = {static_cast<uint8_t>(0x0)};
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".vmmEnaInvReg122",  data, size);
 
     // Change ROC delay and sROC enable parameters (one of: 0x0f, 0x1f, 0x2f, 0x3f)
-    // data[0] = 0xf;
-    // cs.sendI2cRaw(opc_ip, sca_roc_address_digital + ".sRocEnable", data, size);
+    data[0] = 0xff;
+    cs.sendI2cRaw(opc_ip, sca_roc_address + ".vmmEnaTpReg124", data, size);
 
-    /* 
+   // std::cout << "I'll start flipping VmmTpInv register in 3 seconds..." << std::endl;
+   // sleep(3);
+    
+    /*
     // Toggle TpInv to create pulses
     for (int i = 0; i < 10000000; i++) {
         data[0] = 0xff;
@@ -136,7 +150,7 @@ int main(int argc, const char *argv[]) {
         data[0] = 0x0;
         cs.sendI2cRaw(opc_ip, sca_roc_address + ".vmmEnaTpReg124", data, size);
         // sleep(1);
-    }
+    } 
     */
 
     // Read adcs:
