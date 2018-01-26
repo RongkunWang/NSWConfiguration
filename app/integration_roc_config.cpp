@@ -60,6 +60,10 @@ int main(int argc, const char *argv[]) {
 
     //sleep(1);
 
+    // elinkSpeed! --> This is experimental
+    data[0] = 0xaa;  // 0xaa -> 160Mbps, // 0x
+    cs.sendI2cRaw(opc_ip, sca_roc_address_digital + ".elinkSpeed", data, size);
+
     // 3. Initialize registers:
     data[0] = 0x19;
     cs.sendI2cRaw(opc_ip, sca_roc_address + ".ePllVMM0reg70", data, size);
