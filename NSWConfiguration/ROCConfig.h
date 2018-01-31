@@ -14,28 +14,19 @@
 
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/I2cFEConfig.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 using boost::property_tree::ptree;
 
 namespace nsw {
 
 //! Class to encode/decode ROC configuration between ptrees and bytestreams
-class ROCCodec: public I2cFECodec {
- public:
-    ROCCodec();
-    ~ROCCodec() { std::cout << "Destroying ROCCodec" << std::endl;}
-
-    // Set ROC registers
-    void setRegisterMapping() override;
-};
 
 class ROCConfig: public I2cFEConfig {
  public:
-    explicit ROCConfig(ptree config);
+    explicit ROCConfig(ptree config): I2cFEConfig(config, ROC_REGISTER_SIZE) {}
     ~ROCConfig() {}
-    ROCConfig(const ROCConfig&) = delete;
 };
 }  // namespace nsw
-
 
 #endif  // NSWCONFIGURATION_ROCCONFIG_H_

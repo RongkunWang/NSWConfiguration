@@ -35,7 +35,7 @@ namespace i2c {
 */
 class I2cFECodec {
  public:
-    I2cFECodec() {}
+    explicit I2cFECodec(const i2c::AddressRegisterMap & ar_map);
     ~I2cFECodec() { std::cout << "Destroying I2cFECodec" << std::endl;}
 
     // Method that created bitstreams from config tree.
@@ -43,16 +43,13 @@ class I2cFECodec {
 
  protected:
     /// Map of i2c addresses and internal mapping of registers
-    i2c::AddressRegisterMap m_addr_reg;
+    const i2c::AddressRegisterMap& m_addr_reg;
 
     /// Map of i2c addresses and total sizes
     i2c::AddressSizeMap m_addr_size;
 
     // Fills m_addr_size
     void calculateTotalSizes();
-
-    /// Function that fills m_addr_reg and should be implemented in the derived class
-    virtual void setRegisterMapping() {}
 };
 
 /*! \brief Generic I2C type Front End Configuration
@@ -63,16 +60,23 @@ class I2cFECodec {
 class I2cFEConfig: public FEConfig {
  protected:
     // derived classes should have their own Codec types derived from I2cFECodec
-    std::unique_ptr<I2cFECodec> codec;
+    std::shared_ptr<I2cFECodec> codec;
     i2c::AddressBitstreamMap m_address_bitstream;
 
  public:
-    explicit I2cFEConfig(ptree config): FEConfig(config) {}
+    explicit I2cFEConfig(ptree config, const i2c::AddressRegisterMap & reg):
+        FEConfig(config), codec(std::make_shared<I2cFECodec>(reg)) {
+            m_address_bitstream = codec->buildConfig(config);
+        }
+
+    // codec = ;
+
     ~I2cFEConfig() {}
 
     i2c::AddressBitstreamMap getBitstreamMap() const { return m_address_bitstream;}
 
-    I2cFEConfig(const I2cFEConfig&) = delete;
+    // Following may be needed if unique_ptr used instead of shared_ptr
+    // I2cFEConfig(const I2cFEConfig&) = delete;
 
     void dump();
 };

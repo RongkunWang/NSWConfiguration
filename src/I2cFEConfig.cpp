@@ -9,6 +9,10 @@
 #include "NSWConfiguration/I2cFEConfig.h"
 #include "NSWConfiguration/Utility.h"
 
+nsw::I2cFECodec::I2cFECodec(const i2c::AddressRegisterMap & ar_map): m_addr_reg(ar_map) {
+    calculateTotalSizes();
+}
+
 void nsw::I2cFECodec::calculateTotalSizes() {
     for (auto e : m_addr_reg) {
         auto address = e.first;
