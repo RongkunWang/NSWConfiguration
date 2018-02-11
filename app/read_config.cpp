@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "ROC Config:"  << std::endl;
     write_json(std::cout, rocconfig0);
     nsw::ROCConfig roc0(rocconfig0);
-    roc0.dump();
+    // roc0.dump();
 
     nsw::ConfigSender cs;
 

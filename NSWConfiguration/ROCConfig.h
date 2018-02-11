@@ -13,7 +13,8 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/I2cFEConfig.h"
+#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
 using boost::property_tree::ptree;
@@ -22,9 +23,9 @@ namespace nsw {
 
 //! Class to encode/decode ROC configuration between ptrees and bytestreams
 
-class ROCConfig: public I2cFEConfig {
+class ROCConfig: public FEConfig {
  public:
-    explicit ROCConfig(ptree config): I2cFEConfig(config, ROC_REGISTER_SIZE) {}
+    explicit ROCConfig(ptree config): FEConfig(config) {}
     ~ROCConfig() {}
 };
 }  // namespace nsw

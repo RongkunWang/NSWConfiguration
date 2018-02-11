@@ -30,10 +30,10 @@ class ConfigSender {
     void sendVmmConfig(const nsw::VMMConfig& vmm);
 
     /// High level send function
-    void sendRocConfig(const nsw::ROCConfig& roc) { sendI2cFEConfig(dynamic_cast<const nsw::I2cFEConfig&>(roc)); }
+    void sendRocConfig(const nsw::ROCConfig& roc) { }
 
-    /// High level send function for config classes that derive from I2cFEConfig
-    void sendI2cFEConfig(const nsw::I2cFEConfig& cfg);
+    /// High level send function for config classes that derive from I2cMasterConfig
+    void sendI2cMasterConfig(const nsw::I2cMasterConfig& cfg);
 
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);

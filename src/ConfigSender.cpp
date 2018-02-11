@@ -54,6 +54,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
 }
 
+/*
 void nsw::ConfigSender::sendI2cFEConfig(const nsw::I2cFEConfig& cfg) {
     std::cout << "Sending I2c configuration to " << cfg.getAddress() << std::endl;
     auto addr_bitstr = cfg.getBitstreamMap();
@@ -66,4 +67,4 @@ void nsw::ConfigSender::sendI2cFEConfig(const nsw::I2cFEConfig& cfg) {
         }
         sendI2cRaw(cfg.getOpcServerIp(), address, data.data(), data.size());
     }
-}
+}*/
