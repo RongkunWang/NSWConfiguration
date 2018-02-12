@@ -26,8 +26,8 @@ int main(int argc, const char *argv[]) {
 
     auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
     nsw::VMMConfig vmm0(vmmconfig0);
-    auto vmmconfig7 = reader1.readConfig("A01.VMM_L01_M01_07");
-    nsw::VMMConfig vmm7(vmmconfig7);
+    auto vmmconfig1 = reader1.readConfig("A01.VMM_L01_M01_01");
+    nsw::VMMConfig vmm1(vmmconfig1);
 
     auto vec = vmm0.getByteVector();  /// Create a vector of bytes
     for (auto el : vec) {
@@ -61,8 +61,8 @@ int main(int argc, const char *argv[]) {
     // sleep(1);
 
     // elinkSpeed! --> This is experimental
-    data[0] = 0xaa;  // 0xaa -> 160Mbps, // 0x
-    cs.sendI2cRaw(opc_ip, sca_roc_address_digital + ".elinkSpeed", data, size);
+    // data[0] = 0xaa;  // 0xaa -> 160Mbps, // 0x
+    // cs.sendI2cRaw(opc_ip, sca_roc_address_digital + ".elinkSpeed", data, size);
 
     // 3. Initialize registers:
     data[0] = 0x19;
@@ -150,7 +150,7 @@ int main(int argc, const char *argv[]) {
      // cs.sendSpi(opc_ip, "SCA on Felix (elink 0x80).spi.vmm1", vmmConfigurationData);
 
      cs.sendVmmConfig(vmm0);
-     cs.sendVmmConfig(vmm7);
+     cs.sendVmmConfig(vmm1);
 
     // sleep(1);
 

@@ -25,8 +25,16 @@ namespace nsw {
 
 class ROCConfig: public FEConfig {
  public:
-    explicit ROCConfig(ptree config): FEConfig(config) {}
+    nsw::I2cMasterConfig analog;
+    nsw::I2cMasterConfig digital;
+
+    explicit ROCConfig(ptree config):
+        FEConfig(config),
+        analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
+        digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) { }
     ~ROCConfig() {}
+
+    void dump() {analog.dump(); digital.dump();}
 };
 }  // namespace nsw
 

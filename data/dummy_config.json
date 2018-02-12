@@ -89,18 +89,55 @@
     },
     "A01":{
         "ROC_L01_M01":{
-            "OpcServerIp": "pcatlnswdev01.cern.ch:4841",
-            "OpcNodeId": "scaFelix1.spi.roc0",
-            "0": {
-                "l1_first": 0,
-                "even_parity": 1,
-                "roc_id": 1
+            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcNodeId": "SCA on Felix (elink 0x80)",
+            "mmfe8RocPllCoreAnalog":{
+                "ePllVMM0reg70": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "ePllVMM1reg86": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "ePllTDCreg102": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "register112": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "VMM_ENA_INVreg122": {
+                    "VMM_ENA_INV":255
+                }
             },
-            "1": {
-                "sroc3": 0,
-                "sroc2": 0,
-                "sroc1": 0,
-                "sroc0": 0
+            "mmfe8RocCoreDigital":{
+                "SROCEnableReg7": {
+                    "Bypass":0,
+                    "TimeoutEnable":0,
+                    "TTCStartBits":0,
+                    "enableSROC3":1,
+                    "enableSROC2":1,
+                    "enableSROC1":1,
+                    "enableSROC0":1
+                }
             }
         },
         "VMM_L01_M01_00":{

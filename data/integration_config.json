@@ -21,7 +21,7 @@
         "stc":0,
         "sdt_dac":230,
 
-        "sdp_dac":400,
+        "sdp_dac":300,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
@@ -133,42 +133,54 @@
     "A01":{
         "ROC_L01_M01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).mmfe8RocPllCoreAnalog",
-            "ePllVMM0reg70": {
-                "ePllInstantLock":1,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":1,
-                "ePllCap":2,
-                "ePllReferenceFrequency":1
+            "OpcNodeId": "SCA on Felix (elink 0x80)",
+            "mmfe8RocPllCoreAnalog":{
+                "ePllVMM0reg70": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "ePllVMM1reg86": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "ePllTDCreg102": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "register112": {
+                    "ePllInstantLock":1,
+                    "ePllReset":0,
+                    "bypassPLL":0,
+                    "ePllLockEn":1,
+                    "ePllCap":2,
+                    "ePllReferenceFrequency":1
+                },
+                "VMM_ENA_INVreg122": {
+                    "VMM_ENA_INV":255
+                }
             },
-            "ePllVMM1reg86": {
-                "ePllInstantLock":1,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":1,
-                "ePllCap":2,
-                "ePllReferenceFrequency":1
-            },
-            "ePllTDCreg102": {
-                "ePllInstantLock":1,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":1,
-                "ePllCap":2,
-                "ePllReferenceFrequency":1
-            },
-            "register112": {
-                "ePllInstantLock":1,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":1,
-                "ePllCap":2,
-                "ePllReferenceFrequency":1
-            },
-            "VMM_ENA_INVreg122": {
-                "VMM_ENA_INV":255
-            }
+            "mmfe8RocCoreDigital":{
+                "SROCEnableReg7": {
+                    "Bypass":0,
+                    "TimeoutEnable":0,
+                    "TTCStartBits":0,
+                    "enableSROC3":1,
+                    "enableSROC2":1,
+                    "enableSROC1":1,
+                    "enableSROC0":1
+                },
         },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
@@ -200,7 +212,7 @@
         },
         "VMM_L01_M01_07":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm1"
+            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm7"
         }
     }
 }
