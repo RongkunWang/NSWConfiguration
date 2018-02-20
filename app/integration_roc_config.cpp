@@ -11,7 +11,7 @@
 #include "NSWConfiguration/OpcClient.h"
 
 int main(int argc, const char *argv[]) {
-    std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
+    std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work2/NSWConfiguration/data/";
     nsw::ConfigReader reader1("json://" + base_folder + "integration_config.json");
     auto config1 = reader1.readConfig();
     write_json(std::cout, config1);
@@ -20,9 +20,11 @@ int main(int argc, const char *argv[]) {
     // ROC Config
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
     std::cout << "ROC Config:"  << std::endl;
-    // write_json(std::cout, rocconfig0);
+    write_json(std::cout, rocconfig0);
     nsw::ROCConfig roc0(rocconfig0);
-    // roc0.dump();
+    roc0.dump();
+    //
+    return 0;
 
     auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
     nsw::VMMConfig vmm0(vmmconfig0);

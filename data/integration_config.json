@@ -172,15 +172,163 @@
                 }
             },
             "mmfe8RocCoreDigital":{
-                "SROCEnableReg7": {
-                    "Bypass":0,
-                    "TimeoutEnable":0,
-                    "TTCStartBits":0,
-                    "enableSROC3":1,
-                    "enableSROC2":1,
-                    "enableSROC1":1,
-                    "enableSROC0":1
+                "rocId": {
+                    "l1_first": 0,
+                    "even_parity": 0,
+                    "roc_id": 0
                 },
+                "elinkSpeed": {
+                    "sroc3": 3,
+                    "sroc2": 3,
+                    "sroc1": 3,
+                    "sroc0": 3
+                },
+                "sroc0VmmConnections":
+                {
+                    "vmm7": 1,
+                    "vmm6": 0,
+                    "vmm5": 0,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 0,
+                    "vmm1": 0,
+                    "vmm0": 1
+                },
+                "sroc1VmmConnections":
+                {
+                    "vmm7": 0,
+                    "vmm6": 1,
+                    "vmm5": 0,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 0,
+                    "vmm1": 1,
+                    "vmm0": 0
+                },
+                "sroc2VmmConnections":
+                {
+                    "vmm7": 0,
+                    "vmm6": 0,
+                    "vmm5": 1,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 1,
+                    "vmm1": 0,
+                    "vmm0": 0
+                },
+                "sroc3VmmConnections":
+                {
+                    "vmm7": 0,
+                    "vmm6": 0,
+                    "vmm5": 0,
+                    "vmm4": 1,
+                    "vmm3": 1,
+                    "vmm2": 0,
+                    "vmm1": 0,
+                    "vmm0": 0
+                },
+                "eopAndNullEventEnable":
+                {
+                    "sroc3_eop_enable": 0,
+                    "sroc1_eop_enable": 0,
+                    "sroc1_eop_enable": 0,
+                    "sroc0_eop_enable": 0,
+                    "sroc3_nullevt_enable": 0,
+                    "sroc2_nullevt_enable": 0,
+                    "sroc1_nullevt_enable": 0,
+                    "sroc0_nullevt_enable": 0
+                },
+                "srocEnable": {
+                    "bypass": 0,
+                    "timeoutEnable": 0,
+                    "TTCStartBits": 0,
+                    "enableSROC3": 0,
+                    "enableSROC2": 0,
+                    "enableSROC1": 0,
+                    "enableSROC0": 0
+                },
+                "vmmEnable": {
+                    "vmm7": 0,
+                    "vmm6": 0,
+                    "vmm5": 0,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 0,
+                    "vmm1": 0,
+                    "vmm0": 0
+                },
+                "timeout": {
+                    "timeout": 0
+                },
+                "bcOffset0_txcSel": {
+                    "tx_csel": 0,
+                    "bc_offset11_8": 0
+                },
+                "bcOffset1": {
+                    "bc_offset7_0": 0
+                },
+                "bcRollover0": {
+                    "NOT_USED": 0,
+                    "bc_rollover11_8": 0
+                },
+                "bcRollover1": {
+                    "bc_rollover7_0": 0
+                },
+                "eportEnable": {
+                    "sroc3": 0,
+                    "sroc2": 0,
+                    "sroc1": 0,
+                    "sroc0": 0
+                },
+                "fakeVmmFailure": {
+                    "vmm7": 0,
+                    "vmm6": 0,
+                    "vmm5": 0,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 0,
+                    "vmm1": 0,
+                    "vmm0": 0
+                },
+                "busyAndTdcEnable": {
+                    "tdc_enable_sroc3": 0,
+                    "tdc_enable_sroc2": 0,
+                    "tdc_enable_sroc1": 0,
+                    "tdc_enable_sroc0": 0,
+                    "busy_enable_sroc3": 0,
+                    "busy_enable_sroc2": 0,
+                    "busy_enable_sroc1": 0,
+                    "busy_enable_sroc0": 0
+                },
+                "busyOnLimit0": {
+                    "NOT_USED": 0,
+                    "busy_on_limit10_7": 0
+                },
+                "busyOnLimit1": {
+                    "busy_on_limit8_0": 0
+                },
+                "busyOffLimit0": {
+                    "NOT_USED": 0,
+                    "busy_off_limit10_7": 0
+                },
+                "busyOffLimit1": {
+                    "busy_off_limit8_0": 0
+                },
+
+                "l1EventsWithoutComma": {
+                    "l1_events_no_comma": 0
+                },
+                "timeoutStatus": {
+                    "vmm7": 0,
+                    "vmm6": 0,
+                    "vmm5": 0,
+                    "vmm4": 0,
+                    "vmm3": 0,
+                    "vmm2": 0,
+                    "vmm1": 0,
+                    "vmm0": 0
+                }
+            }
         },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",

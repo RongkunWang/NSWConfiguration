@@ -9,6 +9,10 @@ tdaq_add_executable(read_roc app/read_roc.cpp
   LINK_LIBRARIES Boost::boost
 )
 
+tdaq_add_executable(generate_config_json app/generate_config_json.cpp
+  LINK_LIBRARIES Boost::boost
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
