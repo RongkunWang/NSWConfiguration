@@ -54,17 +54,47 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
 }
 
-/*
-void nsw::ConfigSender::sendI2cFEConfig(const nsw::I2cFEConfig& cfg) {
-    std::cout << "Sending I2c configuration to " << cfg.getAddress() << std::endl;
+void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
+                                            std::string topnode, const nsw::I2cMasterConfig& cfg) {
+    std::cout << "Sending I2c configuration to " << topnode << std::endl;
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
-        auto address = cfg.getAddress() + "." + ab.first;  // Full I2C address
+        auto address = topnode + "." + cfg.getName() + ab.first;  // Full I2C address
         auto bitstr = ab.second;
         auto data = nsw::stringToByteVector(bitstr);
         for (auto d : data) {
             std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
         }
-        sendI2cRaw(cfg.getOpcServerIp(), address, data.data(), data.size());
+        sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
     }
-}*/
+}
+
+void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
+    auto opc_ip = roc.getOpcServerIp();
+    auto roc_address = roc.getAddress();
+
+    // 1. Reset all logics
+    sendGPIO(opc_ip, roc_address + ".gpio.rocCoreResetN", 0);
+    sendGPIO(opc_ip, roc_address + ".gpio.rocPllResetN", 0);
+    sendGPIO(opc_ip, roc_address + ".gpio.rocSResetN", 0);
+
+    sendGPIO(opc_ip, roc_address + ".gpio.rocSResetN", 1);
+
+    sendI2cMasterConfig(opc_ip, roc_address, roc.analog);
+
+    sendGPIO(opc_ip, roc_address + ".gpio.rocPllResetN", 1);
+
+    std::cout << "Waiting for ROC Pll locks..." << std::endl;
+    bool roc_locked = 0;
+    while (!roc_locked) {
+        bool rPll1 = readGPIO(opc_ip, roc_address + ".gpio.rocPllLocked");
+        bool rPll2 = readGPIO(opc_ip, roc_address + ".gpio.rocPllRocLocked");
+        roc_locked = rPll1 & rPll2;
+        std::cout << "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2 << std::endl;
+        // sleep(1);
+    }
+
+    sendGPIO(opc_ip, roc_address + ".gpio.rocCoreResetN", 1);
+
+    sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
+}
