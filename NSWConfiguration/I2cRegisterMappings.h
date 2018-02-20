@@ -28,7 +28,7 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
-    { "rocId", {{"l1_first", 1}, {"even_parity", 1}, {"roc_id", 5}}},
+    { "rocId", {{"l1_first", 1}, {"even_parity", 1}, {"roc_id", 6}}},
     { "elinkSpeed", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
     { "sroc0VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
@@ -55,7 +55,7 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
     { "bcRollover0", { {"NOT_USED", 4}, {"bc_rollover11_8", 4} } },
     { "bcRollover1", { {"bc_rollover7_0", 8} } },
 
-    { "eportEnable", { {"sroc3", 1}, {"sroc2", 1}, {"sroc1", 1}, {"sroc0", 1}}},
+    { "eportEnable", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
 
     { "fakeVmmFailure", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                           {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },

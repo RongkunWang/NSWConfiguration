@@ -136,7 +136,7 @@
             "OpcNodeId": "SCA on Felix (elink 0x80)",
             "mmfe8RocPllCoreAnalog":{
                 "ePllVMM0reg70": {
-                    "ePllInstantLock":1,
+                    "ePllInstantLock":0,
                     "ePllReset":0,
                     "bypassPLL":0,
                     "ePllLockEn":1,
@@ -144,7 +144,7 @@
                     "ePllReferenceFrequency":1
                 },
                 "ePllVMM1reg86": {
-                    "ePllInstantLock":1,
+                    "ePllInstantLock":0,
                     "ePllReset":0,
                     "bypassPLL":0,
                     "ePllLockEn":1,
@@ -152,7 +152,7 @@
                     "ePllReferenceFrequency":1
                 },
                 "ePllTDCreg102": {
-                    "ePllInstantLock":1,
+                    "ePllInstantLock":0,
                     "ePllReset":0,
                     "bypassPLL":0,
                     "ePllLockEn":1,
@@ -160,7 +160,7 @@
                     "ePllReferenceFrequency":1
                 },
                 "register112": {
-                    "ePllInstantLock":1,
+                    "ePllInstantLock":0,
                     "ePllReset":0,
                     "bypassPLL":0,
                     "ePllLockEn":1,
@@ -174,7 +174,7 @@
             "mmfe8RocCoreDigital":{
                 "rocId": {
                     "l1_first": 0,
-                    "even_parity": 0,
+                    "even_parity": 1,
                     "roc_id": 0
                 },
                 "elinkSpeed": {
@@ -229,56 +229,56 @@
                 },
                 "eopAndNullEventEnable":
                 {
-                    "sroc3_eop_enable": 0,
-                    "sroc1_eop_enable": 0,
-                    "sroc1_eop_enable": 0,
-                    "sroc0_eop_enable": 0,
-                    "sroc3_nullevt_enable": 0,
-                    "sroc2_nullevt_enable": 0,
-                    "sroc1_nullevt_enable": 0,
-                    "sroc0_nullevt_enable": 0
+                    "sroc3_eop_enable": 1,
+                    "sroc1_eop_enable": 1,
+                    "sroc1_eop_enable": 1,
+                    "sroc0_eop_enable": 1,
+                    "sroc3_nullevt_enable": 1,
+                    "sroc2_nullevt_enable": 1,
+                    "sroc1_nullevt_enable": 1,
+                    "sroc0_nullevt_enable": 1
                 },
                 "srocEnable": {
                     "bypass": 0,
                     "timeoutEnable": 0,
                     "TTCStartBits": 0,
-                    "enableSROC3": 0,
-                    "enableSROC2": 0,
-                    "enableSROC1": 0,
-                    "enableSROC0": 0
+                    "enableSROC3": 1,
+                    "enableSROC2": 1,
+                    "enableSROC1": 1,
+                    "enableSROC0": 1
                 },
                 "vmmEnable": {
-                    "vmm7": 0,
-                    "vmm6": 0,
-                    "vmm5": 0,
-                    "vmm4": 0,
-                    "vmm3": 0,
-                    "vmm2": 0,
-                    "vmm1": 0,
-                    "vmm0": 0
+                    "vmm7": 1,
+                    "vmm6": 1,
+                    "vmm5": 1,
+                    "vmm4": 1,
+                    "vmm3": 1,
+                    "vmm2": 1,
+                    "vmm1": 1,
+                    "vmm0": 1
                 },
                 "timeout": {
-                    "timeout": 0
+                    "timeout": 255
                 },
                 "bcOffset0_txcSel": {
-                    "tx_csel": 0,
-                    "bc_offset11_8": 0
+                    "tx_csel": 8,
+                    "bc_offset11_8": 4
                 },
                 "bcOffset1": {
-                    "bc_offset7_0": 0
+                    "bc_offset7_0": 133
                 },
                 "bcRollover0": {
                     "NOT_USED": 0,
-                    "bc_rollover11_8": 0
+                    "bc_rollover11_8": 13
                 },
                 "bcRollover1": {
-                    "bc_rollover7_0": 0
+                    "bc_rollover7_0": 229
                 },
                 "eportEnable": {
-                    "sroc3": 0,
-                    "sroc2": 0,
-                    "sroc1": 0,
-                    "sroc0": 0
+                    "sroc3": 3,
+                    "sroc2": 3,
+                    "sroc1": 3,
+                    "sroc0": 3
                 },
                 "fakeVmmFailure": {
                     "vmm7": 0,
@@ -291,32 +291,32 @@
                     "vmm0": 0
                 },
                 "busyAndTdcEnable": {
-                    "tdc_enable_sroc3": 0,
-                    "tdc_enable_sroc2": 0,
-                    "tdc_enable_sroc1": 0,
-                    "tdc_enable_sroc0": 0,
-                    "busy_enable_sroc3": 0,
-                    "busy_enable_sroc2": 0,
-                    "busy_enable_sroc1": 0,
-                    "busy_enable_sroc0": 0
+                    "tdc_enable_sroc3": 1,
+                    "tdc_enable_sroc2": 1,
+                    "tdc_enable_sroc1": 1,
+                    "tdc_enable_sroc0": 1,
+                    "busy_enable_sroc3": 1,
+                    "busy_enable_sroc2": 1,
+                    "busy_enable_sroc1": 1,
+                    "busy_enable_sroc0": 1
                 },
                 "busyOnLimit0": {
                     "NOT_USED": 0,
-                    "busy_on_limit10_7": 0
+                    "busy_on_limit10_7": 7
                 },
                 "busyOnLimit1": {
-                    "busy_on_limit8_0": 0
+                    "busy_on_limit8_0": 108
                 },
                 "busyOffLimit0": {
                     "NOT_USED": 0,
-                    "busy_off_limit10_7": 0
+                    "busy_off_limit10_7": 7
                 },
                 "busyOffLimit1": {
-                    "busy_off_limit8_0": 0
+                    "busy_off_limit8_0": 8
                 },
 
                 "l1EventsWithoutComma": {
-                    "l1_events_no_comma": 0
+                    "l1_events_no_comma": 255
                 },
                 "timeoutStatus": {
                     "vmm7": 0,
