@@ -32,8 +32,12 @@ class ConfigSender {
     /// High level send function
     void sendRocConfig(const nsw::ROCConfig& roc);
 
-    /// High level send function for config classes that derive from I2cMasterConfig
+    /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);
+
+    /// Write only one of the register addresses in I2cMaster
+    void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
+                             std::string reg_address);
 
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);

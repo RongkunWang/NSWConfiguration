@@ -54,12 +54,25 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
 }
 
+void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
+                                            const nsw::I2cMasterConfig& cfg, std::string reg_address) {
+    std::cout << "Sending I2c configuration to " << topnode << "." << reg_address << std::endl;
+    auto addr_bitstr = cfg.getBitstreamMap();
+    auto address = topnode + "." + cfg.getName() + "." + reg_address;  // Full I2C address
+    auto bitstr = addr_bitstr[reg_address];
+    auto data = nsw::stringToByteVector(bitstr);
+    for (auto d : data) {
+        std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
+    }
+        sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
+}
+
 void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
                                             std::string topnode, const nsw::I2cMasterConfig& cfg) {
     std::cout << "Sending I2c configuration to " << topnode << std::endl;
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
-        auto address = topnode + "." + cfg.getName() + ab.first;  // Full I2C address
+        auto address = topnode + "." + cfg.getName() + "." + ab.first;  // Full I2C address
         auto bitstr = ab.second;
         auto data = nsw::stringToByteVector(bitstr);
         for (auto d : data) {
