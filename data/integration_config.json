@@ -86,89 +86,302 @@
         "channel_nu4":0
     },
     "roc_common_config":{
-            "0": {
-                "l1_first": 0,
-                "even_parity": 1,
-                "roc_id": 1
-            },
-            "1": {
-                "sroc3": 0,
-                "sroc2": 0,
-                "sroc1": 0,
-                "sroc0": 0
-            },
-            "70": {
-                "ePllInstantLock":0,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":0,
-                "ePllCap":0
-            },
-            "86": {
-                "ePllInstantLock":0,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":0,
-                "ePllCap":0
-            },
-            "102": {
-                "ePllInstantLock":0,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":0,
-                "ePllCap":0
-            },
-            "112": {
-                "ePllInstantLock":0,
-                "ePllReset":0,
-                "bypassPLL":0,
-                "ePllLockEn":0,
-                "ePllReferenceFrequency":0,
-                "ePllCap":0
-            }
     },
     "A01":{
         "ROC_L01_M01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
             "OpcNodeId": "SCA on Felix (elink 0x80)",
             "mmfe8RocPllCoreAnalog":{
-                "ePllVMM0reg70": {
-                    "ePllInstantLock":0,
-                    "ePllReset":0,
-                    "bypassPLL":0,
-                    "ePllLockEn":1,
-                    "ePllCap":2,
-                    "ePllReferenceFrequency":1
+                "ePllVmm0Reg64": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
                 },
-                "ePllVMM1reg86": {
-                    "ePllInstantLock":0,
-                    "ePllReset":0,
-                    "bypassPLL":0,
-                    "ePllLockEn":1,
-                    "ePllCap":2,
-                    "ePllReferenceFrequency":1
+                "ePllVmm0Reg65": {
+                    "ePllPhase160MHz_1[4]": 0,
+                    "ePllPhase40MHz_1": 0
                 },
-                "ePllTDCreg102": {
-                    "ePllInstantLock":0,
-                    "ePllReset":0,
-                    "bypassPLL":0,
-                    "ePllLockEn":1,
-                    "ePllCap":2,
-                    "ePllReferenceFrequency":1
+                "ePllVmm0Reg66": {
+                    "ePllPhase160MHz_2[4]": 0,
+                    "ePllPhase40MHz_2": 0
+                },
+                "ePllVmm0Reg67": {
+                    "ePllPhase160MHz_3[4]": 0,
+                    "ePllPhase40MHz_3": 0
+                },
+                "ePllVmm0Reg68": {
+                    "ePllPhase160MHz_1[3:0]": 0,
+                    "ePllPhase160MHz_0[3:0]": 0
+                },
+                "ePllVmm0Reg69": {
+                    "ePllPhase160MHz_3[3:0]": 0,
+                    "ePllPhase160MHz_2[3:0]": 0
+                },
+                "ePllVmm0Reg70": {
+                    "ePllInstantLock": 0,
+                    "ePllReset": 0,
+                    "bypassPLL": 0,
+                    "ePllLockEn": 1,
+                    "ePllReferenceFrequency": 2,
+                    "ePllCap": 1
+                },
+                "ePllVmm0Reg71": {
+                    "ePllRes": 8,
+                    "ePllIcp": 8
+                },
+                "ePllVmm0Reg72": {
+                    "ePllEnablePhase": 255
+                },
+                "ePllVmm0Reg73": {
+                    "tp_bypass_1": 0,
+                    "tp_phase_1": 0,
+                    "tp_bypass_0": 0,
+                    "tp_phase_0": 0
+                },
+                "ePllVmm0Reg74": {
+                    "tp_bypass_3": 0,
+                    "tp_phase_3": 0,
+                    "tp_bypass_2": 0,
+                    "tp_phase_2": 0
+                },
+                "ePllVmm0Reg75": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm0Reg76": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm0Reg77": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm0Reg78": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm0Reg79": {
+                    "tx_enable": 15,
+                    "tx_csel": 4
+                },
+                "ePllVmm1Reg80": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "ePllVmm1Reg81": {
+                    "ePllPhase160MHz_1[4]": 0,
+                    "ePllPhase40MHz_1": 0
+                },
+                "ePllVmm1Reg82": {
+                    "ePllPhase160MHz_2[4]": 0,
+                    "ePllPhase40MHz_2": 0
+                },
+                "ePllVmm1Reg83": {
+                    "ePllPhase160MHz_3[4]": 0,
+                    "ePllPhase40MHz_3": 0
+                },
+                "ePllVmm1Reg84": {
+                    "ePllPhase160MHz_1[3:0]": 0,
+                    "ePllPhase160MHz_0[3:0]": 0
+                },
+                "ePllVmm1Reg85": {
+                    "ePllPhase160MHz_3[3:0]": 0,
+                    "ePllPhase160MHz_2[3:0]": 0
+                },
+                "ePllVmm1Reg86": {
+                    "ePllInstantLock": 0,
+                    "ePllReset": 0,
+                    "bypassPLL": 0,
+                    "ePllLockEn": 1,
+                    "ePllReferenceFrequency": 2,
+                    "ePllCap": 1
+                },
+                "ePllVmm1Reg87": {
+                    "ePllRes": 8,
+                    "ePllIcp": 8
+                },
+                "ePllVmm1Reg88": {
+                    "ePllEnablePhase": 255
+                },
+                "ePllVmm1Reg89": {
+                    "tp_bypass_1": 0,
+                    "tp_phase_1": 0,
+                    "tp_bypass_0": 0,
+                    "tp_phase_0": 0
+                },
+                "ePllVmm1Reg90": {
+                    "tp_bypass_3": 0,
+                    "tp_phase_3": 0,
+                    "tp_bypass_2": 0,
+                    "tp_phase_2": 0
+                },
+                "ePllVmm1Reg91": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm1Reg92": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm1Reg93": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm1Reg94": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllVmm1Reg95": {
+                    "tx_enable": 15,
+                    "tx_csel": 4
+                },
+                "ePllTdcReg96": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "ePllTdcReg97": {
+                    "ePllPhase160MHz_1[4]": 0,
+                    "ePllPhase40MHz_1": 0
+                },
+                "ePllTdcReg98": {
+                    "ePllPhase160MHz_2[4]": 0,
+                    "ePllPhase40MHz_2": 0
+                },
+                "ePllTdcReg99": {
+                    "ePllPhase160MHz_3[4]": 0,
+                    "ePllPhase40MHz_3": 0
+                },
+                "ePllTdcReg100": {
+                    "ePllPhase160MHz_1[3:0]": 0,
+                    "ePllPhase160MHz_0[3:0]": 0
+                },
+                "ePllTdcReg101": {
+                    "ePllPhase160MHz_3[3:0]": 0,
+                    "ePllPhase160MHz_2[3:0]": 0
+                },
+                "ePllTdcReg102": {
+                    "ePllInstantLock": 0,
+                    "ePllReset": 0,
+                    "bypassPLL": 0,
+                    "ePllLockEn": 1,
+                    "ePllReferenceFrequency": 2,
+                    "ePllCap": 1
+                },
+                "ePllTdcReg103": {
+                    "ePllRes": 8,
+                    "ePllIcp": 8
+                },
+                "ePllTdcReg104": {
+                    "ePllEnablePhase": 255
+                },
+                "ePllTdcReg105": {
+                    "tp_bypass_1": 0,
+                    "tp_phase_1": 0,
+                    "tp_bypass_0": 0,
+                    "tp_phase_0": 0
+                },
+                "ePllTdcReg106": {
+                    "tp_bypass_3": 0,
+                    "tp_phase_3": 0,
+                    "tp_bypass_2": 0,
+                    "tp_phase_2": 0
+                },
+                "ePllTdcReg107": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllTdcReg108": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllTdcReg109": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllTdcReg110": {
+                    "ctrl_05delay_0": 0,
+                    "ctrl_delay_0": 0,
+                    "ctrl_bypass_0": 0,
+                    "ctrl_phase_0": 0
+                },
+                "ePllTdcReg111": {
+                    "tx_enable": 15,
+                    "tx_csel": 4
                 },
                 "register112": {
-                    "ePllInstantLock":0,
-                    "ePllReset":0,
-                    "bypassPLL":0,
-                    "ePllLockEn":1,
-                    "ePllCap":2,
-                    "ePllReferenceFrequency":1
+                    "ePllInstantLock": 0,
+                    "ePllReset": 0,
+                    "bypassPLL": 0,
+                    "ePllLockEn": 1,
+                    "ePllReferenceFrequency": 2,
+                    "ePllCap": 1
                 },
-                "VMM_ENA_INVreg122": {
-                    "VMM_ENA_INV":255
+                "register113": {
+                    "ePllRes": 8,
+                    "ePllIcp": 8
+                },
+                "register114": {
+                    "ePllEnablePhase": 255
+                },
+                "register115": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "register116": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "register117": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "register118": {
+                    "ePllPhase160MHz_0[4]": 0,
+                    "ePllPhase40MHz_0": 0
+                },
+                "register119": {
+                    "tp_bypass_global": 0,
+                    "tp_phase_global": 0,
+                    "ePllPhase160MHz_0[3:0]": 0
+                },
+                "register120": {
+                    "TDS_BCR_INV": 0,
+                    "LockOutInv": 0,
+                    "testOutEn": 0,
+                    "testOutMux": 0
+                },
+                "vmmBcrInv": {
+                    "vmmBcrInv": 0
+                },
+                "vmmEnaInv": {
+                    "vmmEnaInv": 0
+                },
+                "vmaL0Inv": {
+                    "vmmL0Inv": 0
+                },
+                "vmaTpInv": {
+                    "vmmTpInv": 0
                 }
             },
             "mmfe8RocCoreDigital":{

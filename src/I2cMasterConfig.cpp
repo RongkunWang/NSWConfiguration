@@ -31,8 +31,8 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
         for (auto i : register_sizes) {
             register_position[i.first] = pos;
             register_size[i.first] = i.second;
-            pos = pos + i.second;
             std::cout << "register: " << i.first << ", size : " << i.second << ", pos: " << pos << "\n";
+            pos = pos + i.second;
             /* code */
         }
         std::cout << "\n";
