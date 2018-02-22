@@ -11,7 +11,7 @@
         "scmx":1,
         "sfa":0,
         "sfam":0,
-        "st":3,
+        "st":2,
         "sfm":0,
         "sg":2,
         "sng":0,
@@ -21,7 +21,7 @@
         "stc":0,
         "sdt_dac":230,
 
-        "sdp_dac":300,
+        "sdp_dac":1000,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
@@ -76,7 +76,7 @@
         "channel_sc":0,
         "channel_sl":0,
         "channel_st":1,
-        "channel_sth":1,
+        "channel_sth":0,
         "channel_sm":0,
         "channel_smx":0,
         "channel_sd":0,
@@ -90,8 +90,8 @@
     "A01":{
         "ROC_L01_M01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80)",
-            "mmfe8RocPllCoreAnalog":{
+            "OpcNodeId": "SCA on MMFE8 0309",
+            "rocPllCoreAnalog":{
                 "ePllVmm0Reg64": {
                     "ePllPhase160MHz_0[4]": 0,
                     "ePllPhase40MHz_0": 0
@@ -377,14 +377,14 @@
                 "vmmEnaInv": {
                     "vmmEnaInv": 0
                 },
-                "vmaL0Inv": {
+                "vmmL0Inv": {
                     "vmmL0Inv": 0
                 },
-                "vmaTpInv": {
+                "vmmTpInv": {
                     "vmmTpInv": 0
                 }
             },
-            "mmfe8RocCoreDigital":{
+            "rocCoreDigital":{
                 "rocId": {
                     "l1_first": 0,
                     "even_parity": 1,
@@ -396,7 +396,7 @@
                     "sroc1": 3,
                     "sroc0": 3
                 },
-                "sroc0VmmConnections":
+                "sRoc0VmmConnections":
                 {
                     "vmm7": 1,
                     "vmm6": 0,
@@ -407,7 +407,7 @@
                     "vmm1": 0,
                     "vmm0": 1
                 },
-                "sroc1VmmConnections":
+                "sRoc1VmmConnections":
                 {
                     "vmm7": 0,
                     "vmm6": 1,
@@ -418,7 +418,7 @@
                     "vmm1": 1,
                     "vmm0": 0
                 },
-                "sroc2VmmConnections":
+                "sRoc2VmmConnections":
                 {
                     "vmm7": 0,
                     "vmm6": 0,
@@ -429,7 +429,7 @@
                     "vmm1": 0,
                     "vmm0": 0
                 },
-                "sroc3VmmConnections":
+                "sRoc3VmmConnections":
                 {
                     "vmm7": 0,
                     "vmm6": 0,
@@ -451,7 +451,7 @@
                     "sroc1_nullevt_enable": 1,
                     "sroc0_nullevt_enable": 1
                 },
-                "srocEnable": {
+                "sRocEnable": {
                     "bypass": 0,
                     "timeoutEnable": 0,
                     "TTCStartBits": 0,
@@ -545,35 +545,35 @@
         },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm0"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm0"
         },
         "VMM_L01_M01_01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm1"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm1"
         },
         "VMM_L01_M01_02":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm2"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm2"
         },
         "VMM_L01_M01_03":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm3"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm3"
         },
         "VMM_L01_M01_04":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm4"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm4"
         },
         "VMM_L01_M01_05":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm5"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm5"
         },
         "VMM_L01_M01_06":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm6"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm6"
         },
         "VMM_L01_M01_07":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on Felix (elink 0x80).spi.vmm7"
+            "OpcNodeId": "SCA on MMFE8 0309.spi.vmm7"
         }
     }
 }

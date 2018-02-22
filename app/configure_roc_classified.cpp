@@ -72,7 +72,6 @@ int main(int ac, const char *av[]) {
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
     nsw::ROCConfig roc0(rocconfig0);
 
-    return 0;
     nsw::ConfigSender cs;
 
     // Send all ROC config

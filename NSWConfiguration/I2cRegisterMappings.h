@@ -12,8 +12,8 @@
 
 #include "NSWConfiguration/Types.h"
 
-static const char ROC_ANALOG_NAME[] = "mmfe8RocPllCoreAnalog";
-static const char ROC_DIGITAL_NAME[] = "mmfe8RocCoreDigital";
+static const char ROC_ANALOG_NAME[] = "rocPllCoreAnalog";
+static const char ROC_DIGITAL_NAME[] = "rocCoreDigital";
 
 static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
     { "ePllVmm0Reg64", {
@@ -301,10 +301,10 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
     { "vmmEnaInv", {
         {"vmmEnaInv", 8}
     } },
-    { "vmaL0Inv", {
+    { "vmmL0Inv", {
         {"vmmL0Inv", 8}
     } },
-    { "vmaTpInv", {
+    { "vmmTpInv", {
         {"vmmTpInv", 8}
     } },
 };
@@ -312,20 +312,20 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
 static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
     { "rocId", {{"l1_first", 1}, {"even_parity", 1}, {"roc_id", 6}}},
     { "elinkSpeed", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
-    { "sroc0VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "sRoc0VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sroc1VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "sRoc1VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sroc2VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "sRoc2VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sroc3VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "sRoc3VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
     { "eopAndNullEventEnable", { {"sroc3_eop_enable", 1}, {"sroc1_eop_enable", 1},
                                  {"sroc1_eop_enable", 1}, {"sroc0_eop_enable", 1},
                                  {"sroc3_nullevt_enable", 1}, {"sroc2_nullevt_enable", 1},
                                  {"sroc1_nullevt_enable", 1}, {"sroc0_nullevt_enable", 1} } },
 
-    { "srocEnable", {{"bypass", 1}, {"timeoutEnable", 1}, {"TTCStartBits", 2},
+    { "sRocEnable", {{"bypass", 1}, {"timeoutEnable", 1}, {"TTCStartBits", 2},
                          {"enableSROC3", 1}, {"enableSROC2", 1}, {"enableSROC1", 1}, {"enableSROC0", 1}}},
 
     { "vmmEnable", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
