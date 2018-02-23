@@ -21,14 +21,14 @@
         "stc":0,
         "sdt_dac":230,
 
-        "sdp_dac":1000,
+        "sdp_dac":400,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
         "s8b":1,
         "s6b":0,
         "s10b":1,
-        "sdcks":0,
+        "sdcks":1,
         "sdcka":0,
         "sdck6b":0,
         "sdrv":0,
@@ -117,7 +117,7 @@
                     "ePllPhase160MHz_2[3:0]": 0
                 },
                 "ePllVmm0Reg70": {
-                    "ePllInstantLock": 0,
+                    "ePllInstantLock": 1,
                     "ePllReset": 0,
                     "bypassPLL": 0,
                     "ePllLockEn": 1,
@@ -196,7 +196,7 @@
                     "ePllPhase160MHz_2[3:0]": 0
                 },
                 "ePllVmm1Reg86": {
-                    "ePllInstantLock": 0,
+                    "ePllInstantLock": 1,
                     "ePllReset": 0,
                     "bypassPLL": 0,
                     "ePllLockEn": 1,
@@ -275,7 +275,7 @@
                     "ePllPhase160MHz_2[3:0]": 0
                 },
                 "ePllTdcReg102": {
-                    "ePllInstantLock": 0,
+                    "ePllInstantLock": 1,
                     "ePllReset": 0,
                     "bypassPLL": 0,
                     "ePllLockEn": 1,
@@ -330,7 +330,7 @@
                     "tx_csel": 4
                 },
                 "register112": {
-                    "ePllInstantLock": 0,
+                    "ePllInstantLock": 1,
                     "ePllReset": 0,
                     "bypassPLL": 0,
                     "ePllLockEn": 1,
@@ -346,22 +346,22 @@
                 },
                 "register115": {
                     "ePllPhase160MHz_0[4]": 0,
-                    "ePllPhase40MHz_0": 0
+                    "ePllPhase40MHz_0": 94
                 },
                 "register116": {
                     "ePllPhase160MHz_0[4]": 0,
-                    "ePllPhase40MHz_0": 0
+                    "ePllPhase40MHz_0": 94
                 },
                 "register117": {
                     "ePllPhase160MHz_0[4]": 0,
-                    "ePllPhase40MHz_0": 0
+                    "ePllPhase40MHz_0": 94
                 },
                 "register118": {
-                    "ePllPhase160MHz_0[4]": 0,
-                    "ePllPhase40MHz_0": 0
+                    "ePllPhase160MHz_0[0:3]": 0,
+                    "ePllPhase160MHz_1[0:3]": 0
                 },
                 "register119": {
-                    "tp_bypass_global": 0,
+                    "tp_bypass_global": 1,
                     "tp_phase_global": 0,
                     "ePllPhase160MHz_0[3:0]": 0
                 },
@@ -391,10 +391,10 @@
                     "roc_id": 0
                 },
                 "elinkSpeed": {
-                    "sroc3": 3,
-                    "sroc2": 3,
-                    "sroc1": 3,
-                    "sroc0": 3
+                    "sroc3": 0,
+                    "sroc2": 0,
+                    "sroc1": 0,
+                    "sroc0": 0
                 },
                 "sRoc0VmmConnections":
                 {

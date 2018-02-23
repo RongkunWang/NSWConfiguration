@@ -281,8 +281,8 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllPhase40MHz_0", 7}
     } },
     { "register118", {
-        {"ePllPhase160MHz_0[4]", 1},
-        {"ePllPhase40MHz_0", 7}
+        {"ePllPhase160MHz_0[0:3]", 4},
+        {"ePllPhase160MHz_1[0:3]", 4}
     } },
     { "register119", {
         {"tp_bypass_global", 1},
