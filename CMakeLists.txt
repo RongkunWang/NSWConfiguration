@@ -1,19 +1,10 @@
 tdaq_package() #This will make a package called NSWConfiguration
 
-# This may be useful for compatibility with external packages such as OPC client
-SET(LCG_TAG $ENV{LCGPLAT} )
-
-MESSAGE(STATUS "LCG Software Tag: ${LCG_TAG}")
-
-tdaq_add_executable(read_roc app/read_roc.cpp
-  LINK_LIBRARIES Boost::boost
-)
-
 tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
 
-tdaq_add_executable(configure_roc_classified app/configure_roc_classified.cpp
+tdaq_add_executable(configure_roc app/configure_roc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 

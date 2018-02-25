@@ -1,5 +1,5 @@
 
-// Sample program to read configuration from db/json
+// Sample program to create configuration json
 
 #include <iostream>
 #include <string>
@@ -17,16 +17,29 @@ int main(int argc, const char *argv[]) {
 
     auto all = {roc_digital, roc_analog};
     for (auto i2cmaster : all) {
+        bool first1 = true;
         for (auto address : i2cmaster) {
+            if (first1) {
+                first1 = false;
+            } else {
+                std::cout << "},\n";
+            }
             auto name = address.first;
             std::cout << "\"" << name << "\": {" << std::endl;
             auto registers = address.second;
+            bool first2 = true;
             for (auto reg : registers) {
+                if (first2) {
+                    first2 = false;
+                } else {
+                    std::cout << ",\n";
+                }
                 auto regname = reg.first;
-                std::cout << "    \"" << regname <<  "\": 0," << std::endl;
+                std::cout << "    \"" << regname <<  "\": 0";
             }
-            std::cout << "}," << std::endl;
+            std::cout << "\n";
         }
+        std::cout << "}" << std::endl;
         std::cout << "-------" << std::endl;
     }
 }
