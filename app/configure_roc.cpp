@@ -15,10 +15,16 @@
 namespace po = boost::program_options;
 
 int main(int ac, const char *av[]) {
+    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
+
     bool configure_vmm;
+    std::string config_filename;
     po::options_description desc("This program configures ROC with some command line options");
     desc.add_options()
-        ("help,h", "produce help message");
+        ("help,h", "produce help message")
+        ("configfile,c", po::value<std::string>(&config_filename)->
+        default_value(base_folder + "integration_config.json"),
+        "Configuration file path");
 
     po::options_description vmm("VMM Options");
     vmm.add_options()
@@ -38,8 +44,7 @@ int main(int ac, const char *av[]) {
         return 1;
     }
 
-    std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work2/NSWConfiguration/data/";
-    nsw::ConfigReader reader1("json://" + base_folder + "integration_config.json");
+    nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
 
     // ROC Config
