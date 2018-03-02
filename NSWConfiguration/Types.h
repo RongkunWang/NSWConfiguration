@@ -1,6 +1,8 @@
-// Definition of some types
-// address: Address of a I2c element. In a I2c master, there can be several of those
-// register: Name of register within the address. In an I2c element, there can be several of those
+// Definition of terminology
+// address: Opc Address of a I2c element/register. In a I2c master, there can be several of these
+// register: Name of subregister within the address. In an I2c element, there can be several of these.
+//           The main registers under I2c (address) is defined in the OpcServer configuration.
+//           The sub-registers are only used in the sw to build bitstreams and not known by Opc Server
 
 #ifndef NSWCONFIGURATION_TYPES_H_
 #define NSWCONFIGURATION_TYPES_H_

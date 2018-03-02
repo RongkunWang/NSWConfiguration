@@ -62,7 +62,7 @@ int main(int ac, const char *av[]) {
         size_t size = 1;
         auto opc_ip = roc0.getOpcServerIp();
         auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
-        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".vmmEnaInv",  data, size);
+        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
 
         std::vector<std::string> vmmids = {"0", "1", "2", "3", "4", "5", "6", "7"};
         for (auto vmmid : vmmids) {
@@ -81,7 +81,7 @@ int main(int ac, const char *av[]) {
 
         // Set back the register
         data[0] = {static_cast<uint8_t>(0x0)};
-        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".vmmEnaInv",  data, size);
+        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
     }
 
     return 0;

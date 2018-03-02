@@ -2,6 +2,10 @@
 // The mappings are of type AddressRegisterMap, and should be declared
 // static const, and passed as reference to I2CFEConfig instances
 
+// Each I2c mapping is of type AddressRegisterMap, a map such with:
+// key: Address of I2c main registers
+// value: RegisterSizeVector: a vector of pairs as: {subregisterName, subregister size in its}
+
 #ifndef NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
 #define NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
 
@@ -16,31 +20,31 @@ static const char ROC_ANALOG_NAME[] = "rocPllCoreAnalog";
 static const char ROC_DIGITAL_NAME[] = "rocCoreDigital";
 
 static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
-    { "ePllVmm0Reg64", {
+    { "reg064ePllVmm0", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "ePllVmm0Reg65", {
+    { "reg065ePllVmm0", {
         {"ePllPhase160MHz_1[4]", 1},
         {"ePllPhase40MHz_1", 7}
     } },
-    { "ePllVmm0Reg66", {
+    { "reg066ePllVmm0", {
         {"ePllPhase160MHz_2[4]", 1},
         {"ePllPhase40MHz_2", 7}
     } },
-    { "ePllVmm0Reg67", {
+    { "reg067ePllVmm0", {
         {"ePllPhase160MHz_3[4]", 1},
         {"ePllPhase40MHz_3", 7}
     } },
-    { "ePllVmm0Reg68", {
+    { "reg068ePllVmm0", {
         {"ePllPhase160MHz_1[3:0]", 4},
         {"ePllPhase160MHz_0[3:0]", 4}
     } },
-    { "ePllVmm0Reg69", {
+    { "reg069ePllVmm0", {
         {"ePllPhase160MHz_3[3:0]", 4},
         {"ePllPhase160MHz_2[3:0]", 4}
     } },
-    { "ePllVmm0Reg70", {
+    { "reg070ePllVmm0", {
         {"ePllInstantLock", 1},
         {"ePllReset", 1},
         {"bypassPLL", 1},
@@ -48,78 +52,78 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllReferenceFrequency", 2},
         {"ePllCap", 2}
     } },
-    { "ePllVmm0Reg71", {
+    { "reg071ePllVmm0", {
         {"ePllRes", 4},
         {"ePllIcp", 4}
     } },
-    { "ePllVmm0Reg72", {
+    { "reg072ePllVmm0", {
         {"ePllEnablePhase", 8}
     } },
-    { "ePllVmm0Reg73", {
+    { "reg073ePllVmm0", {
         {"tp_bypass_1", 1},
         {"tp_phase_1", 3},
         {"tp_bypass_0", 1},
         {"tp_phase_0", 3}
     } },
-    { "ePllVmm0Reg74", {
+    { "reg074ePllVmm0", {
         {"tp_bypass_3", 1},
         {"tp_phase_3", 3},
         {"tp_bypass_2", 1},
         {"tp_phase_2", 3}
     } },
-    { "ePllVmm0Reg75", {
+    { "reg075ePllVmm0", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm0Reg76", {
+    { "reg076ePllVmm0", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm0Reg77", {
+    { "reg077ePllVmm0", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm0Reg78", {
+    { "reg078ePllVmm0", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm0Reg79", {
+    { "reg079ePllVmm0", {
         {"tx_enable", 4},
         {"tx_csel", 4}
     } },
-    { "ePllVmm1Reg80", {
+    { "reg080ePllVmm1", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "ePllVmm1Reg81", {
+    { "reg081ePllVmm1", {
         {"ePllPhase160MHz_1[4]", 1},
         {"ePllPhase40MHz_1", 7}
     } },
-    { "ePllVmm1Reg82", {
+    { "reg082ePllVmm1", {
         {"ePllPhase160MHz_2[4]", 1},
         {"ePllPhase40MHz_2", 7}
     } },
-    { "ePllVmm1Reg83", {
+    { "reg083ePllVmm1", {
         {"ePllPhase160MHz_3[4]", 1},
         {"ePllPhase40MHz_3", 7}
     } },
-    { "ePllVmm1Reg84", {
+    { "reg084ePllVmm1", {
         {"ePllPhase160MHz_1[3:0]", 4},
         {"ePllPhase160MHz_0[3:0]", 4}
     } },
-    { "ePllVmm1Reg85", {
+    { "reg085ePllVmm1", {
         {"ePllPhase160MHz_3[3:0]", 4},
         {"ePllPhase160MHz_2[3:0]", 4}
     } },
-    { "ePllVmm1Reg86", {
+    { "reg086ePllVmm1", {
         {"ePllInstantLock", 1},
         {"ePllReset", 1},
         {"bypassPLL", 1},
@@ -127,78 +131,78 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllReferenceFrequency", 2},
         {"ePllCap", 2}
     } },
-    { "ePllVmm1Reg87", {
+    { "reg087ePllVmm1", {
         {"ePllRes", 4},
         {"ePllIcp", 4}
     } },
-    { "ePllVmm1Reg88", {
+    { "reg088ePllVmm1", {
         {"ePllEnablePhase", 8}
     } },
-    { "ePllVmm1Reg89", {
+    { "reg089ePllVmm1", {
         {"tp_bypass_1", 1},
         {"tp_phase_1", 3},
         {"tp_bypass_0", 1},
         {"tp_phase_0", 3}
     } },
-    { "ePllVmm1Reg90", {
+    { "reg090ePllVmm1", {
         {"tp_bypass_3", 1},
         {"tp_phase_3", 3},
         {"tp_bypass_2", 1},
         {"tp_phase_2", 3}
     } },
-    { "ePllVmm1Reg91", {
+    { "reg091ePllVmm1", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm1Reg92", {
+    { "reg092ePllVmm1", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm1Reg93", {
+    { "reg093ePllVmm1", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm1Reg94", {
+    { "reg094ePllVmm1", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllVmm1Reg95", {
+    { "reg095ePllVmm1", {
         {"tx_enable", 4},
         {"tx_csel", 4}
     } },
-    { "ePllTdcReg96", {
+    { "reg096ePllTdc", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "ePllTdcReg97", {
+    { "reg097ePllTdc", {
         {"ePllPhase160MHz_1[4]", 1},
         {"ePllPhase40MHz_1", 7}
     } },
-    { "ePllTdcReg98", {
+    { "reg098ePllTdc", {
         {"ePllPhase160MHz_2[4]", 1},
         {"ePllPhase40MHz_2", 7}
     } },
-    { "ePllTdcReg99", {
+    { "reg099ePllTdc", {
         {"ePllPhase160MHz_3[4]", 1},
         {"ePllPhase40MHz_3", 7}
     } },
-    { "ePllTdcReg100", {
+    { "reg100ePllTdc", {
         {"ePllPhase160MHz_1[3:0]", 4},
         {"ePllPhase160MHz_0[3:0]", 4}
     } },
-    { "ePllTdcReg101", {
+    { "reg101ePllTdc", {
         {"ePllPhase160MHz_3[3:0]", 4},
         {"ePllPhase160MHz_2[3:0]", 4}
     } },
-    { "ePllTdcReg102", {
+    { "reg102ePllTdc", {
         {"ePllInstantLock", 1},
         {"ePllReset", 1},
         {"bypassPLL", 1},
@@ -206,54 +210,54 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllReferenceFrequency", 2},
         {"ePllCap", 2}
     } },
-    { "ePllTdcReg103", {
+    { "reg103ePllTdc", {
         {"ePllRes", 4},
         {"ePllIcp", 4}
     } },
-    { "ePllTdcReg104", {
+    { "reg104ePllTdc", {
         {"ePllEnablePhase", 8}
     } },
-    { "ePllTdcReg105", {
+    { "reg105ePllTdc", {
         {"tp_bypass_1", 1},
         {"tp_phase_1", 3},
         {"tp_bypass_0", 1},
         {"tp_phase_0", 3}
     } },
-    { "ePllTdcReg106", {
+    { "reg106ePllTdc", {
         {"tp_bypass_3", 1},
         {"tp_phase_3", 3},
         {"tp_bypass_2", 1},
         {"tp_phase_2", 3}
     } },
-    { "ePllTdcReg107", {
+    { "reg107ePllTdc", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllTdcReg108", {
+    { "reg108ePllTdc", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllTdcReg109", {
+    { "reg109ePllTdc", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllTdcReg110", {
+    { "reg110ePllTdc", {
         {"ctrl_05delay_0", 1},
         {"ctrl_delay_0", 3},
         {"ctrl_bypass_0", 1},
         {"ctrl_phase_0", 3}
     } },
-    { "ePllTdcReg111", {
+    { "reg111ePllTdc", {
         {"tx_enable", 4},
         {"tx_csel", 4}
     } },
-    { "register112", {
+    { "reg112", {
         {"ePllInstantLock", 1},
         {"ePllReset", 1},
         {"bypassPLL", 1},
@@ -261,102 +265,102 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllReferenceFrequency", 2},
         {"ePllCap", 2}
     } },
-    { "register113", {
+    { "reg113", {
         {"ePllRes", 4},
         {"ePllIcp", 4}
     } },
-    { "register114", {
+    { "reg114", {
         {"ePllEnablePhase", 8}
     } },
-    { "register115", {
+    { "reg115", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "register116", {
+    { "reg116", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "register117", {
+    { "reg117", {
         {"ePllPhase160MHz_0[4]", 1},
         {"ePllPhase40MHz_0", 7}
     } },
-    { "register118", {
+    { "reg118", {
         {"ePllPhase160MHz_0[0:3]", 4},
         {"ePllPhase160MHz_1[0:3]", 4}
     } },
-    { "register119", {
+    { "reg119", {
         {"tp_bypass_global", 1},
         {"tp_phase_global", 3},
         {"ePllPhase160MHz_0[3:0]", 4}
     } },
-    { "register120", {
+    { "reg120", {
         {"TDS_BCR_INV", 4},
         {"LockOutInv", 1},
         {"testOutEn", 1},
         {"testOutMux", 2}
     } },
-    { "vmmBcrInv", {
+    { "reg121vmmBcrInv", {
         {"vmmBcrInv", 8}
     } },
-    { "vmmEnaInv", {
+    { "reg122vmmEnaInv", {
         {"vmmEnaInv", 8}
     } },
-    { "vmmL0Inv", {
+    { "reg123vmmL0Inv", {
         {"vmmL0Inv", 8}
     } },
-    { "vmmTpInv", {
+    { "reg124vmmTpInv", {
         {"vmmTpInv", 8}
     } },
 };
 
 static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
-    { "rocId", {{"l1_first", 1}, {"even_parity", 1}, {"roc_id", 6}}},
-    { "elinkSpeed", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
-    { "sRoc0VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg000rocId", {{"l1_first", 1}, {"even_parity", 1}, {"roc_id", 6}}},
+    { "reg001elinkSpeed", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
+    { "reg002sRoc0VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sRoc1VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg003sRoc1VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sRoc2VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg004sRoc2VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "sRoc3VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg005sRoc3VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "eopAndNullEventEnable", { {"sroc3_eop_enable", 1}, {"sroc1_eop_enable", 1},
+    { "reg006eopAndNullEventEnable", { {"sroc3_eop_enable", 1}, {"sroc1_eop_enable", 1},
                                  {"sroc1_eop_enable", 1}, {"sroc0_eop_enable", 1},
                                  {"sroc3_nullevt_enable", 1}, {"sroc2_nullevt_enable", 1},
                                  {"sroc1_nullevt_enable", 1}, {"sroc0_nullevt_enable", 1} } },
 
-    { "sRocEnable", {{"bypass", 1}, {"timeoutEnable", 1}, {"TTCStartBits", 2},
+    { "reg007sRocEnable", {{"bypass", 1}, {"timeoutEnable", 1}, {"TTCStartBits", 2},
                          {"enableSROC3", 1}, {"enableSROC2", 1}, {"enableSROC1", 1}, {"enableSROC0", 1}}},
 
-    { "vmmEnable", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg008vmmEnable", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                      {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
 
-    { "timeout", { {"timeout", 8} } },
-    { "bcOffset0_txcSel", { {"tx_csel", 4}, {"bc_offset11_8", 4} } },
-    { "bcOffset1", { {"bc_offset7_0", 8} } },
-    { "bcRollover0", { {"NOT_USED", 4}, {"bc_rollover11_8", 4} } },
-    { "bcRollover1", { {"bc_rollover7_0", 8} } },
+    { "reg009timeout", { {"timeout", 8} } },
+    { "reg010bcOffset0_txcSel", { {"tx_csel", 4}, {"bc_offset11_8", 4} } },
+    { "reg011bcOffset1", { {"bc_offset7_0", 8} } },
+    { "reg012bcRollover0", { {"NOT_USED", 4}, {"bc_rollover11_8", 4} } },
+    { "reg013bcRollover1", { {"bc_rollover7_0", 8} } },
 
-    { "eportEnable", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
+    { "reg014eportEnable", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
 
-    { "fakeVmmFailure", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg019fakeVmmFailure", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                           {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
 
-    { "busyAndTdcEnable", { {"tdc_enable_sroc3", 1}, {"tdc_enable_sroc2", 1},
+    { "reg020busyAndTdcEnable", { {"tdc_enable_sroc3", 1}, {"tdc_enable_sroc2", 1},
                             {"tdc_enable_sroc1", 1}, {"tdc_enable_sroc0", 1},
                             {"busy_enable_sroc3", 1}, {"busy_enable_sroc2", 1},
                             {"busy_enable_sroc1", 1}, {"busy_enable_sroc0", 1} } },
 
 
-    { "busyOnLimit0", { {"NOT_USED", 5}, {"busy_on_limit10_7", 3} } },
-    { "busyOnLimit1", { {"busy_on_limit8_0", 8} } },
+    { "reg021busyOnLimit0", { {"NOT_USED", 5}, {"busy_on_limit10_7", 3} } },
+    { "reg022busyOnLimit1", { {"busy_on_limit8_0", 8} } },
 
-    { "busyOffLimit0", { {"NOT_USED", 5}, {"busy_off_limit10_7", 3} } },
-    { "busyOffLimit1", { {"busy_off_limit8_0", 8} } },
+    { "reg023busyOffLimit0", { {"NOT_USED", 5}, {"busy_off_limit10_7", 3} } },
+    { "reg024busyOffLimit1", { {"busy_off_limit8_0", 8} } },
 
-    { "l1EventsWithoutComma", { {"l1_events_no_comma", 8} } },
+    { "reg031l1EventsWithoutComma", { {"l1_events_no_comma", 8} } },
 
-    { "timeoutStatus", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
+    { "reg063timeoutStatus", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                          {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } }
 };
 
