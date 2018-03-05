@@ -34,7 +34,7 @@ int main(int ac, const char *av[]) {
 
     // Declare an options description instance which will include all the options
     po::options_description all("Allowed options");
-    all.add(desc).add(vmm);
+    all.add(desc);  // .add(vmm);
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, all), vm);
@@ -64,7 +64,7 @@ int main(int ac, const char *av[]) {
 
         roc0.analog.setRegisterValue("reg064ePllVmm0", "ePllPhase160MHz_0[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg065ePllVmm0", "ePllPhase160MHz_1[4]", phase160 >> 3);
-        roc0.analog.setregistervalue("reg066ePllVmm0", "ePllPhase160MHz_2[4]", phase160 >> 3);
+        roc0.analog.setRegisterValue("reg066ePllVmm0", "ePllPhase160MHz_2[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg067ePllVmm0", "ePllPhase160MHz_3[4]", phase160 >> 3);
 
         roc0.analog.setRegisterValue("reg064ePllVmm0", "ePllPhase40MHz_0", phase40);
@@ -80,7 +80,7 @@ int main(int ac, const char *av[]) {
         // ----
         roc0.analog.setRegisterValue("reg080ePllVmm1", "ePllPhase160MHz_0[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg081ePllVmm1", "ePllPhase160MHz_1[4]", phase160 >> 3);
-        roc0.analog.setregistervalue("reg082ePllVmm1", "ePllPhase160MHz_2[4]", phase160 >> 3);
+        roc0.analog.setRegisterValue("reg082ePllVmm1", "ePllPhase160MHz_2[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg083ePllVmm1", "ePllPhase160MHz_3[4]", phase160 >> 3);
 
         roc0.analog.setRegisterValue("reg080ePllVmm1", "ePllPhase40MHz_0", phase40);
@@ -96,7 +96,7 @@ int main(int ac, const char *av[]) {
         // ----
         roc0.analog.setRegisterValue("reg096ePllTdc", "ePllPhase160MHz_0[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg097ePllTdc", "ePllPhase160MHz_1[4]", phase160 >> 3);
-        roc0.analog.setregistervalue("reg098ePllTdc", "ePllPhase160MHz_2[4]", phase160 >> 3);
+        roc0.analog.setRegisterValue("reg098ePllTdc", "ePllPhase160MHz_2[4]", phase160 >> 3);
         roc0.analog.setRegisterValue("reg099ePllTdc", "ePllPhase160MHz_3[4]", phase160 >> 3);
 
         roc0.analog.setRegisterValue("reg096ePllTdc", "ePllPhase40MHz_0", phase40);

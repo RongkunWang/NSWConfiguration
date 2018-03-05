@@ -18,29 +18,31 @@ int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
     bool configure_vmm;
+    bool configure_roc;
     std::string config_filename;
-    po::options_description desc("This program configures ROC with some command line options");
+    po::options_description desc("This program configures ROC/VMM with some command line options");
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
         default_value(base_folder + "integration_config.json"),
-        "Configuration file path");
-
-    po::options_description vmm("VMM Options");
-    vmm.add_options()
+        "Configuration file path")
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
-        "Configure also all the VMMs on the ROC(Default: False)");
-
-    // Declare an options description instance which will include all the options
-    po::options_description all("Allowed options");
-    all.add(desc).add(vmm);
+        "Configure also all the VMMs on the ROC(Default: False)")
+        ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
+        "Configure the ROC(Default: False)");
 
     po::variables_map vm;
-    po::store(po::parse_command_line(ac, av, all), vm);
+    po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
 
+    if (!configure_roc && !configure_vmm) {
+        std::cout << "Please chose at least one of -r and -v command line options to configure ROC/VMM." << "\n";
+        std::cout << desc << "\n";
+        return 1;
+    }
+
     if (vm.count("help")) {
-        std::cout << all << "\n";
+        std::cout << desc << "\n";
         return 1;
     }
 
@@ -54,7 +56,9 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
 
     // Send all ROC config
-    cs.sendRocConfig(roc0);
+    if (configure_roc) {
+        cs.sendRocConfig(roc0);
+    }
 
     if (configure_vmm) {
         // Inverse VMM enable to get VMM into config mode
