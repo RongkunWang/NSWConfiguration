@@ -41,7 +41,7 @@ ptree ConfigReaderApi::readVMM(std::string element) {
             tree.add_child(name, iter->second);  // Add it as a child tree
             type = "tree";
         }
-        ERS_DEBUG(5, name << ", " << type );
+        ERS_DEBUG(5, name << ", " << type);
     }
 
     return tree;

@@ -13,8 +13,8 @@ using boost::property_tree::ptree;
 
 nsw::VMMConfig::VMMConfig(ptree vmmconfig): FEConfig(vmmconfig) {
     m_bitset = codec.buildConfig(m_config);
-    std::cout << m_bitset << std::endl;
-    std::cout << nsw::bitsetToHexString(m_bitset) << std::endl;
+    ERS_DEBUG(5, "VMM Bitset: " << m_bitset);
+    ERS_DEBUG(3, "VMM Bitset(hex): " << nsw::bitsetToHexString(m_bitset));
 }
 
 std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray() {

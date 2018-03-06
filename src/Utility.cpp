@@ -38,7 +38,8 @@ std::string nsw::getElementType(std::string element_name) {
 
 void nsw::checkOverflow(size_t register_size, unsigned value, std::string register_name) {
     if (std::pow(2, register_size) <= value) {
-        std::string err = "Overflow, register: " + register_name + ", max value: "
+        std::string err = "Overflow, register: " + register_name + ", size: "
+                           + std::to_string(register_size) + ", max value: "
                            + std::to_string(std::pow(2, register_size)-1)
                            + ", actual value: " + std::to_string(value);
         throw std::runtime_error(err);  // TODO(cyildiz): convert to ers

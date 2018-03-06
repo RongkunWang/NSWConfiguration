@@ -110,7 +110,7 @@
                 },
                 "reg068ePllVmm0": {
                     "ePllPhase160MHz_1[3:0]": 0,
-                    "ePllPhase160MHz_0[3:0]": 0
+                    "ePllPhase160MHz_0[3:0]": 1
                 },
                 "reg069ePllVmm0": {
                     "ePllPhase160MHz_3[3:0]": 0,

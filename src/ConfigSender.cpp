@@ -71,7 +71,7 @@ void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::s
 
 void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
                                             std::string topnode, const nsw::I2cMasterConfig& cfg) {
-    ERS_LOG("Sending I2c configuration to " << topnode);
+    ERS_LOG("Sending I2c configuration to " << topnode << "." << cfg.getName());
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
         auto address = topnode + "." + cfg.getName() + "." + ab.first;  // Full I2C address

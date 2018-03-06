@@ -135,10 +135,10 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
     std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
-        ERS_DEBUG(2, "Global 0 ");
+        ERS_DEBUG(4, "Global 0 ");
     } else if (type == nsw::GlobalRegisters::global1) {
         vname_size = m_global_name_size1;
-        ERS_DEBUG(2, "Global 1 ");
+        ERS_DEBUG(4, "Global 1 ");
     }
 
     std::string bitstr = "";
@@ -150,17 +150,16 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
 
         nsw::checkOverflow(register_size, value, register_name);
 
-
-        ERS_DEBUG(3, register_name << " : " << register_size << " -> ");
+        ERS_DEBUG(5, register_name << " : " << register_size << " -> ");
 
         std::string str;
         auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
         if (iter != m_bitreversed_registers.end()) {
             str = reversedBitString(value, register_size);
-            ERS_DEBUG(3, " -- " << value << " - reversed: " << str);
+            ERS_DEBUG(5, " -- " << value << " - reversed: " << str);
         } else {
             str = bitString(value, register_size);
-            ERS_DEBUG(3, " -- " << value << " - regular: " << str);
+            ERS_DEBUG(5, " -- " << value << " - regular: " << str);
         }
         bitstr = str + bitstr;
     }
