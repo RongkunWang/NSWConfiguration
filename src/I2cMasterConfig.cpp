@@ -50,7 +50,15 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
         auto address = e.first;
         auto register_sizes = e.second;
 
-        auto child = config.get_child(address);
+        ptree child;
+        try { 
+            child = config.get_child(address);
+        } catch (const boost::property_tree::ptree_bad_path& e) {
+            std::string temp = e.what();
+            nsw::MissingI2cAddress issue(ERS_HERE, temp.c_str());
+            ers::error(issue);
+            throw issue;
+        }
 
         std::string tempstr;
         ERS_DEBUG(4, address);
@@ -58,7 +66,15 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
             auto register_name = rs.first;
             auto size = rs.second;
 
-            auto value = child.get<unsigned>(register_name);
+            unsigned value;
+            try {
+                value = child.get<unsigned>(register_name);
+            } catch (const boost::property_tree::ptree_bad_path& e) {
+                std::string temp = address + ": " + e.what();
+                nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
+                ers::error(issue);
+                throw issue;
+            }
             nsw::checkOverflow(size, value, register_name);
             ERS_DEBUG(5, " -- " << register_name << " -> " << value);
 
@@ -85,6 +101,12 @@ void nsw::I2cMasterConfig::dump() {
 }
 
 uint32_t nsw::I2cMasterConfig::getRegisterValue(std::string address, std::string register_name) {
+    if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
+        std::string temp = address;
+        nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
+        ers::error(issue);
+        throw issue;
+    }
     // TODO(cyildiz): Exception handling if the elements doesn't exist
     auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
     auto reg_size = m_codec.m_addr_reg_size[address][register_name];
@@ -96,6 +118,18 @@ uint32_t nsw::I2cMasterConfig::getRegisterValue(std::string address, std::string
 
 void nsw::I2cMasterConfig::setRegisterValue(std::string address, std::string register_name, uint32_t value) {
     // TODO(cyildiz): Exception handling if the elements doesn't exist
+    if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
+        std::string temp = address;
+        nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
+        ers::error(issue);
+        throw issue;
+    }
+   /* if (m_addr_reg_pos[address].find(register_name) == m_addr_reg_pos[register_name].end()) {
+        std::string temp = address;
+        nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
+        ers::fatal(issue);
+        throw issue;
+    }*/
     auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
     auto reg_size = m_codec.m_addr_reg_size[address][register_name];
 

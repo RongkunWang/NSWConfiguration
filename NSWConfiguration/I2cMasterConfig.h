@@ -17,6 +17,30 @@
 
 using boost::property_tree::ptree;
 
+ERS_DECLARE_ISSUE(nsw,
+                  NoSuchI2cAddress,
+                  "No I2C element with this address: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  NoSuchI2cRegister,
+                  "No I2C register with this name: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  MissingI2cAddress,
+                  "I2c element missing from configuration: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  MissingI2cRegister,
+                  "I2c register missing from configuration: " << message,
+                  ((const char *)message)
+                  )
+
 namespace nsw {
 
 /*! \brief Generic I2C type Front End Codec
@@ -28,7 +52,7 @@ namespace nsw {
 class I2cMasterCodec {
  public:
     explicit I2cMasterCodec(const i2c::AddressRegisterMap & ar_map);
-    ~I2cMasterCodec() { ERS_LOG("Destroying I2cMasterCodec");}
+    ~I2cMasterCodec() {}
 
     // Method that created bitstreams from config tree.
     i2c::AddressBitstreamMap buildConfig(ptree config);

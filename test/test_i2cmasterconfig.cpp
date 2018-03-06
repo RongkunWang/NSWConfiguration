@@ -128,3 +128,50 @@ BOOST_AUTO_TEST_CASE(overflow_test) {
     nsw::I2cMasterConfig master(config2, "master_address", CUSTOM_REGISTER_SIZE_1);
     BOOST_CHECK_THROW(master.setRegisterValue("i2caddress0", "reg4", 2), std::runtime_error);
 }
+
+BOOST_AUTO_TEST_CASE(MissingI2c_test) {
+    std::stringstream json;
+    json << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
+    json << "\"i2caddress1\": { \"reg0\":15, \"reg1\":16, \"reg2\":0, \"reg3\":0, \"reg4\":0 },";
+    json << "\"i2caddress2\": { \"reg0\":0, \"reg1\":0, \"reg2\":0, \"reg3\":0 },";
+    json << "\"i2caddressNOTEXISTANT\": { \"reg0\":7 } }\n";
+
+    ptree config;
+    boost::property_tree::read_json(json, config);
+
+    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config, "master_address", CUSTOM_REGISTER_SIZE_1), nsw::MissingI2cAddress);
+
+    std::stringstream json2;
+    json2 << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
+    json2 << "\"i2caddress1\": { \"reg0\":15, \"reg1\":16, \"reg2\":0, \"reg3\":0, \"reg4\":0 },";
+    json2 << "\"i2caddress2\": { \"reg0\":0, \"reg1\":0, \"reg2\":0, \"reg3\":0 },";
+    json2 << "\"i2caddress3\": { \"regNOTEXISTANT\":7 } }\n";
+
+    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config, "master_address", CUSTOM_REGISTER_SIZE_1), nsw::MissingI2cRegister);
+
+    ptree config2;
+    boost::property_tree::read_json(json2, config2);
+
+}
+
+BOOST_AUTO_TEST_CASE(NoSuchI2c_test) {
+    std::stringstream json;
+    json << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
+    json << "\"i2caddress1\": { \"reg0\":15, \"reg1\":16, \"reg2\":0, \"reg3\":0, \"reg4\":0 },";
+    json << "\"i2caddress2\": { \"reg0\":0, \"reg1\":0, \"reg2\":0, \"reg3\":0 },";
+    json << "\"i2caddress3\": { \"reg0\":7 } }\n";
+
+    ptree config;
+    boost::property_tree::read_json(json, config);
+
+    nsw::I2cMasterConfig master(config, "master_address", CUSTOM_REGISTER_SIZE_1);
+
+    BOOST_CHECK_THROW(master.setRegisterValue("i2caddressNOTEXISTANT", "reg0", 1), nsw::NoSuchI2cAddress);
+    BOOST_CHECK_THROW(master.getRegisterValue("i2caddressNOTEXISTANT", "reg0"), nsw::NoSuchI2cAddress);
+
+    BOOST_CHECK_THROW(master.setRegisterValue("i2caddress3", "regNOTEXISTANT", 1), nsw::NoSuchI2cRegister);
+    BOOST_CHECK_THROW(master.getRegisterValue("i2caddress3", "regNOTEXISTANT"), nsw::NoSuchI2cRegister);
+
+}
+
+
