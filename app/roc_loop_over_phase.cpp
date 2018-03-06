@@ -55,20 +55,17 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
 
     std::string input = "";
-    //for (uint32_t i = 0; i < 128; i++) {
+    // for (uint32_t i = 0; i < 128; i++) {
     for (uint32_t i = 0; i < 32; i++) {
-
         std::cout << "Press enter to go to next step: " << std::endl;
         getline(std::cin, input);
         // uint32_t phase40 = i;
 
+        uint32_t phase160 = i & 31;
         // uint32_t shift40_ps = 200 * i;  // Phase shift of 40MHz in ps
-        // uint32_t shift160_ps = shift40_ps % 3250;
-        uint32_t shift160_ps = 200 * i;
+        uint32_t shift160_ps = 200 * phase160;
 
-        uint32_t phase160 = i; // (shift160_ps / 200) & 31;  // 5 bit maximum
-
-        //std::cout << "phase40: " << shift40_ps << " - phase160: " << shift160_ps << std::endl;
+        // std::cout << "phase40: " << shift40_ps << " - phase160: " << shift160_ps << std::endl;
         std::cout << " - phase160: " << shift160_ps << std::endl;
 
         roc0.analog.setRegisterValue("reg064ePllVmm0", "ePllPhase160MHz_0[4]", phase160 >> 4);

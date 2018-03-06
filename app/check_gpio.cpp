@@ -58,19 +58,20 @@ int main(int ac, const char *av[]) {
     auto sca_address = roc0.getAddress();
 
     nsw::ConfigSender cs;
-    
-    
+
+
     bool rocError = 0;
     bool rocError_prev = 0;
 
- 
-    while(true) {   
+    while (true) {
         rocError = cs.readGPIO(opc_ip, sca_address + ".gpio.rocError");
         if (rocError!= rocError_prev) {
             const time_t ctt = time(0);
-            std::cout << asctime(localtime(&ctt)) ;
-            if (rocError){
-               std::cout << "ERROR! ERROR! ";
+            char buf[100];
+            ctime_r(&ctt, buf);
+            std::cout << buf;
+            if (rocError) {
+               std::cout << " -- ERROR! ERROR! -- ";
             }
             std::cout << "rocError value changed: " << rocError << std::endl;
             rocError_prev = rocError;
