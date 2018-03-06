@@ -51,7 +51,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
         auto register_sizes = e.second;
 
         ptree child;
-        try { 
+        try {
             child = config.get_child(address);
         } catch (const boost::property_tree::ptree_bad_path& e) {
             std::string temp = e.what();
@@ -107,7 +107,12 @@ uint32_t nsw::I2cMasterConfig::getRegisterValue(std::string address, std::string
         ers::error(issue);
         throw issue;
     }
-    // TODO(cyildiz): Exception handling if the elements doesn't exist
+    if (m_codec.m_addr_reg_pos[address].find(register_name) == m_codec.m_addr_reg_pos[address].end()) {
+        std::string temp = address;
+        nsw::NoSuchI2cRegister issue(ERS_HERE, temp.c_str());
+        ers::error(issue);
+        throw issue;
+    }
     auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
     auto reg_size = m_codec.m_addr_reg_size[address][register_name];
 
@@ -117,19 +122,18 @@ uint32_t nsw::I2cMasterConfig::getRegisterValue(std::string address, std::string
 }
 
 void nsw::I2cMasterConfig::setRegisterValue(std::string address, std::string register_name, uint32_t value) {
-    // TODO(cyildiz): Exception handling if the elements doesn't exist
     if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
         std::string temp = address;
         nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
         ers::error(issue);
         throw issue;
     }
-   /* if (m_addr_reg_pos[address].find(register_name) == m_addr_reg_pos[register_name].end()) {
+    if (m_codec.m_addr_reg_pos[address].find(register_name) == m_codec.m_addr_reg_pos[address].end()) {
         std::string temp = address;
-        nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
-        ers::fatal(issue);
+        nsw::NoSuchI2cRegister issue(ERS_HERE, temp.c_str());
+        ers::error(issue);
         throw issue;
-    }*/
+    }
     auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
     auto reg_size = m_codec.m_addr_reg_size[address][register_name];
 

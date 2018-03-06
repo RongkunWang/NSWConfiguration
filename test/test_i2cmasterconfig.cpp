@@ -147,11 +147,10 @@ BOOST_AUTO_TEST_CASE(MissingI2c_test) {
     json2 << "\"i2caddress2\": { \"reg0\":0, \"reg1\":0, \"reg2\":0, \"reg3\":0 },";
     json2 << "\"i2caddress3\": { \"regNOTEXISTANT\":7 } }\n";
 
-    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config, "master_address", CUSTOM_REGISTER_SIZE_1), nsw::MissingI2cRegister);
-
     ptree config2;
     boost::property_tree::read_json(json2, config2);
 
+    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config2, "master_address", CUSTOM_REGISTER_SIZE_1), nsw::MissingI2cRegister);
 }
 
 BOOST_AUTO_TEST_CASE(NoSuchI2c_test) {
@@ -171,7 +170,6 @@ BOOST_AUTO_TEST_CASE(NoSuchI2c_test) {
 
     BOOST_CHECK_THROW(master.setRegisterValue("i2caddress3", "regNOTEXISTANT", 1), nsw::NoSuchI2cRegister);
     BOOST_CHECK_THROW(master.getRegisterValue("i2caddress3", "regNOTEXISTANT"), nsw::NoSuchI2cRegister);
-
 }
 
 
