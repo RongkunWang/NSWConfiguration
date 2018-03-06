@@ -19,6 +19,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
+                 tdaq-common::ers
 )
 
 tdaq_add_executable(nsw_read_config app/read_config.cpp
@@ -48,17 +49,17 @@ tdaq_add_schema(schema/NSWConfig.schema.xml)
 # Testing
 
 tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
-      LINK_LIBRARIES Boost::unit_test_framework)
+      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
 
 add_test(NAME vmmcodec COMMAND nsw_test_vmmcodec)
 
 tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
-      LINK_LIBRARIES Boost::unit_test_framework)
+      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
 
 add_test(NAME utility COMMAND nsw_test_utility)
 
 tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
-      LINK_LIBRARIES Boost::unit_test_framework)
+      LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
 
 add_test(NAME test_i2cmasterconfig COMMAND test_i2cmasterconfig)
 
@@ -84,6 +85,8 @@ tdaq_add_library(nswopcclient
         UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
         ${OPC_GENERATED_CLIENT_SRCS}
   LINK_LIBRARIES
+        Boost::boost
+        tdaq-common::ers
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
         ${OPC_OPEN62541_PATH}/open62541/build/libopen62541.a
         rt

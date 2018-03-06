@@ -3,6 +3,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/VMMCodec.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/Utility.h"

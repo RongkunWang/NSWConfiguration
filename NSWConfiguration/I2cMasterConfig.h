@@ -11,6 +11,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/Types.h"
 
 using boost::property_tree::ptree;
@@ -26,7 +28,7 @@ namespace nsw {
 class I2cMasterCodec {
  public:
     explicit I2cMasterCodec(const i2c::AddressRegisterMap & ar_map);
-    ~I2cMasterCodec() { std::cout << "Destroying I2cMasterCodec" << std::endl;}
+    ~I2cMasterCodec() { ERS_LOG("Destroying I2cMasterCodec");}
 
     // Method that created bitstreams from config tree.
     i2c::AddressBitstreamMap buildConfig(ptree config);

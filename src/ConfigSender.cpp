@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
 
@@ -56,27 +58,27 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
 
 void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
                                             const nsw::I2cMasterConfig& cfg, std::string reg_address) {
-    std::cout << "Sending I2c configuration to " << topnode << "." << reg_address << std::endl;
+    ERS_LOG("Sending I2c configuration to " << topnode << "." << reg_address);
     auto addr_bitstr = cfg.getBitstreamMap();
     auto address = topnode + "." + cfg.getName() + "." + reg_address;  // Full I2C address
     auto bitstr = addr_bitstr[reg_address];
     auto data = nsw::stringToByteVector(bitstr);
     for (auto d : data) {
-        std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
+        ERS_DEBUG(5, "data: " << static_cast<unsigned>(d));
     }
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
 }
 
 void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
                                             std::string topnode, const nsw::I2cMasterConfig& cfg) {
-    std::cout << "Sending I2c configuration to " << topnode << std::endl;
+    ERS_LOG("Sending I2c configuration to " << topnode);
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
         auto address = topnode + "." + cfg.getName() + "." + ab.first;  // Full I2C address
         auto bitstr = ab.second;
         auto data = nsw::stringToByteVector(bitstr);
         for (auto d : data) {
-            std::cout << "data: " << static_cast<unsigned>(d) << std::endl;
+            ERS_DEBUG(5, "data: " << static_cast<unsigned>(d));
         }
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
     }
@@ -97,13 +99,13 @@ void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
 
     sendGPIO(opc_ip, roc_address + ".gpio.rocPllResetN", 1);
 
-    std::cout << "Waiting for ROC Pll locks..." << std::endl;
+    ERS_DEBUG(2, "Waiting for ROC Pll locks...");
     bool roc_locked = 0;
     while (!roc_locked) {
         bool rPll1 = readGPIO(opc_ip, roc_address + ".gpio.rocPllLocked");
         bool rPll2 = readGPIO(opc_ip, roc_address + ".gpio.rocPllRocLocked");
         roc_locked = rPll1 & rPll2;
-        std::cout << "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2 << std::endl;
+        ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
         // sleep(1);
     }
 

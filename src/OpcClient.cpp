@@ -4,6 +4,8 @@
 #include <iterator>
 #include <algorithm>
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/OpcClient.h"
 
 nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
@@ -32,12 +34,11 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t da
 
     UaByteString bs;
     bs.setByteString(data_size, data);
-    std::cout << "Node: " << node << ", Data size: " << data_size
-              << ", data[0]: " << static_cast<unsigned>(data[0]) << std::endl;
+    ERS_DEBUG(4, "Node: " << node << ", Data size: " << data_size
+              << ", data[0]: " << static_cast<unsigned>(data[0]));
 
     try {
         ss.writeWrite(bs);
-        std::cout << "Written value: to node: " << node << std::endl;
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write SpiSlave: " <<  e.what() << std::endl;
@@ -54,12 +55,11 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
 
     UaByteString bs;
     bs.setByteString(data_size, data);
-    std::cout << "Node: " << node << ", Data size: " << data_size
-              << ", data[0]: " << static_cast<unsigned>(data[0]) << std::endl;
+    ERS_DEBUG(4, "Node: " << node << ", Data size: " << data_size
+              << ", data[0]: " << static_cast<unsigned>(data[0]));
 
     try {
         i2cnode.writeSend(bs);
-        std::cout << "Written value: to node: " << node << std::endl;
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write I2c: " <<  e.what() << std::endl;
@@ -68,10 +68,10 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
 
 void nsw::OpcClient::writeGPIO(std::string node, bool data) {
     DigitalIO gpio(m_session, UaNodeId(node.c_str(), 2));
+    ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
     try {
         gpio.writeValue(data);
-        std::cout << "Written value: " << data << " to node: " << node << std::endl;
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write GPIO: " <<  e.what() << std::endl;

@@ -6,6 +6,8 @@
 #include <utility>
 #include <numeric>
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/Types.h"
@@ -26,16 +28,16 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
         size_t total_size = std::accumulate(register_sizes.begin(), register_sizes.end(), 0,
                                             [](size_t sum, i2c::RegisterSizePair & p) {
                                             return sum + p.second;  });
-        std::cout << address << " -> total size: " << total_size << std::endl;
+       ERS_DEBUG(3, address << " -> total size: " << total_size);
         size_t pos = 0;
         for (auto i : register_sizes) {
             register_position[i.first] = pos;
             register_size[i.first] = i.second;
-            std::cout << "register: " << i.first << ", size : " << i.second << ", pos: " << pos << "\n";
+            ERS_DEBUG(3, "register: " << i.first << ", size : " << i.second << ", pos: " << pos);
             pos = pos + i.second;
             /* code */
         }
-        std::cout << "\n";
+        ERS_DEBUG(3, "");
         m_addr_size[address] = total_size;
         m_addr_reg_pos[address] = register_position;
         m_addr_reg_size[address] = register_size;
@@ -51,29 +53,30 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
         auto child = config.get_child(address);
 
         std::string tempstr;
+        ERS_DEBUG(4, address);
         for (auto rs : register_sizes) {
             auto register_name = rs.first;
             auto size = rs.second;
 
             auto value = child.get<unsigned>(register_name);
             nsw::checkOverflow(size, value, register_name);
-            std::cout << register_name << " -> " << value << std::endl;
+            ERS_DEBUG(5, " -- " << register_name << " -> " << value);
 
             // TODO(cyildiz): Large enough to take any register
             std::bitset<32> bs(value);
             auto stringbs = bs.to_string();
             stringbs = stringbs.substr(stringbs.size()-size, stringbs.size());
-            // std::cout << "substr:" << stringbs << std::endl;
+            ERS_DEBUG(6, " --- substr:" << stringbs);
             tempstr += stringbs;
         }
-        // std::cout << tempstr << std::endl;
+        ERS_DEBUG(4, " - bitstream : " << tempstr);
         bitstreams[address] = tempstr;
     }
     return bitstreams;
 }
 
 void nsw::I2cMasterConfig::dump() {
-    std::cout << "Dumping Config for: " << m_name << std::endl;
+    ERS_LOG("Dumping Config for: " << m_name);
     for (auto ab : m_address_bitstream) {
         auto address = ab.first;
         auto bitstream = ab.second;

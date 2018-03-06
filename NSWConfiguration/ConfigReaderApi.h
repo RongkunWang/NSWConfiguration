@@ -54,7 +54,7 @@ class OracleApi: public ConfigReaderApi {
 
  public:
   explicit OracleApi(std::string db_connection) {}
-  ~OracleApi() {std::cout << "Closing oracle db..." << std::endl;}
+  ~OracleApi() {}
   ptree & read();
 };
 

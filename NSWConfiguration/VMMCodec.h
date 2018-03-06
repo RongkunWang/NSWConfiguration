@@ -14,6 +14,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/Utility.h"
 
 using boost::property_tree::ptree;
@@ -38,7 +40,7 @@ class VMMCodec {
  private:
     /// Private VMMCodec for singleton class
     VMMCodec();
-    ~VMMCodec() { std::cout << "Destroying VMMCodec" << std::endl;}
+    ~VMMCodec() { ERS_LOG("Destroying VMMCodec");}
 
     /// Creates a vector for each channel register, such that element ["sd"][4] is sd value for 4th channel
     std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);

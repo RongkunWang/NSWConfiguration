@@ -3,6 +3,8 @@
 #include <cmath>
 #include <vector>
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/Utility.h"
 
 // template<size_t N1, size_t N2>
@@ -50,11 +52,11 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     // Go 8 bit at a time and convert it to hex
     for (size_t pos; pos < bitstr.length(); pos=pos+8) {
         substr = bitstr.substr(pos, 8);
-        // std::cout << "substr: " << substr << std::endl;
+        ERS_DEBUG(6, std::string("substr: ") << substr);
         byte = static_cast<uint8_t> (std::stoi(substr, nullptr, 2));
         vec.push_back(byte);
-        // std::cout << std::hex << "0x" << unsigned(byte) << std::endl;
+        ERS_DEBUG(6, std::hex << "0x" << unsigned(byte));
     }
-    // std::cout << "Vector size: " << std::dec << vec.size() << std::endl;
+    ERS_DEBUG(6, "Vector size: " << std::dec << vec.size());
     return vec;
 }

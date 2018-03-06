@@ -3,6 +3,8 @@
 #include <exception>
 #include <vector>
 
+#include "ers/ers.h"
+
 #include "NSWConfiguration/VMMCodec.h"
 #include "NSWConfiguration/Utility.h"
 
@@ -12,7 +14,7 @@ constexpr size_t nsw::VMMCodec::NBITS_CHANNEL;
 constexpr size_t nsw::VMMCodec::NCHANNELS;
 
 nsw::VMMCodec::VMMCodec() {
-    std::cout << "Constructing VMM Codec, building lookup vectors" << std::endl;
+    ERS_LOG("Constructing VMM Codec, building lookup vectors");
     // We could read these mappings from a configuration file, but these are not supposed to change in time,
     // It may be better to keep them hardcoded
 
@@ -108,9 +110,9 @@ nsw::VMMCodec::VMMCodec() {
     m_bitreversed_registers.push_back("sdp_dac");
     // m_bitreversed_registers.push_back("truncate");
     // m_bitreversed_registers.push_back("l0offset");
-     std::cout << "Reversed regs:" << std::endl;
+     ERS_DEBUG(1, "Reversed regs:");
     for (auto m : m_bitreversed_registers) {
-        std::cout << m << std::endl;
+        ERS_DEBUG(1, m);
     }
 }
 
@@ -133,10 +135,10 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
     std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
-        std::cout << "Global 0 " << std::endl;
+        ERS_DEBUG(2, "Global 0 ");
     } else if (type == nsw::GlobalRegisters::global1) {
         vname_size = m_global_name_size1;
-        std::cout << "Global 1 " << std::endl;
+        ERS_DEBUG(2, "Global 1 ");
     }
 
     std::string bitstr = "";
@@ -149,22 +151,22 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
         nsw::checkOverflow(register_size, value, register_name);
 
 
-        std::cout << register_name << " : " << register_size << " -> ";
+        ERS_DEBUG(3, register_name << " : " << register_size << " -> ");
 
         std::string str;
         auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
         if (iter != m_bitreversed_registers.end()) {
             str = reversedBitString(value, register_size);
-            std::cout << value << " - reversed: " << str << std::endl;
+            ERS_DEBUG(3, " -- " << value << " - reversed: " << str);
         } else {
             str = bitString(value, register_size);
-            std::cout << value << " - regular: " << str << std::endl;
+            ERS_DEBUG(3, " -- " << value << " - regular: " << str);
         }
         bitstr = str + bitstr;
     }
 
     std::bitset<N> global(bitstr);
-    std::cout << "global regs: " << global << std::endl;
+    ERS_DEBUG(6, "global regs: " << global);
     return global;
 }
 
@@ -190,7 +192,7 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
             position = position + register_size;
         }
     }
-    std::cout << result << std::endl;
+    ERS_DEBUG(6, "Channel config: " << result);
 
     return result;
 }
@@ -209,28 +211,28 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
         size_t register_size = name_size.second;
 
         ptree ptemp = config.get_child(register_name);
-        std::cout << register_name << " : ";
         if (ptemp.empty()) {
             unsigned value =  config.get<unsigned>(register_name);
             nsw::checkOverflow(register_size, value, register_name);
             for (size_t i = 0; i < Nch; i++) {
                 vtemp.push_back(value);
-                std::cout << value << ", ";
+                ERS_DEBUG(5, register_name << ": " << value);
             }
         } else {
             size_t i = 0;
+            std::string tmpstr;
             for (ptree::iterator iter = ptemp.begin(); iter != ptemp.end(); iter++) {
                 unsigned value = iter->second.get<unsigned>("");
                 nsw::checkOverflow(register_size, value, register_name);
                 vtemp.push_back(value);
-                std::cout << value << ", ";
+                tmpstr = tmpstr + std::to_string(value) + ", ";
                 i++;
             }
             if (vtemp.size() != Nch) {
                 throw std::runtime_error("Unexpected number of channels!");
             }
+            ERS_DEBUG(5, register_name << ": " << tmpstr);
         }
-        std::cout << "\n";
         result[register_name] = vtemp;
     }
     return result;
