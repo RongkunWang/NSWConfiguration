@@ -48,12 +48,45 @@ ptree ConfigReaderApi::readVMM(std::string element) {
 }
 
 ptree ConfigReaderApi::readROC(std::string element) {
-    // TODO(cyildiz): First read common config, then put element specific config
     ptree tree = m_config.get_child("roc_common_config");
-    ptree roc = m_config.get_child(element);  // roc specific config
+    ptree temp = m_config.get_child(element);  // roc specific config
+    std::string type;
 
-    // return tree;
-    return roc;
+    for (ptree::iterator iter = temp.begin(); iter != temp.end(); iter++) {
+        std::string name = iter->first;
+        // Put Opc related FE configuration
+        if (name.find("Opc") != std::string::npos) {
+            tree.put(name, iter->second.data());
+        } else if (name == "rocPllCoreAnalog" || name == "rocCoreDigital") {
+            ptree i2ctree = iter->second;
+
+            // Loop over I2c addresses within Roc analog or digital
+            for (ptree::iterator iter_addresses = i2ctree.begin();
+                iter_addresses != i2ctree.end(); iter_addresses++) {
+                std::string address = iter_addresses->first;
+                ptree addresstree = iter_addresses->second;
+
+                for (ptree::iterator iter_registers = addresstree.begin();
+                    iter_registers != addresstree.end(); iter_registers++) {
+                    std::string registername = iter_registers->first;
+                    std::string node = name + "." + address + "." + registername;
+
+                    if (!tree.get_optional<std::string>(node).is_initialized()) {  // Check if node exists
+                        nsw::ROCConfigBadNode issue(ERS_HERE, node.c_str());
+                        ers::error(issue);
+                        // throw issue;  // TODO(cyildiz): throw or just error
+                    } else {
+                        tree.put(node, iter_registers->second.data());
+                    }
+                }
+            }
+        } else {
+            ERS_LOG("Unknown element in ROC config: " << name);
+            // TODO(cyildiz): Handle exception
+        }
+    }
+
+    return tree;
 }
 
 ptree & JsonApi::read() {

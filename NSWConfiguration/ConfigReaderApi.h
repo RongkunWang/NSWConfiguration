@@ -13,7 +13,15 @@
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 
+#include "ers/ers.h"
+
 using boost::property_tree::ptree;
+
+ERS_DECLARE_ISSUE(nsw,
+                  ROCConfigBadNode,
+                  "No such node in roc common configuration: " << message,
+                  ((const char *)message)
+                  )
 
 class ConfigReaderApi {
  protected:
