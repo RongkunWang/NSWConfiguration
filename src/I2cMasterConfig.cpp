@@ -28,14 +28,23 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
         size_t total_size = std::accumulate(register_sizes.begin(), register_sizes.end(), 0,
                                             [](size_t sum, i2c::RegisterSizePair & p) {
                                             return sum + p.second;  });
-       ERS_DEBUG(3, address << " -> total size: " << total_size);
+        ERS_DEBUG(3, address << " -> total size: " << total_size);
         size_t pos = 0;
+        std::string register_name;
         for (auto i : register_sizes) {
-            register_position[i.first] = pos;
-            register_size[i.first] = i.second;
-            ERS_DEBUG(3, "register: " << i.first << ", size : " << i.second << ", pos: " << pos);
+            // NOT_USED is a special register name. It means there are some bits not used in
+            // the configuration but they affect the position of other configuration bits.
+            // By default they will be all set to 0
+            if (i.first == "NOT_USED") {
+                register_name = "NOT_USED";
+                ERS_DEBUG(3, "Not used bits : " << register_name << ", size: " << i.second << ", pos: " << pos);
+            } else {
+                register_name = i.first;
+                ERS_DEBUG(3, "register: " << register_name << ", size : " << i.second << ", pos: " << pos);
+                register_position[register_name] = pos;
+                register_size[register_name] = i.second;
+            }
             pos = pos + i.second;
-            /* code */
         }
         ERS_DEBUG(3, "");
         m_addr_size[address] = total_size;
@@ -67,15 +76,20 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
             auto size = rs.second;
 
             unsigned value;
-            try {
-                value = child.get<unsigned>(register_name);
-            } catch (const boost::property_tree::ptree_bad_path& e) {
-                std::string temp = address + ": " + e.what();
-                nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
-                ers::error(issue);
-                throw issue;
+            // Fill not used bits with 0
+            if (register_name == "NOT_USED") {
+                value = 0;
+            } else {
+                try {
+                    value = child.get<unsigned>(register_name);
+                } catch (const boost::property_tree::ptree_bad_path& e) {
+                    std::string temp = address + ": " + e.what();
+                    nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
+                    ers::error(issue);
+                    throw issue;
+                }
+                nsw::checkOverflow(size, value, register_name);
             }
-            nsw::checkOverflow(size, value, register_name);
             ERS_DEBUG(5, " -- " << register_name << " -> " << value);
 
             // TODO(cyildiz): Large enough to take any register

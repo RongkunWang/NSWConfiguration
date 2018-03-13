@@ -22,6 +22,13 @@ static const i2c::AddressRegisterMap CUSTOM_REGISTER_SIZE_1 = {
     { "i2caddress3", { {"reg0", 8} } }  // total: 8
 };
 
+static const i2c::AddressRegisterMap CUSTOM_REGISTER_SIZE_2 = {
+    { "i2caddress0", { {"reg0", 6}, {"reg1", 7}, {"reg2", 1}, {"reg3", 1}, {"reg4", 1} } },  // total: 16
+    { "i2caddress1", { {"reg0", 15}, {"NOT_USED", 15}, {"reg2", 8}, {"NOT_USED", 2}, {"reg4", 8} } },  // total: 48
+    { "i2caddress2", { {"reg0", 1}, {"reg1", 1}, {"reg2", 1}, {"reg3", 29 }} },  // total: 32
+    { "i2caddress3", { {"reg0", 8} } }  // total: 8
+};
+
 #define BOOST_TEST_MODULE my test module
 #define BOOST_TEST_DYN_LINK
 #include "boost/test/unit_test.hpp"
@@ -170,6 +177,27 @@ BOOST_AUTO_TEST_CASE(NoSuchI2c_test) {
 
     BOOST_CHECK_THROW(master.setRegisterValue("i2caddress3", "regNOTEXISTANT", 1), nsw::NoSuchI2cRegister);
     BOOST_CHECK_THROW(master.getRegisterValue("i2caddress3", "regNOTEXISTANT"), nsw::NoSuchI2cRegister);
+}
+
+BOOST_AUTO_TEST_CASE(NotUsed_test) {
+    std::stringstream json;
+    json << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
+    json << "\"i2caddress1\": { \"reg0\":15, \"reg2\":7, \"reg4\":65 },";
+    json << "\"i2caddress2\": { \"reg0\":0, \"reg1\":0, \"reg2\":0, \"reg3\":0 },";
+    json << "\"i2caddress3\": { \"reg0\":7 } }\n";
+
+    ptree config;
+    boost::property_tree::read_json(json, config);
+
+    nsw::I2cMasterConfig master(config, "master_address", CUSTOM_REGISTER_SIZE_2);
+    auto bs_map = master.getBitstreamMap();
+    BOOST_TEST(bs_map["i2caddress1"] == "000000000001111000000000000000000001110001000001");
+    BOOST_TEST(master.getRegisterValue("i2caddress1", "reg0") == 15);
+    BOOST_TEST(master.getRegisterValue("i2caddress1", "reg2") == 7);
+    BOOST_TEST(master.getRegisterValue("i2caddress1", "reg4") == 65);
+
+    master.setRegisterValue("i2caddress1", "reg2", 5);
+    BOOST_TEST(master.getRegisterValue("i2caddress1", "reg2") == 5);
 }
 
 

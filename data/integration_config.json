@@ -476,7 +476,6 @@
                 "bc_offset7_0": 133
             },
             "reg012bcRollover0": {
-                "NOT_USED": 0,
                 "bc_rollover11_8": 13
             },
             "reg013bcRollover1": {
@@ -509,14 +508,12 @@
                 "busy_enable_sroc0": 1
             },
             "reg021busyOnLimit0": {
-                "NOT_USED": 0,
                 "busy_on_limit10_7": 7
             },
             "reg022busyOnLimit1": {
                 "busy_on_limit8_0": 108
             },
             "reg023busyOffLimit0": {
-                "NOT_USED": 0,
                 "busy_off_limit10_7": 7
             },
             "reg024busyOffLimit1": {
