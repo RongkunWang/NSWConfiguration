@@ -19,6 +19,7 @@ int main(int ac, const char *av[]) {
 
     bool configure_vmm;
     bool configure_roc;
+    bool reset_roc;
     std::string config_filename;
     po::options_description desc("This program configures ROC/VMM with some command line options");
     desc.add_options()
@@ -29,14 +30,22 @@ int main(int ac, const char *av[]) {
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
         "Configure also all the VMMs on the ROC(Default: False)")
         ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
-        "Configure the ROC(Default: False)");
+        "Configure the ROC(Default: False)")
+        ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
+        "Reset the ROC via SCA. This option can't be used with -r or -v");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
 
-    if (!configure_roc && !configure_vmm) {
-        std::cout << "Please chose at least one of -r and -v command line options to configure ROC/VMM." << "\n";
+    if ((!configure_roc && !configure_vmm) && !reset_roc) {
+        std::cout << "Please chose at least one of -r, -v or -R command line options to configure ROC/VMM." << "\n";
+        std::cout << desc << "\n";
+        return 1;
+    }
+
+    if ((configure_roc || configure_vmm) && reset_roc) {
+        std::cout << "Please chose either -R or (-v,-r) options\n";
         std::cout << desc << "\n";
         return 1;
     }
@@ -54,6 +63,16 @@ int main(int ac, const char *av[]) {
     nsw::ROCConfig roc0(rocconfig0);
 
     nsw::ConfigSender cs;
+
+    if (reset_roc) { 
+        std::cout << "Only resetting ROC" << std::endl;
+        auto opc_ip = roc0.getOpcServerIp();
+        auto sca_roc_address_analog = roc0.getAddress();
+        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 0);
+        sleep(1);
+        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 1);
+        return 0;
+    }
 
     // Send all ROC config
     if (configure_roc) {
