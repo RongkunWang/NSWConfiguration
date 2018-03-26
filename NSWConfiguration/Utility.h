@@ -10,6 +10,11 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <utility>
+
+#include "boost/property_tree/ptree.hpp"
+
+using boost::property_tree::ptree;
 
 namespace nsw {
 
@@ -47,6 +52,9 @@ std::string getElementType(std::string);
 void checkOverflow(size_t register_size, unsigned value, std::string register_name);
 
 std::vector<uint8_t> stringToByteVector(std::string bitstr);
+
+/// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
+std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config);
 
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

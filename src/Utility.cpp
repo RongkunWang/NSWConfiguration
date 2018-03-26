@@ -2,6 +2,7 @@
 #include <exception>
 #include <cmath>
 #include <vector>
+#include <utility>
 
 #include "ers/ers.h"
 
@@ -60,4 +61,40 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     }
     ERS_DEBUG(6, "Vector size: " << std::dec << vec.size());
     return vec;
+}
+
+std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes,const ptree& config) {
+    std::string tempstr;
+    for (auto ns : name_sizes) {
+        auto name = ns.first;
+        auto size = ns.second;
+
+        unsigned value;
+        // Fill not used bits with 0
+        if (name == "NOT_USED") {
+            value = 0;
+        } else {
+            try {
+                value = config.get<unsigned>(name);
+            } catch (const boost::property_tree::ptree_bad_path& e) {
+                std::string temp = e.what();
+                // nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
+                // ers::error(issue);
+                // throw issue;
+                // TODO(cyildiz): Throw an exception that should be propagated by caller
+                std::cout << "Problem: " << temp << std::endl;
+            }
+            nsw::checkOverflow(size, value, name);
+        }
+        ERS_DEBUG(5, " -- " << name << " -> " << value);
+
+        // TODO(cyildiz): Large enough to take any register
+        std::bitset<32> bs(value);
+        auto stringbs = bs.to_string();
+        stringbs = stringbs.substr(stringbs.size()-size, stringbs.size());
+        ERS_DEBUG(6, " --- substr:" << stringbs);
+        tempstr += stringbs;
+    }
+    ERS_DEBUG(4, " - bitstream : " << tempstr);
+    return tempstr;
 }
