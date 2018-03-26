@@ -63,7 +63,7 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     return vec;
 }
 
-std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes,const ptree& config) {
+std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config) {
     std::string tempstr;
     for (auto ns : name_sizes) {
         auto name = ns.first;

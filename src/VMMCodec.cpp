@@ -2,6 +2,7 @@
 #include <string>
 #include <exception>
 #include <vector>
+#include <algorithm>
 
 #include "ers/ers.h"
 
@@ -152,28 +153,26 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
     auto constexpr N = nsw::VMMCodec::NBITS_CHANNEL;
 
-    // TODO(cyildiz): Verify bit orderings are correct, and convert it to using
-    // string operations instead of bitset operations
-    std::bitset<N> result;
-    std::bitset<N> temp;
-
     auto ch_reg_map = buildChannelRegisterMap(config);
 
-    ptree temptree;
-
-    size_t position = 0;
+    std::string tempstr;
+    std::string tempstr_ch;
+    // TODO(cyildiz): Verify if we should go from 0 to 64 or reversed
     for (size_t channel = 0; channel < Nch; channel++) {
+        tempstr_ch = "";
         for (auto name_size : m_channel_name_size) {
             std::string register_name = name_size.first;
             size_t register_size = name_size.second;
 
-            temp = ch_reg_map[register_name][channel];
-            result = result | (temp << position);
-            position = position + register_size;
+            // TODO(cyildiz): Verify if the bits are reversed or not
+            tempstr_ch += reversedBitString(ch_reg_map[register_name][channel], register_size);
         }
+        // Reverse the bitstream of the channel
+        std::reverse(tempstr_ch.begin(), tempstr_ch.end());
+        tempstr += tempstr_ch;
     }
-    ERS_DEBUG(6, "Channel config: " << result);
-
+    ERS_DEBUG(6, "Channel config: " << tempstr);
+    std::bitset<N> result(tempstr);
     return result;
 }
 
@@ -191,14 +190,14 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
         size_t register_size = name_size.second;
 
         ptree ptemp = config.get_child(register_name);
-        if (ptemp.empty()) {
+        if (ptemp.empty()) {  // There is a single value for register, all channels have the same value
             unsigned value =  config.get<unsigned>(register_name);
             nsw::checkOverflow(register_size, value, register_name);
             for (size_t i = 0; i < Nch; i++) {
                 vtemp.push_back(value);
                 ERS_DEBUG(5, register_name << ": " << value);
             }
-        } else {
+        } else {  // There is a array, each channel has different value
             size_t i = 0;
             std::string tmpstr;
             for (ptree::iterator iter = ptemp.begin(); iter != ptemp.end(); iter++) {
@@ -210,6 +209,7 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
             }
             if (vtemp.size() != Nch) {
                 throw std::runtime_error("Unexpected number of channels!");
+                // TODO(cyildiz): Throw ERS exception
             }
             ERS_DEBUG(5, register_name << ": " << tmpstr);
         }
