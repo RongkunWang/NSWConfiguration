@@ -141,28 +141,7 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
         ERS_DEBUG(4, "Global 1 ");
     }
 
-    std::string bitstr = "";
-
-    for (auto name_size : vname_size) {
-        std::string register_name = name_size.first;
-        size_t register_size = name_size.second;
-        unsigned value = config.get<unsigned>(register_name);
-
-        nsw::checkOverflow(register_size, value, register_name);
-
-        ERS_DEBUG(5, register_name << " : " << register_size << " -> ");
-
-        std::string str;
-        auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), register_name);
-        if (iter != m_bitreversed_registers.end()) {
-            str = reversedBitString(value, register_size);
-            ERS_DEBUG(5, " -- " << value << " - reversed: " << str);
-        } else {
-            str = bitString(value, register_size);
-            ERS_DEBUG(5, " -- " << value << " - regular: " << str);
-        }
-        bitstr = str + bitstr;
-    }
+    std::string bitstr = nsw::buildBitstream(vname_size, config);
 
     std::bitset<N> global(bitstr);
     ERS_DEBUG(6, "global regs: " << global);
@@ -179,6 +158,8 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
     std::bitset<N> temp;
 
     auto ch_reg_map = buildChannelRegisterMap(config);
+
+    ptree temptree;
 
     size_t position = 0;
     for (size_t channel = 0; channel < Nch; channel++) {
