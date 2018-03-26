@@ -1,11 +1,10 @@
-// VMM Encoder/Decoder class to convert ptree/bitsets to each other
+// VMM Encoder/Decoder class to convert ptree/bitstreams to each other
 // This is a singleton function that should be created as follows:
 // nsw::VMMCodec& vmmcodec = nsw::VMMCodec::Instance();
 
 #ifndef NSWCONFIGURATION_VMMCODEC_H_
 #define NSWCONFIGURATION_VMMCODEC_H_
 
-#include <bitset>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -34,8 +33,7 @@ class VMMCodec {
     static constexpr size_t NBITS_CHANNEL = 24 * NCHANNELS;  /// Size of channel registers
     static constexpr size_t NBITS_TOTAL = NBITS_CHANNEL + 2*NBITS_GLOBAL;  /// total number of bits
 
-    std::bitset<NBITS_TOTAL> buildConfig(ptree config);
-    // ptree bitset_to_ptree(std::bitset<NBITS_TOTAL> bs) {}
+    std::string buildConfig(ptree config);
 
  private:
     /// Private VMMCodec for singleton class
@@ -45,11 +43,11 @@ class VMMCodec {
     /// Creates a vector for each channel register, such that element ["channel_sd"][4] is sd value for 4th channel
     std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);
 
-    std::bitset<NBITS_GLOBAL> buildGlobalConfig(ptree config, GlobalRegisters type);
+    std::string buildGlobalConfig(ptree config, GlobalRegisters type);
 
-    std::bitset<NBITS_GLOBAL> buildGlobalConfig0(ptree config);
-    std::bitset<NBITS_GLOBAL> buildGlobalConfig1(ptree config);
-    std::bitset<NBITS_CHANNEL> buildChannelConfig(ptree config);
+    std::string buildGlobalConfig0(ptree config);
+    std::string buildGlobalConfig1(ptree config);
+    std::string buildChannelConfig(ptree config);
 
     void checkOverflow(size_t register_size, unsigned value, std::string register_name);
 

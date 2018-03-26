@@ -63,6 +63,21 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     return vec;
 }
 
+std::string nsw::bitstringToHexString(std::string bitstr) {
+    std::string substr;
+    uint32_t byte;
+    std::string hexstr;
+    std::stringstream hexstream;
+    hexstream << std::hex;
+    // Go 8 bit at a time and convert it to hex
+    for (size_t pos; pos < bitstr.length(); pos=pos+8) {
+        substr = bitstr.substr(pos, 8);
+        byte = static_cast<uint32_t> (std::stoi(substr, nullptr, 2));
+        hexstream << byte;
+    }
+    return hexstream.str();
+}
+
 std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config) {
     std::string tempstr;
     for (auto ns : name_sizes) {

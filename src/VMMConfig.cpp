@@ -12,19 +12,13 @@
 using boost::property_tree::ptree;
 
 nsw::VMMConfig::VMMConfig(ptree vmmconfig): FEConfig(vmmconfig) {
-    m_bitset = codec.buildConfig(m_config);
-    ERS_DEBUG(5, "VMM Bitset: " << m_bitset);
-    ERS_DEBUG(3, "VMM Bitset(hex): " << nsw::bitsetToHexString(m_bitset));
-}
-
-std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8> nsw::VMMConfig::getByteArray() {
-    // TODO(cyildiz): implement? or ditch...
-    return std::array<uint8_t, nsw::VMMCodec::NBITS_TOTAL/8>();
+    m_bitstring = codec.buildConfig(m_config);
+    ERS_DEBUG(5, "VMM Bitstream: " << m_bitstring);
+    ERS_DEBUG(3, "VMM Bytestream(hex): " << nsw::bitstringToHexString(m_bitstring));
 }
 
 std::vector<uint8_t> nsw::VMMConfig::getByteVector() const {
-    auto bitstr = m_bitset.to_string();
-    return nsw::stringToByteVector(bitstr);
+    return nsw::stringToByteVector(m_bitstring);
 }
 
 void nsw::VMMConfig::setRegister(std::string register_name, unsigned value) {

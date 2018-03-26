@@ -122,15 +122,15 @@ nsw::VMMCodec& nsw::VMMCodec::Instance() {
     return c;
 }
 
-std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig0(ptree config) {
+std::string nsw::VMMCodec::buildGlobalConfig0(ptree config) {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global0);
 }
 
-std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig1(ptree config) {
+std::string nsw::VMMCodec::buildGlobalConfig1(ptree config) {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global1);
 }
 
-std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters type) {
+std::string nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters type) {
     auto constexpr N = nsw::VMMCodec::NBITS_GLOBAL;
 
     std::vector<NameSizeType> vname_size;
@@ -144,18 +144,17 @@ std::bitset<nsw::VMMCodec::NBITS_GLOBAL> nsw::VMMCodec::buildGlobalConfig(ptree 
 
     std::string bitstr = nsw::buildBitstream(vname_size, config);
 
-    std::bitset<N> global(bitstr);
-    ERS_DEBUG(6, "global regs: " << global);
-    return global;
+    ERS_DEBUG(6, "global regs: " << bitstr);
+    return bitstr;
 }
 
-std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptree config) {
+std::string nsw::VMMCodec::buildChannelConfig(ptree config) {
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
     auto constexpr N = nsw::VMMCodec::NBITS_CHANNEL;
 
     auto ch_reg_map = buildChannelRegisterMap(config);
 
-    std::string tempstr;
+    std::string bitstr;
     std::string tempstr_ch;
     // TODO(cyildiz): Verify if we should go from 0 to 64 or reversed
     for (size_t channel = 0; channel < Nch; channel++) {
@@ -164,20 +163,18 @@ std::bitset<nsw::VMMCodec::NBITS_CHANNEL> nsw::VMMCodec::buildChannelConfig(ptre
             std::string register_name = name_size.first;
             size_t register_size = name_size.second;
 
-            // TODO(cyildiz): Verify if the bits are reversed or not
             tempstr_ch += reversedBitString(ch_reg_map[register_name][channel], register_size);
         }
         // Reverse the bitstream of the channel
         std::reverse(tempstr_ch.begin(), tempstr_ch.end());
-        tempstr += tempstr_ch;
+        bitstr += tempstr_ch;
     }
-    ERS_DEBUG(6, "Channel config: " << tempstr);
-    std::bitset<N> result(tempstr);
-    return result;
+    ERS_DEBUG(6, "Channel config: " << bitstr);
+    return bitstr;
 }
 
-std::bitset<nsw::VMMCodec::NBITS_TOTAL> nsw::VMMCodec::buildConfig(ptree config) {
-    return nsw::concatenate(buildGlobalConfig1(config), buildChannelConfig(config), buildGlobalConfig0(config));
+std::string nsw::VMMCodec::buildConfig(ptree config) {
+    return buildGlobalConfig1(config) + buildChannelConfig(config) + buildGlobalConfig0(config);
 }
 
 std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegisterMap(ptree config) {
