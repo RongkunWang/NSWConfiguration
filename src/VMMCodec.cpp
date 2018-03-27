@@ -131,8 +131,6 @@ std::string nsw::VMMCodec::buildGlobalConfig1(ptree config) {
 }
 
 std::string nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters type) {
-    auto constexpr N = nsw::VMMCodec::NBITS_GLOBAL;
-
     std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
@@ -142,15 +140,51 @@ std::string nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters 
         ERS_DEBUG(4, "Global 1 ");
     }
 
-    std::string bitstr = nsw::buildBitstream(vname_size, config);
+    std::string bitstr;
+
+    for (auto ns : vname_size) {
+        auto name = ns.first;
+        auto size = ns.second;
+
+        unsigned value;
+        std::string str;
+        // Fill not used bits with 0
+        if (name == "NOT_USED") {
+            value = 0;
+            str = bitString(value, size);
+        } else {
+            try {
+                value = config.get<unsigned>(name);
+            } catch (const boost::property_tree::ptree_bad_path& e) {
+                std::string temp = e.what();
+                // nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
+                // ers::error(issue);
+                // throw issue;
+                // TODO(cyildiz): Throw an exception that should be propagated by caller
+                std::cout << "Problem: " << temp << std::endl;
+            }
+            nsw::checkOverflow(size, value, name);
+
+            auto iter = std::find(m_bitreversed_registers.begin(), m_bitreversed_registers.end(), name);
+            if (iter != m_bitreversed_registers.end()) {
+                str = reversedBitString(value, size);
+                ERS_DEBUG(5, name << " -- " << value << " - reversed: " << str);
+            } else {
+                str = bitString(value, size);
+                ERS_DEBUG(5, name << " -- " << value << " - regular: " << str);
+            }
+        }
+
+        bitstr = str + bitstr;
+    }
 
     ERS_DEBUG(6, "global regs: " << bitstr);
+    // std::reverse(bitstr.begin(), bitstr.end());
     return bitstr;
 }
 
 std::string nsw::VMMCodec::buildChannelConfig(ptree config) {
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
-    auto constexpr N = nsw::VMMCodec::NBITS_CHANNEL;
 
     auto ch_reg_map = buildChannelRegisterMap(config);
 

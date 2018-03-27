@@ -68,12 +68,12 @@ std::string nsw::bitstringToHexString(std::string bitstr) {
     uint32_t byte;
     std::string hexstr;
     std::stringstream hexstream;
-    hexstream << std::hex;
+    hexstream << std::hex << std::setfill('0');
     // Go 8 bit at a time and convert it to hex
     for (size_t pos; pos < bitstr.length(); pos=pos+8) {
         substr = bitstr.substr(pos, 8);
         byte = static_cast<uint32_t> (std::stoi(substr, nullptr, 2));
-        hexstream << byte;
+        hexstream << std::setw(2) << byte;
     }
     return hexstream.str();
 }
