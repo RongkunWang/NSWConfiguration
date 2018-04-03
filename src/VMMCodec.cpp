@@ -191,7 +191,7 @@ std::string nsw::VMMCodec::buildChannelConfig(ptree config) {
     std::string bitstr;
     std::string tempstr_ch;
     // TODO(cyildiz): Verify if we should go from 0 to 64 or reversed
-    for (size_t channel = 0; channel < Nch; channel++) {
+    for (int channel = Nch-1; channel >= 0; channel--) {
         tempstr_ch = "";
         for (auto name_size : m_channel_name_size) {
             std::string register_name = name_size.first;
