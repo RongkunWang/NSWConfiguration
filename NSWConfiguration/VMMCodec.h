@@ -35,13 +35,16 @@ class VMMCodec {
 
     std::string buildConfig(ptree config);
 
+    bool globalRegisterExists(std::string);
+    bool channelRegisterExists(std::string);
+
+    /// Creates a vector for each channel register, such that element ["channel_sd"][4] is sd value for 4th channel
+    std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);
+
  private:
     /// Private VMMCodec for singleton class
     VMMCodec();
     ~VMMCodec() { ERS_LOG("Destroying VMMCodec");}
-
-    /// Creates a vector for each channel register, such that element ["channel_sd"][4] is sd value for 4th channel
-    std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);
 
     std::string buildGlobalConfig(ptree config, GlobalRegisters type);
 

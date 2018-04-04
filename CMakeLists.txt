@@ -52,8 +52,10 @@ tdaq_add_schema(schema/NSWConfig.schema.xml)
 
 # Testing
 
+configure_file(test/test_vmm.json test_vmm.json COPYONLY)
+
 tdaq_add_executable(nsw_test_vmmcodec test/test_vmmcodec.cpp
-      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
+      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers nswconfig)
 
 add_test(NAME vmmcodec COMMAND nsw_test_vmmcodec)
 

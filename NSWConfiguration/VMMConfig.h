@@ -13,6 +13,18 @@
 
 using boost::property_tree::ptree;
 
+ERS_DECLARE_ISSUE(nsw,
+                  NoSuchVmmRegister,
+                  "No VMM register with this name: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  VmmChannelOutOfRange,
+                  "Channel number out of range: " << channel,
+                  ((size_t)channel)
+                  )
+
 namespace nsw {
 
 class VMMConfig: public FEConfig {
@@ -26,9 +38,13 @@ class VMMConfig: public FEConfig {
 
     std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 
-    void setRegister(std::string register_name, unsigned value);
-    void setAllChannelRegisters(std::string register_name, unsigned value);
-    void setChannelRegister(size_t channel, std::string register_name, unsigned value);
+    unsigned getGlobalRegister(std::string register_name);
+    unsigned getChannelRegisterOneChannel(std::string register_name, size_t channel);
+    std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name);
+
+    void setGlobalRegister(std::string register_name, unsigned value);
+    void setChannelRegisterAllChannels(std::string register_name, unsigned value);
+    void setChannelRegisterOneChannel(std::string register_name, unsigned value, size_t channel);
 };
 
 }  // namespace nsw

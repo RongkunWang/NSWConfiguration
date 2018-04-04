@@ -23,6 +23,8 @@ class FEConfig {
 
     std::string getOpcServerIp() const {return m_opcserver_ip;}
     std::string getAddress() const {return m_address;}
+
+    ptree getConfig() const {return m_config;}
 };
 
 }  // namespace nsw

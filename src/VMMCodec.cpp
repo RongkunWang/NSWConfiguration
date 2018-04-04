@@ -122,6 +122,29 @@ nsw::VMMCodec& nsw::VMMCodec::Instance() {
     return c;
 }
 
+bool nsw::VMMCodec::globalRegisterExists(std::string register_name) {
+    for (auto name_size : m_global_name_size0) {
+        if (register_name == name_size.first) {
+            return true;
+        }
+    }
+    for (auto name_size : m_global_name_size1) {
+        if (register_name == name_size.first) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool nsw::VMMCodec::channelRegisterExists(std::string register_name) {
+    for (auto name_size : m_channel_name_size) {
+        if (register_name == name_size.first) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string nsw::VMMCodec::buildGlobalConfig0(ptree config) {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global0);
 }
