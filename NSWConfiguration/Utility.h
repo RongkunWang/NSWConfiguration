@@ -59,5 +59,8 @@ std::string bitstringToHexString(std::string bitstr);
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
 std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config);
 
+/// Converts vector to ptree
+ptree buildPtreeFromVector(std::vector<unsigned> channelarray);
+
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

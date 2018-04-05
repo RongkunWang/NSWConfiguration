@@ -113,3 +113,15 @@ std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>
     ERS_DEBUG(4, " - bitstream : " << tempstr);
     return tempstr;
 }
+
+ptree nsw::buildPtreeFromVector(std::vector<unsigned> vec) {
+    ptree temp;
+
+    // This is the only way to create an array in a ptree
+    for (auto value : vec) {
+        ptree child;
+        child.put("", value);
+        temp.push_back(std::make_pair("", child));
+    }
+    return temp;
+}

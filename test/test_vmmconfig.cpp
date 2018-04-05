@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #define BOOST_TEST_MODULE my test module
 #define BOOST_TEST_DYN_LINK
@@ -71,5 +72,37 @@ BOOST_AUTO_TEST_CASE(setter_test) {
     vmm0.setChannelRegisterOneChannel("channel_st", 0, 53);  // Set st for channel 53 to 0
     BOOST_TEST(vmm0.getChannelRegisterOneChannel("channel_st", 53) == 0);
     BOOST_TEST(vmm0.getChannelRegisterOneChannel("channel_st", 52) == 1);
+
+    auto bytes_before = vmm0.getByteVector();
+
+    vmm0.setChannelRegisterOneChannel("channel_sz10b", 30, 5);  // Set channel 5 to 254
+    BOOST_TEST(vmm0.getChannelRegisterOneChannel("channel_sz10b", 1) == 0);  // Check other elements didn't change
+    BOOST_TEST(vmm0.getChannelRegisterOneChannel("channel_sz10b", 2) == 3);  // Check other elements didn't change
+    BOOST_TEST(vmm0.getChannelRegisterOneChannel("channel_sz10b", 5) == 30);
+
+    auto bytes_after = vmm0.getByteVector();
+
+    // Check content of 2 vector not equal
+    BOOST_TEST(!std::equal(bytes_before.begin(), bytes_before.end(), bytes_after.begin()));
+
+    // Restore the initial value
+    vmm0.setChannelRegisterOneChannel("channel_sz10b", 0, 5);  // Set channel 5 to 0
+
+    auto bytes_restored = vmm0.getByteVector();
+
+    BOOST_TEST(std::equal(bytes_before.begin(), bytes_before.end(), bytes_restored.begin()));
+
+    vmm0.setChannelRegisterAllChannels("channel_sz10b", 30);
+
+    bytes_after = vmm0.getByteVector();
+
+    BOOST_TEST(!std::equal(bytes_before.begin(), bytes_before.end(), bytes_after.begin()));
+
+    vmm0.setChannelRegisterAllChannels("channel_sz10b", 0);
+    vmm0.setChannelRegisterOneChannel("channel_sz10b", 3, 2);
+
+    bytes_restored = vmm0.getByteVector();
+
+    BOOST_TEST(std::equal(bytes_before.begin(), bytes_before.end(), bytes_restored.begin()));
 }
 

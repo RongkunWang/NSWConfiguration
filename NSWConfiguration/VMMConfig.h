@@ -38,6 +38,8 @@ class VMMConfig: public FEConfig {
 
     std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 
+    std::string getBitString() const {return m_bitstring;}  /// return the string of bits
+
     unsigned getGlobalRegister(std::string register_name);
     unsigned getChannelRegisterOneChannel(std::string register_name, size_t channel);
     std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name);

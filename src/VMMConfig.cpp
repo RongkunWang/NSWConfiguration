@@ -1,4 +1,5 @@
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "boost/property_tree/ptree.hpp"
@@ -32,7 +33,6 @@ unsigned nsw::VMMConfig::getGlobalRegister(std::string register_name) {
 }
 
 unsigned nsw::VMMConfig::getChannelRegisterOneChannel(std::string register_name, size_t channel) {
-    // TODO(cyildiz): implement
     auto channelreg = codec.buildChannelRegisterMap(m_config);
     if (!codec.channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
@@ -74,11 +74,31 @@ void nsw::VMMConfig::setGlobalRegister(std::string register_name, unsigned value
 }
 
 void nsw::VMMConfig::setChannelRegisterAllChannels(std::string register_name, unsigned value) {
-    // TODO(cyildiz): implement
+    m_config.erase(register_name);
+    m_config.put(register_name, value);
     m_bitstring = codec.buildConfig(m_config);
 }
 
 void nsw::VMMConfig::setChannelRegisterOneChannel(std::string register_name, unsigned value, size_t channel) {
-    // TODO(cyildiz): implement
+    if (!codec.channelRegisterExists(register_name)) {
+        std::string temp = register_name + "(Channel register)";
+        nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
+        ers::error(issue);
+        throw issue;
+    } else if (channel >= nsw::VMMCodec::NCHANNELS) {
+        nsw::VmmChannelOutOfRange issue(ERS_HERE, channel);
+        ers::error(issue);
+        throw issue;
+    }
+
+    auto channelreg = codec.buildChannelRegisterMap(m_config);
+    channelreg[register_name][channel] = value;
+
+    ptree temp = nsw::buildPtreeFromVector(channelreg[register_name]);
+
+    // Delete the old node, and write the new one
+    m_config.erase(register_name);
+    m_config.add_child(register_name, temp);
+
     m_bitstring = codec.buildConfig(m_config);
 }
