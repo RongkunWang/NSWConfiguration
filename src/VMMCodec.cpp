@@ -74,10 +74,10 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"slvsena", 1});
     m_global_name_size0.push_back({"slvs6b", 1});
     m_global_name_size0.push_back({"sL0enaV", 1});
-    m_global_name_size0.push_back({"nu1", 8});
+    m_global_name_size0.push_back({"NOT_USED", 8});
     m_global_name_size0.push_back({"reset", 2});
 
-    m_global_name_size1.push_back({"nu2", 31});
+    m_global_name_size1.push_back({"NOT_USED", 31});
     m_global_name_size1.push_back({"nskipm", 1});
     m_global_name_size1.push_back({"sL0cktest", 1});
     m_global_name_size1.push_back({"sL0dckinv", 1});
@@ -89,7 +89,7 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size1.push_back({"rollover", 12});
     m_global_name_size1.push_back({"l0offset", 12});
     m_global_name_size1.push_back({"offset", 12});
-    m_global_name_size1.push_back({"nu3", 8});
+    m_global_name_size1.push_back({"NOT_USED", 8});
 
     m_channel_name_size.push_back({"channel_sc", 1});
     m_channel_name_size.push_back({"channel_sl", 1});
@@ -101,7 +101,7 @@ nsw::VMMCodec::VMMCodec() {
     m_channel_name_size.push_back({"channel_sz10b", 5});
     m_channel_name_size.push_back({"channel_sz8b", 4});
     m_channel_name_size.push_back({"channel_sz6b", 3});
-    m_channel_name_size.push_back({"channel_nu4", 1});
+    m_channel_name_size.push_back({"NOT_USED", 1});
 
     // TODO(cyildiz): Verify this is a complete list of reversed registers
     m_bitreversed_registers.push_back("sm");
@@ -211,6 +211,8 @@ std::string nsw::VMMCodec::buildChannelConfig(ptree config) {
 
     auto ch_reg_map = buildChannelRegisterMap(config);
 
+    unsigned value;
+
     std::string bitstr;
     std::string tempstr_ch;
     // TODO(cyildiz): Verify if we should go from 0 to 64 or reversed
@@ -220,7 +222,12 @@ std::string nsw::VMMCodec::buildChannelConfig(ptree config) {
             std::string register_name = name_size.first;
             size_t register_size = name_size.second;
 
-            tempstr_ch += reversedBitString(ch_reg_map[register_name][channel], register_size);
+            if (register_name == "NOT_USED") {
+                value = 0;
+            } else {
+                value = ch_reg_map[register_name][channel];
+            }
+            tempstr_ch += reversedBitString(value, register_size);
         }
         // Reverse the bitstream of the channel
         std::reverse(tempstr_ch.begin(), tempstr_ch.end());
@@ -242,6 +249,11 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
         std::vector<unsigned> vtemp;
         std::string register_name = name_size.first;
         size_t register_size = name_size.second;
+
+        // Ignore not used bits
+        if (register_name == "NOT_USED") {
+            continue;
+        }
 
         ptree ptemp = config.get_child(register_name);
         if (ptemp.empty()) {  // There is a single value for register, all channels have the same value

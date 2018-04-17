@@ -54,10 +54,8 @@
         "slvsena":0,
         "slvs6b":0,
         "sL0enaV":1,
-        "nu1":0,
         "reset":0,
 
-        "nu2":0,
         "nskipm":0,
 
         "sL0cktest":0,
@@ -71,7 +69,6 @@
 
         "l0offset":4060,
         "offset":0,
-        "nu3":0,
 
         "channel_sc":0,
         "channel_sl":0,
@@ -82,8 +79,7 @@
         "channel_sd":0,
         "channel_sz10b":0,
         "channel_sz8b":0,
-        "channel_sz6b":0,
-        "channel_nu4":0
+        "channel_sz6b":0
     },
     "roc_common_config":{
         "rocPllCoreAnalog":{
