@@ -64,7 +64,7 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-    if (reset_roc) { 
+    if (reset_roc) {
         std::cout << "Only resetting ROC" << std::endl;
         auto opc_ip = roc0.getOpcServerIp();
         auto sca_roc_address_analog = roc0.getAddress();
