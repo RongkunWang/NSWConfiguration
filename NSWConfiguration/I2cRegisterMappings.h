@@ -6,6 +6,9 @@
 // key: Address of I2c main registers
 // value: RegisterSizeVector: a vector of pairs as: {subregisterName, subregister size in its}
 
+// ReadOnly I2C addresses: If an address includes READONLY in it's name, it's ignored in configuration
+// and is only kept in the map to convert bits back into values
+
 #ifndef NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
 #define NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
 
@@ -359,6 +362,37 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
     { "reg024busyOffLimit1", { {"busy_off_limit8_0", 8} } },
 
     { "reg031l1EventsWithoutComma", { {"l1_events_no_comma", 8} } },
+
+    { "reg032vmmCapture0Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg033vmmCapture1Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg034vmmCapture2Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg035vmmCapture3Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg036vmmCapture4Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg037vmmCapture5Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg038vmmCapture6Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg039vmmCapture7Status_READONLY", { {"NOT_USED", 3}, {"fifo_full_err", 1}, {"coherency_err", 1},
+                                            {"dec_err", 1}, {"misaligned_err", 1}, {"aligned", 1} } },
+    { "reg040sRoc0Status_READONLY", { {"NOT_USED", 5}, {"ttc_fifo_full", 1}, {"enc_err", 1}, {"event_full", 1} } },
+    { "reg041sRoc1Status_READONLY", { {"NOT_USED", 5}, {"ttc_fifo_full", 1}, {"enc_err", 1}, {"event_full", 1} } },
+    { "reg042sRoc2Status_READONLY", { {"NOT_USED", 5}, {"ttc_fifo_full", 1}, {"enc_err", 1}, {"event_full", 1} } },
+    { "reg043sRoc3Status_READONLY", { {"NOT_USED", 5}, {"ttc_fifo_full", 1}, {"enc_err", 1}, {"event_full", 1} } },
+    { "reg044seu_READONLY", { {"NOT_USED", 7}, {"seu", 1} } },
+    { "reg045parityCounterVmm0_READONLY", { {"parity_counter", 8} } },
+    { "reg046parityCounterVmm1_READONLY", { {"parity_counter", 8} } },
+    { "reg047parityCounterVmm2_READONLY", { {"parity_counter", 8} } },
+    { "reg048parityCounterVmm3_READONLY", { {"parity_counter", 8} } },
+    { "reg049parityCounterVmm4_READONLY", { {"parity_counter", 8} } },
+    { "reg050parityCounterVmm5_READONLY", { {"parity_counter", 8} } },
+    { "reg051parityCounterVmm6_READONLY", { {"parity_counter", 8} } },
+    { "reg052parityCounterVmm7_READONLY", { {"parity_counter", 8} } },
+    { "reg053seuCounter_READONLY", { {"seu_counter", 8} } },
 
     { "reg063timeoutStatus", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                          {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } }

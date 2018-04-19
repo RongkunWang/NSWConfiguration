@@ -5,10 +5,10 @@
 #include <sstream>
 #include <memory>
 #include <iostream>
+#include <map>
 
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
-
 
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/Types.h"
@@ -26,6 +26,13 @@ static const i2c::AddressRegisterMap CUSTOM_REGISTER_SIZE_2 = {
     { "i2caddress0", { {"reg0", 6}, {"reg1", 7}, {"reg2", 1}, {"reg3", 1}, {"reg4", 1} } },  // total: 16
     { "i2caddress1", { {"reg0", 15}, {"NOT_USED", 15}, {"reg2", 8}, {"NOT_USED", 2}, {"reg4", 8} } },  // total: 48
     { "i2caddress2", { {"reg0", 1}, {"reg1", 1}, {"reg2", 1}, {"reg3", 29 }} },  // total: 32
+    { "i2caddress3", { {"reg0", 8} } }  // total: 8
+};
+
+static const i2c::AddressRegisterMap CUSTOM_REGISTER_SIZE_3 = {
+    { "i2caddress0", { {"reg0", 6}, {"reg1", 7}, {"reg2", 1}, {"reg3", 1}, {"reg4", 1} } },  // total: 16
+    { "i2caddress1", { {"reg0", 15}, {"reg1", 15}, {"reg2", 8}, {"reg3", 2}, {"reg4", 8} } },  // total: 48
+    { "i2caddress2_READONLY", { {"reg0", 1}, {"reg1", 1}, {"reg2", 1}, {"reg3", 29 }} },  // total: 32
     { "i2caddress3", { {"reg0", 8} } }  // total: 8
 };
 
@@ -200,4 +207,30 @@ BOOST_AUTO_TEST_CASE(NotUsed_test) {
     BOOST_TEST(master.getRegisterValue("i2caddress1", "reg2") == 5);
 }
 
+BOOST_AUTO_TEST_CASE(ReadOnly_test) {
+    std::stringstream json;
+    json << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
+    json << "\"i2caddress1\": { \"reg0\":15, \"reg1\":16, \"reg2\":0, \"reg3\":0, \"reg4\":0 },";
+    json << "\"i2caddress3\": { \"reg0\":7 } }\n";
 
+    ptree config;
+    boost::property_tree::read_json(json, config);
+
+    nsw::I2cMasterConfig master(config, "master_address", CUSTOM_REGISTER_SIZE_3);
+    auto bs_map = master.getBitstreamMap();
+    BOOST_TEST(bs_map["i2caddress0"] == "0000010000001111");
+    BOOST_TEST(bs_map["i2caddress1"] == "000000000001111000000000010000000000000000000000");
+    BOOST_TEST(bs_map["i2caddress3"] == "00000111");
+
+    // Make sure the READONLY address is not added to bs_map
+    bool not_found;
+    not_found = bs_map.find("i2caddress2_READONLY") == bs_map.end();
+    BOOST_TEST(not_found);
+
+    not_found = bs_map.find("i2caddress2") == bs_map.end();
+    BOOST_TEST(not_found);
+
+    // Following lines give error: Type has to implement operator<< to be printable
+    // BOOST_TEST(bs_map.find("i2caddress2_READONLY") == bs_map.end());
+    // BOOST_TEST(bs_map.find("i2caddress2") == bs_map.end());
+}

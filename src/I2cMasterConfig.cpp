@@ -57,6 +57,9 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
     i2c::AddressBitstreamMap bitstreams;
     for (auto e : m_addr_reg) {
         auto address = e.first;
+        if (address.find("READONLY") != std::string::npos) {
+            continue;  // Ignore readonly registers, as they don't have a value in configuration
+        }
         auto register_sizes = e.second;
 
         ptree child;
