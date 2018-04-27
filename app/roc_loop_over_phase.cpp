@@ -56,18 +56,32 @@ int main(int ac, const char *av[]) {
 
     std::string input = "";
     // for (uint32_t i = 0; i < 128; i++) {
-    for (uint32_t i = 0; i < 32; i++) {
-        std::cout << "Press enter to go to next step: " << std::endl;
-        getline(std::cin, input);
-        // uint32_t phase40 = i;
+    for (uint32_t i = 80; i < 128; i=i+1) {
+        //std::cout << "Press enter to go to next step: " << std::endl;
+        //getline(std::cin, input);
+        sleep(1);
+        uint32_t phase40 = i;
 
-        uint32_t phase160 = i & 31;
-        // uint32_t shift40_ps = 200 * i;  // Phase shift of 40MHz in ps
+        uint32_t phase160 = i % 32;
+        uint32_t shift40_ps = 200 * i;  // Phase shift of 40MHz in ps
         uint32_t shift160_ps = 200 * phase160;
 
-        // std::cout << "phase40: " << shift40_ps << " - phase160: " << shift160_ps << std::endl;
-        std::cout << " - phase160: " << shift160_ps << std::endl;
+        std::cout << "----------------> phase40: " << shift40_ps << " - phase160: " << shift160_ps << std::endl;
+        //std::cout << " - phase160: " << shift160_ps << std::endl;
+        //continue;
 
+        roc0.analog.setRegisterValue("reg115", "ePllPhase160MHz_0[4]", phase160 >> 4);
+        roc0.analog.setRegisterValue("reg116", "ePllPhase160MHz_0[4]", phase160 >> 4);
+        roc0.analog.setRegisterValue("reg117", "ePllPhase160MHz_0[4]", phase160 >> 4);
+        roc0.analog.setRegisterValue("reg118", "ePllPhase160MHz_0[0:3]", phase160 & 15);
+        roc0.analog.setRegisterValue("reg118", "ePllPhase160MHz_1[0:3]", phase160 & 15);
+        roc0.analog.setRegisterValue("reg119", "ePllPhase160MHz_0[3:0]", phase160 & 15);
+
+        roc0.analog.setRegisterValue("reg115", "ePllPhase40MHz_0", phase40);
+        roc0.analog.setRegisterValue("reg116", "ePllPhase40MHz_0", phase40);
+        roc0.analog.setRegisterValue("reg117", "ePllPhase40MHz_0", phase40);
+
+        /* Following are for setting the phase of data lines
         roc0.analog.setRegisterValue("reg064ePllVmm0", "ePllPhase160MHz_0[4]", phase160 >> 4);
         roc0.analog.setRegisterValue("reg065ePllVmm0", "ePllPhase160MHz_1[4]", phase160 >> 4);
         roc0.analog.setRegisterValue("reg066ePllVmm0", "ePllPhase160MHz_2[4]", phase160 >> 4);
@@ -114,13 +128,14 @@ int main(int ac, const char *av[]) {
         roc0.analog.setRegisterValue("reg100ePllTdc", "ePllPhase160MHz_1[3:0]", phase160 & 15);
         roc0.analog.setRegisterValue("reg101ePllTdc", "ePllPhase160MHz_2[3:0]", phase160 & 15);
         roc0.analog.setRegisterValue("reg101ePllTdc", "ePllPhase160MHz_3[3:0]", phase160 & 15);
+        */
 
 
         // Send all ROC config
         cs.sendRocConfig(roc0);
 
-        std::cout << "Press enter to configure VMM: " << std::endl;
-        getline(std::cin, input);
+        //std::cout << "Press enter to configure VMM: " << std::endl;
+        //getline(std::cin, input);
 
         if (true) {
             // Inverse VMM enable to get VMM into config mode
@@ -142,8 +157,6 @@ int main(int ac, const char *av[]) {
                 //}
                 // std::cout << std::dec << std::endl;;
             }
-
-            // sleep(1);
 
             // Set back the register
             data[0] = {static_cast<uint8_t>(0x0)};
