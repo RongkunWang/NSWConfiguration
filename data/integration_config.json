@@ -6,12 +6,12 @@
         "sbft":0,
         "sbfp":0,
         "sbfm":1,
-        "slg":0,
+        "slg":1,
         "sm":1,
         "scmx":1,
         "sfa":0,
         "sfam":0,
-        "st":2,
+        "st":0,
         "sfm":0,
         "sg":2,
         "sng":0,
@@ -19,9 +19,9 @@
         "sttt":0,
         "ssh":0,
         "stc":0,
-        "sdt_dac":230,
+        "sdt_dac":300,
 
-        "sdp_dac":400,
+        "sdp_dac":500,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
@@ -62,12 +62,12 @@
         "sL0dckinv":0,
         "sL0ckinv":0,
         "sL0ena":1,
-        "truncate":63,
+        "truncate":20,
         "nskip":0,
         "window":7,
-        "rollover":4095,
+        "rollover":3095,
 
-        "l0offset":4060,
+        "l0offset":3060,
         "offset":0,
 
         "channel_sc":0,
@@ -101,7 +101,7 @@
             },
             "reg068ePllVmm0": {
                 "ePllPhase160MHz_1[3:0]": 0,
-                "ePllPhase160MHz_0[3:0]": 1
+                "ePllPhase160MHz_0[3:0]": 0
             },
             "reg069ePllVmm0": {
                 "ePllPhase160MHz_3[3:0]": 0,
@@ -337,24 +337,24 @@
             },
             "reg115": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 94
+                "ePllPhase40MHz_0": 102
             },
             "reg116": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 94
+                "ePllPhase40MHz_0": 102
             },
             "reg117": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 94
+                "ePllPhase40MHz_0": 102
             },
             "reg118": {
-                "ePllPhase160MHz_0[0:3]": 0,
-                "ePllPhase160MHz_1[0:3]": 0
+                "ePllPhase160MHz_0[0:3]": 6,
+                "ePllPhase160MHz_1[0:3]": 6
             },
             "reg119": {
                 "tp_bypass_global": 1,
                 "tp_phase_global": 0,
-                "ePllPhase160MHz_0[3:0]": 0
+                "ePllPhase160MHz_0[3:0]": 6
             },
             "reg120": {
                 "TDS_BCR_INV": 0,
@@ -379,17 +379,17 @@
             "reg000rocId": {
                 "l1_first": 0,
                 "even_parity": 1,
-                "roc_id": 0
+                "roc_id": 4
             },
             "reg001elinkSpeed": {
-                "sroc3": 0,
-                "sroc2": 0,
-                "sroc1": 0,
-                "sroc0": 0
+                "sroc3": 1,
+                "sroc2": 1,
+                "sroc1": 1,
+                "sroc0": 1
             },
             "reg002sRoc0VmmConnections":
             {
-                "vmm7": 1,
+                "vmm7": 0,
                 "vmm6": 0,
                 "vmm5": 0,
                 "vmm4": 0,
@@ -401,7 +401,7 @@
             "reg003sRoc1VmmConnections":
             {
                 "vmm7": 0,
-                "vmm6": 1,
+                "vmm6": 0,
                 "vmm5": 0,
                 "vmm4": 0,
                 "vmm3": 0,
@@ -413,7 +413,7 @@
             {
                 "vmm7": 0,
                 "vmm6": 0,
-                "vmm5": 1,
+                "vmm5": 0,
                 "vmm4": 0,
                 "vmm3": 0,
                 "vmm2": 1,
@@ -425,7 +425,7 @@
                 "vmm7": 0,
                 "vmm6": 0,
                 "vmm5": 0,
-                "vmm4": 1,
+                "vmm4": 0,
                 "vmm3": 1,
                 "vmm2": 0,
                 "vmm1": 0,
@@ -452,30 +452,30 @@
                 "enableSROC0": 1
             },
             "reg008vmmEnable": {
-                "vmm7": 1,
-                "vmm6": 1,
-                "vmm5": 1,
-                "vmm4": 1,
-                "vmm3": 1,
-                "vmm2": 1,
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 0,
                 "vmm1": 1,
-                "vmm0": 1
+                "vmm0": 0
             },
             "reg009timeout": {
                 "timeout": 255
             },
             "reg010bcOffset0_txcSel": {
                 "tx_csel": 8,
-                "bc_offset11_8": 4
+                "bc_offset11_8": 11
             },
             "reg011bcOffset1": {
-                "bc_offset7_0": 133
+                "bc_offset7_0": 244
             },
             "reg012bcRollover0": {
-                "bc_rollover11_8": 13
+                "bc_rollover11_8": 12
             },
             "reg013bcRollover1": {
-                "bc_rollover7_0": 229
+                "bc_rollover7_0": 23
             },
             "reg014eportEnable": {
                 "sroc3": 3,
@@ -534,13 +534,7 @@
     "A01":{
         "ROC_L01_M01":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on MMFE8 0309",
-            "rocCoreDigital":{
-                "reg001elinkSpeed": {
-                    "sroc2": 0,
-                    "sroc0": 0
-                }
-            }
+            "OpcNodeId": "SCA on MMFE8 0309"
         },
         "VMM_L01_M01_00":{
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
