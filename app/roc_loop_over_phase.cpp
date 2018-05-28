@@ -57,8 +57,8 @@ int main(int ac, const char *av[]) {
     std::string input = "";
     // for (uint32_t i = 0; i < 128; i++) {
     for (uint32_t i = 80; i < 128; i=i+1) {
-        //std::cout << "Press enter to go to next step: " << std::endl;
-        //getline(std::cin, input);
+        // std::cout << "Press enter to go to next step: " << std::endl;
+        // getline(std::cin, input);
         sleep(1);
         uint32_t phase40 = i;
 
@@ -67,8 +67,8 @@ int main(int ac, const char *av[]) {
         uint32_t shift160_ps = 200 * phase160;
 
         std::cout << "----------------> phase40: " << shift40_ps << " - phase160: " << shift160_ps << std::endl;
-        //std::cout << " - phase160: " << shift160_ps << std::endl;
-        //continue;
+        // std::cout << " - phase160: " << shift160_ps << std::endl;
+        // continue;
 
         roc0.analog.setRegisterValue("reg115", "ePllPhase160MHz_0[4]", phase160 >> 4);
         roc0.analog.setRegisterValue("reg116", "ePllPhase160MHz_0[4]", phase160 >> 4);
@@ -134,8 +134,8 @@ int main(int ac, const char *av[]) {
         // Send all ROC config
         cs.sendRocConfig(roc0);
 
-        //std::cout << "Press enter to configure VMM: " << std::endl;
-        //getline(std::cin, input);
+        // std::cout << "Press enter to configure VMM: " << std::endl;
+        // getline(std::cin, input);
 
         if (true) {
             // Inverse VMM enable to get VMM into config mode
