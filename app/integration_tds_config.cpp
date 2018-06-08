@@ -30,7 +30,7 @@ int main(int ac, const char *av[]) {
         ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(true),
         "Configure the ROC(Default: True)")
         ("configure-tds,t", po::bool_switch(&configure_tds)->default_value(true),
-        "Configure the ROC(Default: True)");
+        "Configure the TDS(Default: True)");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -106,16 +106,12 @@ int main(int ac, const char *av[]) {
         cs.sendI2c(opc_ip, sca_tds_address + ".register9", data);
         data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register10", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
-        cs.sendI2c(opc_ip, sca_tds_address + ".register11", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
-        cs.sendI2c(opc_ip, sca_tds_address + ".register12", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
-        cs.sendI2c(opc_ip, sca_tds_address + ".register13", data);
         data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
-        cs.sendI2c(opc_ip, sca_tds_address + ".register14", data);
+        cs.sendI2c(opc_ip, sca_tds_address + ".register11", data);
         data = {0xff,0xf0,0x00,0x00};
-        cs.sendI2c(opc_ip, sca_tds_address + ".register15", data);
+        cs.sendI2c(opc_ip, sca_tds_address + ".register12", data);
+
+        // Remaining 3 addresses are readonly
     }
 
     // TODO(cyildiz): Read back TDS I2c
