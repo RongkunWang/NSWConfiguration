@@ -19,6 +19,10 @@ tdaq_add_executable(configure_roc app/configure_roc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(integration_tds_config app/integration_tds_config.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(check_gpio app/check_gpio.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
