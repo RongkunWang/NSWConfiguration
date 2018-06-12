@@ -1,18 +1,35 @@
 #include <string>
 #include <memory>
 
+// Header to the RC online services
+#include <RunControl/Common/OnlineServices.h>
+
 #include "NSWConfiguration/NSWConfigRc.h"
+#include "NSWConfigurationDal/NSWConfigApplication.h"
 
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Config");
 
-    std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
 
-    m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
+    try { 
+      const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+      const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
+      m_dbcon = nswConfigApp->get_dbConnection();
+      ERS_INFO("DB Connection: " << m_dbcon);
+    } catch(std::exception& ex) {
+        // TODO, catch and throw correct exceptions
+        ERS_LOG("Configuration issue: " << ex.what());
+    }
+
+    // std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
+    // m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
+    m_reader = std::make_unique<nsw::ConfigReader>(m_dbcon);
     m_sender = std::make_unique<nsw::ConfigSender>();
 
     auto config = m_reader->readConfig();
 
+    // TODO(cyildiz): Get these from DB?
     m_roc_names = {"A01.ROC_L01_M01"};
     m_vmm_names = {"A01.VMM_L01_M01_00", "A01.VMM_L01_M01_01"};
 
@@ -54,7 +71,7 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
-    ERS_LOG("Configuring VMMs");
+    ERS_INFO("Configuring VMMs");
 
     for (auto vmm_name : m_vmm_names) {
         auto vmmconfig = m_reader->readConfig(vmm_name);
@@ -65,7 +82,7 @@ void nsw::NSWConfigRc::configureVMMs() {
 }
 
 void nsw::NSWConfigRc::configureROCs() {
-    ERS_LOG("Configuring ROCs");
+    ERS_INFO("Configuring ROCs");
     for (auto roc_name : m_roc_names) {
         auto rocconfig = m_reader->readConfig(roc_name);
         nsw::ROCConfig roc(rocconfig);

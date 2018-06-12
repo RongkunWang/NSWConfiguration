@@ -1,5 +1,16 @@
 tdaq_package() #This will make a package called NSWConfiguration
 
+tdaq_generate_dal(schema/NSWConfig.schema.xml
+  NAMESPACE nsw::dal
+  INCLUDE_DIRECTORIES DFConfiguration dal 
+  INCLUDE NSWConfigurationDal
+  CPP_OUTPUT dal_cpp_srcs)
+
+# Build a C++ library out of the generated files
+tdaq_add_library(nswconfigdal DAL
+  ${dal_cpp_srcs}
+  LINK_LIBRARIES tdaq::config tdaq::daq-core-dal tdaq::daq-df-dal)
+
 tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
@@ -45,7 +56,7 @@ tdaq_add_executable(nsw_integration_tds_config app/integration_tds_config.cpp
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options
+                 tdaq-common::ers Boost::program_options nswconfigdal
 )
 
 tdaq_add_schema(schema/NSWConfig.schema.xml)

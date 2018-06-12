@@ -42,6 +42,9 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;
+
+    // Database connection string
+    std::string m_dbcon;
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
