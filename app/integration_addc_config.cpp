@@ -10,20 +10,21 @@
 #include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/OpcClient.h"
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[]) 
+{
 
     // not sure if/what is needed for ADDC
     std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work2/NSWConfiguration/data/";
-    nsw::ConfigReader reader1("json://" + base_folder + "integration_config.json");
+    nsw::ConfigReader reader1("json://" + base_folder + "integration_config.json"); //here is OPC address and SCA address that can be useful
     auto config1 = reader1.readConfig();
     write_json(std::cout, config1);
     // write_xml(std::cout, config1);
 
     // now we start with (preliminary) ADDC part
 
-    nsw::ConfigSender cs;
+    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
 
-    auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!!
+    auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!! fine for now
     nsw::ROCConfig addc0(addcconfig0);
     addc0.dump();
 
@@ -77,15 +78,19 @@ int main(int argc, const char *argv[]) {
             0x00,0x00,0x00,0x00,0x00,0xaa,0x01,0x00,0x01
     };
 
-    size_t size = 2;
-    uint8_t data[] = {0x0,0x0};
+    size_t gbtx_size = 3;
+    uint8_t gbtx_data[] = {0x0,0x0,0x0}; // 2 for address (i), 1 for data
 
-    for (int i=0; i<ADDCConfigurationData.size(); i++) // are there really that many registers?? 369
+    size_t art_size = 2;
+    uint8_t art_data[] = {0x0,0x0}; // 1 for address (i), 1 for data
+
+    for (uint i=0; i<ADDCConfigurationData.size(); i++)
     {
-        data[0] = i; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = ADDCConfigurationData[i];
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx0.gbtx0", data, size);
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx1.gbtx1", data, size);
+        gbtx_data[0] = ((uint8_t) ((i) >> 8));
+        gbtx_data[1] = ((uint8_t) ((i) & 0xff));
+        gbtx_data[2] = ADDCConfigurationData[i];
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
     }
 
 
@@ -101,115 +106,145 @@ int main(int argc, const char *argv[]) {
     std::vector<uint8_t> ARTregisters {21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 2}; 
     std::vector<uint8_t> ARTregistervalues {0xff, 0x3f, 0x00, 0xf0, 0xff, 0x03, 0x00, 0xff, 0x3f, 0x00, 0xf0, 0xff, 0x03, 0x00, 0x80};
 
-    for (int i=0; i<ARTregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<ARTregisters.size(); i++) 
     {
-        data[0] = ARTregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = ARTregistervalues[i];
-        cs.sendI2cRaw(opc_ip, sca_address + "art0Core", data, size);
+        art_data[0] = ARTregisters[i];
+        art_data[1] = ARTregistervalues[i];
+        cs.sendI2cRaw(opc_ip, sca_address + ".art0Core", art_data, art_size);
     }
 
     // 6.b Set the GBTx0 to training mode
-    data[0] = 62;
-    data[1] = 0x15;
-    cs.sendI2cRaw(opc_ip, sca_address + "gbtx0.gbtx0", data, size);
+    gbtx_data[0] = 0;
+    gbtx_data[1] = 62;
+    gbtx_data[2] = 0x15;
+    cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
 
     // 6.c Enable the GBTx training for eport
     std::vector<uint8_t> GBTxregisters {78,79,80,102,103,104,126,127,128,150,151,152,174,175,176,198,199,200,222,223,224};
-    for (int i=0; i<GBTxregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<GBTxregisters.size(); i++) 
     {
-        data[0] = GBTxregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0xff;
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx0.gbtx0", data, size);
+        gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) >> 8)); 
+        gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
+        gbtx_data[2] = 0xff;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
     }
 
     // 6.d fix the e-port phase
     sleep(1);
-    for (int i=0; i<GBTx0registers.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<GBTxregisters.size(); i++) 
     {
-        data[0] = GBTx0registers[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0x00;
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx0.gbtx0", data, size);
+        gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) >> 8)); 
+        gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
+        gbtx_data[2] = 0x00;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
     }
 
 
     // 7.a repeat above for ART1 and GBTx0: set the ART1 ASIC to provide continuous “010101…” 
-    for (int i=0; i<ARTregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<ARTregisters.size(); i++)
     {
-        data[0] = ARTregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = ARTregistervalues[i];
-        cs.sendI2cRaw(opc_ip, sca_address + "art1Core", data, size);
+        art_data[0] = ARTregisters[i];
+        art_data[1] = ARTregistervalues[i];
+        cs.sendI2cRaw(opc_ip, sca_address + ".art1Core", art_data, art_size);
     }
 
     // 7.b Set the GBTx0 to training mode
-    data[0] = 62;
-    data[1] = 0x15;
-    cs.sendI2cRaw(opc_ip, sca_address + "gbtx1.gbtx1", data, size);
+    gbtx_data[0] = 0;
+    gbtx_data[1] = 62;
+    gbtx_data[2] = 0x15;
+    cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
 
     // 7.c Enable the GBTx training for eport
-    for (int i=0; i<GBTxregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<GBTxregisters.size(); i++) 
     {
-        data[0] = GBTxregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0xff;
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx1.gbtx1", data, size);
+        gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) >> 8)); 
+        gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
+        gbtx_data[2] = 0xff;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
     }
 
     // 7.d fix the e-port phase
     sleep(1);
-    for (int i=0; i<GBTxregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<GBTxregisters.size(); i++) 
     {
-        data[0] = GBTxregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0x00;
-        cs.sendI2cRaw(opc_ip, sca_address + "gbtx1.gbtx1", data, size);
+        gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) >> 8)); 
+        gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
+        gbtx_data[2] = 0x00;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
     }
 
     // 8. bit order alignment
     // 8.a 
-    data[0] = 2;
-    data[1] = 0x10;
-    cs.sendI2cRaw(opc_ip, sca_address + "art0Core", data, size);
+    art_data[0] = 2;
+    art_data[1] = 0x10;
+    cs.sendI2cRaw(opc_ip, sca_address + ".art0Core", art_data, art_size);
 
     // 8.b Mask off the ART input channels to avoid interferences
     std::vector<uint8_t> ARTCoreregisters {9, 10, 11, 12};
-    for (int i=0; i<ARTCoreregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<ARTCoreregisters.size(); i++)
     {
-        data[0] = ARTCoreregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0xff;
-        cs.sendI2cRaw(opc_ip, sca_address + "art0core", data, size);
+        art_data[0] = ARTCoreregisters[i];
+        art_data[1] = 0xff;
+        cs.sendI2cRaw(opc_ip, sca_address + ".art0core", art_data, art_size);
     }
 
     // 8.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx0 160M clock. 
     // To do that, write the phase value to the GBTx0 register 8, 
     // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96 and the rest bits are fixed. --> ?????
 
+    // loop and test values between 0 and 255 to be written to GBTx0 register 8
+    // sleep for some time
+
+    // rest: manually...
+
+    for (uint i=0; i<256; i++) 
+    {
+        gbtx_data[0] = 0; 
+        gbtx_data[1] = 8;
+        gbtx_data[2] = i;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
+        sleep(2);
+    }
+
 
     // 9. repeat bit order alignment on ART1/GBTx1
     // 9.a 
-    data[0] = 2;
-    data[1] = 0x10;
-    cs.sendI2cRaw(opc_ip, sca_address + "art1Core", data, size);
+    art_data[0] = 2;
+    art_data[1] = 0x10;
+    cs.sendI2cRaw(opc_ip, sca_address + ".art1Core", art_data, art_size);
 
     // 9.b Mask off the ART input channels to avoid interferences
-    for (int i=0; i<ARTCoreregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<ARTCoreregisters.size(); i++)
     {
-        data[0] = ARTCoreregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0xff;
-        cs.sendI2cRaw(opc_ip, sca_address + "art1core", data, size);
+        art_data[0] = ARTCoreregisters[i];
+        art_data[1] = 0xff;
+        cs.sendI2cRaw(opc_ip, sca_address + ".art1core", art_data, art_size);
     }
 
     // 9.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx1 160M clock. 
     // To do that, write the phase value to the GBTx1 register 8, 
     // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96 and the rest bits are fixed. --> ?????
 
-    // 10.
-    for (int i=0; i<ARTCoreregisters.size(); i++) // are there really that many registers?? 369
+    for (uint i=0; i<256; i++) 
     {
-        data[0] = ARTCoreregisters[i]; // can I do it like this or do I need to have data[0] and data[1] for the register number?
-        data[1] = 0x00;
-        cs.sendI2cRaw(opc_ip, sca_address + "art0core", data, size);
-        cs.sendI2cRaw(opc_ip, sca_address + "art1core", data, size);
+        gbtx_data[0] = 0; 
+        gbtx_data[1] = 8;
+        gbtx_data[2] = i;
+        cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
+        sleep(2);
+    }
+
+    // 10.
+    for (uint i=0; i<ARTCoreregisters.size(); i++)
+    {
+        art_data[0] = ARTCoreregisters[i]; 
+        art_data[1] = 0x00;
+        cs.sendI2cRaw(opc_ip, sca_address + ".art0core", art_data, art_size);
+        cs.sendI2cRaw(opc_ip, sca_address + ".art1core", art_data, art_size);
     }
 
     // anything else needed?
 
     return 0;
+
 }
