@@ -55,7 +55,7 @@ tdaq_add_executable(nsw_roc_tests app/roc_tests.cpp
 
 
 tdaq_add_executable(nsw_integration_tds_config app/integration_tds_config.cpp
-  LINK_LIBRARIES nswconfig
+  LINK_LIBRARIES nswconfig Boost::program_options Boost::boost
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp

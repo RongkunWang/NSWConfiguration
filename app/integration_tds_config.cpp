@@ -7,8 +7,13 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 #include "boost/program_options.hpp"
+#include "boost/property_tree/ptree.hpp"
+
+using boost::property_tree::ptree;
 
 namespace po = boost::program_options;
 
@@ -51,6 +56,13 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
+    
+    auto tdsconfig = config1.get_child("tds_common_config");
+    nsw::I2cMasterConfig tds(tdsconfig, "tds", TDS_REGISTERS);
+    tds.dump();
+
+    return 0;
+
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
     nsw::ROCConfig roc0(rocconfig0);
 
@@ -58,7 +70,6 @@ int main(int ac, const char *av[]) {
     std::string sca_tds_address =  roc0.getAddress() + ".tds";
     std::vector<uint8_t> data;
     data.reserve(16);
-
     // Send all ROC config
     if (configure_roc) {
         cs.sendRocConfig(roc0);

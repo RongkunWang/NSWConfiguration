@@ -113,7 +113,10 @@ void nsw::I2cMasterConfig::dump() {
     for (auto ab : m_address_bitstream) {
         auto address = ab.first;
         auto bitstream = ab.second;
-        std::cout << address << " : " << bitstream << std::endl;
+        std::cout << address
+                  << "\n  bits  : " << bitstream
+                  << "\n  bytes : " << bitstringToHexString(bitstream)
+                  << std::endl;
     }
 }
 
