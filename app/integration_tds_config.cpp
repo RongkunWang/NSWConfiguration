@@ -57,12 +57,15 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
-    
+
     // Configuration with Opc parameters
     auto tdsconfig0 = reader1.readConfig("A01.TDS_L01_M01");
-    std::cout << "TDS COnfig: "  << std::endl;
+    std::cout << "TDS Config: "  << std::endl;
     nsw::TDSConfig tds(tdsconfig0);
     tds.dump();
+
+    std::vector<uint8_t> readback {0x0, 0xa, 0xf8, 0x9f};
+    tds.tds.decodeVector("register0", readback);
 
     return 0;
 
@@ -78,52 +81,46 @@ int main(int ac, const char *av[]) {
         cs.sendRocConfig(roc0);
     }
 
-    /*
-
-    Name                    Address                                 Nbytes  Explanation
-    ====                    ========                                ======  ===========
-    BCID_TRIG_MATCH_WINDOW  000af89f                                4       BCID rollover=2808, BCID Offset=0                       
-    SET_EPLL_PLL            0000                                    2       CK160_0, CK160_1 phase reg =0                   
-    CHAN_DISABLE            00000000000000000000000000000000        16      0 means channel enable                  
-    STRIP_TDS_LUT_0_7       00000000000000000000000000000000        16      each byte represents one LUT, format:1'b0+8'b BANDID+7'bLeadingstrip#                   
-    STRIP_TDS_LUT_8_15      00000000000000000000000000000000        16                              
-    PAD_DLY_COMP_0_15**     13131313131313131313131313131313        16      each byte represents on Pad channel, format: 3'b000+5'b delay_compensation                      
-    PAD_DLY_COMP_16_31      13131313131313131313131313131313        16                              
-    PAD_DLY_COMP_32_47      13131313131313131313131313131313        16                              
-    PAD_DLY_COMP_48_63      13131313131313131313131313131313        16                              
-    PAD_DLY_COMP_64_79      13131313131313131313131313131313        16                              
-    PAD_DLY_COMP_80_95      13131313131313131313131313131313        16                              
-    PAD_DLY_COMP_96_103     1313131313131313                        8                               
-    SET_RUN_MODE_RESET      FFF00000                                4       REJECT_WINOW=255BC, Normal RUN MODE, NO reset                   
-    */
 
     if (configure_tds) {
-        data = {0x0,0x0a,0xf8,0x9f};
+        std::cout << "Sending TDS config" << std::endl;
+        data = {0x0, 0x0a, 0xf8, 0x9f};
         cs.sendI2c(opc_ip, sca_tds_address + ".register0", data);
-        data = {0x0,0x0};
+        data = {0x0, 0x0};
         cs.sendI2c(opc_ip, sca_tds_address + ".register1", data);
-        data = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+        data = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
         cs.sendI2c(opc_ip, sca_tds_address + ".register2", data);
-        data = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+        data = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
         cs.sendI2c(opc_ip, sca_tds_address + ".register3", data);
-        data = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+        data = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
         cs.sendI2c(opc_ip, sca_tds_address + ".register4", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register5", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register6", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register7", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register8", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register9", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register10", data);
-        data = {0x13,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
+        data = {0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13};
         cs.sendI2c(opc_ip, sca_tds_address + ".register11", data);
-        data = {0xff,0xf0,0x00,0x00};
+        data = {0xff, 0xf0, 0x00, 0x00};
         cs.sendI2c(opc_ip, sca_tds_address + ".register12", data);
+
+
+        for (int i = 0; i < 13; i++) {
+            auto dataread = cs.readI2c(opc_ip, sca_tds_address + ".register" + std::to_string(i));
+            std::cout << "Read back: register" + std::to_string(i) << std::endl;
+            for (auto val : dataread) {
+                std::cout << static_cast<uint32_t>(val) << ", ";
+            }
+            std::cout << "\n";
+        }
+
 
         // Remaining 3 addresses are readonly
     }
@@ -137,7 +134,7 @@ int main(int ac, const char *av[]) {
         auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
         cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
 
-        std::vector<std::string> vmmids = {"0", "1", "2", "3", "4", "5", "6", "7"};  //TODO(cyildiz): Up to 3?
+        std::vector<std::string> vmmids = {"0", "1", "2", "3", "4", "5", "6", "7"};  // TODO(cyildiz): Up to 3?
         for (auto vmmid : vmmids) {
             auto vmmconfig = reader1.readConfig("A01.VMM_L01_M01_0" + vmmid);
             nsw::VMMConfig vmm(vmmconfig);

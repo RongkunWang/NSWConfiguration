@@ -65,6 +65,26 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     return vec;
 }
 
+std::string nsw::vectorToHexString(std::vector<uint8_t> vec) {
+    std::stringstream hexstream;
+    hexstream << std::hex << std::setfill('0');
+    // Go 8 bit at a time and convert it to hex
+    for (auto byte : vec) {
+        hexstream << std::setw(2) << static_cast<uint32_t>(byte);
+    }
+    return hexstream.str();
+}
+
+std::string nsw::vectorToBitString(std::vector<uint8_t> vec) {
+    std::string bitstring;
+    // Go 8 bit at a time and convert it to binary
+    for (auto byte : vec) {
+        std::bitset<8> bs(byte);
+        bitstring = bitstring +  bs.to_string();
+    }
+    return bitstring;
+}
+
 std::string nsw::bitstringToHexString(std::string bitstr) {
     std::string substr;
     uint32_t byte;

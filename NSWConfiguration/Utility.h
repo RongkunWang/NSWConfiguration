@@ -53,8 +53,15 @@ void checkOverflow(size_t register_size, unsigned value, std::string register_na
 
 std::vector<uint8_t> stringToByteVector(std::string bitstr);
 
-// Converts string of bits to string of bytes in hexadecimal
+/// Converts string of bits to string of bytes in hexadecimal
 std::string bitstringToHexString(std::string bitstr);
+
+/// Converts vector of values to string of hex
+std::string vectorToHexString(std::vector<uint8_t> vec);
+
+/// Converts vector of values to string of bits
+std::string vectorToBitString(std::vector<uint8_t> vec);
+
 
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
 std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config);
