@@ -7,6 +7,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/TDSConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
@@ -57,8 +58,10 @@ int main(int ac, const char *av[]) {
     nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
     
-    auto tdsconfig = config1.get_child("tds_common_config");
-    nsw::I2cMasterConfig tds(tdsconfig, "tds", TDS_REGISTERS);
+    // Configuration with Opc parameters
+    auto tdsconfig0 = reader1.readConfig("A01.TDS_L01_M01");
+    std::cout << "TDS COnfig: "  << std::endl;
+    nsw::TDSConfig tds(tdsconfig0);
     tds.dump();
 
     return 0;

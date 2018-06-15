@@ -31,8 +31,10 @@ std::string nsw::getElementType(std::string element_name) {
         return "VMM";
     } else if (element_name.find("ROC") != std::string::npos) {
         return "ROC";
+    } else if (element_name.find("TDS") != std::string::npos) {
+        return "TDS";
     } else {
-        auto err = "Type not VMM or ROC!. Unknown front end element: " + element_name;
+        auto err = "Type not VMM, ROC, TDS!. Unknown front end element: " + element_name;
         throw std::runtime_error(err);
     }
 }
