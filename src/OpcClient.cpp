@@ -51,7 +51,7 @@ void nsw::OpcClient::writeI2c(std::string node, std::vector<uint8_t> cdata) {
 }
 
 void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_size) {
-    I2cDevice i2cnode(m_session, UaNodeId(node.c_str(), 2));
+    I2cSlave i2cnode(m_session, UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
     bs.setByteString(data_size, data);
@@ -59,7 +59,7 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
     try {
-        i2cnode.writeSend(bs);
+        i2cnode.writeValue(bs);
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write I2c: " <<  e.what() << std::endl;
@@ -93,11 +93,11 @@ bool nsw::OpcClient::readGPIO(std::string node) {
 }
 
 std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
-    I2cDevice i2cnode(m_session, UaNodeId(node.c_str(), 2));
+    I2cSlave i2cnode(m_session, UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
     try {
-        auto bytestring = i2cnode.readReceive();
+        auto bytestring = i2cnode.readValue();
         auto array = bytestring.data();
         auto length = bytestring.length();
         // copy array contents in a vector
