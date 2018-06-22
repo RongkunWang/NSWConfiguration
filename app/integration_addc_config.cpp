@@ -245,6 +245,17 @@ int main(int argc, const char *argv[])
 
     // anything else needed?
 
+    // Yes: bits for BCR counters
+    // 11 
+    art_data[0] = 14;
+    art_data[1] = 0xF;
+    cs.sendI2cRaw(opc_ip, sca_address + ".art0Core", art_data, art_size);
+    cs.sendI2cRaw(opc_ip, sca_address + ".art1Core", art_data, art_size);
+    art_data[0] = 15;
+    art_data[1] = 0xFF;
+    cs.sendI2cRaw(opc_ip, sca_address + ".art0Core", art_data, art_size);
+    cs.sendI2cRaw(opc_ip, sca_address + ".art1Core", art_data, art_size);
+
     return 0;
 
 }
