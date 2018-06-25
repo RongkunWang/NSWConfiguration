@@ -25,7 +25,7 @@ int main(int ac, const char *av[]) {
     bool configure_roc;
     bool configure_tds;
     std::string config_filename;
-    po::options_description desc("This program configures TDS/ROC with some command line options");
+    po::options_description desc("This program configures TDS/ROC/VMM with some command line options");
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
@@ -33,9 +33,9 @@ int main(int ac, const char *av[]) {
         "Configuration file path")
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
         "Configure all the VMMs(Default: False)")
-        ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(true),
+        ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
         "Configure the ROC(Default: True)")
-        ("configure-tds,t", po::bool_switch(&configure_tds)->default_value(true),
+        ("configure-tds,t", po::bool_switch(&configure_tds)->default_value(false),
         "Configure the TDS(Default: True)");
 
     po::variables_map vm;
@@ -64,26 +64,24 @@ int main(int ac, const char *av[]) {
     nsw::TDSConfig tds(tdsconfig0);
     tds.dump();
 
-    std::vector<uint8_t> readback {0x0, 0xa, 0xf8, 0x9f};
-    tds.tds.decodeVector("register0", readback);
-
-    return 0;
-
     auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
     nsw::ROCConfig roc0(rocconfig0);
 
     auto opc_ip = roc0.getOpcServerIp();
-    std::string sca_tds_address =  roc0.getAddress() + ".tds";
     std::vector<uint8_t> data;
     data.reserve(16);
     // Send all ROC config
     if (configure_roc) {
+        std::cout << "configuring roc" << std::endl;
         cs.sendRocConfig(roc0);
     }
 
-
     if (configure_tds) {
         std::cout << "Sending TDS config" << std::endl;
+        cs.sendTdsConfig(tds);
+        /*
+        std::string sca_tds_address =  tds.getAddress() + ".tds";
+        cs.sendGPIO(opc_ip, roc0.getAddress() + ".gpio.tdsPowerResetN", 1);
         data = {0x0, 0x0a, 0xf8, 0x9f};
         cs.sendI2c(opc_ip, sca_tds_address + ".register0", data);
         data = {0x0, 0x0};
@@ -110,22 +108,19 @@ int main(int ac, const char *av[]) {
         cs.sendI2c(opc_ip, sca_tds_address + ".register11", data);
         data = {0xff, 0xf0, 0x00, 0x00};
         cs.sendI2c(opc_ip, sca_tds_address + ".register12", data);
+        */
 
-
-        for (int i = 0; i < 13; i++) {
-            auto dataread = cs.readI2c(opc_ip, sca_tds_address + ".register" + std::to_string(i));
-            std::cout << "Read back: register" + std::to_string(i) << std::endl;
+        for (auto tds_i2c_address : tds.i2c.getAddresses()) {
+            auto address_to_read = nsw::stripReadonly(tds_i2c_address);
+            auto dataread = cs.readI2c(opc_ip, tds.getAddress() + ".tds." + address_to_read);
+            std::cout << "Read back: " + tds_i2c_address << std::endl;
             for (auto val : dataread) {
-                std::cout << static_cast<uint32_t>(val) << ", ";
+                std::cout << std::hex << static_cast<uint32_t>(val) << ", ";
             }
-            std::cout << "\n";
+            std::cout << std::dec << "\n";
+            tds.i2c.decodeVector(tds_i2c_address, dataread);
         }
-
-
-        // Remaining 3 addresses are readonly
     }
-
-    // TODO(cyildiz): Read back TDS I2c
 
     if (configure_vmm) {
         // Inverse VMM enable to get VMM into config mode

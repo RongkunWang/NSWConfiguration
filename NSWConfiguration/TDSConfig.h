@@ -25,14 +25,14 @@ namespace nsw {
 
 class TDSConfig: public FEConfig {
  public:
-    nsw::I2cMasterConfig tds;
+    nsw::I2cMasterConfig i2c;
 
     explicit TDSConfig(ptree config):
         FEConfig(config),
-        tds(config.get_child(TDS_NAME), TDS_NAME, TDS_REGISTERS) { }
+        i2c(config.get_child(TDS_NAME), TDS_NAME, TDS_REGISTERS) { }
     ~TDSConfig() {}
 
-    void dump() {tds.dump();}
+    void dump() {i2c.dump();}
 };
 }  // namespace nsw
 
