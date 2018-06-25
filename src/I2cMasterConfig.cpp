@@ -191,3 +191,11 @@ void nsw::I2cMasterConfig::decodeVector(std::string address, std::vector<uint8_t
         std::cout << " - " << register_name  << " : " <<  std::stoul(tmp, nullptr, 2) << std::endl;
     }
 }
+
+std::vector<std::string> nsw::I2cMasterCodec::getAddresses() {
+    std::vector<std::string> addresses;
+    for (auto e : m_addr_reg) {
+        addresses.push_back(e.first);
+    }
+    return addresses;
+}

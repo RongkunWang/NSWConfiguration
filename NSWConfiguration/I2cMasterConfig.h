@@ -62,7 +62,7 @@ class I2cMasterCodec {
     explicit I2cMasterCodec(const i2c::AddressRegisterMap & ar_map);
     ~I2cMasterCodec() {}
 
-    // Method that created bitstreams from config tree.
+    // Method that creates bitstreams from config tree.
     i2c::AddressBitstreamMap buildConfig(ptree config);
 
     /// Map of i2c addresses, to a map of registers to positions in the bitstream
@@ -71,8 +71,11 @@ class I2cMasterCodec {
     /// Map of i2c addresses, to a map of registers to register sizes
     i2c::AddressRegisterSizeMap m_addr_reg_size;
 
+    /// Return total size of registers in an i2c address
     size_t getTotalSize(std::string address) {return m_addr_size[address];}
 
+    /// Return addresses of slaves the I2c master
+    std::vector<std::string> getAddresses();
 
  protected:
     /// Map of i2c addresses and internal mapping of registers
@@ -118,6 +121,9 @@ class I2cMasterConfig {
 
     /// Decode vector of bytes into register values for a certain address
     void decodeVector(std::string address, std::vector<uint8_t> vec);
+
+    /// Return addresses of slaves the I2c master
+    std::vector<std::string> getAddresses() { return m_codec.getAddresses();}
 
     // Following may be needed if codec is declared as unique_ptr
     // I2cMasterConfig(const I2cMasterConfig&) = delete;

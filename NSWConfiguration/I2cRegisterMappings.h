@@ -508,8 +508,9 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                      {"NOT_USED", 3}, {"Chan100", 5}, {"NOT_USED", 3}, {"Chan101", 5},
                      {"NOT_USED", 3}, {"Chan102", 5}, {"NOT_USED", 3}, {"Chan103", 5}}},
 
-     {"register12", {{"timer", 8}, {"bypass", 4}, {"prompt_circuit", 4}, {"bypass_trigger", 1}, {"bypass_scrambler", 1},
-                     {"test_frame2Router_enable", 1}, {"stripTDS_globaltest", 1}, {"PRBS_e", 1}, {"resets", 8}}},
+     {"register12", {{"timer", 8}, {"bypass", 4}, {"prompt_circuit", 4}, {"NOT_USED", 3},
+                     {"bypass_trigger", 1}, {"bypass_scrambler", 1}, {"test_frame2Router_enable", 1},
+                     {"stripTDS_globaltest", 1}, {"PRBS_e", 1}, {"resets", 8}}},
 
      {"register13_READONLY", {
          {"CRC[1295:1215]", 8}, {"CRC[1214:1134]", 8}, {"CRC[1133:1053]", 8}, {"CRC[1052:972]", 8},
