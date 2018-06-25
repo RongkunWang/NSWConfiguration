@@ -16,7 +16,7 @@
 
 // Generated  files
 #include "UaoClientForOpcUaSca/include/SpiSlave.h"
-#include "UaoClientForOpcUaSca/include/I2cDevice.h"
+#include "UaoClientForOpcUaSca/include/I2cSlave.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
 
