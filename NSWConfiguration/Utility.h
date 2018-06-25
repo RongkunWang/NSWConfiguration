@@ -69,5 +69,8 @@ std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& na
 /// Converts vector to ptree
 ptree buildPtreeFromVector(std::vector<unsigned> channelarray);
 
+/// Strips string "_READONLY" from end of string, used for i2c addresses
+std::string stripReadonly(std::string str);
+
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

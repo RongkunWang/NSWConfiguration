@@ -147,3 +147,13 @@ ptree nsw::buildPtreeFromVector(std::vector<unsigned> vec) {
     }
     return temp;
 }
+
+/// Strips string "_READONLY" from end of string, used for i2c addresses
+std::string nsw::stripReadonly(std::string str) {
+    std::string str_to_strip = "_READONLY";
+    auto pos = str.find(str_to_strip);
+    if (pos != std::string::npos) {
+        str.erase(pos, str_to_strip.length());
+    }
+    return str;
+}
