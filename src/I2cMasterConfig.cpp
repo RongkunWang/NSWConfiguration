@@ -113,7 +113,10 @@ void nsw::I2cMasterConfig::dump() {
     for (auto ab : m_address_bitstream) {
         auto address = ab.first;
         auto bitstream = ab.second;
-        std::cout << address << " : " << bitstream << std::endl;
+        std::cout << address
+                  << "\n  bits  : " << bitstream
+                  << "\n  bytes : " << bitstringToHexString(bitstream)
+                  << std::endl;
     }
 }
 
@@ -160,4 +163,39 @@ void nsw::I2cMasterConfig::setRegisterValue(std::string address, std::string reg
 
     // Replace corresponding substring of bitstream with new bitstring
     m_address_bitstream[address].replace(reg_pos, reg_size, bitstring);
+}
+
+void nsw::I2cMasterConfig::decodeVector(std::string address, std::vector<uint8_t> vec) {
+    if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
+        nsw::NoSuchI2cAddress issue(ERS_HERE, address.c_str());
+        ers::error(issue);
+        return;
+    }
+
+    if (vec.size() * 8 != m_codec.getTotalSize(address)) {
+        auto vecsize = vec.size()*8;
+        auto i2csize = m_codec.getTotalSize(address);
+        nsw::I2cSizeMismatch issue(ERS_HERE, address, vecsize, i2csize);
+        ers::error(issue);
+        return;
+    }
+
+    std::cout << address << std::endl;
+    auto bitstring = vectorToBitString(vec);
+    for (auto reg : m_codec.m_addr_reg_size[address]) {
+        auto register_name = reg.first;
+        auto reg_size = reg.second;
+        auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
+        auto tmp = bitstring.substr(reg_pos, reg_size);
+
+        std::cout << " - " << register_name  << " : " <<  std::stoul(tmp, nullptr, 2) << std::endl;
+    }
+}
+
+std::vector<std::string> nsw::I2cMasterCodec::getAddresses() {
+    std::vector<std::string> addresses;
+    for (auto e : m_addr_reg) {
+        addresses.push_back(e.first);
+    }
+    return addresses;
 }

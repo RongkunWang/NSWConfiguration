@@ -106,10 +106,20 @@ void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
         bool rPll2 = readGPIO(opc_ip, roc_address + ".gpio.rocPllRocLocked");
         roc_locked = rPll1 & rPll2;
         ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
-        // sleep(1);
     }
 
     sendGPIO(opc_ip, roc_address + ".gpio.rocCoreResetN", 1);
 
     sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
+}
+
+void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
+    auto opc_ip = tds.getOpcServerIp();
+    auto tds_address = tds.getAddress();
+
+    sendGPIO(opc_ip, tds_address + ".gpio.tdsPowerResetN", 1);
+
+    sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
+
+    // Read back to verify something? (TODO)
 }

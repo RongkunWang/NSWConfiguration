@@ -11,6 +11,7 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/TDSConfig.h"
 
 namespace nsw {
 class ConfigSender {
@@ -31,6 +32,9 @@ class ConfigSender {
 
     /// High level send function
     void sendRocConfig(const nsw::ROCConfig& roc);
+
+    /// High level send function
+    void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);

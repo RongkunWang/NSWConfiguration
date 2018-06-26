@@ -41,6 +41,14 @@ ERS_DECLARE_ISSUE(nsw,
                   ((const char *)message)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  I2cSizeMismatch,
+                  "Vector size doesn't match I2c bits: " << address
+                        << ", vector size: " << vecsize
+                        << ", i2c address total size: " << i2csize,
+                  ((std::string)address) ((size_t) vecsize) ((size_t) i2csize)
+                  )
+
 namespace nsw {
 
 /*! \brief Generic I2C type Front End Codec
@@ -54,7 +62,7 @@ class I2cMasterCodec {
     explicit I2cMasterCodec(const i2c::AddressRegisterMap & ar_map);
     ~I2cMasterCodec() {}
 
-    // Method that created bitstreams from config tree.
+    // Method that creates bitstreams from config tree.
     i2c::AddressBitstreamMap buildConfig(ptree config);
 
     /// Map of i2c addresses, to a map of registers to positions in the bitstream
@@ -63,6 +71,11 @@ class I2cMasterCodec {
     /// Map of i2c addresses, to a map of registers to register sizes
     i2c::AddressRegisterSizeMap m_addr_reg_size;
 
+    /// Return total size of registers in an i2c address
+    size_t getTotalSize(std::string address) {return m_addr_size[address];}
+
+    /// Return addresses of slaves the I2c master
+    std::vector<std::string> getAddresses();
 
  protected:
     /// Map of i2c addresses and internal mapping of registers
@@ -86,7 +99,7 @@ class I2cMasterConfig {
     ptree m_config;
     std::string m_name;  // Name of I2cMaster, used in Opc Address
     I2cMasterCodec m_codec;
-    i2c::AddressBitstreamMap m_address_bitstream;
+    i2c::AddressBitstreamMap m_address_bitstream;  /// Map of I2c addresses(string) and bitstreams(string)
 
  public:
     explicit I2cMasterConfig(ptree config, std::string name, const i2c::AddressRegisterMap & reg):
@@ -100,11 +113,17 @@ class I2cMasterConfig {
 
     i2c::AddressBitstreamMap getBitstreamMap() const { return m_address_bitstream;}
 
-    // Set value of register by changing the corresponding bits in in m_address_bitstream
+    /// Set value of register by changing the corresponding bits in in m_address_bitstream
     void setRegisterValue(std::string address, std::string register_name, uint32_t value);
 
-    // Get value of register from m_address_bitstream
+    /// Get value of register from m_address_bitstream
     uint32_t getRegisterValue(std::string address, std::string register_name);
+
+    /// Decode vector of bytes into register values for a certain address
+    void decodeVector(std::string address, std::vector<uint8_t> vec);
+
+    /// Return addresses of slaves the I2c master
+    std::vector<std::string> getAddresses() { return m_codec.getAddresses();}
 
     // Following may be needed if codec is declared as unique_ptr
     // I2cMasterConfig(const I2cMasterConfig&) = delete;

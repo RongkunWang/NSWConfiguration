@@ -31,8 +31,10 @@ std::string nsw::getElementType(std::string element_name) {
         return "VMM";
     } else if (element_name.find("ROC") != std::string::npos) {
         return "ROC";
+    } else if (element_name.find("TDS") != std::string::npos) {
+        return "TDS";
     } else {
-        auto err = "Type not VMM or ROC!. Unknown front end element: " + element_name;
+        auto err = "Type not VMM, ROC, TDS!. Unknown front end element: " + element_name;
         throw std::runtime_error(err);
     }
 }
@@ -61,6 +63,26 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     }
     ERS_DEBUG(6, "Vector size: " << std::dec << vec.size());
     return vec;
+}
+
+std::string nsw::vectorToHexString(std::vector<uint8_t> vec) {
+    std::stringstream hexstream;
+    hexstream << std::hex << std::setfill('0');
+    // Go 8 bit at a time and convert it to hex
+    for (auto byte : vec) {
+        hexstream << std::setw(2) << static_cast<uint32_t>(byte);
+    }
+    return hexstream.str();
+}
+
+std::string nsw::vectorToBitString(std::vector<uint8_t> vec) {
+    std::string bitstring;
+    // Go 8 bit at a time and convert it to binary
+    for (auto byte : vec) {
+        std::bitset<8> bs(byte);
+        bitstring = bitstring +  bs.to_string();
+    }
+    return bitstring;
 }
 
 std::string nsw::bitstringToHexString(std::string bitstr) {
@@ -124,4 +146,14 @@ ptree nsw::buildPtreeFromVector(std::vector<unsigned> vec) {
         temp.push_back(std::make_pair("", child));
     }
     return temp;
+}
+
+/// Strips string "_READONLY" from end of string, used for i2c addresses
+std::string nsw::stripReadonly(std::string str) {
+    std::string str_to_strip = "_READONLY";
+    auto pos = str.find(str_to_strip);
+    if (pos != std::string::npos) {
+        str.erase(pos, str_to_strip.length());
+    }
+    return str;
 }

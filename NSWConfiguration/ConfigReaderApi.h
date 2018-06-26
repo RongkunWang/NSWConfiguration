@@ -23,6 +23,12 @@ ERS_DECLARE_ISSUE(nsw,
                   ((const char *)message)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  TDSConfigBadNode,
+                  "No such node in tds common configuration: " << message,
+                  ((const char *)message)
+                  )
+
 class ConfigReaderApi {
  protected:
   ptree m_config;  /// Ptree that holds all configuration
@@ -35,6 +41,7 @@ class ConfigReaderApi {
   virtual ptree read(std::string element_name);
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);
+  virtual ptree readTDS(std::string element_name);
   virtual ~ConfigReaderApi() {}
 };
 

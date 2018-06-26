@@ -62,3 +62,14 @@ BOOST_AUTO_TEST_CASE(stringToByteVector_test) {
     BOOST_TEST(vec[1] == 128);
     BOOST_TEST(vec.size() = 2);
 }
+
+BOOST_AUTO_TEST_CASE(vectorToHexString_test) {
+    std::vector<uint8_t> vec = {0x00,0x01,0x06,0x12,0xf2,0x25,0x21};
+    BOOST_TEST(nsw::vectorToHexString(vec) == "00010612f22521");
+}
+
+BOOST_AUTO_TEST_CASE(vectorToBitString_test) {
+    std::vector<uint8_t> vec = {0x00,0x01,0x06,0x12,0xf2,0x25,0x21};
+    BOOST_TEST(nsw::vectorToBitString(vec) == "00000000000000010000011000010010111100100010010100100001");
+}
+
