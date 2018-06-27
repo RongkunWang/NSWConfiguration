@@ -59,7 +59,11 @@ class ConfigSender {
 
     // Read back I2c register as vector
     std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node);
+
+    // Read back I2c register as vector for ADDC
+    std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node, uint8_t* address, size_t size);
 };
+
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_CONFIGSENDER_H_

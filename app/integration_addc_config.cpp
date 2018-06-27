@@ -142,6 +142,14 @@ int main(int argc, const char *argv[])
     gbtx_data[2] = 0x15;
     cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
 
+    // implement some reading of a register via I2C just to test
+    std::vector<uint8_t> outdata = cs.readI2cAtAddress(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
+    std::cout << "Testing the readout of a register via I2c..." << std::endl;
+    for (uint i=0; i<outdata.size(); i++) {
+        std::cout << outdata[i] << ", " << std::endl;
+    }
+
+
     // 6.c Enable the GBTx training for eport
     std::cout << "step 6c" << std::endl;
     std::vector<uint8_t> GBTxregisters {78,79,80,102,103,104,126,127,128,150,151,152,174,175,176,198,199,200,222,223,224};

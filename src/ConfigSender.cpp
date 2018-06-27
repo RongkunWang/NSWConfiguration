@@ -51,6 +51,12 @@ std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, st
     return m_clients[opcserver_ipport]->readI2c(node);
 }
 
+std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport, std::string node, uint8_t* address, size_t size) {
+    nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, size); // Write only the address without data
+    std::vector<uint8_t> readdata = nsw::ConfigSender::readI2c(opcserver_ipport, node); // Read back data into the vector readdata
+    return readdata;
+}
+
 void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     auto data = cfg.getByteVector();
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
