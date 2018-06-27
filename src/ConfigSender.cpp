@@ -117,7 +117,7 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
     auto opc_ip = tds.getOpcServerIp();
     auto tds_address = tds.getAddress();
 
-    sendGPIO(opc_ip, tds_address + ".gpio.tdsPowerResetN", 1);
+    sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
 
     sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
 
