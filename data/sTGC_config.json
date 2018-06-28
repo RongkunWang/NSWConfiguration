@@ -19,9 +19,9 @@
         "sttt":0,
         "ssh":0,
         "stc":0,
-        "sdt_dac":120,
+        "sdt_dac":250,
 
-        "sdp_dac":400,
+        "sdp_dac":800,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
@@ -65,15 +65,15 @@
         "truncate":20,
         "nskip":0,
         "window":7,
-        "rollover":3500,
+        "rollover":1000,
 
-        "l0offset":3464,
+        "l0offset":965,
         "offset":0,
 
         "channel_sc":0,
         "channel_sl":0,
         "channel_st":1,
-        "channel_sth":0,
+        "channel_sth":1,
         "channel_sm":0,
         "channel_smx":0,
         "channel_sd":0,
@@ -337,24 +337,24 @@
             },
             "reg115": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 102
+                "ePllPhase40MHz_0": 108
             },
             "reg116": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 102
+                "ePllPhase40MHz_0": 108
             },
             "reg117": {
                 "ePllPhase160MHz_0[4]": 0,
-                "ePllPhase40MHz_0": 102
+                "ePllPhase40MHz_0": 108
             },
             "reg118": {
-                "ePllPhase160MHz_0[0:3]": 6,
-                "ePllPhase160MHz_1[0:3]": 6
+                "ePllPhase160MHz_0[0:3]": 12,
+                "ePllPhase160MHz_1[0:3]": 12
             },
             "reg119": {
                 "tp_bypass_global": 1,
                 "tp_phase_global": 0,
-                "ePllPhase160MHz_0[3:0]": 6
+                "ePllPhase160MHz_0[3:0]": 12
             },
             "reg120": {
                 "TDS_BCR_INV": 0,
@@ -377,7 +377,7 @@
         },
         "rocCoreDigital":{
             "reg000rocId": {
-                "l1_first": 0,
+                "l1_first": 1,
                 "even_parity": 1,
                 "roc_id": 4
             },
@@ -457,7 +457,7 @@
                 "vmm5": 0,
                 "vmm4": 0,
                 "vmm3": 0,
-                "vmm2": 0,
+                "vmm2": 1,
                 "vmm1": 1,
                 "vmm0": 1
             },
@@ -466,16 +466,16 @@
             },
             "reg010bcOffset0_txcSel": {
                 "tx_csel": 8,
-                "bc_offset11_8": 11
+                "bc_offset11_8": 3
             },
             "reg011bcOffset1": {
-                "bc_offset7_0": 244
+                "bc_offset7_0": 134
             },
             "reg012bcRollover0": {
-                "bc_rollover11_8": 12
+                "bc_rollover11_8": 3
             },
             "reg013bcRollover1": {
-                "bc_rollover7_0": 23
+                "bc_rollover7_0": 232
             },
             "reg014eportEnable": {
                 "sroc3": 3,
@@ -828,43 +828,43 @@
     },
     "A01":{
         "TDS_L01_M01": {
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on pFeb 2.2"
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on pFEBv2.3"
         },
         "ROC_L01_M01":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on pFeb 2.2"
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on pFEBv2.3"
         },
         "VMM_L01_M01_00":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on pFeb 2.2.spi.vmm0"
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on pFEBv2.3.spi.vmm0"
         },
         "VMM_L01_M01_01":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on pFeb 2.2.spi.vmm1"
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on pFEBv2.3.spi.vmm1"
         },
         "VMM_L01_M01_02":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-            "OpcNodeId": "SCA on pFeb 2.2.spi.vmm2"
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on pFEBv2.3.spi.vmm2"
         },
         "VMM_L01_M01_03":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
             "OpcNodeId": "SCA on pFeb 2.2.spi.vmm3"
         },
         "VMM_L01_M01_04":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
             "OpcNodeId": "SCA on pFeb 2.2.spi.vmm4"
         },
         "VMM_L01_M01_05":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
             "OpcNodeId": "SCA on pFeb 2.2.spi.vmm5"
         },
         "VMM_L01_M01_06":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
             "OpcNodeId": "SCA on pFeb 2.2.spi.vmm6"
         },
         "VMM_L01_M01_07":{
-            "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
             "OpcNodeId": "SCA on pFeb 2.2.spi.vmm7"
         }
     }
