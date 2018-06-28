@@ -62,49 +62,42 @@ int main(int ac, const char *av[]) {
     auto config1 = reader1.readConfig();
 
     // ROC Config
-    auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
-    nsw::ROCConfig roc0(rocconfig0);
+    auto rocconfig0 = reader1.readConfig("integration_setup.MMFE8-0001");
+    nsw::MMFE8Config mmfe8(rocconfig0);
 
     nsw::ConfigSender cs;
 
+    // cs.sendMmfe8Config(mmfe8);  // Sends all VMM/ROC configuration
+
     if (reset_roc) {
         std::cout << "Only resetting ROC" << std::endl;
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress();
-        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 0);
+        auto opc_ip = mmfe8.getOpcServerIp();
+        cs.sendGPIO(opc_ip, mmfe8.getAddress() + ".gpio.rocCoreResetN", 0);
         sleep(1);
-        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 1);
+        cs.sendGPIO(opc_ip, mmfe8.getAddress() + ".gpio.rocCoreResetN", 1);
         return 0;
     }
 
     // Send all ROC config
     if (configure_roc) {
-        roc0.dump();
-        cs.sendRocConfig(roc0);
+        mmfe8.dump();
+        cs.sendRocConfig(mmfe8);
     }
 
     if (configure_vmm) {
+
+        // cs.sendVmmConfig(mmfe8); // Sends configuration to all vmm
+                                    // Equivalent to the block below
+
         // Inverse VMM enable to get VMM into config mode
-        uint8_t data[] = {0xff};
-        size_t size = 1;
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
-        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
+        std::vector<uint8_t> data = {0xff};
+        auto opc_ip = mmfe8.getOpcServerIp();
+        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.analog.getName();
+        cs.sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
-        std::vector<std::string> vmmids = {"0", "1", "2", "3", "4", "5", "6", "7"};
-        for (auto vmmid : vmmids) {
-            auto vmmconfig = reader1.readConfig("A01.VMM_L01_M01_0" + vmmid);
+        for (auto vmm : mmfe8.getVmms()) {
             nsw::VMMConfig vmm(vmmconfig);
-            // auto vec = vmm.getByteVector();  /// Create a vector of bytes
             cs.sendVmmConfig(vmm);
-
-
-            // Unmask one channel!!!
-            //
-            // for (auto el : vec) {
-            //    std::cout << "0x" << std::hex << unsigned(el) << ", ";
-            //}
-            // std::cout << std::dec << std::endl;;
         }
 
         // sleep(1);
@@ -115,8 +108,8 @@ int main(int ac, const char *av[]) {
     }
 
     if (create_pulses) {
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
+        auto opc_ip = mmfe8.getOpcServerIp();
+        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.analog.getName();
         uint8_t data[] = {0};
         for (int i = 0; i < 10; i++) {
             std::cout << "Creating 10 test pulse" << std::endl;
@@ -129,7 +122,6 @@ int main(int ac, const char *av[]) {
             // sleep(1);
         }
     }
-
 
     return 0;
 }
