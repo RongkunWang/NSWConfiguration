@@ -19,6 +19,7 @@ int main(int ac, const char *av[]) {
 
     bool configure_vmm;
     bool configure_roc;
+    bool create_pulses;
     bool reset_roc;
     std::string config_filename;
     po::options_description desc("This program configures ROC/VMM with some command line options");
@@ -31,6 +32,8 @@ int main(int ac, const char *av[]) {
         "Configure also all the VMMs on the ROC(Default: False)")
         ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
         "Configure the ROC(Default: False)")
+        ("create-pulses,p", po::bool_switch(&create_pulses)->default_value(false),
+        "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v");
 
@@ -76,6 +79,7 @@ int main(int ac, const char *av[]) {
 
     // Send all ROC config
     if (configure_roc) {
+        roc0.dump();
         cs.sendRocConfig(roc0);
     }
 
@@ -94,6 +98,9 @@ int main(int ac, const char *av[]) {
             // auto vec = vmm.getByteVector();  /// Create a vector of bytes
             cs.sendVmmConfig(vmm);
 
+
+            // Unmask one channel!!!
+            //
             // for (auto el : vec) {
             //    std::cout << "0x" << std::hex << unsigned(el) << ", ";
             //}
@@ -106,6 +113,23 @@ int main(int ac, const char *av[]) {
         data[0] = {static_cast<uint8_t>(0x0)};
         cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
     }
+
+    if (create_pulses) {
+        auto opc_ip = roc0.getOpcServerIp();
+        auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
+        uint8_t data[] = {0};
+        for (int i = 0; i < 10; i++) {
+            std::cout << "Creating 10 test pulse" << std::endl;
+            data[0] = 0xff;
+            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+            // sleep(1);
+
+            data[0] = 0x0;
+            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+            // sleep(1);
+        }
+    }
+
 
     return 0;
 }
