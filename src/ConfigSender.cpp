@@ -129,7 +129,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::MMFE8Config& mmfe8) {
 
     for (auto vmm : mmfe8.getVmms()) {
         auto data = vmm.getByteVector();
-        std::cout << "Configuration for" << vmm.getName() << std::endl;
+        std::cout << "Configuration for " << vmm.getName() << std::endl;
         sendSpiRaw(opc_ip, mmfe8.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
     }
 
