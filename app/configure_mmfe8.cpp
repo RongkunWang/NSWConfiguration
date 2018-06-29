@@ -67,7 +67,6 @@ int main(int ac, const char *av[]) {
     nsw::MMFE8Config mmfe8(mmfe8config);
     write_json(std::cout, mmfe8config);
 
-    /*
 
     nsw::ConfigSender cs;
 
@@ -89,10 +88,10 @@ int main(int ac, const char *av[]) {
     }
 
     if (configure_vmm) {
-
-        // cs.sendVmmConfig(mmfe8); // Sends configuration to all vmm
+        cs.sendVmmConfig(mmfe8); // Sends configuration to all vmm
                                     // Equivalent to the block below
 
+    /*
         // Inverse VMM enable to get VMM into config mode
         std::vector<uint8_t> data = {0xff};
         auto opc_ip = mmfe8.getOpcServerIp();
@@ -100,7 +99,6 @@ int main(int ac, const char *av[]) {
         cs.sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
         for (auto vmm : mmfe8.getVmms()) {
-            nsw::VMMConfig vmm(vmmconfig);
             cs.sendVmmConfig(vmm);
         }
 
@@ -109,11 +107,12 @@ int main(int ac, const char *av[]) {
         // Set back the register
         data[0] = {static_cast<uint8_t>(0x0)};
         cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
+     */
     }
 
     if (create_pulses) {
         auto opc_ip = mmfe8.getOpcServerIp();
-        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.analog.getName();
+        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.getAnalog().getName();
         uint8_t data[] = {0};
         for (int i = 0; i < 10; i++) {
             std::cout << "Creating 10 test pulse" << std::endl;
@@ -126,7 +125,6 @@ int main(int ac, const char *av[]) {
             // sleep(1);
         }
     }
-    */
 
     return 0;
 }

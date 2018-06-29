@@ -11,6 +11,7 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/MMFE8Config.h"
 #include "NSWConfiguration/TDSConfig.h"
 
 namespace nsw {
@@ -27,13 +28,23 @@ class ConfigSender {
     ConfigSender();
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
 
-    /// High level send function
+    /// High level send function - TODO(cyildiz): deprecate
     void sendVmmConfig(const nsw::VMMConfig& vmm);
 
-    /// High level send function
+    /// High level send function - TODO(cyildiz): deprecate
     void sendRocConfig(const nsw::ROCConfig& roc);
 
-    /// High level send function
+    /// Send configuration to roc
+    void sendRocConfig(std::string opc_ip, std::string sca_address,
+                       const I2cMasterConfig & analog, const I2cMasterConfig & digital);
+
+    /// Send configuration to roc in the mmfe8
+    void sendRocConfig(const nsw::MMFE8Config& mmfe8);
+
+    /// Send configuration to all vmms in the mmfe8
+    void sendVmmConfig(const nsw::MMFE8Config& mmfe8);
+
+    /// High level send function - TODO(cyildiz): deprecate
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// High level send function to send configuration to all addresses under an I2cMaster

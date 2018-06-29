@@ -113,6 +113,58 @@ void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
     sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
 }
 
+void nsw::ConfigSender::sendRocConfig(const nsw::MMFE8Config& mmfe8) {
+    auto opc_ip = mmfe8.getOpcServerIp();
+    auto mmfe8_address = mmfe8.getAddress();
+
+    sendRocConfig(opc_ip, mmfe8_address, mmfe8.getRocAnalog(), mmfe8.getRocDigital());
+}
+
+void nsw::ConfigSender::sendVmmConfig(const nsw::MMFE8Config& mmfe8) {
+    // Set Vmm Configuration Enable
+    std::vector<uint8_t> data = {0xff};
+    auto opc_ip = mmfe8.getOpcServerIp();
+    auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.getRocAnalog().getName();
+    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
+
+    for (auto vmm : mmfe8.getVmms()) {
+        auto data = vmm.getByteVector();
+        std::cout << "Configuration for" << vmm.getName() << std::endl;
+        sendSpiRaw(opc_ip, mmfe8.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
+    }
+
+    // Set Vmm Acquisition Enable
+    data = {0x0};
+    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
+}
+
+void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
+                                      const I2cMasterConfig & analog, const I2cMasterConfig & digital) {
+    // 1. Reset all logics
+    sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 0);
+
+    sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 1);
+
+    sendI2cMasterConfig(opc_ip, sca_address, analog);
+
+    sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 1);
+
+    ERS_DEBUG(2, "Waiting for ROC Pll locks...");
+    bool roc_locked = 0;
+    while (!roc_locked) {
+        bool rPll1 = readGPIO(opc_ip, sca_address + ".gpio.rocPllLocked");
+        bool rPll2 = readGPIO(opc_ip, sca_address + ".gpio.rocPllRocLocked");
+        roc_locked = rPll1 & rPll2;
+        ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
+    }
+
+    sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
+
+    sendI2cMasterConfig(opc_ip, sca_address, digital);
+}
+
 void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
     auto opc_ip = tds.getOpcServerIp();
     auto tds_address = tds.getAddress();
