@@ -112,7 +112,7 @@ int main(int ac, const char *av[]) {
 
     if (create_pulses) {
         auto opc_ip = mmfe8.getOpcServerIp();
-        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.getAnalog().getName();
+        auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.getRocAnalog().getName();
         uint8_t data[] = {0};
         for (int i = 0; i < 10; i++) {
             std::cout << "Creating 10 test pulse" << std::endl;
