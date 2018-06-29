@@ -30,6 +30,10 @@ ERS_DECLARE_ISSUE(nsw,
                   )
 
 class ConfigReaderApi {
+ private:
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  virtual void mergeI2cMasterTree(ptree & specific, ptree & common);
+
  protected:
   ptree m_config;  /// Ptree that holds all configuration
 
@@ -39,8 +43,10 @@ class ConfigReaderApi {
 
   /// Read configuration of a single front end element
   virtual ptree read(std::string element_name);
+
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);
+  virtual ptree readMMFE8(std::string element_name);
   virtual ptree readTDS(std::string element_name);
   virtual ~ConfigReaderApi() {}
 };

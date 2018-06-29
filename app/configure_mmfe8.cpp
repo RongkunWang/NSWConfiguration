@@ -1,4 +1,4 @@
-// Sample program to read configuration from json and send to FE
+// Sample program to read configuration from json and send to MMFE8
 
 #include <iostream>
 #include <string>
@@ -9,6 +9,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/MMFE8Config.h"
 
 #include "boost/program_options.hpp"
 
@@ -62,8 +63,11 @@ int main(int ac, const char *av[]) {
     auto config1 = reader1.readConfig();
 
     // ROC Config
-    auto rocconfig0 = reader1.readConfig("integration_setup.MMFE8-0001");
-    nsw::MMFE8Config mmfe8(rocconfig0);
+    auto mmfe8config = reader1.readConfig("integration_setup.MMFE8-0001");
+    nsw::MMFE8Config mmfe8(mmfe8config);
+    write_json(std::cout, mmfe8config);
+
+    /*
 
     nsw::ConfigSender cs;
 
@@ -80,7 +84,7 @@ int main(int ac, const char *av[]) {
 
     // Send all ROC config
     if (configure_roc) {
-        mmfe8.dump();
+        // mmfe8.dump();
         cs.sendRocConfig(mmfe8);
     }
 
@@ -122,6 +126,7 @@ int main(int ac, const char *av[]) {
             // sleep(1);
         }
     }
+    */
 
     return 0;
 }

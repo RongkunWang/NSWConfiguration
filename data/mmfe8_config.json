@@ -536,8 +536,12 @@
             "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
             "OpcNodeId": "SCA on MMFE8 0319-1",
             "rocPllCoreAnalog":{},
-            "rocCoreDigital": {},
-            "vmm0": {},
+            "rocCoreDigital": {
+                "reg014eportEnable": {
+                    "sroc3": 0
+                }
+            },
+            "vmm0": {"st":1, "sdp_dac":1000},
             "vmm1": {},
             "vmm2": {},
             "vmm3": {},
