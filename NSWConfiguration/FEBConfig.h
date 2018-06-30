@@ -47,11 +47,7 @@ class FEBConfig: public FEConfig {
     explicit FEBConfig(ptree config);
     ~FEBConfig() {}
 
-    void dump() {
-        m_roc_analog.dump();
-        m_roc_digital.dump();
-        for (auto tds : m_tdss) {tds.dump();}
-    }
+    void dump();
 
     const std::vector<VMMConfig> & getVmms() const {return m_vmms;}
     const I2cMasterConfig & getRocAnalog() const {return m_roc_analog;}

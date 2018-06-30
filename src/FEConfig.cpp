@@ -9,4 +9,5 @@ using boost::property_tree::ptree;
 nsw::FEConfig::FEConfig(ptree config): m_config(config) {
     m_opcserver_ip = m_config.get<std::string>("OpcServerIp");
     m_address = m_config.get<std::string>("OpcNodeId");
+    // TODO(cyildiz): Exception if not present?
 }
