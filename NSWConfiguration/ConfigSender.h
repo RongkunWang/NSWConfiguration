@@ -11,7 +11,7 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
-#include "NSWConfiguration/MMFE8Config.h"
+#include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/TDSConfig.h"
 
 namespace nsw {
@@ -19,7 +19,6 @@ class ConfigSender {
  private:
     /// Map with key: opc client ip, value: OpcClient instance
     std::map<std::string, std::unique_ptr<nsw::OpcClient>> m_clients;
-    /* data */
 
     /// Add new client if it connects to a new Opc Server
     void addOpcClientIfNew(std::string opcserver_ipport);
@@ -38,11 +37,17 @@ class ConfigSender {
     void sendRocConfig(std::string opc_ip, std::string sca_address,
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
-    /// Send configuration to roc in the mmfe8
-    void sendRocConfig(const nsw::MMFE8Config& mmfe8);
+    /// Send configuration to tds
+    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds);
 
-    /// Send configuration to all vmms in the mmfe8
-    void sendVmmConfig(const nsw::MMFE8Config& mmfe8);
+    /// Send configuration to roc in the feb
+    void sendRocConfig(const nsw::FEBConfig& feb);
+
+    /// Send configuration to all vmms in the feb
+    void sendVmmConfig(const nsw::FEBConfig& feb);
+
+    /// Send configuration to all tds in the feb
+    void sendTdsConfig(const nsw::FEBConfig& feb);
 
     /// High level send function - TODO(cyildiz): deprecate
     void sendTdsConfig(const nsw::TDSConfig& tds);

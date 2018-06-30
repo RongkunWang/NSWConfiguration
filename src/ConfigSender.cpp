@@ -113,29 +113,37 @@ void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
     sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
 }
 
-void nsw::ConfigSender::sendRocConfig(const nsw::MMFE8Config& mmfe8) {
-    auto opc_ip = mmfe8.getOpcServerIp();
-    auto mmfe8_address = mmfe8.getAddress();
+void nsw::ConfigSender::sendRocConfig(const nsw::FEBConfig& feb) {
+    auto opc_ip = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
 
-    sendRocConfig(opc_ip, mmfe8_address, mmfe8.getRocAnalog(), mmfe8.getRocDigital());
+    sendRocConfig(opc_ip, feb_address, feb.getRocAnalog(), feb.getRocDigital());
 }
 
-void nsw::ConfigSender::sendVmmConfig(const nsw::MMFE8Config& mmfe8) {
+void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
     // Set Vmm Configuration Enable
     std::vector<uint8_t> data = {0xff};
-    auto opc_ip = mmfe8.getOpcServerIp();
-    auto sca_roc_address_analog = mmfe8.getAddress() + "." + mmfe8.getRocAnalog().getName();
+    auto opc_ip = feb.getOpcServerIp();
+    auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
-    for (auto vmm : mmfe8.getVmms()) {
+    for (auto vmm : feb.getVmms()) {
         auto data = vmm.getByteVector();
-        std::cout << "Configuration for " << vmm.getName() << std::endl;
-        sendSpiRaw(opc_ip, mmfe8.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
+        ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
+        sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
     }
 
     // Set Vmm Acquisition Enable
     data = {0x0};
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
+}
+
+void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
+    auto opc_ip = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+    for (auto tds : feb.getTdss()) {
+        sendTdsConfig(opc_ip, feb_address, tds);
+    }
 }
 
 void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
@@ -172,6 +180,14 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
     sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
 
     sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
+
+    // Read back to verify something? (TODO)
+}
+
+void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds) {
+    sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+
+    sendI2cMasterConfig(opc_ip, sca_address, tds);
 
     // Read back to verify something? (TODO)
 }
