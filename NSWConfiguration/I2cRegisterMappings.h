@@ -223,16 +223,12 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllEnablePhase", 8}
     } },
     { "reg105ePllTdc", {
-        {"tp_bypass_1", 1},
-        {"tp_phase_1", 3},
-        {"tp_bypass_0", 1},
-        {"tp_phase_0", 3}
+        {"enable160MHzOnBCR" , 4},
+        {"enable160MHzOn40MHz", 4}
     } },
     { "reg106ePllTdc", {
-        {"tp_bypass_3", 1},
-        {"tp_phase_3", 3},
-        {"tp_bypass_2", 1},
-        {"tp_phase_2", 3}
+        {"tx_enable_bcr", 4},
+        {"tx_csel_bcr", 4}
     } },
     { "reg107ePllTdc", {
         {"ctrl_05delay_0", 1},
