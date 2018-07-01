@@ -40,6 +40,9 @@ class ConfigSender {
     /// Send configuration to tds
     void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds);
 
+    /// Send configuration to all ROC, VMM and TDS that belongs to the FEB
+    void sendConfig(const nsw::FEBConfig& feb);
+
     /// Send configuration to roc in the feb
     void sendRocConfig(const nsw::FEBConfig& feb);
 

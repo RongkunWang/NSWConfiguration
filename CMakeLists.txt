@@ -15,7 +15,7 @@ tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
 
-tdaq_add_executable(configure_mmfe8 app/configure_mmfe8.cpp
+tdaq_add_executable(configure_frontend app/configure_frontend.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 

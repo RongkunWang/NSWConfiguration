@@ -113,6 +113,12 @@ void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
     sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
 }
 
+void nsw::ConfigSender::sendConfig(const nsw::FEBConfig& feb) {
+    sendRocConfig(feb);
+    sendTdsConfig(feb);
+    sendVmmConfig(feb);
+}
+
 void nsw::ConfigSender::sendRocConfig(const nsw::FEBConfig& feb) {
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
