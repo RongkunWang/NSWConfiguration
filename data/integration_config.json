@@ -822,7 +822,7 @@
     },
     "MMFE8-0001":{
         "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-        "OpcNodeId": "SCA on MMFE8 0319-0"
+        "OpcNodeId": "SCA on MMFE8 0319-4"
     },
     "PFEB-0001":{
         "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
