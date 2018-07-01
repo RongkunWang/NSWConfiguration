@@ -24,12 +24,22 @@ ERS_DECLARE_ISSUE(nsw,
                   )
 
 ERS_DECLARE_ISSUE(nsw,
+                  ConfigIssue,
+                  "Problem while reading configuration: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   TDSConfigBadNode,
                   "No such node in tds common configuration: " << message,
                   ((const char *)message)
                   )
 
 class ConfigReaderApi {
+ private:
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  virtual void mergeI2cMasterTree(ptree & specific, ptree & common);
+
  protected:
   ptree m_config;  /// Ptree that holds all configuration
 
@@ -37,11 +47,29 @@ class ConfigReaderApi {
   /// Read the whole config db and dump it in the m_config tree
   virtual ptree & read() = 0;
 
-  /// Read configuration of a single front end element
+  /// Read configuration of a single front end element into a ptree
   virtual ptree read(std::string element_name);
+
+  /// Read configuration of front end, specifying number of vmm and tds in the FE
+  virtual ptree readFEB(std::string element_name, size_t nvmm, size_t ntds);
+
+  ptree readMMFE8(std::string element) {
+    return readFEB(element, 8, 0);
+  }
+
+  ptree readPFEB(std::string element) {
+    return readFEB(element, 3, 1);
+  }
+
+  ptree readSFEB(std::string element) {
+    return readFEB(element, 8, 4);
+  }
+
+  // TODO(cyildiz): Following read functions should be deprecated!
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);
   virtual ptree readTDS(std::string element_name);
+
   virtual ~ConfigReaderApi() {}
 };
 

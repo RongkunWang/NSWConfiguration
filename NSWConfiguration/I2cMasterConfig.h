@@ -111,6 +111,8 @@ class I2cMasterConfig {
 
     std::string getName() const { return m_name;}
 
+    void setName(std::string name) { m_name = name;}
+
     i2c::AddressBitstreamMap getBitstreamMap() const { return m_address_bitstream;}
 
     /// Set value of register by changing the corresponding bits in in m_address_bitstream

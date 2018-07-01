@@ -1,4 +1,4 @@
-// Sample program to read configuration from json and send to FE
+// Sample program to read configuration from json and send to any front end module
 
 #include <iostream>
 #include <string>
@@ -9,6 +9,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/FEBConfig.h"
 
 #include "boost/program_options.hpp"
 
@@ -17,21 +18,31 @@ namespace po = boost::program_options;
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
+    std::string description = "This program configures ROC/VMM/TDS on a front end board";
+    description += "The name of the front end will be used to determine how many VMM and TDS the board contains.";
+
     bool configure_vmm;
     bool configure_roc;
+    bool configure_tds;
     bool create_pulses;
     bool reset_roc;
     std::string config_filename;
-    po::options_description desc("This program configures ROC/VMM with some command line options");
+    std::string fe_name;
+    po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
+        ("name,n", po::value<std::string>(&fe_name)->
+        default_value("integration_setup.MMFE8-0001"),
+        "The name of frontend to configure (must contain MMFE8, SFEB or PFEB)")
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
-        "Configure also all the VMMs on the ROC(Default: False)")
+        "Configure all the VMMs on the FE(Default: False)")
         ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
-        "Configure the ROC(Default: False)")
+        "Configure the ROC on the FE(Default: False)")
+        ("configure-tds,t", po::bool_switch(&configure_tds)->default_value(false),
+        "Configure all the TDSs on the FE(Default: False)")
         ("create-pulses,p", po::bool_switch(&create_pulses)->default_value(false),
         "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
@@ -41,14 +52,14 @@ int main(int ac, const char *av[]) {
     po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
 
-    if ((!configure_roc && !configure_vmm) && !reset_roc) {
-        std::cout << "Please chose at least one of -r, -v or -R command line options to configure ROC/VMM." << "\n";
+    if ((!configure_roc && !configure_vmm && !configure_tds) && !reset_roc) {
+        std::cout << "Please chose at least one of -r, -v, -t or -R command line options to configure ROC/VMM/TDS\n";
         std::cout << desc << "\n";
         return 1;
     }
 
-    if ((configure_roc || configure_vmm) && reset_roc) {
-        std::cout << "Please chose either -R or (-v,-r) options\n";
+    if ((configure_roc || configure_vmm || configure_tds) && reset_roc) {
+        std::cout << "Please chose either -R or (-v,-r, -t) options\n";
         std::cout << desc << "\n";
         return 1;
     }
@@ -61,62 +72,38 @@ int main(int ac, const char *av[]) {
     nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
 
-    // ROC Config
-    auto rocconfig0 = reader1.readConfig("A01.ROC_L01_M01");
-    nsw::ROCConfig roc0(rocconfig0);
+    auto feb_config_tree = reader1.readConfig(fe_name);
+    nsw::FEBConfig feb(feb_config_tree);
+    feb.dump();
 
     nsw::ConfigSender cs;
 
     if (reset_roc) {
         std::cout << "Only resetting ROC" << std::endl;
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress();
-        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 0);
+        auto opc_ip = feb.getOpcServerIp();
+        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
         sleep(1);
-        cs.sendGPIO(opc_ip, sca_roc_address_analog + ".gpio.rocCoreResetN", 1);
+        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
         return 0;
     }
 
     // Send all ROC config
     if (configure_roc) {
-        roc0.dump();
-        cs.sendRocConfig(roc0);
+        // feb.dump();
+        cs.sendRocConfig(feb);
     }
 
     if (configure_vmm) {
-        // Inverse VMM enable to get VMM into config mode
-        uint8_t data[] = {0xff};
-        size_t size = 1;
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
-        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
+        cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+    }
 
-        std::vector<std::string> vmmids = {"0", "1", "2", "3", "4", "5", "6", "7"};
-        for (auto vmmid : vmmids) {
-            auto vmmconfig = reader1.readConfig("A01.VMM_L01_M01_0" + vmmid);
-            nsw::VMMConfig vmm(vmmconfig);
-            // auto vec = vmm.getByteVector();  /// Create a vector of bytes
-            cs.sendVmmConfig(vmm);
-
-
-            // Unmask one channel!!!
-            //
-            // for (auto el : vec) {
-            //    std::cout << "0x" << std::hex << unsigned(el) << ", ";
-            //}
-            // std::cout << std::dec << std::endl;;
-        }
-
-        // sleep(1);
-
-        // Set back the register
-        data[0] = {static_cast<uint8_t>(0x0)};
-        cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data, size);
+    if (configure_tds) {
+        cs.sendTdsConfig(feb);  // Sends configuration to all tds
     }
 
     if (create_pulses) {
-        auto opc_ip = roc0.getOpcServerIp();
-        auto sca_roc_address_analog = roc0.getAddress() + "." + roc0.analog.getName();
+        auto opc_ip = feb.getOpcServerIp();
+        auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
         uint8_t data[] = {0};
         for (int i = 0; i < 10; i++) {
             std::cout << "Creating 10 test pulse" << std::endl;
@@ -129,7 +116,6 @@ int main(int ac, const char *av[]) {
             // sleep(1);
         }
     }
-
 
     return 0;
 }

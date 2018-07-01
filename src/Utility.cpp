@@ -27,16 +27,14 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 }
 
 std::string nsw::getElementType(std::string element_name) {
-    if (element_name.find("VMM") != std::string::npos) {
-        return "VMM";
-    } else if (element_name.find("ROC") != std::string::npos) {
-        return "ROC";
-    } else if (element_name.find("TDS") != std::string::npos) {
-        return "TDS";
-    } else {
-        auto err = "Type not VMM, ROC, TDS!. Unknown front end element: " + element_name;
-        throw std::runtime_error(err);
+    for (auto name : std::vector<std::string>({"VMM", "TDS", "ROC", "MMFE8", "PFEB", "SFEB"})) {
+        if (element_name.find(name) != std::string::npos) {
+            ERS_DEBUG(2, "Found instance of " << name << " configuration: " << element_name);
+            return name;
+        }
     }
+    auto err = "Unknown front end element type: " + element_name;
+    throw std::runtime_error(err);
 }
 
 void nsw::checkOverflow(size_t register_size, unsigned value, std::string register_name) {

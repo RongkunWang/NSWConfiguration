@@ -87,7 +87,6 @@ bool nsw::OpcClient::readGPIO(std::string node) {
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't read GPIO: " <<  e.what() << std::endl;
-        throw;
     }
     return value;
 }

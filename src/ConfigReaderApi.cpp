@@ -15,6 +15,12 @@ ptree ConfigReaderApi::read(std::string element) {
         return readROC(element);
     } else if (nsw::getElementType(element) == "TDS") {
         return readTDS(element);
+    } else if (nsw::getElementType(element) == "MMFE8") {
+        return readMMFE8(element);
+    } else if (nsw::getElementType(element) == "PFEB") {
+        return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB") {
+        return readSFEB(element);
     }
 }
 
@@ -89,6 +95,99 @@ ptree ConfigReaderApi::readROC(std::string element) {
     }
 
     return tree;
+}
+
+void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
+    // Loop over I2c addresses within specific tree
+    for (ptree::iterator iter_addresses = specific.begin();
+        iter_addresses != specific.end(); iter_addresses++) {
+        std::string address = iter_addresses->first;
+        ptree addresstree = iter_addresses->second;
+
+        // Iterate over registers in I2c address
+        for (ptree::iterator iter_registers = addresstree.begin();
+            iter_registers != addresstree.end(); iter_registers++) {
+            std::string registername = iter_registers->first;
+            std::string node = address + "." + registername;
+
+            //  Check if node exists in specific tree, and replace the value from common
+            if (!specific.get_optional<std::string>(node).is_initialized()) {
+                nsw::ROCConfigBadNode issue(ERS_HERE, node.c_str());
+                ers::error(issue);
+                // throw issue;  // TODO(cyildiz): throw or just error?
+            } else {
+                common.put(node, iter_registers->second.data());
+            }
+        }
+    }
+}
+
+ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
+    ptree feb = m_config.get_child(element);
+    ptree roc_common = m_config.get_child("roc_common_config");
+
+    // ROC
+    for ( auto name : {"rocPllCoreAnalog", "rocCoreDigital" } ) {
+        ptree specific;
+        if (feb.get_child_optional(name)) {  // If node exists
+            specific = feb.get_child(name);
+        }
+        ptree common = roc_common.get_child(name);
+        mergeI2cMasterTree(specific, common);
+        feb.erase(name);
+        feb.add_child(name, common);
+    }
+
+    // VMM
+    // TODO(cyildiz): A bit ugly, mixing
+    for (int i = 0; i < nvmm; i++) {
+        std::string vmmname = "vmm" + std::to_string(i);
+        ptree vmm;
+        if (!feb.get_child_optional(vmmname)) {  // If node exists
+            m_config.add_child(element + "." + vmmname, vmm);
+        } else {
+            feb.erase(vmmname);
+        }
+        vmm = readVMM(element + "." + vmmname);
+        vmm.put("OpcServerIp", "none");  // TODO(cyildiz): Remove
+        vmm.put("OpcNodeId", "none");   // TODO(cyildiz): Remove
+        feb.add_child(vmmname, vmm);
+    }
+
+    // If the configuation has more than expected vmms, remove them
+    for (int i = nvmm; i < 8; i++) {
+        std::string vmmname = "vmm" + std::to_string(i);
+        ptree vmm;
+        if (feb.get_child_optional(vmmname)) {  // If node exists
+            nsw::ConfigIssue issue(ERS_HERE, "Too many vmm instances in the configuration, ignoring!");
+            ers::warning(issue);
+            feb.erase(vmmname);
+        }
+    }
+
+    ptree tds_common = m_config.get_child("tds_common_config");
+    for ( int i = 0; i < ntds; i++ ) {
+        std::string name = "tds" + std::to_string(i);
+        ptree specific;
+        if (feb.get_child_optional(name)) {  // If node exists
+            specific = feb.get_child(name);
+        }
+        mergeI2cMasterTree(specific, tds_common);
+        feb.erase(name);
+        feb.add_child(name, tds_common);
+    }
+
+    for (int i = ntds; i < 3; i++) {
+        std::string tdsname = "tds" + std::to_string(i);
+        ptree tds;
+        if (feb.get_child_optional(tdsname)) {  // If node exists
+            nsw::ConfigIssue issue(ERS_HERE, "Too many tds instances in the configuration, ignoring!");
+            ers::warning(issue);
+            feb.erase(tdsname);
+        }
+    }
+
+    return feb;
 }
 
 ptree ConfigReaderApi::readTDS(std::string element) {
