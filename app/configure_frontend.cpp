@@ -26,6 +26,8 @@ int main(int ac, const char *av[]) {
     bool configure_tds;
     bool create_pulses;
     bool reset_roc;
+    int vmm_to_unmask;
+    int channel_to_unmask;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -45,6 +47,10 @@ int main(int ac, const char *av[]) {
         "Configure all the TDSs on the FE(Default: False)")
         ("create-pulses,p", po::bool_switch(&create_pulses)->default_value(false),
         "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
+        ("vmmtounmask,V", po::value<int>(&vmm_to_unmask)->
+        default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
+        ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
+        default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v");
 
@@ -94,6 +100,13 @@ int main(int ac, const char *av[]) {
     }
 
     if (configure_vmm) {
+        /// This options are used for ADDC testing
+        if (channel_to_unmask != -1 && vmm_to_unmask != -1) {
+            std::cout << "Unmasking channel " << channel_to_unmask << " in vmm " << vmm_to_unmask << std::endl;
+            auto & vmms = feb.getVmms();
+            vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
+            vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
+        }
         cs.sendVmmConfig(feb);  // Sends configuration to all vmm
     }
 
