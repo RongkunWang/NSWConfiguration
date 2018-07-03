@@ -822,26 +822,18 @@
     },
     "MMFE8-0001":{
         "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcNodeId": "SCA on MMFE8 0319-1"
+    },
+    "MMFE8-0004":{
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
         "OpcNodeId": "SCA on MMFE8 0319-4"
     },
     "PFEB-0001":{
         "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
-        "OpcNodeId": "SCA on pFEBv2.3",
-        "rocPllCoreAnalog":{},
-        "rocCoreDigital": {
-            "reg014eportEnable": {
-                "sroc3": 1
-            }
-        },
-        "vmm0": {"sdp_dac":1000}
+        "OpcNodeId": "SCA on pFEBv2.3"
     },
     "SFEB-0001":{
         "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
-        "OpcNodeId": "SCA on sFEBv2.3",
-        "tds2": {
-            "register2" : {
-                "Chan100" : 0
-            }
+        "OpcNodeId": "SCA on sFEBv2.3"
         }
-    }
 }

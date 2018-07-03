@@ -37,7 +37,7 @@ int main(int ac, const char *av[]) {
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
         ("name,n", po::value<std::string>(&fe_name)->
-        default_value("integration_setup.MMFE8-0001"),
+        default_value("MMFE8-0001"),
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB)")
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
         "Configure all the VMMs on the FE(Default: False)")
@@ -101,13 +101,14 @@ int main(int ac, const char *av[]) {
 
     if (configure_vmm) {
         /// This options are used for ADDC testing
+        auto & vmms = feb.getVmms();
         if (channel_to_unmask != -1 && vmm_to_unmask != -1) {
             std::cout << "Unmasking channel " << channel_to_unmask << " in vmm " << vmm_to_unmask << std::endl;
-            auto & vmms = feb.getVmms();
             vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
             vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
         }
         cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+        // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
     }
 
     if (configure_tds) {
