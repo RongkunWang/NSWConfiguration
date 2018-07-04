@@ -15,7 +15,11 @@ tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
 
-tdaq_add_executable(configure_roc app/configure_roc.cpp
+tdaq_add_executable(configure_frontend app/configure_frontend.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_integration_pfeb_config app/integration_pfeb_config.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
@@ -32,6 +36,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/FEConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
+                 src/FEBConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
@@ -50,11 +55,6 @@ tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
 )
 
 tdaq_add_executable(nsw_roc_tests app/roc_tests.cpp
-  LINK_LIBRARIES nswconfig
-)
-
-
-tdaq_add_executable(nsw_integration_tds_config app/integration_tds_config.cpp
   LINK_LIBRARIES nswconfig
 )
 

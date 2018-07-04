@@ -31,6 +31,7 @@ class VMMConfig: public FEConfig {
  private:
     VMMCodec& codec = VMMCodec::Instance();
     std::string m_bitstring;  // Config information as a string of 0/1s
+    std::string name;         // Name of the element (vmm0,vmm1,vmm2 ...)
 
  public:
     explicit VMMConfig(ptree vmmconfig);
@@ -39,6 +40,9 @@ class VMMConfig: public FEConfig {
     std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 
     std::string getBitString() const {return m_bitstring;}  /// return the string of bits
+
+    void setName(std::string str) {name = str;}
+    std::string getName() {return name;}
 
     unsigned getGlobalRegister(std::string register_name);
     unsigned getChannelRegisterOneChannel(std::string register_name, size_t channel);

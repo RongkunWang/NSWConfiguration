@@ -87,7 +87,6 @@ bool nsw::OpcClient::readGPIO(std::string node) {
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't read GPIO: " <<  e.what() << std::endl;
-        throw;
     }
     return value;
 }
@@ -100,6 +99,7 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
         auto bytestring = i2cnode.readValue();
         auto array = bytestring.data();
         auto length = bytestring.length();
+        ERS_DEBUG(4, "node: " << node << ", length: " << node << " - " << length);
         // copy array contents in a vector
         result.assign(array, array + length);
     } catch (const std::exception& e) {
