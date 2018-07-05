@@ -32,12 +32,14 @@ class OpcClient {
     std::string m_server_ipport;
 
     // TODO(cyildiz): Should we use a unique_ptr/shared_ptr instead of this?
-    UaClientSdk::UaSession* m_session;
+    std::unique_ptr<UaClientSdk::UaSession> m_session;
 
  public:
     /// Initialize Opc Platform Layer and creates a UaSession
     explicit OpcClient(std::string server_ip_port);
-    ~OpcClient() {}
+    ~OpcClient();
+
+    OpcClient(const OpcClient&) = delete;
 
     // vector may not be the best option...
     void writeSpiSlave(std::string node, std::vector<uint8_t> data);

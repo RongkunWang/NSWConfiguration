@@ -3,6 +3,7 @@
 #include <string>
 #include <iterator>
 #include <algorithm>
+#include <utility>
 
 #include "ers/ers.h"
 
@@ -17,11 +18,17 @@ nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip
     std::string opc_connection = "opc.tcp://" + server_ip_port;
 
     // TODO(cyildiz): Handle connection exceptions
-    m_session = ClientSessionFactory::connect(opc_connection.c_str());
-    if (!m_session) {
-        std::cout << "Connection error!" << std::endl;
+    auto temp = std::unique_ptr<UaClientSdk::UaSession>(ClientSessionFactory::connect(opc_connection.c_str()));
+    m_session = std::move(temp);
+    if (!m_session.get()) {
+        std::cout << "Connection error for : " << m_server_ipport << std::endl;
         exit(0);
     }
+}
+
+nsw::OpcClient::~OpcClient() {
+  ServiceSettings sessset = ServiceSettings();
+  m_session->disconnect(sessset, OpcUa_True);
 }
 
 void nsw::OpcClient::writeSpiSlave(std::string node, std::vector<uint8_t> cdata) {
@@ -30,7 +37,7 @@ void nsw::OpcClient::writeSpiSlave(std::string node, std::vector<uint8_t> cdata)
 }
 
 void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t data_size) {
-    SpiSlave ss(m_session, UaNodeId(node.c_str(), 2));
+    SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
     bs.setByteString(data_size, data);
@@ -51,7 +58,7 @@ void nsw::OpcClient::writeI2c(std::string node, std::vector<uint8_t> cdata) {
 }
 
 void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_size) {
-    I2cSlave i2cnode(m_session, UaNodeId(node.c_str(), 2));
+    I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
     bs.setByteString(data_size, data);
@@ -67,7 +74,7 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
 }
 
 void nsw::OpcClient::writeGPIO(std::string node, bool data) {
-    DigitalIO gpio(m_session, UaNodeId(node.c_str(), 2));
+    DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
     try {
@@ -79,7 +86,7 @@ void nsw::OpcClient::writeGPIO(std::string node, bool data) {
 }
 
 bool nsw::OpcClient::readGPIO(std::string node) {
-    DigitalIO gpio(m_session, UaNodeId(node.c_str(), 2));
+    DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     bool value = false;
 
     try {
@@ -92,7 +99,7 @@ bool nsw::OpcClient::readGPIO(std::string node) {
 }
 
 std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
-    I2cSlave i2cnode(m_session, UaNodeId(node.c_str(), 2));
+    I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
     try {
@@ -111,6 +118,6 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
 }
 
 double nsw::OpcClient::readAnalogOutput(std::string node) {
-    AnalogInput ainode(m_session, UaNodeId(node.c_str(), 2));
+    AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
     return ainode.readValue();
 }
