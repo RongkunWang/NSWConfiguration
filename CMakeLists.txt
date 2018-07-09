@@ -31,6 +31,10 @@ tdaq_add_executable(roc_loop_over_phase app/roc_loop_over_phase.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(roc_select_phase app/roc_select_phase.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
