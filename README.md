@@ -3,6 +3,8 @@
 * [Configuration DB](#configuration-db)
 * [Communication with Front End](#communication-with-front-end)
 * [Installation](#Installation)
+  * [External Software](#external-software)
+  * [NSWConfiguration](#nswconfiguration)
 * [Running](#Running)
 
 ## Configuration DB
@@ -18,6 +20,54 @@
 
 ## Installation
 
+### External Software
+
+NSW Configuration requires external Opc related software to build and run.
+Note that you can skip this step and use installation from /eos area (see below)
+
+Set lcg environment:
+```bash
+source /cvmfs/sft.cern.ch/lcg/views/LCG_87/x86_64-slc6-gcc62-opt/setup.sh
+```
+
+Clone open62541-compat package, open62541-compat-0.9 branch
+```bash
+git clone -b open62541-compat-0.9 https://github.com/quasar-team/open62541-compat.git
+cd open62541-compat
+```
+
+Create a file boost_lcg.cmake with following content:
+
+```
+message(STATUS "Using file [boost_lcg.cmake] file")
+find_package(Boost REQUIRED program_options system filesystem chrono date_time thread)
+if(NOT Boost_FOUND)
+    message(FATAL_ERROR "Failed to find boost installation")
+else()
+    message(STATUS "Found system boost, version [${Boost_VERSION}], include dir [${Boost_INCLUDE_DIRS}] library dir [${Boost_LIBRARY_DIRS}], libs [${Boost_LIBRARIES}]")
+endif()
+include_directories( ${Boost_INCLUDE_DIRS} )
+set( BOOST_LIBS ${Boost_LIBRARIES} )
+```
+
+build the software
+```bash
+mkdir build
+cd build
+cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=../boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+make -j
+```
+
+After this, you should have following in your build directory:
+```
+libopen62541-compat.so
+open62541/libopen62541.a
+```
+
+The path of open62541-compat will be set as OPC_OPEN62541_PATH environment variable to compile NSWConfiguration
+
+### NSWConfiguration
+
 * Go to any lxplus node: ```ssh lxplus.cern.ch```
 * Create a work directory and create following ```CMakeLists.txt``` file:
 
@@ -32,11 +82,12 @@ printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest
 ```bash
 git clone --recursive https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration.git
 ```
-* Setup tdaq and OpcUA environment for production release (For latter, you can use the build in eos area)
+* Setup tdaq and OpcUA environment for production release.
+  For latter, you can your build from previous step, or a build from eos area
 
 ```bash
 source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh prod
-export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat/
+export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-0.9/
 ```
 
 * Checkout the branch or tag you need. Latest developments are in `dev` branch.

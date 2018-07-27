@@ -11,7 +11,7 @@
 #include "UaoClientForOpcUaSca/include/SpiSlave.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
-#include "UaoClientForOpcUaSca/include/I2cDevice.h"
+#include "UaoClientForOpcUaSca/include/I2cSlave.h"
 
 // From: open62541-compat
 // #include "uaplatformlayer.h"
@@ -33,7 +33,7 @@ int main() {
     AnalogInput mm(session, UaNodeId(aivoltage.c_str(), 2));
 
     auto tds_reg0name = sca + ".TDS.Register 0";
-    I2cDevice tds_reg0(session, UaNodeId(tds_reg0name.c_str(), 2));
+    I2cSlave tds_reg0(session, UaNodeId(tds_reg0name.c_str(), 2));
 
     auto gpio_node = sca + ".gpio.led2";
 
@@ -60,10 +60,10 @@ int main() {
         // temperature = mm.readValue();
         // std::cout << temperature << std::endl;
 
-        tds_reg0.writeSend(bs2);
+        tds_reg0.writeValue(bs2);
         std::cout << "Written value to TDS Reg 0 " << std::endl;
         usleep(1000000);
-        auto bsread = tds_reg0.readReceive();
+        auto bsread = tds_reg0.readValue();
         auto byteread = bsread.data();
         auto length = bsread.length();
         std::cout << "Read back, length: " << length << " data[0]: "
