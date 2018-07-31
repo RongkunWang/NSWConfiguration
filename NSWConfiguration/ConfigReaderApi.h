@@ -24,6 +24,13 @@ ERS_DECLARE_ISSUE(nsw,
                   )
 
 ERS_DECLARE_ISSUE(nsw,
+                  ConfigBadNode,
+                  "No such node : " << node << " in common configuration of: " << fetype,
+                  ((std::string)node)
+                  ((std::string)fetype)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   ConfigIssue,
                   "Problem while reading configuration: " << message,
                   ((const char *)message)
@@ -38,7 +45,14 @@ ERS_DECLARE_ISSUE(nsw,
 class ConfigReaderApi {
  private:
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  /// \param common ptree that is fully populated with all fields required by I2cMasterConfig
+  /// \param specific ptree that is partially populated.
   virtual void mergeI2cMasterTree(ptree & specific, ptree & common);
+
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  /// \param common ptree that is fully populated with all fields required by VMMConfig
+  /// \param specific ptree that is partially populated.
+  virtual void mergeVMMTree(ptree & specific, ptree & common);
 
  protected:
   ptree m_config;  /// Ptree that holds all configuration

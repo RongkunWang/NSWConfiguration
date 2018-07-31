@@ -7,12 +7,13 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
+#include "NSWConfiguration/FEBConfig.h"
 
 int main(int argc, const char *argv[]) {
-    std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
-    nsw::ConfigReader reader1("json://" + base_folder + "integration_config.json");
+    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
+    nsw::ConfigReader reader1("json://" + base_folder + "integration_config_20180701.json");
     auto config1 = reader1.readConfig();
-    write_json(std::cout, config1);
+    // write_json(std::cout, config1);
     // write_xml(std::cout, config1);
 
     // nsw::ConfigReader reader2("xml://" + base_folder + "dummy_config.xml");
@@ -28,18 +29,12 @@ int main(int argc, const char *argv[]) {
     // auto config = reader4.readConfig();
     // write_json(std::cout, config);
 
-    auto vmmconfig0 = reader1.readConfig("A01.VMM_L01_M01_00");
-    std::cout << "vmm_config for A01.VMM_L01_M01_00\n";
-    write_json(std::cout, vmmconfig0);
+    std::string fe_name = "PFEB-0001";
+    auto feb_config_tree = reader1.readConfig(fe_name);
+    write_json(std::cout, feb_config_tree);
+    nsw::FEBConfig feb(feb_config_tree);
 
-    auto vmmconfig1 = reader1.readConfig("A01.VMM_L01_M01_01");
-    std::cout << "vmm_config for A01.VMM_L01_M01_01\n";
-    write_json(std::cout, vmmconfig1);
-
-    std::cout << "vmm0 sca address: " << vmmconfig0.get<std::string>("OpcServerIp")  << std::endl;
-    std::cout << "vmm1 sca address: " << vmmconfig1.get<std::string>("OpcServerIp")  << std::endl;
-
-    nsw::VMMConfig vmm0(vmmconfig0);
+    
 
     return 0;
 }

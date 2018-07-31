@@ -111,12 +111,34 @@ void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
             std::string node = address + "." + registername;
 
             //  Check if node exists in specific tree, and replace the value from common
-            if (!specific.get_optional<std::string>(node).is_initialized()) {
-                nsw::ROCConfigBadNode issue(ERS_HERE, node.c_str());
+            if (!common.get_optional<std::string>(node).is_initialized()) {
+                nsw::ConfigBadNode issue(ERS_HERE, node, "i2c element");
                 ers::error(issue);
                 // throw issue;  // TODO(cyildiz): throw or just error?
             } else {
                 common.put(node, iter_registers->second.data());
+            }
+        }
+    }
+}
+
+void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
+    // Iterate over registers in I2c address
+    for (ptree::iterator iter_registers = specific.begin();
+        iter_registers != specific.end(); iter_registers++) {
+        std::string registername = iter_registers->first;
+
+        //  Check if node exists in specific tree, and replace the value from common
+        if (!common.get_optional<std::string>(registername).is_initialized()) {
+            nsw::ConfigBadNode issue(ERS_HERE, registername, "vmm");
+            ers::error(issue);
+            // throw issue;  // TODO(cyildiz): throw or just error?
+        } else {
+            if (registername.find("channel_" == 0)) {
+              ptree temp = iter_registers->second;
+              common.put_child(registername, temp);
+            } else {
+              common.put(registername, iter_registers->second.data());
             }
         }
     }
@@ -134,28 +156,25 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
         }
         ptree common = roc_common.get_child(name);
         mergeI2cMasterTree(specific, common);
-        feb.erase(name);
-        feb.add_child(name, common);
+        feb.put_child(name, common);
     }
 
     // VMM
-    // TODO(cyildiz): A bit ugly, mixing
-    for (int i = 0; i < nvmm; i++) {
+    for (size_t i = 0; i < nvmm; i++) {
+        ptree vmm_common = m_config.get_child("vmm_common_config");
         std::string vmmname = "vmm" + std::to_string(i);
-        ptree vmm;
-        if (!feb.get_child_optional(vmmname)) {  // If node exists
-            m_config.add_child(element + "." + vmmname, vmm);
-        } else {
-            feb.erase(vmmname);
+        ptree specific;
+        if (feb.get_child_optional(vmmname)) {  // If node exists
+            specific = feb.get_child(vmmname);
         }
-        vmm = readVMM(element + "." + vmmname);
-        vmm.put("OpcServerIp", "none");  // TODO(cyildiz): Remove
-        vmm.put("OpcNodeId", "none");   // TODO(cyildiz): Remove
-        feb.add_child(vmmname, vmm);
+        mergeVMMTree(specific, vmm_common);
+        vmm_common.put("OpcServerIp", "none");  // TODO(cyildiz): Remove
+        vmm_common.put("OpcNodeId", "none");   // TODO(cyildiz): Remove
+        feb.put_child(vmmname, vmm_common);
     }
 
     // If the configuation has more than expected vmms, remove them
-    for (int i = nvmm; i < 8; i++) {
+    for (size_t i = nvmm; i < 8; i++) {
         std::string vmmname = "vmm" + std::to_string(i);
         ptree vmm;
         if (feb.get_child_optional(vmmname)) {  // If node exists
@@ -173,8 +192,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
             specific = feb.get_child(name);
         }
         mergeI2cMasterTree(specific, tds_common);
-        feb.erase(name);
-        feb.add_child(name, tds_common);
+        feb.put_child(name, tds_common);
     }
 
     for (int i = ntds; i < 3; i++) {
