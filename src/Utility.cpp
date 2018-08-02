@@ -169,7 +169,7 @@ std::set<std::string> nsw::matchRegexpInPtree(std::string regexp, ptree pt, std:
     BOOST_FOREACH(const ptree::value_type &v, pt) {
         std::string node = v.first;
         ptree pt2 = v.second;
-        bool match = std::regex_search(node, re);
+        bool match = std::regex_match(node, re);
         if (match) {
            names.emplace(base_node + node);
         }

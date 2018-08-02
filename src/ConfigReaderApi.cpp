@@ -41,7 +41,7 @@ std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
     std::regex re(regexp);
     auto all = getAllElementNames();
     for (auto el : all) {
-        if (std::regex_search(el, re)) {
+        if (std::regex_match(el, re)) {
           result.emplace(el);
         }
     }

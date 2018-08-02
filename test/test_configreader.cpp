@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(getAllElementNames_test) {
 
     std::set<std::string> s2 = {"MMFE8-0001", "PFEB-0001", "SFEB-0001",
                           "A01.SFEB-0001", "A01.SFEB-0002",
-                          "A02.Layer0.MMFE8-0001", "A02.Layer0.PFEB-0001",
+                          "A02.Layer0.MMFE8-0001",
                           "A02.Layer1.MMFE8-0001", "A02.Layer1.PFEB-0001"};
 
     BOOST_TEST(elements == s2);
@@ -52,14 +52,14 @@ BOOST_AUTO_TEST_CASE(getElementNames_test) {
     {
       auto elements = cfg.getElementNames("A02\.Layer0.*");
 
-      std::set<std::string> s2 = { "A02.Layer0.MMFE8-0001", "A02.Layer0.PFEB-0001"};
+      std::set<std::string> s2 = { "A02.Layer0.MMFE8-0001"};
       BOOST_TEST(elements == s2);
     }
 
     {
-      auto elements = cfg.getElementNames("A0.*\.Layer0.*");
+      auto elements = cfg.getElementNames("A0.*\.Layer1.*");
 
-      std::set<std::string> s2 = { "A02.Layer0.MMFE8-0001", "A02.Layer0.PFEB-0001"};
+      std::set<std::string> s2 = { "A02.Layer1.MMFE8-0001", "A02.Layer1.PFEB-0001"};
       BOOST_TEST(elements == s2);
     }
 }
