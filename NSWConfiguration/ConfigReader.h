@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <set>
 
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
@@ -38,7 +39,16 @@ class ConfigReader {
   ptree readConfig(std::string element_name) {
     return m_api->read(element_name);
   }
+
+  //! Get names of all Front end elements in the config database
+  std::set<std::string> getAllElementNames() {
+    return m_api->getAllElementNames();
+  }
+
+  //! Get names of all Front end elements that match with regular expression
+  std::set<std::string> getElementNames(std::string regexp){
+    return m_api->getElementNames(regexp);
+  }
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_CONFIGREADER_H_
-

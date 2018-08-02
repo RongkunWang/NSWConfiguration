@@ -72,11 +72,18 @@ tdaq_add_schema(schema/NSWConfig.schema.xml)
 # Testing
 
 configure_file(test/test_vmm.json test_vmm.json COPYONLY)
+configure_file(test/test_configreader.json test_configreader.json COPYONLY)
 
 tdaq_add_executable(test_vmmconfig test/test_vmmconfig.cpp
       LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers nswconfig)
 
+tdaq_add_executable(test_configreader test/test_configreader.cpp
+      LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
+
+
 add_test(NAME vmmconfig COMMAND test_vmmconfig)
+
+add_test(NAME configreader COMMAND test_configreader)
 
 tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)

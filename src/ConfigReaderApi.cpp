@@ -2,6 +2,10 @@
 #include <vector>
 #include <exception>
 #include <string>
+#include <regex>
+#include <set>
+
+#include "boost/foreach.hpp"
 
 #include "ers/ers.h"
 
@@ -22,6 +26,26 @@ ptree ConfigReaderApi::read(std::string element) {
     } else if (nsw::getElementType(element) == "SFEB") {
         return readSFEB(element);
     }
+}
+
+std::set<std::string> ConfigReaderApi::getAllElementNames() {
+    if (m_config.empty()) {
+      read();
+    }
+
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*", m_config);
+}
+
+std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
+    std::set<std::string> result;
+    std::regex re(regexp);
+    auto all = getAllElementNames();
+    for (auto el : all) {
+        if (std::regex_search(el, re)) {
+          result.emplace(el);
+        }
+    }
+    return result;
 }
 
 ptree ConfigReaderApi::readVMM(std::string element) {

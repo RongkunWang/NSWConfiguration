@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <set>
 
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
@@ -63,6 +64,18 @@ class ConfigReaderApi {
 
   /// Read configuration of a single front end element into a ptree
   virtual ptree read(std::string element_name);
+
+  /// Get names of all Front end elements in the configuration
+  /// The base class method iterates through config ptree and finds all
+  /// elements that start with MMFE8, PFEB, SFEB, ADDC in the name.
+  /// The results contain the full path of the element in the ptree
+  std::set<std::string> getAllElementNames();
+
+  /// Get names of Front end elements that match with regular expression
+  /// \param regexp Regular expression to match. For instance to get path of
+  ///     all MMFE8, one should use .*MMFE8.*
+  /// \return Result is a subset of getAllElementNames()
+  std::set<std::string> getElementNames(std::string regexp);
 
   /// Read configuration of front end, specifying number of vmm and tds in the FE
   virtual ptree readFEB(std::string element_name, size_t nvmm, size_t ntds);
