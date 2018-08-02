@@ -44,7 +44,7 @@ class VMMCodec {
  private:
     /// Private VMMCodec for singleton class
     VMMCodec();
-    ~VMMCodec() { ERS_LOG("Destroying VMMCodec");}
+    ~VMMCodec() { ERS_DEBUG(1, "Destroying VMMCodec");}
 
     std::string buildGlobalConfig(ptree config, GlobalRegisters type);
 

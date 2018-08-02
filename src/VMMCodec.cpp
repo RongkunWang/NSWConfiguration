@@ -15,7 +15,7 @@ constexpr size_t nsw::VMMCodec::NBITS_CHANNEL;
 constexpr size_t nsw::VMMCodec::NCHANNELS;
 
 nsw::VMMCodec::VMMCodec() {
-    ERS_LOG("Constructing VMM Codec, building lookup vectors");
+    ERS_DEBUG(1, "Constructing VMM Codec, building lookup vectors");
     // We could read these mappings from a configuration file, but these are not supposed to change in time,
     // It may be better to keep them hardcoded
 

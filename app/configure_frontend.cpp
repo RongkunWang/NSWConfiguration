@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
@@ -37,8 +38,9 @@ int main(int ac, const char *av[]) {
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
         ("name,n", po::value<std::string>(&fe_name)->
-        default_value("MMFE8-0001"),
-        "The name of frontend to configure (must contain MMFE8, SFEB or PFEB)")
+        default_value(""),
+        "The name of frontend to configure (must contain MMFE8, SFEB or PFEB).\n"
+        "If this option is left empty, all front end elements in the config file is configured.")
         ("configure-vmm,v", po::bool_switch(&configure_vmm)->default_value(false),
         "Configure all the VMMs on the FE(Default: False)")
         ("configure-roc,r", po::bool_switch(&configure_roc)->default_value(false),
@@ -78,56 +80,77 @@ int main(int ac, const char *av[]) {
     nsw::ConfigReader reader1("json://" + config_filename);
     auto config1 = reader1.readConfig();
 
-    auto feb_config_tree = reader1.readConfig(fe_name);
-    nsw::FEBConfig feb(feb_config_tree);
-    feb.dump();
+    std::set<std::string> frontend_names;
+    if (fe_name != "") {
+      frontend_names.emplace(fe_name);
+    } else {  // If no name is given, find all elements
+      frontend_names = reader1.getAllElementNames();
+    }
+
+    std::vector<nsw::FEBConfig> frontend_configs;
+
+    std::cout << "Following front ends will be configured: " << std::endl;
+    for (auto & name : frontend_names) {
+      std::cout << name << std::endl;
+      frontend_configs.emplace_back(reader1.readConfig(name));
+      // frontend_configs.back().dump();
+    }
 
     nsw::ConfigSender cs;
 
     if (reset_roc) {
-        std::cout << "Only resetting ROC" << std::endl;
-        auto opc_ip = feb.getOpcServerIp();
-        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
-        sleep(1);
-        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
+        for (auto & feb : frontend_configs) {
+            std::cout << "Only resetting ROC" << std::endl;
+            auto opc_ip = feb.getOpcServerIp();
+            cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
+            sleep(1);
+            cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
+        }
         return 0;
     }
 
     // Send all ROC config
     if (configure_roc) {
-        // feb.dump();
-        cs.sendRocConfig(feb);
+        for (auto & feb : frontend_configs) {
+            cs.sendRocConfig(feb);
+        }
     }
 
     if (configure_vmm) {
-        /// This options are used for ADDC testing
-        auto & vmms = feb.getVmms();
-        if (channel_to_unmask != -1 && vmm_to_unmask != -1) {
-            std::cout << "Unmasking channel " << channel_to_unmask << " in vmm " << vmm_to_unmask << std::endl;
-            vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
-            vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
+        for (auto & feb : frontend_configs) {
+          /// This options are used for ADDC testing
+          auto & vmms = feb.getVmms();
+          if (channel_to_unmask != -1 && vmm_to_unmask != -1) {
+              std::cout << "Unmasking channel " << channel_to_unmask << " in vmm " << vmm_to_unmask << std::endl;
+              vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
+              vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
+          }
+          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+          // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
         }
-        cs.sendVmmConfig(feb);  // Sends configuration to all vmm
-        // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
     }
 
     if (configure_tds) {
-        cs.sendTdsConfig(feb);  // Sends configuration to all tds
+        for (auto & feb : frontend_configs) {
+            cs.sendTdsConfig(feb);  // Sends configuration to all tds
+        }
     }
 
     if (create_pulses) {
-        auto opc_ip = feb.getOpcServerIp();
-        auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
-        uint8_t data[] = {0};
-        for (int i = 0; i < 10; i++) {
-            std::cout << "Creating 10 test pulse" << std::endl;
-            data[0] = 0xff;
-            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
-            // sleep(1);
+        for (auto & feb : frontend_configs) {
+            auto opc_ip = feb.getOpcServerIp();
+            auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
+            uint8_t data[] = {0};
+            for (int i = 0; i < 10; i++) {
+                std::cout << "Creating 10 test pulse" << std::endl;
+                data[0] = 0xff;
+                cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+                // sleep(1);
 
-            data[0] = 0x0;
-            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
-            // sleep(1);
+                data[0] = 0x0;
+                cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+                // sleep(1);
+            }
         }
     }
 
