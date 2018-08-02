@@ -2,12 +2,17 @@
 
 #include <utility>
 #include <string>
+#include <vector>
+#include <set>
 
 #include "NSWConfiguration/Utility.h"
 
 #define BOOST_TEST_MODULE my test module
 #define BOOST_TEST_DYN_LINK
 #include "boost/test/unit_test.hpp"
+
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 
 BOOST_AUTO_TEST_CASE(concatenate_test) {
     auto b1 = std::bitset<10>("1010101010");
@@ -64,12 +69,34 @@ BOOST_AUTO_TEST_CASE(stringToByteVector_test) {
 }
 
 BOOST_AUTO_TEST_CASE(vectorToHexString_test) {
-    std::vector<uint8_t> vec = {0x00,0x01,0x06,0x12,0xf2,0x25,0x21};
+    std::vector<uint8_t> vec = {0x00, 0x01, 0x06, 0x12, 0xf2, 0x25, 0x21};
     BOOST_TEST(nsw::vectorToHexString(vec) == "00010612f22521");
 }
 
 BOOST_AUTO_TEST_CASE(vectorToBitString_test) {
-    std::vector<uint8_t> vec = {0x00,0x01,0x06,0x12,0xf2,0x25,0x21};
+    std::vector<uint8_t> vec = {0x00, 0x01, 0x06, 0x12, 0xf2, 0x25, 0x21};
     BOOST_TEST(nsw::vectorToBitString(vec) == "00000000000000010000011000010010111100100010010100100001");
+}
+
+BOOST_AUTO_TEST_CASE(matchRegexpInPtree_test) {
+    std::stringstream json;
+    json << "{ \"level0_0\": {\"level1_0\": 0, \"level1_1\":1 },";
+    json << " \"level0_1\": 0,";
+    json << " \"level0_2\": {\"level1_0\": 0, \"level1_1\":1, \"level1_2\": {\"level2_0\":0 } } }";
+    ptree pt;
+    boost::property_tree::read_json(json, pt);
+
+    {
+        auto result = nsw::matchRegexpInPtree("level0.*", pt, "");
+        std::set<std::string> matched = {"level0_0", "level0_1", "level0_2"};
+        BOOST_TEST(result == matched);
+    }
+
+    {
+        auto result = nsw::matchRegexpInPtree(".*level[0-9]_0", pt, "");
+        std::set<std::string> matched = {"level0_0", "level0_0.level1_0",
+                                         "level0_2.level1_0", "level0_2.level1_2.level2_0"};
+        BOOST_TEST(result == matched);
+    }
 }
 

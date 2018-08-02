@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <set>
 
 #include "boost/property_tree/ptree.hpp"
 
@@ -71,6 +72,13 @@ ptree buildPtreeFromVector(std::vector<unsigned> channelarray);
 
 /// Strips string "_READONLY" from end of string, used for i2c addresses
 std::string stripReadonly(std::string str);
+
+/// Return name of all elements that match the regular expression in ptree
+/// \param regexp Regular expression to match
+/// \param pt input ptree
+/// \param current_node Current ptree node we are at, required for recursive calls
+/// \return set of matched elements. Each element has the full path of each node
+std::set<std::string> matchRegexpInPtree(std::string regexp, ptree pt, std::string current_node = "");
 
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

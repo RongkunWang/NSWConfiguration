@@ -3,6 +3,10 @@
 #include <cmath>
 #include <vector>
 #include <utility>
+#include <regex>
+#include <set>
+
+#include "boost/foreach.hpp"
 
 #include "ers/ers.h"
 
@@ -154,4 +158,27 @@ std::string nsw::stripReadonly(std::string str) {
         str.erase(pos, str_to_strip.length());
     }
     return str;
+}
+
+std::set<std::string> nsw::matchRegexpInPtree(std::string regexp, ptree pt, std::string current_node) {
+    std::set<std::string> names;
+    std::regex re(regexp);
+
+    std::string base_node = current_node == "" ? "" : current_node + ".";
+
+    BOOST_FOREACH(const ptree::value_type &v, pt) {
+        std::string node = v.first;
+        ptree pt2 = v.second;
+        bool match = std::regex_search(node, re);
+        if (match) {
+           names.emplace(base_node + node);
+        }
+        if (!pt2.empty()) {  // pt2 is a ptree, not a single value
+            auto temp = matchRegexpInPtree(regexp, pt2, base_node + node);
+            for (auto el : temp) {
+              names.emplace(el);
+            }
+        }
+    }
+    return names;
 }
