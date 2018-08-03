@@ -175,5 +175,11 @@ make -j        # Build all the programs and libraries
 ./configure_frontend -c my_config.json -n MMFE8-0001 -r -v -t # Configure ROC, all VMMs and TDSs
 ```
 
+* To configure all front ends in the config file, leave out the -n option
+
+```bash
+./configure_frontend -c my_config.json -r -v -t # Configure ROC, all VMMs and TDSs on all front ends in config file
+```
+
 ## Issue Tracker:
 * [ATLNSWDAQ: ATLAS NSW DAQ Software JIRA](https://its.cern.ch/jira/projects/ATLNSWDAQ)
