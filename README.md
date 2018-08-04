@@ -5,6 +5,7 @@
 * [Installation](#Installation)
   * [External Software](#external-software)
   * [NSWConfiguration](#nswconfiguration)
+* [Creating Config File](#creating-config-file)
 * [Running](#Running)
 
 ## Configuration DB
@@ -36,7 +37,7 @@ git clone -b open62541-compat-0.9 https://github.com/quasar-team/open62541-compa
 cd open62541-compat
 ```
 
-Create a file boost_lcg.cmake with following content:
+Create a file ```boost_lcg.cmake``` with following content:
 
 ```
 message(STATUS "Using file [boost_lcg.cmake] file")
@@ -64,7 +65,7 @@ libopen62541-compat.so
 open62541/libopen62541.a
 ```
 
-The path of open62541-compat will be set as OPC_OPEN62541_PATH environment variable to compile NSWConfiguration
+The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment variable to compile NSWConfiguration
 
 ### NSWConfiguration
 
@@ -106,7 +107,7 @@ cd $CMTCONFIG  # Go to the folder such as x86_64-slc6-gcc62-opt/
 make -j        # Build all the programs and libraries
 ```
 
-# Running
+# Creating Config File
 
 * Copy the [data/integration_config.json](data/integration_config.json)
   and modify it to create your configuration.
@@ -165,10 +166,28 @@ make -j        # Build all the programs and libraries
     }
 ```
 
+* VMM channel registers are special, in a sense that you can either enter a single value
+  for all channels, or an array of 64. Following will mask the first 10 channels of vmm2.
+```
+    "MMFE8-0001":{
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcNodeId": "SCA on MMFE8 0319-1",
+        "vmm2": {
+            "channel_sm" : [1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        }
+    }
+```
+
+# Running
 * To configure any of MMFE8, PFEB, SFEB, one can use the sample program
   to configure the element named ```MMFE8-0001```:
 
 ```bash
+# Assuming you are at the build directory
+cd NSWConfiguration
 ./configure_frontend -h                                       # Show help
 ./configure_frontend -c my_config.json -n MMFE8-0001 -r       # Configure ROC with config file my_config.json
 ./configure_frontend -c my_config.json -n MMFE8-0001 -r -v    # Configure ROC and all VMMs

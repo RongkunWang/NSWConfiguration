@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
-    std::string description = "This program configures ROC/VMM/TDS on a front end board";
+    std::string description = "This program configures selected or all MMFE8/PFEB/SFEB";
     description += "The name of the front end will be used to determine how many VMM and TDS the board contains.";
 
     bool configure_vmm;
@@ -78,7 +78,14 @@ int main(int ac, const char *av[]) {
     }
 
     nsw::ConfigReader reader1("json://" + config_filename);
-    auto config1 = reader1.readConfig();
+    try {
+      auto config1 = reader1.readConfig();
+    } catch (std::exception & e) {
+      std::cout << "Make sure the json is formed correctly. "
+                << "Can't read config file due to : " << e.what() << std::endl;
+      std::cout << "Exiting..." << std::endl;
+      exit(0);
+    }
 
     std::set<std::string> frontend_names;
     if (fe_name != "") {
@@ -89,12 +96,20 @@ int main(int ac, const char *av[]) {
 
     std::vector<nsw::FEBConfig> frontend_configs;
 
-    std::cout << "Following front ends will be configured: " << std::endl;
+    std::cout << "\nFollowing front ends will be configured:\n";
+    std::cout <<   "========================================\n";
     for (auto & name : frontend_names) {
-      std::cout << name << std::endl;
-      frontend_configs.emplace_back(reader1.readConfig(name));
+      try {
+        frontend_configs.emplace_back(reader1.readConfig(name));
+        std::cout << name << std::endl;
+      } catch (std::exception & e) {
+        std::cout << name << " - ERROR: Skipping this FE!"
+                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
+      }
       // frontend_configs.back().dump();
     }
+
+    std::cout << "\n";
 
     nsw::ConfigSender cs;
 
