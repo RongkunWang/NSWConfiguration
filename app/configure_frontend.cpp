@@ -16,6 +16,9 @@
 
 namespace po = boost::program_options;
 
+void readTDS(nsw::FEBConfig & feb) {
+}
+
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
@@ -26,6 +29,7 @@ int main(int ac, const char *av[]) {
     bool configure_roc;
     bool configure_tds;
     bool create_pulses;
+    bool readback_tds;
     bool reset_roc;
     int vmm_to_unmask;
     int channel_to_unmask;
@@ -49,6 +53,8 @@ int main(int ac, const char *av[]) {
         "Configure all the TDSs on the FE(Default: False)")
         ("create-pulses,p", po::bool_switch(&create_pulses)->default_value(false),
         "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
+        ("readback-tds,T", po::bool_switch(&readback_tds)->default_value(true),
+        "Readback and decode TDS values(Default: False)")
         ("vmmtounmask,V", po::value<int>(&vmm_to_unmask)->
         default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
         ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
@@ -60,8 +66,8 @@ int main(int ac, const char *av[]) {
     po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
 
-    if ((!configure_roc && !configure_vmm && !configure_tds) && !reset_roc) {
-        std::cout << "Please chose at least one of -r, -v, -t or -R command line options to configure ROC/VMM/TDS\n";
+    if ((!configure_roc && !configure_vmm && !configure_tds) && !reset_roc && !readback_tds) {
+        std::cout << "Please chose at least one of -r, -v, -t, -T or -R command line options to configure ROC/VMM/TDS\n";
         std::cout << desc << "\n";
         return 1;
     }
@@ -148,6 +154,29 @@ int main(int ac, const char *av[]) {
     if (configure_tds) {
         for (auto & feb : frontend_configs) {
             cs.sendTdsConfig(feb);  // Sends configuration to all tds
+        }
+    }
+
+    if (readback_tds) {
+        std::cout << "Reading back TDS" << std::endl;
+        for (auto & feb : frontend_configs) {
+            std::cout << "\nFEB: " << feb.getAddress() << std::endl;
+            auto opc_ip = feb.getOpcServerIp();
+            auto feb_address = feb.getAddress();
+            for (auto tds : feb.getTdss()) { // Each tds is I2cMasterConfig
+                std::cout << "\nTDS: " << tds.getName() << std::endl;
+                for (auto tds_i2c_address : tds.getAddresses()) {
+                    auto address_to_read = nsw::stripReadonly(tds_i2c_address);
+                    auto dataread = cs.readI2c(opc_ip, feb_address + "." + tds.getName()  + "." + address_to_read);
+                    std::cout << std::dec << "\n";
+                    tds.decodeVector(tds_i2c_address, dataread);
+                    std::cout << "Readback as bytes: ";
+                    for (auto val : dataread) {
+                        std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << ", ";
+                    }
+                    std::cout << "\n";
+                }
+            }
         }
     }
 
