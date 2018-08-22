@@ -143,6 +143,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
         auto data = vmm.getByteVector();
         ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
         sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
+        ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
     }
 
     // Set Vmm Acquisition Enable
