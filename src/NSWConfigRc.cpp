@@ -1,24 +1,32 @@
+#include <utility>  // make_pair
 #include <string>
 #include <memory>
 
 // Header to the RC online services
-#include <RunControl/Common/OnlineServices.h>
+#include "RunControl/Common/OnlineServices.h"
 
 #include "NSWConfiguration/NSWConfigRc.h"
 #include "NSWConfigurationDal/NSWConfigApplication.h"
 
+nsw::NSWConfigRc::NSWConfigRc(bool simulation):m_simulation {simulation} {
+    ERS_LOG("Constructing NSWConfigRc instance");
+    if (m_simulation) {
+        ERS_INFO("Running in simulation mode, no configuration will be sent");
+    }
+}
+
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
-    ERS_INFO("Config");
+    ERS_INFO("Start");
 
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
 
-    try { 
+    try {
       const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
       const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
       m_dbcon = nswConfigApp->get_dbConnection();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
-        // TODO, catch and throw correct exceptions
+        // TODO(cyildiz): catch and throw correct exceptions
         ERS_LOG("Configuration issue: " << ex.what());
     }
 
@@ -29,19 +37,35 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
 
     auto config = m_reader->readConfig();
 
-    // TODO(cyildiz): Get these from DB?
-    m_roc_names = {"A01.ROC_L01_M01"};
-    m_vmm_names = {"A01.VMM_L01_M01_00", "A01.VMM_L01_M01_01"};
+    // TODO(cyildiz): Instead of reading all front ends from the database,
+    // we should find the ones that are at the same links with the swROD
+    auto frontend_names = m_reader->getAllElementNames();
 
-    configureROCs();
+    ERS_LOG("\nFollowing front ends will be configured:\n"
+          <<"========================================");
+    for (auto & name : frontend_names) {
+      try {
+        m_frontends.emplace(std::make_pair(name, m_reader->readConfig(name)));
+        std::cout << name << std::endl;
+      } catch (std::exception & e) {
+        // TODO(cyildiz): turn into exception
+        std::cout << name << " - ERROR: Skipping this FE!"
+                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
+      }
+    }
+
+    configureFEBs();  // Configure all front-ends
+    ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
-    ERS_INFO("PrepareForRun");
+    ERS_LOG("Start");
+    ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd& cmd) {
-    ERS_INFO("Stop");
+    ERS_LOG("Start");
+    ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
@@ -56,37 +80,52 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
 
     // This part should be in sync with NSWTTCConfig application. Some of this steps can also be a regular
     // state transition instead of a subTransition. SubTransitions are called before the main transition
-    // Configuration steps are
-    // - Configure ROC (NSWConfiguration)
-    // - send soft-reset (NSWTTCConfig)
-    // - Configure VMM (NSWConfiguration)
-    // - send ocr (NSWTTCConfig)
-    if (sub_transition == "CONFIGURE_ROC") {
-      configureROCs();
+    // This is not used in current software version, it may be used if one requires to configure different
+    // boards at different times, instead of configuring everything at "configure" step.
+    /*if (sub_transition == "CONFIGURE_ROC") {
+      // configureROCs();
     } else if (sub_transition == "CONFIGURE_VMM") {
-      configureVMMs();
+      // configureVMMs();
     } else {
-      ERS_LOG("Nothing to do for subTransition");
+      ERS_LOG("Nothing to do for subTransition" << sub_transition);
+    }*/
+}
+
+void nsw::NSWConfigRc::configureFEBs() {
+    ERS_INFO("Configuring all Front ends");
+    for (auto fe : m_frontends) {
+        auto name = fe.first;
+        auto configuration = fe.second;
+        if (!m_simulation) {
+            m_sender->sendConfig(configuration);
+        }
+        sleep(1);  // TODO(cyildiz) remove this
+        ERS_LOG("Sending config to: " << name);
     }
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
     ERS_INFO("Configuring VMMs");
-
-    for (auto vmm_name : m_vmm_names) {
-        auto vmmconfig = m_reader->readConfig(vmm_name);
-        nsw::VMMConfig vmm(vmmconfig);
-        ERS_LOG("Sending config to: " << vmm_name);
-        // m_sender->sendVmmConfig(vmm);
+    for (auto fe : m_frontends) {
+        auto name = fe.first;
+        auto configuration = fe.second;
+        if (!m_simulation) {
+            m_sender->sendVmmConfig(configuration);
+        }
+        sleep(1);  // TODO(cyildiz) remove this
+        ERS_LOG("Sending VMM config to: " << name);
     }
 }
 
 void nsw::NSWConfigRc::configureROCs() {
     ERS_INFO("Configuring ROCs");
-    for (auto roc_name : m_roc_names) {
-        auto rocconfig = m_reader->readConfig(roc_name);
-        nsw::ROCConfig roc(rocconfig);
-        ERS_LOG("Sending config to: " << roc_name);
-        // m_sender->sendRocConfig(roc);
+    for (auto fe : m_frontends) {
+        auto name = fe.first;
+        auto configuration = fe.second;
+        if (!m_simulation) {
+            m_sender->sendRocConfig(configuration);
+        }
+        sleep(1);  // TODO(cyildiz) remove this
+        ERS_LOG("Sending ROC config to: " << name);
     }
 }

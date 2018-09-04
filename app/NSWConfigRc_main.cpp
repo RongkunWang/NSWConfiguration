@@ -25,8 +25,12 @@ int main(int argc, char **argv) {
     }
 
     std::string name("");
+    bool simulation;
 
     po::options_description desc("This application controls the NSWConfigRc.");
+    desc.add_options()
+        ("simulation", po::bool_switch(&simulation)->default_value(false),
+        "Run in simulation mode, don't send any configuration to FEs");
     try {
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm);
@@ -36,7 +40,7 @@ int main(int argc, char **argv) {
         daq::rc::CmdLineParser cmdParser(argc, argv, true);
 
         // Instantiate ItemCtrl with proper Controllable
-        daq::rc::ItemCtrl itemCtrl(cmdParser, std::shared_ptr<daq::rc::Controllable>(new nsw::NSWConfigRc()));
+        daq::rc::ItemCtrl itemCtrl(cmdParser, std::shared_ptr<daq::rc::Controllable>(new nsw::NSWConfigRc(simulation)));
         itemCtrl.init();
         itemCtrl.run();
     }
