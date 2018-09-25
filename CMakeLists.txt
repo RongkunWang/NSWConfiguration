@@ -19,6 +19,10 @@ tdaq_add_executable(configure_frontend app/configure_frontend.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(nsw_integration_pfeb_config app/integration_pfeb_config.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )

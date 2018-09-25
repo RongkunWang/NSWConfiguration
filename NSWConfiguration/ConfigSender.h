@@ -14,7 +14,14 @@
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/TDSConfig.h"
 
+
+
 namespace nsw {
+
+
+// TODO(cyildiz): ConfigSender is not an accurate name for this class, as it can also
+// read back from Opc Server. This class is more like a higher level Opc client, we can
+// call it NSW
 class ConfigSender {
  private:
     /// Map with key: opc client ip, value: OpcClient instance
@@ -48,6 +55,9 @@ class ConfigSender {
 
     /// Send configuration to all vmms in the feb
     void sendVmmConfig(const nsw::FEBConfig& feb);
+
+    /// Send configuration to a single vmm in the feb
+    void sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vmm_id);
 
     /// Send configuration to all tds in the feb
     void sendTdsConfig(const nsw::FEBConfig& feb);
@@ -84,7 +94,25 @@ class ConfigSender {
     std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node);
 
     // Read back I2c register as vector for ADDC
-    std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node, uint8_t* address, size_t size);
+    std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
+                                          uint8_t* address, size_t size);
+
+    /// Read multiple consecutive samples from an analog input
+    std::vector<float> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
+                                                         std::string node, size_t n_samples);
+
+    /// Read multiple samples from a channel of a VMM in a frontend
+    ///
+    /// This function modifies the vmm configuration,
+    /// configures vmm, and reads multiple ADC samples
+    ///
+    /// \param feb The front end config instance
+    /// \param vmm_id The vmm number (0-7)
+    /// \param channel_id The vmm channel (0-63)
+    /// \param n_samples Number of samples to read
+    /// \return vector of values that were read
+    std::vector<float> readVmmPdoConsecutiveSamples(FEBConfig& feb, size_t vmm_id,
+                                                    size_t channel_id, size_t n_samples);
 };
 
 }  // namespace nsw
