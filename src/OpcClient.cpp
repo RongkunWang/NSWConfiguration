@@ -9,19 +9,28 @@
 
 #include "NSWConfiguration/OpcClient.h"
 
+
 nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
     // Can we have multiple init() in the same application?
-    // Do we need this at all?
+    // Do we need this at all? It's an empty function
     // UaPlatformLayer::init();
 
     std::string opc_connection = "opc.tcp://" + server_ip_port;
 
+    m_session = std::make_unique<UaClientSdk::UaSession>();
+    m_sessionConnectInfo.internalServiceCallTimeout = 60000;
+
     // TODO(cyildiz): Handle connection exceptions
-    auto temp = std::unique_ptr<UaClientSdk::UaSession>(ClientSessionFactory::connect(opc_connection.c_str()));
-    m_session = std::move(temp);
-    if (!m_session.get()) {
-        std::cout << "Connection error for : " << m_server_ipport << std::endl;
+    UaStatus status = m_session->connect(
+            opc_connection.c_str(),
+            m_sessionConnectInfo,
+            m_security,
+            new MyCallBack ());
+
+    if (status.isBad()) {
+        std::cout << "Bad status for : " << m_server_ipport
+                  << " due to : " << status.toString().toUtf8() << std::endl;
         exit(0);
     }
 }
@@ -117,7 +126,16 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
     return result;
 }
 
-double nsw::OpcClient::readAnalogOutput(std::string node) {
+float nsw::OpcClient::readAnalogInput(std::string node) {
     AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
     return ainode.readValue();
+}
+
+std::vector<float> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
+    AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
+
+    std::vector<float> values;
+
+    ainode.getConsecutiveSamples(n_samples, values);
+    return values;
 }

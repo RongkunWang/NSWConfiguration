@@ -34,6 +34,9 @@ class OpcClient {
     // TODO(cyildiz): Should we use a unique_ptr/shared_ptr instead of this?
     std::unique_ptr<UaClientSdk::UaSession> m_session;
 
+    UaClientSdk::SessionSecurityInfo m_security;
+    UaClientSdk::SessionConnectInfo m_sessionConnectInfo;
+
  public:
     /// Initialize Opc Platform Layer and creates a UaSession
     explicit OpcClient(std::string server_ip_port);
@@ -54,7 +57,11 @@ class OpcClient {
     // Read back the I2c
     std::vector<uint8_t> readI2c(std::string node);
 
-    double readAnalogOutput(std::string node);
+    //! Read current value of an analog output
+    float readAnalogInput(std::string node);
+
+    //! Read n_samples consecutive samples from an analog output.
+    std::vector<float> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
 };
 }  // namespace nsw
 
