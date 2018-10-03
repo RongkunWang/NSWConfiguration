@@ -53,7 +53,7 @@ int main(int ac, const char *av[]) {
         "Configure all the TDSs on the FE(Default: False)")
         ("create-pulses,p", po::bool_switch(&create_pulses)->default_value(false),
         "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
-        ("readback-tds,T", po::bool_switch(&readback_tds)->default_value(true),
+        ("readback-tds,T", po::bool_switch(&readback_tds)->default_value(false),
         "Readback and decode TDS values(Default: False)")
         ("vmmtounmask,V", po::value<int>(&vmm_to_unmask)->
         default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")

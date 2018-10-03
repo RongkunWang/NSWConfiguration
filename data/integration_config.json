@@ -21,7 +21,7 @@
         "stc":0,
         "sdt_dac":120,
 
-        "sdp_dac":600,
+        "sdp_dac":1000,
         "sc10b":0,
         "sc8b":0,
         "sc6b":0,
@@ -820,6 +820,10 @@
             "resets": 0
         }
     },
+    "MMFE8-0000":{
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcNodeId": "SCA on MMFE8 0319"
+    },
     "MMFE8-0001":{
         "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
         "OpcNodeId": "SCA on MMFE8 0319-1"
@@ -829,11 +833,11 @@
         "OpcNodeId": "SCA on MMFE8 0319-4"
     },
     "PFEB-0001":{
-        "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
         "OpcNodeId": "SCA on pFEBv2.3"
     },
     "SFEB-0001":{
-        "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
         "OpcNodeId": "SCA on sFEBv2.3"
         }
 }

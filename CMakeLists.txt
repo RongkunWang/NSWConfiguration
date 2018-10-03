@@ -19,6 +19,10 @@ tdaq_add_executable(configure_frontend app/configure_frontend.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_tds_continous app/read_tds_continous.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
