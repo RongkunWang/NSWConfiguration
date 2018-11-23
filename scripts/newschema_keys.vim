@@ -45,7 +45,8 @@ V/reg120
 :%s/0:3]/3:0]
 
 :/reg006eopAndNullEventEnable
-/sroc1
+/sroc
+
 llllr2
 
 :%s/11_8/[11:8]
@@ -56,3 +57,7 @@ llllr2
 
 :%s/8_0/[7:0]
 
+/sL0enaV
+o"slh": 0,
+"slxh": 0,
+"stgc": 0,

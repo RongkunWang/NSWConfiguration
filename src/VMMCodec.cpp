@@ -73,7 +73,10 @@ nsw::VMMCodec::VMMCodec() {
     m_global_name_size0.push_back({"slvsena", 1});
     m_global_name_size0.push_back({"slvs6b", 1});
     m_global_name_size0.push_back({"sL0enaV", 1});
-    m_global_name_size0.push_back({"NOT_USED", 8});
+    m_global_name_size0.push_back({"slh", 1});
+    m_global_name_size0.push_back({"slxh", 1});
+    m_global_name_size0.push_back({"stgc", 1});
+    m_global_name_size0.push_back({"NOT_USED", 5});
     m_global_name_size0.push_back({"reset", 2});
 
     m_global_name_size1.push_back({"NOT_USED", 31});
