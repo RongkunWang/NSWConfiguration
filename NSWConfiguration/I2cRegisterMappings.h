@@ -83,22 +83,22 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ctrl_phase_0", 3}
     } },
     { "reg076ePllVmm0", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_1", 1},
+        {"ctrl_delay_1", 3},
+        {"ctrl_bypass_1", 1},
+        {"ctrl_phase_1", 3}
     } },
     { "reg077ePllVmm0", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_2", 1},
+        {"ctrl_delay_2", 3},
+        {"ctrl_bypass_2", 1},
+        {"ctrl_phase_2", 3}
     } },
     { "reg078ePllVmm0", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_3", 1},
+        {"ctrl_delay_3", 3},
+        {"ctrl_bypass_3", 1},
+        {"ctrl_phase_3", 3}
     } },
     { "reg079ePllVmm0", {
         {"tx_enable", 4},
@@ -162,22 +162,22 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ctrl_phase_0", 3}
     } },
     { "reg092ePllVmm1", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_1", 1},
+        {"ctrl_delay_1", 3},
+        {"ctrl_bypass_1", 1},
+        {"ctrl_phase_1", 3}
     } },
     { "reg093ePllVmm1", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_2", 1},
+        {"ctrl_delay_2", 3},
+        {"ctrl_bypass_2", 1},
+        {"ctrl_phase_2", 3}
     } },
     { "reg094ePllVmm1", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_3", 1},
+        {"ctrl_delay_3", 3},
+        {"ctrl_bypass_3", 1},
+        {"ctrl_phase_3", 3}
     } },
     { "reg095ePllVmm1", {
         {"tx_enable", 4},
@@ -237,22 +237,22 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ctrl_phase_0", 3}
     } },
     { "reg108ePllTdc", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_1", 1},
+        {"ctrl_delay_1", 3},
+        {"ctrl_bypass_1", 1},
+        {"ctrl_phase_1", 3}
     } },
     { "reg109ePllTdc", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_2", 1},
+        {"ctrl_delay_2", 3},
+        {"ctrl_bypass_2", 1},
+        {"ctrl_phase_2", 3}
     } },
     { "reg110ePllTdc", {
-        {"ctrl_05delay_0", 1},
-        {"ctrl_delay_0", 3},
-        {"ctrl_bypass_0", 1},
-        {"ctrl_phase_0", 3}
+        {"ctrl_05delay_3", 1},
+        {"ctrl_delay_3", 3},
+        {"ctrl_bypass_3", 1},
+        {"ctrl_phase_3", 3}
     } },
     { "reg111ePllTdc", {
         {"tx_enable", 4},
@@ -278,21 +278,21 @@ static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
         {"ePllPhase40MHz_0", 7}
     } },
     { "reg116", {
-        {"ePllPhase160MHz_0[4]", 1},
-        {"ePllPhase40MHz_0", 7}
+        {"ePllPhase160MHz_1[4]", 1},
+        {"ePllPhase40MHz_1", 7}
     } },
     { "reg117", {
-        {"ePllPhase160MHz_0[4]", 1},
-        {"ePllPhase40MHz_0", 7}
+        {"ePllPhase160MHz_2[4]", 1},
+        {"ePllPhase40MHz_2", 7}
     } },
     { "reg118", {
-        {"ePllPhase160MHz_0[0:3]", 4},
-        {"ePllPhase160MHz_1[0:3]", 4}
+        {"ePllPhase160MHz_0[3:0]", 4},
+        {"ePllPhase160MHz_1[3:0]", 4}
     } },
     { "reg119", {
         {"tp_bypass_global", 1},
         {"tp_phase_global", 3},
-        {"ePllPhase160MHz_0[3:0]", 4}
+        {"ePllPhase160MHz_2[3:0]", 4}
     } },
     { "reg120", {
         {"TDS_BCR_INV", 4},
@@ -325,7 +325,7 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
     { "reg005sRoc3VmmConnections", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                                {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
-    { "reg006eopAndNullEventEnable", { {"sroc3_eop_enable", 1}, {"sroc1_eop_enable", 1},
+    { "reg006eopAndNullEventEnable", { {"sroc3_eop_enable", 1}, {"sroc2_eop_enable", 1},
                                  {"sroc1_eop_enable", 1}, {"sroc0_eop_enable", 1},
                                  {"sroc3_nullevt_enable", 1}, {"sroc2_nullevt_enable", 1},
                                  {"sroc1_nullevt_enable", 1}, {"sroc0_nullevt_enable", 1} } },
@@ -337,10 +337,10 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
                      {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
 
     { "reg009timeout", { {"timeout", 8} } },
-    { "reg010bcOffset0_txcSel", { {"tx_csel", 4}, {"bc_offset11_8", 4} } },
-    { "reg011bcOffset1", { {"bc_offset7_0", 8} } },
-    { "reg012bcRollover0", { {"NOT_USED", 4}, {"bc_rollover11_8", 4} } },
-    { "reg013bcRollover1", { {"bc_rollover7_0", 8} } },
+    { "reg010bcOffset0_txcSel", { {"tx_csel", 4}, {"bc_offset[11:8]", 4} } },
+    { "reg011bcOffset1", { {"bc_offset[7:0]", 8} } },
+    { "reg012bcRollover0", { {"NOT_USED", 4}, {"bc_rollover[11:8]", 4} } },
+    { "reg013bcRollover1", { {"bc_rollover[7:0]", 8} } },
 
     { "reg014eportEnable", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
 
@@ -353,11 +353,11 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
                             {"busy_enable_sroc1", 1}, {"busy_enable_sroc0", 1} } },
 
 
-    { "reg021busyOnLimit0", { {"NOT_USED", 5}, {"busy_on_limit10_7", 3} } },
-    { "reg022busyOnLimit1", { {"busy_on_limit8_0", 8} } },
+    { "reg021busyOnLimit0", { {"NOT_USED", 5}, {"busy_on_limit[10:8]", 3} } },
+    { "reg022busyOnLimit1", { {"busy_on_limit[7:0]", 8} } },
 
-    { "reg023busyOffLimit0", { {"NOT_USED", 5}, {"busy_off_limit10_7", 3} } },
-    { "reg024busyOffLimit1", { {"busy_off_limit8_0", 8} } },
+    { "reg023busyOffLimit0", { {"NOT_USED", 5}, {"busy_off_limit[10:8]", 3} } },
+    { "reg024busyOffLimit1", { {"busy_off_limit[7:0]", 8} } },
 
     { "reg031l1EventsWithoutComma", { {"l1_events_no_comma", 8} } },
 
