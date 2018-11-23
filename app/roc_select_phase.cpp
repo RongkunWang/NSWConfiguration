@@ -22,7 +22,7 @@ int main(int ac, const char *av[]) {
     std::string config_filename;
     uint32_t phase40;
     uint32_t phase160;
-    bool vmm_roc_phase;
+    uint32_t vmm_id;
     po::options_description desc("This program is used to select ROC TTC or VMM phase phases for the selected front end");
     desc.add_options()
         ("help,h", "produce help message")
@@ -31,8 +31,8 @@ int main(int ac, const char *av[]) {
         "Configuration file path")
         ("name,n", po::value<std::string>(&fe_name)->default_value("MMFE8-0001"),
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB)")
-        ("vmm-roc-phase,v", po::bool_switch(&vmm_roc_phase)->default_value(false),
-        "Instead of clock phase, scan the vmm-roc phase required for data alignment (Default: False)")
+        ("vmm-roc-phase,v", po::value<uint32_t>(&vmm_id)->default_value(1000),
+        "If entered a value between 0-7, instead of clock phase, scan the vmm-roc phase of a certain VMM, required for data alignment (Default: Scan ROC TTC phase)")
         ("forty,a", po::value<uint32_t>(&phase40)->default_value(0), "40 MHz Phase(0-128)")
         ("hundred-sixty,b", po::value<uint32_t>(&phase160)->default_value(1000),
         "160 MHz phase(0-32) (if empty, determine it from 40MHz phase)");
@@ -68,6 +68,7 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
 
     std::cout << "\n";
+    bool vmm_roc_phase = (vmm_id<8);
     if(!vmm_roc_phase) {
         std::cout << "Selecting ROC TTC Clock phase" << std::endl;
     } else {
@@ -86,6 +87,7 @@ int main(int ac, const char *av[]) {
     // std::cout << " - phase160: " << shift160_ps << std::endl;
     // continue;
 
+
     if(!vmm_roc_phase) {
         // Following are for setting the phase of TTC clock
         roc_analog.setRegisterValue("reg115", "ePllPhase160MHz_0[4]", phase160 >> 4);
@@ -101,52 +103,49 @@ int main(int ac, const char *av[]) {
         roc_analog.setRegisterValue("reg117", "ePllPhase40MHz_0", phase40);
     } else {
         // Following are for setting the phase of data lines
-        roc_analog.setRegisterValue("reg064ePllVmm0", "ePllPhase160MHz_0[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg065ePllVmm0", "ePllPhase160MHz_1[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg066ePllVmm0", "ePllPhase160MHz_2[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg067ePllVmm0", "ePllPhase160MHz_3[4]", phase160 >> 4);
-
-        roc_analog.setRegisterValue("reg064ePllVmm0", "ePllPhase40MHz_0", phase40);
-        roc_analog.setRegisterValue("reg065ePllVmm0", "ePllPhase40MHz_1", phase40);
-        roc_analog.setRegisterValue("reg066ePllVmm0", "ePllPhase40MHz_2", phase40);
-        roc_analog.setRegisterValue("reg067ePllVmm0", "ePllPhase40MHz_3", phase40);
-
-        roc_analog.setRegisterValue("reg068ePllVmm0", "ePllPhase160MHz_0[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg068ePllVmm0", "ePllPhase160MHz_1[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg069ePllVmm0", "ePllPhase160MHz_2[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg069ePllVmm0", "ePllPhase160MHz_3[3:0]", phase160 & 15);
-
-        // ----
-        roc_analog.setRegisterValue("reg080ePllVmm1", "ePllPhase160MHz_0[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg081ePllVmm1", "ePllPhase160MHz_1[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg082ePllVmm1", "ePllPhase160MHz_2[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg083ePllVmm1", "ePllPhase160MHz_3[4]", phase160 >> 4);
-
-        roc_analog.setRegisterValue("reg080ePllVmm1", "ePllPhase40MHz_0", phase40);
-        roc_analog.setRegisterValue("reg081ePllVmm1", "ePllPhase40MHz_1", phase40);
-        roc_analog.setRegisterValue("reg082ePllVmm1", "ePllPhase40MHz_2", phase40);
-        roc_analog.setRegisterValue("reg083ePllVmm1", "ePllPhase40MHz_3", phase40);
-
-        roc_analog.setRegisterValue("reg084ePllVmm1", "ePllPhase160MHz_0[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg084ePllVmm1", "ePllPhase160MHz_1[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg085ePllVmm1", "ePllPhase160MHz_2[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg085ePllVmm1", "ePllPhase160MHz_3[3:0]", phase160 & 15);
-
-        // ----
-        roc_analog.setRegisterValue("reg096ePllTdc", "ePllPhase160MHz_0[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg097ePllTdc", "ePllPhase160MHz_1[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg098ePllTdc", "ePllPhase160MHz_2[4]", phase160 >> 4);
-        roc_analog.setRegisterValue("reg099ePllTdc", "ePllPhase160MHz_3[4]", phase160 >> 4);
-
-        roc_analog.setRegisterValue("reg096ePllTdc", "ePllPhase40MHz_0", phase40);
-        roc_analog.setRegisterValue("reg097ePllTdc", "ePllPhase40MHz_1", phase40);
-        roc_analog.setRegisterValue("reg098ePllTdc", "ePllPhase40MHz_2", phase40);
-        roc_analog.setRegisterValue("reg099ePllTdc", "ePllPhase40MHz_3", phase40);
-
-        roc_analog.setRegisterValue("reg100ePllTdc", "ePllPhase160MHz_0[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg100ePllTdc", "ePllPhase160MHz_1[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg101ePllTdc", "ePllPhase160MHz_2[3:0]", phase160 & 15);
-        roc_analog.setRegisterValue("reg101ePllTdc", "ePllPhase160MHz_3[3:0]", phase160 & 15);
+        std::cout << "Changing phase of vmm" << vmm_id << std::endl;
+        switch (vmm_id) {
+          case 0:
+            roc_analog.setRegisterValue("reg064ePllVmm0", "ePllPhase160MHz_0[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg064ePllVmm0", "ePllPhase40MHz_0", phase40);
+            roc_analog.setRegisterValue("reg068ePllVmm0", "ePllPhase160MHz_0[3:0]", phase160 & 15);
+            break;
+          case 1:
+            roc_analog.setRegisterValue("reg065ePllVmm0", "ePllPhase160MHz_1[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg065ePllVmm0", "ePllPhase40MHz_1", phase40);
+            roc_analog.setRegisterValue("reg068ePllVmm0", "ePllPhase160MHz_1[3:0]", phase160 & 15);
+            break;
+          case 2:
+            roc_analog.setRegisterValue("reg066ePllVmm0", "ePllPhase160MHz_2[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg066ePllVmm0", "ePllPhase40MHz_2", phase40);
+            roc_analog.setRegisterValue("reg069ePllVmm0", "ePllPhase160MHz_2[3:0]", phase160 & 15);
+            break;
+          case 3:
+            roc_analog.setRegisterValue("reg067ePllVmm0", "ePllPhase160MHz_3[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg067ePllVmm0", "ePllPhase40MHz_3", phase40);
+            roc_analog.setRegisterValue("reg069ePllVmm0", "ePllPhase160MHz_3[3:0]", phase160 & 15);
+            break;
+          case 4:
+            roc_analog.setRegisterValue("reg080ePllVmm1", "ePllPhase160MHz_0[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg080ePllVmm1", "ePllPhase40MHz_0", phase40);
+            roc_analog.setRegisterValue("reg084ePllVmm1", "ePllPhase160MHz_0[3:0]", phase160 & 15);
+            break;
+          case 5:
+            roc_analog.setRegisterValue("reg081ePllVmm1", "ePllPhase160MHz_1[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg081ePllVmm1", "ePllPhase40MHz_1", phase40);
+            roc_analog.setRegisterValue("reg084ePllVmm1", "ePllPhase160MHz_1[3:0]", phase160 & 15);
+            break;
+          case 6:
+            roc_analog.setRegisterValue("reg082ePllVmm1", "ePllPhase160MHz_2[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg082ePllVmm1", "ePllPhase40MHz_2", phase40);
+            roc_analog.setRegisterValue("reg085ePllVmm1", "ePllPhase160MHz_2[3:0]", phase160 & 15);
+            break;
+          case 7:
+            roc_analog.setRegisterValue("reg083ePllVmm1", "ePllPhase160MHz_3[4]", phase160 >> 4);
+            roc_analog.setRegisterValue("reg083ePllVmm1", "ePllPhase40MHz_3", phase40);
+            roc_analog.setRegisterValue("reg085ePllVmm1", "ePllPhase160MHz_3[3:0]", phase160 & 15);
+            break;
+        }
     }
 
     // Send all ROC config

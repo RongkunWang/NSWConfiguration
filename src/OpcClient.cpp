@@ -139,3 +139,5 @@ std::vector<float> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string
     ainode.getConsecutiveSamples(n_samples, values);
     return values;
 }
+
+// TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
