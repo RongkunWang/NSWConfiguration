@@ -1,5 +1,7 @@
 tdaq_package() #This will make a package called NSWConfiguration
 
+remove_definitions(-DERS_NO_DEBUG)
+
 tdaq_generate_dal(schema/NSWConfig.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal 
