@@ -31,31 +31,17 @@ Set lcg environment:
 source /cvmfs/sft.cern.ch/lcg/views/LCG_87/x86_64-slc6-gcc62-opt/setup.sh
 ```
 
-Clone open62541-compat package, open62541-compat-0.9 branch
+Clone open62541-compat package, pmaster branch
 ```bash
-git clone -b open62541-compat-0.9 https://github.com/quasar-team/open62541-compat.git
+git clone -b pmaster https://github.com/quasar-team/open62541-compat.git
 cd open62541-compat
 ```
 
-Create a file ```boost_lcg.cmake``` with following content:
-
-```
-message(STATUS "Using file [boost_lcg.cmake] file")
-find_package(Boost REQUIRED program_options system filesystem chrono date_time thread)
-if(NOT Boost_FOUND)
-    message(FATAL_ERROR "Failed to find boost installation")
-else()
-    message(STATUS "Found system boost, version [${Boost_VERSION}], include dir [${Boost_INCLUDE_DIRS}] library dir [${Boost_LIBRARY_DIRS}], libs [${Boost_LIBRARIES}]")
-endif()
-include_directories( ${Boost_INCLUDE_DIRS} )
-set( BOOST_LIBS ${Boost_LIBRARIES} )
-```
-
-build the software
+Build the software. NOTE: For now you have to specifically use cmake3.6
 ```bash
 mkdir build
 cd build
-cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=../boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.6.0/Linux-x86_64/bin/cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
 make -j
 ```
 
@@ -88,7 +74,7 @@ git clone --recursive https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration
 
 ```bash
 source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh prod
-export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-0.9/
+export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-pmaster/
 ```
 
 * Checkout the branch or tag you need. Latest developments are in `dev` branch.
