@@ -23,7 +23,8 @@ int main(int ac, const char *av[]) {
     uint32_t start_value;
     uint32_t increment;
     bool vmm_roc_phase;
-    po::options_description desc("This program loops over the 40MHz and 160MHz TTC clock phases of ROC for the selected front end");
+    po::options_description desc(
+      "This program loops over the 40MHz and 160MHz TTC clock phases of ROC for the selected front end");
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
@@ -63,7 +64,7 @@ int main(int ac, const char *av[]) {
 
     std::string input = "";
     std::cout << "\n";
-    if(!vmm_roc_phase) {
+    if (!vmm_roc_phase) {
         std::cout << "Looping over ROC TTC Clock phase" << std::endl;
     } else {
         std::cout << "Looping over VMM-ROC phase" << std::endl;
@@ -86,7 +87,7 @@ int main(int ac, const char *av[]) {
         // std::cout << " - phase160: " << shift160_ps << std::endl;
         // continue;
 
-        if(!vmm_roc_phase) {
+        if (!vmm_roc_phase) {
             // Following are for setting the phase of TTC clock
             roc_analog.setRegisterValue("reg115", "ePllPhase160MHz_0[4]", phase160 >> 4);
             roc_analog.setRegisterValue("reg116", "ePllPhase160MHz_0[4]", phase160 >> 4);

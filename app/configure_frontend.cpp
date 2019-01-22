@@ -8,8 +8,6 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/VMMConfig.h"
-#include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
 
 #include "boost/program_options.hpp"
@@ -67,7 +65,7 @@ int main(int ac, const char *av[]) {
     po::notify(vm);
 
     if ((!configure_roc && !configure_vmm && !configure_tds) && !reset_roc && !readback_tds) {
-        std::cout << "Please chose at least one of -r, -v, -t, -T or -R command line options to configure ROC/VMM/TDS\n";
+        std::cout << "Please chose one of -r, -v, -t, -T or -R command line options to configure ROC/VMM/TDS\n";
         std::cout << desc << "\n";
         return 1;
     }
@@ -163,11 +161,13 @@ int main(int ac, const char *av[]) {
             std::cout << "\nFEB: " << feb.getAddress() << std::endl;
             auto opc_ip = feb.getOpcServerIp();
             auto feb_address = feb.getAddress();
-            for (auto tds : feb.getTdss()) { // Each tds is I2cMasterConfig
+            for (auto tds : feb.getTdss()) {  // Each tds is I2cMasterConfig
                 std::cout << "\nTDS: " << tds.getName() << std::endl;
                 for (auto tds_i2c_address : tds.getAddresses()) {
                     auto address_to_read = nsw::stripReadonly(tds_i2c_address);
-                    auto dataread = cs.readI2c(opc_ip, feb_address + "." + tds.getName()  + "." + address_to_read);
+                    auto size_in_bytes = tds.getTotalSize(address_to_read)/8;
+                    std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
+                    auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
                     std::cout << std::dec << "\n";
                     tds.decodeVector(tds_i2c_address, dataread);
                     std::cout << "Readback as bytes: ";

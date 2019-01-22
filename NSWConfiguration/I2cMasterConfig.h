@@ -71,7 +71,7 @@ class I2cMasterCodec {
     /// Map of i2c addresses, to a map of registers to register sizes
     i2c::AddressRegisterSizeMap m_addr_reg_size;
 
-    /// Return total size of registers in an i2c address
+    /// Return total size in bits, of registers in an i2c address
     size_t getTotalSize(std::string address) {return m_addr_size[address];}
 
     /// Return addresses of slaves the I2c master
@@ -126,6 +126,9 @@ class I2cMasterConfig {
 
     /// Return addresses of slaves the I2c master
     std::vector<std::string> getAddresses() { return m_codec.getAddresses();}
+
+    /// Return total size of registers in an i2c address
+    size_t getTotalSize(std::string address) { return m_codec.getTotalSize(address);}
 
     // Following may be needed if codec is declared as unique_ptr
     // I2cMasterConfig(const I2cMasterConfig&) = delete;

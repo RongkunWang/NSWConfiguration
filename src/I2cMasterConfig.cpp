@@ -172,9 +172,9 @@ void nsw::I2cMasterConfig::decodeVector(std::string address, std::vector<uint8_t
         return;
     }
 
-    if (vec.size() * 8 != m_codec.getTotalSize(address)) {
+    if (vec.size() * 8 != getTotalSize(address)) {
         auto vecsize = vec.size()*8;
-        auto i2csize = m_codec.getTotalSize(address);
+        auto i2csize = getTotalSize(address);
         nsw::I2cSizeMismatch issue(ERS_HERE, address, vecsize, i2csize);
         ers::error(issue);
         return;

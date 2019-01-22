@@ -23,7 +23,8 @@ int main(int ac, const char *av[]) {
     uint32_t phase40;
     uint32_t phase160;
     uint32_t vmm_id;
-    po::options_description desc("This program is used to select ROC TTC or VMM phase phases for the selected front end");
+    po::options_description desc(
+      "This program is used to select ROC TTC or VMM phase phases for the selected front end");
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
@@ -32,7 +33,8 @@ int main(int ac, const char *av[]) {
         ("name,n", po::value<std::string>(&fe_name)->default_value("MMFE8-0001"),
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB)")
         ("vmm-roc-phase,v", po::value<uint32_t>(&vmm_id)->default_value(1000),
-        "If entered a value between 0-7, instead of clock phase, scan the vmm-roc phase of a certain VMM, required for data alignment (Default: Scan ROC TTC phase)")
+        "If entered a value between 0-7, instead of clock phase, scan the vmm-roc phase of a certain VMM,"
+        " required for data alignment (Default: Scan ROC TTC phase)")
         ("forty,a", po::value<uint32_t>(&phase40)->default_value(0), "40 MHz Phase(0-128)")
         ("hundred-sixty,b", po::value<uint32_t>(&phase160)->default_value(1000),
         "160 MHz phase(0-32) (if empty, determine it from 40MHz phase)");
@@ -45,7 +47,7 @@ int main(int ac, const char *av[]) {
     po::store(po::parse_command_line(ac, av, all), vm);
     po::notify(vm);
 
-    if (phase40 > 127 || ( phase160!=1000 && phase160>31)) {
+    if (phase40 > 127 || (phase160 != 1000 && phase160 > 31)) {
         std::cout << "Phase values out of bound! "<< std::endl;
         std::cout << all << "\n";
         return 1;
@@ -68,8 +70,8 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
 
     std::cout << "\n";
-    bool vmm_roc_phase = (vmm_id<8);
-    if(!vmm_roc_phase) {
+    bool vmm_roc_phase = (vmm_id < 8);
+    if (!vmm_roc_phase) {
         std::cout << "Selecting ROC TTC Clock phase" << std::endl;
     } else {
         std::cout << "Selecting VMM-ROC phase" << std::endl;
@@ -88,7 +90,7 @@ int main(int ac, const char *av[]) {
     // continue;
 
 
-    if(!vmm_roc_phase) {
+    if (!vmm_roc_phase) {
         // Following are for setting the phase of TTC clock
         roc_analog.setRegisterValue("reg115", "ePllPhase160MHz_0[4]", phase160 >> 4);
         roc_analog.setRegisterValue("reg116", "ePllPhase160MHz_0[4]", phase160 >> 4);

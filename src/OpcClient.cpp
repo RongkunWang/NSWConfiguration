@@ -69,7 +69,7 @@ std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t numbe
         ss.readSlave(number_of_chunks, bsread);
         std::vector<uint8_t> result;
         auto array = bsread.data();
-        nauto length = bsread.length();
+        auto length = bsread.length();
         ERS_DEBUG(4, "node: " << node << ", read bytes: " << length);
         result.assign(array, array + length);
         return result;

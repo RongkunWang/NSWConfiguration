@@ -29,10 +29,6 @@ tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
-tdaq_add_executable(nsw_integration_pfeb_config app/integration_pfeb_config.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
 tdaq_add_executable(check_gpio app/check_gpio.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
@@ -56,19 +52,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  tdaq-common::ers
 )
 
-tdaq_add_executable(nsw_read_config app/read_config.cpp
-  LINK_LIBRARIES nswconfig
-)
-
-tdaq_add_executable(nsw_integration_roc_config app/integration_roc_config.cpp
-  LINK_LIBRARIES nswconfig
-)
-
 tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
-  LINK_LIBRARIES nswconfig
-)
-
-tdaq_add_executable(nsw_roc_tests app/roc_tests.cpp
   LINK_LIBRARIES nswconfig
 )
 

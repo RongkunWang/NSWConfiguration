@@ -43,9 +43,9 @@ int main(int ac, const char *av[]) {
     }
 
     if (fe_name.empty()) {
-        std::cout << "Please chose name of frontend\n";
-        std::cout << desc << "\n";
-        return 1;
+      std::cout << "Please chose name of frontend\n";
+      std::cout << desc << "\n";
+      return 1;
     }
 
     nsw::ConfigReader reader1("json://" + config_filename);
@@ -71,25 +71,29 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-    std::vector<std::string> readonly({"register13","register14","register15"});
+    std::vector<std::string> readonly({"register13", "register14", "register15"});
     std::cout << "Reading back TDS" << std::endl;
     std::cout << "\nFEB: " << feb->getAddress() << std::endl;
-    while(true) {
+    while (true) {
       auto opc_ip = feb->getOpcServerIp();
       auto feb_address = feb->getAddress();
-      for (auto tds : feb->getTdss()) { // Each tds is I2cMasterConfig
-          std::cout << "\nTDS: " << tds.getName() << std::endl;
-          auto dataread = cs.readI2c(opc_ip, feb_address + "." + tds.getName()  + "." + tds_i2c_address);
-          std::string address_to_decode = tds_i2c_address; // Maybe different than tds_i2c_address if it's one of readonly addresses
-          if (std::find(readonly.begin(), readonly.end(), tds_i2c_address)!=readonly.end()) {
-            address_to_decode = address_to_decode + "_READONLY";
-          }
-          tds.decodeVector(address_to_decode, dataread);
-          std::cout << "Readback as bytes: ";
-          for (auto val : dataread) {
-              std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << std::dec << ", ";
-          }
-          std::cout << "\n";
+      for (auto tds : feb->getTdss()) {  // Each tds is I2cMasterConfig
+        std::cout << "\nTDS: " << tds.getName() << std::endl;
+        std::string full_node_name = feb_address + "." + tds.getName()  + "." + tds_i2c_address;
+        auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
+        auto dataread = cs.readI2c(opc_ip, full_node_name, size_in_bytes);
+
+        // Maybe different than tds_i2c_address if it's one of readonly addresses
+        std::string address_to_decode = tds_i2c_address;
+        if (std::find(readonly.begin(), readonly.end(), tds_i2c_address) != readonly.end()) {
+          address_to_decode = address_to_decode + "_READONLY";
+        }
+        tds.decodeVector(address_to_decode, dataread);
+        std::cout << "Readback as bytes: ";
+        for (auto val : dataread) {
+          std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << std::dec << ", ";
+        }
+        std::cout << "\n";
       }
     }
 

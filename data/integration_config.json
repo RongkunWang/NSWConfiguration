@@ -824,7 +824,7 @@
         }
     },
     "MMFE8-0000":{
-        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
         "OpcNodeId": "SCA on MMFE8 0319"
     },
     "MMFE8-0001":{
@@ -832,15 +832,19 @@
         "OpcNodeId": "SCA on MMFE8 0319-1"
     },
     "MMFE8-0004":{
-        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
         "OpcNodeId": "SCA on MMFE8 0319-4"
     },
+    "MMFE8-0005":{
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
+        "OpcNodeId": "SCA on MMFE8 0319-5"
+    },
     "PFEB-0001":{
-        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
         "OpcNodeId": "SCA on pFEBv2.3"
     },
     "SFEB-0001":{
-        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
         "OpcNodeId": "SCA on sFEBv2.3"
         }
 }

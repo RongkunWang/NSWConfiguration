@@ -1,5 +1,5 @@
 
-// Sample program to create configuration json
+// Sample program to create configuration json for all i2c devices
 
 #include <iostream>
 #include <string>
@@ -15,12 +15,15 @@ int main(int argc, const char *argv[]) {
     auto roc_digital = ROC_DIGITAL_REGISTERS;
     auto roc_analog = ROC_ANALOG_REGISTERS;
     auto tds = TDS_REGISTERS;
+    // If there is a new object in I2cRegisterMappings, add it to the following list
 
     auto all = {roc_digital, roc_analog, tds};
     for (auto i2cmaster : all) {
         bool first1 = true;
         for (auto address : i2cmaster) {
             auto name = address.first;
+
+            // Don't put READONLY registers in the configuration
             if (name.find("READONLY") != std::string::npos) {
                 continue;
             }
@@ -35,6 +38,8 @@ int main(int argc, const char *argv[]) {
             bool first2 = true;
             for (auto reg : registers) {
                 auto regname = reg.first;
+
+                // NOT_USED is a special word, that marks unused bits. Ignore it
                 if (regname == "NOT_USED") {
                     continue;
                 }
