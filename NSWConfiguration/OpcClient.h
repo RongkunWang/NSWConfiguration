@@ -31,7 +31,6 @@ class OpcClient {
  private:
     std::string m_server_ipport;
 
-    // TODO(cyildiz): Should we use a unique_ptr/shared_ptr instead of this?
     std::unique_ptr<UaClientSdk::UaSession> m_session;
 
     UaClientSdk::SessionSecurityInfo m_security;
@@ -45,17 +44,27 @@ class OpcClient {
     OpcClient(const OpcClient&) = delete;
 
     // vector may not be the best option...
+
+    /// Read from Spi Slave. This method will remove the current configuration.
+    ///
+    /// \param node Node ID in the OPC space
+    /// \param number_of_chunks Number of 96 bit chunks to read
+    /// \param current_node Current ptree node we are at, required for recursive calls
+    /// \return vector of bytes, with size number_of_chunks*12
+    std::vector<uint8_t> readSpiSlave(std::string node, size_t number_of_chunks);
+
+
     void writeSpiSlave(std::string node, std::vector<uint8_t> data);
-    void writeSpiSlaveRaw(std::string node, uint8_t* data, size_t data_size);
+    void writeSpiSlaveRaw(std::string node, uint8_t* data, size_t number_of_bytes);
 
     void writeI2c(std::string node, std::vector<uint8_t> data);
-    void writeI2cRaw(std::string node, uint8_t* data, size_t data_size);
+    void writeI2cRaw(std::string node, uint8_t* data, size_t number_of_bytes);
 
     void writeGPIO(std::string node, bool value);
     bool readGPIO(std::string node);
 
-    // Read back the I2c
-    std::vector<uint8_t> readI2c(std::string node);
+    /// Read back the I2c
+    std::vector<uint8_t> readI2c(std::string node, size_t number_of_bytes = 1);
 
     //! Read current value of an analog output
     float readAnalogInput(std::string node);

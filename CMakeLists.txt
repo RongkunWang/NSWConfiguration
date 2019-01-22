@@ -135,15 +135,15 @@ tdaq_add_library(nswopcclient
         rt
 )
 
-tdaq_add_executable(demo_opc_client
-        app/demo_opc_client.cpp
-        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
-        ${OPC_GENERATED_CLIENT_SRCS}
-    LINK_LIBRARIES
-        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
-        ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
-        rt
-)
+#tdaq_add_executable(demo_opc_client
+#        app/demo_opc_client.cpp
+#        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
+#        ${OPC_GENERATED_CLIENT_SRCS}
+#    LINK_LIBRARIES
+#        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
+#        ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
+#        rt
+#)
 
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
     LINK_LIBRARIES nswopcclient

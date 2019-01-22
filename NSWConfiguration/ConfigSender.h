@@ -75,6 +75,8 @@ class ConfigSender {
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
+    std::vector<uint8_t> readSpi(std::string opcserver_ipport, std::string node, size_t data_size);
+
     /// Low level Spi send function
     void sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
 
@@ -91,11 +93,11 @@ class ConfigSender {
     bool readGPIO(std::string opcserver_ipport, std::string node);
 
     // Read back I2c register as vector
-    std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node);
+    std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node, size_t number_of_bytes = 1);
 
     // Read back I2c register as vector for ADDC
     std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
-                                          uint8_t* address, size_t size);
+                                          uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
 
     /// Read multiple consecutive samples from an analog input
     std::vector<float> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,

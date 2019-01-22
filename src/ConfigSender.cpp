@@ -21,6 +21,11 @@ void nsw::ConfigSender::sendSpiRaw(std::string opcserver_ipport, std::string nod
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
 }
 
+std::vector<uint8_t> nsw::ConfigSender::readSpi(std::string opcserver_ipport, std::string node, size_t data_size) {
+    addOpcClientIfNew(opcserver_ipport);
+    return m_clients[opcserver_ipport]->readSpiSlave(node, data_size);
+}
+
 void nsw::ConfigSender::sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, vdata.data(), vdata.size());
@@ -46,14 +51,23 @@ bool nsw::ConfigSender::readGPIO(std::string opcserver_ipport, std::string node)
     return m_clients[opcserver_ipport]->readGPIO(node);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, std::string node) {
+std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport,
+                                                std::string node,
+                                                size_t number_of_bytes) {
     addOpcClientIfNew(opcserver_ipport);
-    return m_clients[opcserver_ipport]->readI2c(node);
+    return m_clients[opcserver_ipport]->readI2c(node, number_of_bytes);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport, std::string node, uint8_t* address, size_t size) {
-    nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, size); // Write only the address without data
-    std::vector<uint8_t> readdata = nsw::ConfigSender::readI2c(opcserver_ipport, node); // Read back data into the vector readdata
+std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport,
+                                                         std::string node,
+                                                         uint8_t* address,
+                                                         size_t address_size,
+                                                         size_t number_of_bytes) {
+    // Write only the address without data
+    nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, address_size);
+
+    // Read back data into the vector readdata
+    std::vector<uint8_t> readdata = nsw::ConfigSender::readI2c(opcserver_ipport, node, number_of_bytes);
     return readdata;
 }
 
@@ -136,12 +150,21 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
     // Set Vmm Configuration Enable
     std::vector<uint8_t> data = {0xff};
     auto opc_ip = feb.getOpcServerIp();
+
+    // TODO(cyildiz): Make new methods: EnableVmmAcquisition() - DisableVmmAcquisition()
+
+    // Set Vmm Acquisition Disable
     auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
     for (auto vmm : feb.getVmms()) {
         auto data = vmm.getByteVector();
-        ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
+        std::vector<uint8_t> dat;
+        for (int i = 0; i < 216; i++) {
+          dat.push_back(0x84);
+        }
+        std::cout << "size : " << dat.size() << std::endl;
+        ERS_LOG("Sending configuration to " << feb.getAddress() << ".spi." << vmm.getName());
         sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , data.data(), data.size());
         ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
     }

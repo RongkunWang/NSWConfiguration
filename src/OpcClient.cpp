@@ -45,19 +45,37 @@ void nsw::OpcClient::writeSpiSlave(std::string node, std::vector<uint8_t> cdata)
     writeSpiSlaveRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t data_size) {
-    SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
+void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t number_of_bytes) {
+    UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
-    bs.setByteString(data_size, data);
-    ERS_DEBUG(4, "Node: " << node << ", Data size: " << data_size
+    bs.setByteString(number_of_bytes, data);
+    ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
     try {
-        ss.writeWrite(bs);
+        ss.writeSlave(bs);
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write SpiSlave: " <<  e.what() << std::endl;
+    }
+}
+
+std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t number_of_chunks) {
+    UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
+
+    try {
+        UaByteString bsread;
+        ss.readSlave(number_of_chunks, bsread);
+        std::vector<uint8_t> result;
+        auto array = bsread.data();
+        nauto length = bsread.length();
+        ERS_DEBUG(4, "node: " << node << ", read bytes: " << length);
+        result.assign(array, array + length);
+        return result;
+    } catch (const std::exception& e) {
+        // TODO(cyildiz) handle exception properly
+        std::cout << "Can't read SpiSlave: " <<  e.what() << std::endl;
     }
 }
 
@@ -66,16 +84,16 @@ void nsw::OpcClient::writeI2c(std::string node, std::vector<uint8_t> cdata) {
     writeI2cRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_size) {
-    I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
+void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t number_of_bytes) {
+    UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
-    bs.setByteString(data_size, data);
-    ERS_DEBUG(4, "Node: " << node << ", Data size: " << data_size
+    bs.setByteString(number_of_bytes, data);
+    ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
     try {
-        i2cnode.writeValue(bs);
+        i2cnode.writeSlave(bs);
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write I2c: " <<  e.what() << std::endl;
@@ -83,7 +101,7 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t data_si
 }
 
 void nsw::OpcClient::writeGPIO(std::string node, bool data) {
-    DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
     try {
@@ -95,7 +113,7 @@ void nsw::OpcClient::writeGPIO(std::string node, bool data) {
 }
 
 bool nsw::OpcClient::readGPIO(std::string node) {
-    DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     bool value = false;
 
     try {
@@ -107,17 +125,16 @@ bool nsw::OpcClient::readGPIO(std::string node) {
     return value;
 }
 
-std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
-    I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
+std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node, size_t number_of_bytes) {
+    UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
     try {
-        auto bytestring = i2cnode.readValue();
-        auto array = bytestring.data();
-        auto length = bytestring.length();
-        ERS_DEBUG(4, "node: " << node << ", length: " << node << " - " << length);
+        UaByteString output;
+        i2cnode.readSlave(number_of_bytes, output);
+        ERS_DEBUG(4, "node: " << node << ", bytes to read: " << number_of_bytes);
         // copy array contents in a vector
-        result.assign(array, array + length);
+        result.assign(output.data(), output.data() + number_of_bytes);
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't read I2c: " <<  e.what() << std::endl;
@@ -127,12 +144,12 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node) {
 }
 
 float nsw::OpcClient::readAnalogInput(std::string node) {
-    AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
     return ainode.readValue();
 }
 
 std::vector<float> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
-    AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<float> values;
 
