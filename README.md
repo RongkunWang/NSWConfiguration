@@ -21,27 +21,32 @@
 
 ## Installation
 
+These instructions are for centos7, for SLC6, check older versions of the README file.
+
 ### External Software
 
 NSW Configuration requires external Opc related software to build and run.
 Note that you can skip this step and use installation from /eos area (see below)
 
-Set lcg environment:
+* Go to any lxplus node with centos7: ```ssh lxplus7.cern.ch```
+
+* Set lcg environment:
 ```bash
-source /cvmfs/sft.cern.ch/lcg/views/LCG_87/x86_64-slc6-gcc62-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_94a/x86_64-centos7-gcc8-opt/setup.sh
 ```
 
-Clone open62541-compat package, pmaster branch
+* Clone open62541-compat package and select correct tag
 ```bash
-git clone -b pmaster https://github.com/quasar-team/open62541-compat.git
+git clone https://github.com/quasar-team/open62541-compat.git
 cd open62541-compat
+git checkout v1.1.1
 ```
 
-Build the software. NOTE: For now you have to specifically use cmake3.6
+Build the software.
 ```bash
 mkdir build
 cd build
-/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.6.0/Linux-x86_64/bin/cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
 make -j
 ```
 
@@ -55,26 +60,28 @@ The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment
 
 ### NSWConfiguration
 
-* Go to any lxplus node: ```ssh lxplus.cern.ch```
-* Create a work directory and create following ```CMakeLists.txt``` file:
+* Go to any lxplus node: ```ssh lxplus7.cern.ch```
+* Create a work directory and create following ```CMakeLists.txt```
 
 ```bash
 mkdir work
 cd work
-printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 7.1.0)\n" > CMakeLists.txt
+printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 99.0.0)\n" > CMakeLists.txt
 ```
+
+If you will use another tdaq release, replace 99.0.0 with the release number (for instance 8.1.1)
 
 * Checkout this package using with `--recursive` option to get submodules
 
 ```bash
-git clone --recursive https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration.git
+git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfiguration.git
 ```
 * Setup tdaq and OpcUA environment for production release.
   For latter, you can your build from previous step, or a build from eos area
 
 ```bash
-source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh prod
-export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-pmaster/
+source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh nightly # replace nightly with prod if you want to use production release
+export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-v1.1.1
 ```
 
 * Checkout the branch or tag you need. Latest developments are in `dev` branch.
@@ -89,7 +96,7 @@ cd ..
 
 ```bash
 cmake_config   # Create build configuration
-cd $CMTCONFIG  # Go to the folder such as x86_64-slc6-gcc62-opt/
+cd $CMTCONFIG  # Go to the folder such as x86_64-centos7-gcc8-opt/
 make -j        # Build all the programs and libraries
 ```
 
