@@ -115,7 +115,7 @@ class ConfigSender {
     /// \return vector of values that were read
     std::vector<float> readVmmPdoConsecutiveSamples(FEBConfig& feb, size_t vmm_id,
                                                     size_t channel_id, 
-                                                    size_t thdac, size_t tpdac, 
+                                                    int thdac, int tpdac, 
                                                     size_t n_samples);
 };
 

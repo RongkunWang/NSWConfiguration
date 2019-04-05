@@ -257,8 +257,8 @@ std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::str
 std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                    size_t vmm_id,
                                                                    size_t channel_id,
-                                                                   size_t thdac,
-                                                                   size_t tpdac,
+                                                                   int  thdac,
+                                                                   int  tpdac,
                                                                    size_t n_samples) {
 
     auto opc_ip = feb.getOpcServerIp();
@@ -277,11 +277,13 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
     vmms[vmm_id].setGlobalRegister("sm",   channel_id); // Select channel to monitor
     vmms[vmm_id].setGlobalRegister("sbfp", 1);          // Enable PDO output buffers (more stable reading)
     if (tpdac >= 0){
+      std::cout << "tpdac is nonzero: " << tpdac << std::endl; 
       vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
       vmms[vmm_id].setGlobalRegister("sm",      1);      // Test pulse DAC word
       vmms[vmm_id].setGlobalRegister("sdp_dac", tpdac);  // Test pulse DAC
     }
     if (thdac >= 0){
+      std::cout << "thdac is nonzero: " << thdac << std::endl; 
       vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
       vmms[vmm_id].setGlobalRegister("sm",      2);      // Threshold DAC word
       vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);  // Threshold DAC

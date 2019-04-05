@@ -45,7 +45,7 @@ int main(int ac, const char *av[]) {
         default_value(10), "Number of samples to read")
         ("thdac", po::value<int>(&thdac)->
         default_value(-1), "Threshold DAC")
-        ("tpdac", po::value<int>(&thdac)->
+        ("tpdac", po::value<int>(&tpdac)->
         default_value(-1), "Test pulse DAC")
       ;
 
@@ -113,6 +113,8 @@ int main(int ac, const char *av[]) {
                     << feb.getAddress() << " "
                     << vmm_id << " "
                     << channel_id << " " 
+                    << tpdac << " " 
+                    << thdac << " " 
                     << results[i] << std::endl;
         }
 
