@@ -257,7 +257,10 @@ std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::str
 std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                    size_t vmm_id,
                                                                    size_t channel_id,
+                                                                   size_t thdac,
+                                                                   size_t tpdac,
                                                                    size_t n_samples) {
+
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
 
@@ -266,12 +269,25 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
 
     /* To be able to read pdo of a certain channel, VMM has to be configured
      * in a certain way, following block updates the VMMConfig object to with
-     * correct parameters
+     * correct parameters.
+     * To read the VMM threshold DAC or test pulse DAC, the scmx bit must be set to 0.
      */
-    vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("scmx", 1);  // Set channel monitor mode
-    vmms[vmm_id].setGlobalRegister("sm", channel_id);  // Select channel to monitor
-    vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+    vmms[vmm_id].setGlobalRegister("sbmx", 1);          // Route analog monitor to pdo output
+    vmms[vmm_id].setGlobalRegister("scmx", 1);          // Set channel monitor mode
+    vmms[vmm_id].setGlobalRegister("sm",   channel_id); // Select channel to monitor
+    vmms[vmm_id].setGlobalRegister("sbfp", 1);          // Enable PDO output buffers (more stable reading)
+    if (tpdac >= 0){
+      vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
+      vmms[vmm_id].setGlobalRegister("sm",      1);      // Test pulse DAC word
+      vmms[vmm_id].setGlobalRegister("sdp_dac", tpdac);  // Test pulse DAC
+    }
+    if (thdac >= 0){
+      vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
+      vmms[vmm_id].setGlobalRegister("sm",      2);      // Threshold DAC word
+      vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);  // Threshold DAC
+    }
+    if (thdac >= 0 && tpdac >= 0)
+      throw std::runtime_error("You requested to read THDAC and TPDAC, but you can only read one at a time. Please choose.");
 
     // Configure vmm with changed parameters
     sendVmmConfigSingle(feb, vmm_id);

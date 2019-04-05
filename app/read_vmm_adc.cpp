@@ -23,6 +23,8 @@ int main(int ac, const char *av[]) {
     int vmm_id;
     int channel_id;
     int n_samples;
+    int thdac;
+    int tpdac;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -40,7 +42,12 @@ int main(int ac, const char *av[]) {
         ("channel,C", po::value<int>(&channel_id)->
         default_value(0), "VMM channel")
         ("samples,s", po::value<int>(&n_samples)->
-        default_value(10), "Number of samples to read");
+        default_value(10), "Number of samples to read")
+        ("thdac", po::value<int>(&thdac)->
+        default_value(-1), "Threshold DAC")
+        ("tpdac", po::value<int>(&thdac)->
+        default_value(-1), "Test pulse DAC")
+      ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -90,7 +97,7 @@ int main(int ac, const char *av[]) {
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, n_samples);
 
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         double mean = sum / results.size();
@@ -101,12 +108,20 @@ int main(int ac, const char *av[]) {
         std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
                   << " - mean: " << mean << " , stdev: " << stdev << std::endl;
 
-        // Print first 10
-        for (unsigned i = 0; i < 10; i++) {
-            if (i >= results.size()) break;
-            std::cout << results[i] << ", ";
+        for (unsigned i = 0; i < results.size(); i++){
+          std::cout << "DATA "
+                    << feb.getAddress() << " "
+                    << vmm_id << " "
+                    << channel_id << " " 
+                    << results[i] << std::endl;
         }
-        std::cout << "\n";
+
+        // Print first 10
+        // for (unsigned i = 0; i < 10; i++) {
+        //     if (i >= results.size()) break;
+        //     std::cout << results[i] << ", ";
+        // }
+        // std::cout << "\n";
     }
 
     return 0;
