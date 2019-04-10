@@ -259,6 +259,7 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
                                                                    size_t channel_id,
                                                                    int  thdac,
                                                                    int  tpdac,
+                                                                   int  channel_trim,
                                                                    size_t n_samples) {
 
     auto opc_ip = feb.getOpcServerIp();
@@ -276,13 +277,22 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
     vmms[vmm_id].setGlobalRegister("scmx", 1);          // Set channel monitor mode
     vmms[vmm_id].setGlobalRegister("sm",   channel_id); // Select channel to monitor
     vmms[vmm_id].setGlobalRegister("sbfp", 1);          // Enable PDO output buffers (more stable reading)
-    if (tpdac >= 0){
+    if (thdac >= 0 && channel_trim >= 0){
+      vmms[vmm_id].setGlobalRegister("scmx",    1);          // Set channel monitor mode
+      vmms[vmm_id].setGlobalRegister("sm",      channel_id); // Select channel to monitor
+      vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);      // Threshold DAC
+      vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);                        // Channel monitor mode: analog for everything else
+      vmms[vmm_id].setChannelRegisterOneChannel ("channel_smx", 1, channel_id);            // Channel monitor mode: trim threshold for this channel
+      vmms[vmm_id].setChannelRegisterAllChannels("channel_sd",  0);                        // Channel trim threshold: 0 for everything else
+      vmms[vmm_id].setChannelRegisterOneChannel ("channel_sd",  channel_trim, channel_id); // Channel trim threshold: trim threshold for this channel
+    }
+    else if (tpdac >= 0){
       std::cout << "tpdac is nonzero: " << tpdac << std::endl; 
       vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
       vmms[vmm_id].setGlobalRegister("sm",      1);      // Test pulse DAC word
       vmms[vmm_id].setGlobalRegister("sdp_dac", tpdac);  // Test pulse DAC
     }
-    if (thdac >= 0){
+    else if (thdac >= 0){
       std::cout << "thdac is nonzero: " << thdac << std::endl; 
       vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
       vmms[vmm_id].setGlobalRegister("sm",      2);      // Threshold DAC word

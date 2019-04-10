@@ -25,6 +25,7 @@ int main(int ac, const char *av[]) {
     int n_samples;
     int thdac;
     int tpdac;
+    int channel_trim;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -47,6 +48,8 @@ int main(int ac, const char *av[]) {
         default_value(-1), "Threshold DAC")
         ("tpdac", po::value<int>(&tpdac)->
         default_value(-1), "Test pulse DAC")
+        ("channel_trim", po::value<int>(&channel_trim)->
+        default_value(-1), "Channel trimming DAC")
       ;
 
     po::variables_map vm;
@@ -97,7 +100,7 @@ int main(int ac, const char *av[]) {
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, n_samples);
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
 
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         double mean = sum / results.size();
@@ -112,9 +115,10 @@ int main(int ac, const char *av[]) {
           std::cout << "DATA "
                     << feb.getAddress() << " "
                     << vmm_id << " "
-                    << channel_id << " " 
-                    << tpdac << " " 
-                    << thdac << " " 
+                    << channel_id << " "
+                    << tpdac << " "
+                    << thdac << " "
+                    << channel_trim  << " "
                     << results[i] << std::endl;
         }
 
