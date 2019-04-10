@@ -165,7 +165,7 @@ int main(int ac, const char *av[]) {
                 std::cout << "\nTDS: " << tds.getName() << std::endl;
                 for (auto tds_i2c_address : tds.getAddresses()) {
                     auto address_to_read = nsw::stripReadonly(tds_i2c_address);
-                    auto size_in_bytes = tds.getTotalSize(address_to_read)/8;
+                    auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
                     std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
                     auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
                     std::cout << std::dec << "\n";
