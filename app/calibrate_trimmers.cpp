@@ -15,17 +15,17 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 64;
+int NCH_PER_VMM = 10;//64;
 int RMS_CUTOFF = 30; // in mV
 
-float take_median(std::vector<float> v) {
+float take_median(std::vector<float> &v) {
   size_t n = v.size() / 2;
   std::nth_element(v.begin(), v.begin()+n, v.end());
   float median = v[n];
   return median;
 }
 
-float take_rms(std::vector<float> v, float mean) {
+float take_rms(std::vector<float> &v, float mean) {
   float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
   float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
   return stdev;
@@ -35,7 +35,11 @@ float sample_to_mV(float sample){
   return sample * 1000. * 1.5; //1.5 is due to a resistor
 }
 
-bool check_channel(std::string addr, int channel){
+bool check_channel(float ch_baseline_med, float ch_baseline_rms, float vmm_baseline_med){
+  if (sample_to_mV(ch_baseline_rms) > RMS_CUTOFF)
+    return false;
+  // if (fabs(sample_to_mV(ch_baseline_med - vmm_baseline_med))  > RMS_CUTOFF)
+  //   return false;
   return true;
 }
 
@@ -129,6 +133,11 @@ int main(int ac, const char *av[]) {
     std::vector <float> fe_samples_tmp;
     
     // first read baselines
+
+    std::cout << std::endl;
+    std::cout << "Taking baselines" << std::endl;
+    std::cout << std::endl;
+
     for (auto & feb : frontend_configs) {
       fe_samples_tmp.clear(); 
       for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
@@ -145,7 +154,9 @@ int main(int ac, const char *av[]) {
 	// add medians, baseline to (MMFE8, CH) map
 	channel_baseline_med[std::make_pair(feb.getAddress(),channel_id)] = median;
 	channel_baseline_rms[std::make_pair(feb.getAddress(),channel_id)] = stdev;
-	// if RMS of channel is too large, it's probably crap, ignore it
+	std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << " - mean: " << mean << " , stdev: " << stdev << std::endl;
+
+// if RMS of channel is too large, it's probably crap, ignore it
 	// potentially output a list of channels to mask?
 	if ( sample_to_mV(stdev) > RMS_CUTOFF )
 	  continue;
@@ -184,6 +195,10 @@ int main(int ac, const char *av[]) {
     std::map< std::pair< std::string,int>, float> channel_min_eff_thresh;
     std::map< std::pair< std::string,int>, float> channel_mid_eff_thresh;
     
+    std::cout << std::endl;
+    std::cout << "Taking trimmers" << std::endl;
+    std::cout << std::endl;
+
     for (auto & feb : frontend_configs) {
       fe_samples_tmp.clear();
       for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
@@ -196,7 +211,10 @@ int main(int ac, const char *av[]) {
 	  float median = take_median(results);
 
 	  // check if channel has a weird RMS or baseline
-	  if (!check_channel(feb.getAddress(), channel_id))
+
+	  float ch_baseline_rms = channel_baseline_rms[std::make_pair(feb.getAddress(), channel_id)];
+	  float ch_baseline_med = channel_baseline_med[std::make_pair(feb.getAddress(), channel_id)];
+	  if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()]))
 	    continue;
 
 	  // calculate "signal" --> threshold - channel
@@ -205,9 +223,9 @@ int main(int ac, const char *av[]) {
 	  if (trim == TRIM_MID)
 	    channel_mid_eff_thresh[std::make_pair(feb.getAddress(),channel_id)] = eff_thresh;
 	  else if (trim == TRIM_LO)
-	    channel_min_eff_thresh[std::make_pair(feb.getAddress(),channel_id)] = eff_thresh;
-	  else if (trim == TRIM_HI)
 	    channel_max_eff_thresh[std::make_pair(feb.getAddress(),channel_id)] = eff_thresh;
+	  else if (trim == TRIM_HI)
+	    channel_min_eff_thresh[std::make_pair(feb.getAddress(),channel_id)] = eff_thresh;
 	  if (trim == TRIM_MID){
 	    // add samples to the vector for a given fe
 	    for (unsigned int i = 0; i < results.size(); i++) {
@@ -222,15 +240,16 @@ int main(int ac, const char *av[]) {
       size_t vmm_n = fe_samples_tmp.size() / 2;
       std::nth_element(fe_samples_tmp.begin(), fe_samples_tmp.begin()+vmm_n, fe_samples_tmp.end());
       float vmm_median = take_median(fe_samples_tmp);
-
+      float vmm_eff_thresh = vmm_median - vmm_baseline_med[feb.getAddress()];
       for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
 	float min = channel_min_eff_thresh[std::make_pair(feb.getAddress(),channel_id)];
 	float max = channel_max_eff_thresh[std::make_pair(feb.getAddress(),channel_id)];
-	if ( vmm_median < min && vmm_median > max )
+	std::cout << "min " << min << ", max " << max << ", vmm_eff_thresh " << vmm_eff_thresh << std::endl;
+	if ( vmm_eff_thresh < min || vmm_eff_thresh > max )
 	  std::cout << "sad! channel " << channel_id << " can't be equalized!" << std::endl;
-	else
+	else {
 	  std::cout << ":) channel " << channel_id << " is okay!" << std::endl;
-	  
+	}	  
       }
     }
 
