@@ -15,12 +15,14 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 10;//64;
+int NCH_PER_VMM = 64; //10;//64;
 int RMS_CUTOFF = 30; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
 float SLOPE_CHECK = 1/1.5/1000.; 
+
+bool debug = false;
 
 float take_median(std::vector<float> &v) {
   size_t n = v.size() / 2;
@@ -175,7 +177,8 @@ int main(int ac, const char *av[]) {
 	// add medians, baseline to (MMFE8, CH) map
 	channel_baseline_med[feb_ch] = median;
 	channel_baseline_rms[feb_ch] = stdev;
-	std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << " - mean: " << sample_to_mV(mean) << " , stdev: " << sample_to_mV(stdev) << std::endl;
+	if (debug)
+	  std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << " - mean: " << sample_to_mV(mean) << " , stdev: " << sample_to_mV(stdev) << std::endl;
 
 // if RMS of channel is too large, it's probably crap, ignore it
 	// potentially output a list of channels to mask?
@@ -252,12 +255,20 @@ int main(int ac, const char *av[]) {
 	  // calculate "signal" --> threshold - channel
 	  float eff_thresh = median - channel_baseline_med[feb_ch]; 
 
-	  
-	  std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", trim " << trim << " - med_ch_thresh: " << sample_to_mV(median) << ", rms_ch_thresh: " << sample_to_mV(stdev) << " , med_ch_bl: " << sample_to_mV(channel_baseline_med[feb_ch]) << std::endl;
+	  if (debug)
+	    std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", trim " << trim << " - med_ch_thresh: " << sample_to_mV(median) << ", rms_ch_thresh: " << sample_to_mV(stdev) << " , med_ch_bl: " << sample_to_mV(channel_baseline_med[feb_ch]) << std::endl;
 	   
 	  if (trim == TRIM_MID){
 	    channel_mid_eff_thresh[feb_ch] = eff_thresh;
 	    channel_mid_eff_thresh_err[feb_ch] = std::sqrt( pow(stdev,2.) + pow(ch_baseline_rms,2.) );
+	    std::cout << "DATA " 
+		      << feb.getAddress() 
+		      << " " << vmm_id 
+		      << " " << channel_id 
+		      << " " << tpdac 
+		      << " " << thdac 
+		      << " " << trim
+		      << " " << eff_thresh << std::endl;
 	  }
 	  else if (trim == TRIM_LO){
 	    channel_max_eff_thresh[feb_ch] = eff_thresh;
@@ -308,7 +319,8 @@ int main(int ac, const char *av[]) {
 	float avg_raw_m = (raw_m1+raw_m2)/2.;
 
 
-	std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", avg_m " << avg_m << ", m1 " << m1 << ", m2 " << m2 << std::endl;
+	if(debug)
+	  std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", avg_m " << avg_m << ", m1 " << m1 << ", m2 " << m2 << std::endl;
 	if (!check_slopes(raw_m1,raw_m2)){
 	  avg_m = 0.;
 	  tot_chs--;
@@ -323,19 +335,25 @@ int main(int ac, const char *av[]) {
 	  tot_chs--;
 	  continue;
 	}
-
-	std::cout << "min " << sample_to_mV(min) << ", max " << sample_to_mV(max) << ", vmm_eff_thresh " << sample_to_mV(vmm_eff_thresh) << std::endl;
-	if ( vmm_eff_thresh < min || vmm_eff_thresh > max )
-	  std::cout << "sad! channel " << channel_id << " can't be equalized!" << std::endl;
+	
+	if (debug)
+	  std::cout << "min " << sample_to_mV(min) << ", max " << sample_to_mV(max) << ", vmm_eff_thresh " << sample_to_mV(vmm_eff_thresh) << std::endl;
+	if ( vmm_eff_thresh < min || vmm_eff_thresh > max ){
+	  if (debug)
+	    std::cout << "sad! channel " << channel_id << " can't be equalized!" << std::endl;
+	}
 	else {
 	  good_chs++;
-	  std::cout << ":) channel " << channel_id << " is okay!" << std::endl;
+	  if (debug)
+	    std::cout << ":) channel " << channel_id << " is okay!" << std::endl;
 	}	  
       } //end of channel loop
       
-      std::cout << good_chs << " out of " << tot_chs << " are okay!" << std::endl;
+      if (debug)
+	std::cout << good_chs << " out of " << tot_chs << " are okay!" << std::endl;
       if ((good_chs-tot_chs) < 1){
-	std::cout << "set trim flag true!" << std::endl;
+	if (debug)
+	  std::cout << "set trim flag true!" << std::endl;
 	flag_trim_in_range = true;
       }
     }
@@ -349,27 +367,25 @@ int main(int ac, const char *av[]) {
 
 	  // again check if channel is sensible
 	  if (fabs(channel_eff_thresh_slope[feb_ch]) < pow(10,-9.)) {
-	    std::cout << "channel slope: " << channel_eff_thresh_slope[feb_ch] << std::endl;
 	    continue;
 	  }
 
 	  float ch_baseline_rms = channel_baseline_rms[feb_ch];
 	  float ch_baseline_med = channel_baseline_med[feb_ch];
 	  if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])){
-	    std::cout << "channel RMS looks crap!" << std::endl;
 	    continue;
 	  }
 	  
 	  // guess at a trim value 
 	  float delta = channel_mid_eff_thresh[feb_ch] - vmm_mid_eff_thresh[feb.getAddress()];
-	  std::cout << "mid: " << sample_to_mV(channel_mid_eff_thresh[feb_ch]) << std::endl;
-	  std::cout << "min: " << sample_to_mV(channel_min_eff_thresh[feb_ch]) << std::endl;
-	  std::cout << "max: " << sample_to_mV(channel_max_eff_thresh[feb_ch]) << std::endl;
-	  std::cout << "vmm: " << sample_to_mV(vmm_mid_eff_thresh[feb.getAddress()]) << std::endl;
-	  std::cout << "delta: " << sample_to_mV(delta) 
-		    << ", slope: " << channel_eff_thresh_slope[feb_ch] << std::endl;
+	  // std::cout << "mid: " << sample_to_mV(channel_mid_eff_thresh[feb_ch]) << std::endl;
+	  // std::cout << "min: " << sample_to_mV(channel_min_eff_thresh[feb_ch]) << std::endl;
+	  // std::cout << "max: " << sample_to_mV(channel_max_eff_thresh[feb_ch]) << std::endl;
+	  // std::cout << "vmm: " << sample_to_mV(vmm_mid_eff_thresh[feb.getAddress()]) << std::endl;
+	  // std::cout << "delta: " << sample_to_mV(delta) 
+	  // 	    << ", slope: " << channel_eff_thresh_slope[feb_ch] << std::endl;
 	  int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
-	  std::cout << "trim_guess: " << trim_guess << std::endl;
+	  //std::cout << "trim_guess: " << trim_guess << std::endl;
 	  best_channel_trim[feb_ch] = trim_guess;
 
 
@@ -380,7 +396,15 @@ int main(int ac, const char *av[]) {
 	  float stdev = take_rms(results,mean);
 	  float median = take_median(results);
 	  float eff_thresh = median - channel_baseline_med[feb_ch];
-	  std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", trim " << trim_guess << " - med_ch_thresh: " << sample_to_mV(median) << ", rms_ch_thresh: " << sample_to_mV(stdev) << " , eff_thresh: " << sample_to_mV(eff_thresh)<< std::endl;
+	  std::cout << "DATA " 
+		    << feb.getAddress() 
+		    << " " << vmm_id 
+		    << " " << channel_id 
+		    << " " << tpdac 
+		    << " " << thdac 
+		    << " " << trim_guess 
+		    << " " << eff_thresh << std::endl;
+
 	}
       }
     else {
