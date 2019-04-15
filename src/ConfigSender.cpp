@@ -302,8 +302,25 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
       throw std::runtime_error("You requested to read THDAC and TPDAC, but you can only read one at a time. Please choose.");
 
     // Configure vmm with changed parameters
-    sendVmmConfigSingle(feb, vmm_id);
+    std::vector<float> results = {};
+    bool success   = 0;
+    int  retry     = 0;
+    int  MAX_RETRY = 5;
+    while (!success && retry < MAX_RETRY) {
+      try {
+        sendVmmConfigSingle(feb, vmm_id);
+        for (auto result: readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples))
+          results.push_back(result);
+        success = 1;
+      }
+      catch (const std::exception& e) {
+        ERS_LOG("Attempt " << retry << " failed. Next attempt. Maximum " << MAX_RETRY << " attempts.");
+        results.clear();
+        retry++;
+        sleep(1);
+      }
+    }
+    return results;
 
-    return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
 }
 
