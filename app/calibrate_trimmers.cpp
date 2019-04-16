@@ -216,6 +216,9 @@ int main(int ac, const char *av[]) {
     if (debug)
       std::cout << "INFO - desired threshold, in mV: " << thdac_guess << std::endl;
 
+    if (debug)
+      std::cout << "VMM, baseline_rms, baseline_med " << feb.getAddress() << ", " << vmm_baseline_rms[feb.getAddress()] << ", " << vmm_baseline_med[feb.getAddress()] << std::endl;
+
     std::vector<int> thdac_guesses;
     std::vector<float> thdac_guesses_sample;
 
