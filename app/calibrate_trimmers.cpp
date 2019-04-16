@@ -80,6 +80,14 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
   std::vector<float> thdac_guesses_sample;
 
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
+    if (thdac_guess_variations[i]>1024){
+      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1024): " << thdac_guess_variations[i] << std::endl;
+      thdac_guess_variations[i] = 1024;
+    } else if (thdac_guess_variations[i]<0){
+      if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
+      thdac_guess_variations[i] = 0;
+    }
+
     auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, thdac_guess_variations[i], -1, -1, n_samples);
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
@@ -199,7 +207,9 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
       float mid = channel_mid_eff_thresh;
       float max = channel_max_eff_thresh;
 
+      tmp_min_eff_threshold = min;
       tmp_mid_eff_threshold = mid;
+      tmp_max_eff_threshold = max;
 
       // channel threshold values, not eff. thresh
       float raw_min = min + ch_baseline_med;
@@ -601,8 +611,8 @@ int main(int ac, const char *av[]) {
         int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
         //std::cout << "trim_guess: " << trim_guess << std::endl;
 
-        //cap off the guess for trimmer value to avoid non-linear region.
-        best_channel_trim[feb_ch] = trim_guess>channel_eff_thresh_slope[feb_ch] ? channel_eff_thresh_slope[feb_ch] : trim_guess;
+        // cap off the guess for trimmer value to avoid non-linear region.
+        best_channel_trim[feb_ch] = trim_guess>channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
 
         int thdac = thdacs[feb.getAddress()];
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, best_channel_trim[feb_ch], n_samples);
