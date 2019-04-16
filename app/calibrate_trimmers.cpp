@@ -114,7 +114,7 @@ int calculateThdacValue(nsw::ConfigSender & cs,
 }
 
 
-float findLinearRegionSlope(nsw::ConfigSender & cs,
+std::pair<float,int> findLinearRegionSlope(nsw::ConfigSender & cs,
                             nsw::FEBConfig & feb,
                             int vmm_id,
                             int channel_id,
@@ -132,8 +132,8 @@ float findLinearRegionSlope(nsw::ConfigSender & cs,
                             int trim_lo=TRIM_LO
                             ){
 
-      if (trim_hi < trim_mid) return 0;
-      if (trim_mid < trim_lo) return 0;
+      if (trim_hi < trim_mid) return std::make_pair(0,0);
+      if (trim_mid < trim_lo) return std::make_pair(0,0);
 
       float channel_mid_eff_thresh=0., channel_max_eff_thresh=0., channel_min_eff_thresh=0.;
       float channel_mid_eff_thresh_err=0., channel_max_eff_thresh_err=0., channel_min_eff_thresh_err=0.;
@@ -240,7 +240,7 @@ float findLinearRegionSlope(nsw::ConfigSender & cs,
 
       // Got to a consistent set of two slopes!
       if (channel_mid_eff_thresh < 0.) nch_base_above_thresh++;
-      return avg_m;
+      return std::make_pair(avg_m,trim_hi);
 }
 
 
@@ -350,6 +350,7 @@ int main(int ac, const char *av[]) {
 
   std::map< std::string,float > vmm_mid_eff_thresh;
   std::map< std::pair< std::string,int>, float> channel_eff_thresh_slope;
+  std::map< std::pair< std::string,int>, float> channel_trimmer_max;
 
 
   std::cout << "\nTaking baselines\n" << std::endl;
@@ -493,7 +494,7 @@ int main(int ac, const char *av[]) {
       float tmp_mid_eff_threshold = 0.;
       float tmp_max_eff_threshold = 0.;
 
-      float avg_m = findLinearRegionSlope(cs,
+      std::pair<float,int> slopeAndMax = findLinearRegionSlope(cs,
                             feb,
                             vmm_id,
                             channel_id,
@@ -511,7 +512,7 @@ int main(int ac, const char *av[]) {
                             TRIM_LO
                             );
 
-      if(avg_m==0){
+      if(slopeAndMax.first==0){
         std::cout << "Failed to find a linear region" << std::endl;
         tot_chs--;
         continue;
@@ -519,8 +520,9 @@ int main(int ac, const char *av[]) {
 
       /////////////////////////////////////////
 
-      channel_eff_thresh_slope[feb_ch] = avg_m;
-      channel_mid_eff_thresh[feb_ch] = tmp_mid_eff_threshold;
+      channel_eff_thresh_slope[feb_ch] = slopeAndMax.first;
+      channel_trimmer_max[feb_ch]      = slopeAndMax.second;
+      channel_mid_eff_thresh[feb_ch]   = tmp_mid_eff_threshold;
 
       ch_baseline_rms = channel_baseline_rms[std::make_pair(feb.getAddress(), channel_id)];
       ch_baseline_med = channel_baseline_med[std::make_pair(feb.getAddress(), channel_id)];
@@ -598,10 +600,12 @@ int main(int ac, const char *av[]) {
         //      << ", slope: " << channel_eff_thresh_slope[feb_ch] << std::endl;
         int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
         //std::cout << "trim_guess: " << trim_guess << std::endl;
-        best_channel_trim[feb_ch] = trim_guess;
+
+        //cap off the guess for trimmer value to avoid non-linear region.
+        best_channel_trim[feb_ch] = trim_guess>channel_eff_thresh_slope[feb_ch] ? channel_eff_thresh_slope[feb_ch] : trim_guess;
 
         int thdac = thdacs[feb.getAddress()];
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, trim_guess, n_samples);
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, best_channel_trim[feb_ch], n_samples);
 
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
         float mean = sum / results.size();
@@ -614,7 +618,7 @@ int main(int ac, const char *av[]) {
             << " " << channel_id
             << " " << tpdac
             << " " << thdac
-            << " " << trim_guess
+            << " " << best_channel_trim[feb_ch]
             << " " << eff_thresh << std::endl;
       }
     } else {
