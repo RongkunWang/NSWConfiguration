@@ -80,9 +80,9 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
   std::vector<float> thdac_guesses_sample;
 
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
-    if (thdac_guess_variations[i]>1024){
-      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1024): " << thdac_guess_variations[i] << std::endl;
-      thdac_guess_variations[i] = 1024;
+    if (thdac_guess_variations[i]>1023){
+      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
+      thdac_guess_variations[i] = 1023;
     } else if (thdac_guess_variations[i]<0){
       if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 0;
@@ -374,7 +374,7 @@ int main(int ac, const char *av[]) {
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
       // Read pdo of the certain channel n_samples times.
       // This function will also configure VMM with correct parameters
-      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, -1, -1, -1, n_samples);
+      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, -1, -1, -1, n_samples*10);
 
       // calculate channel level baseline median, rms
       float sum    = std::accumulate(results.begin(), results.end(), 0.0);
@@ -421,6 +421,9 @@ int main(int ac, const char *av[]) {
 
     if (debug)
       std::cout << "INFO - desired threshold, in mV: " << thdac_central_guess << std::endl;
+
+    if (debug)
+      std::cout << "VMM, baseline_rms, baseline_med " << feb.getAddress() << ", " << vmm_baseline_rms[feb.getAddress()] << ", " << vmm_baseline_med[feb.getAddress()] << std::endl;
 
     std::vector<int> thdac_guess_variations;
 
