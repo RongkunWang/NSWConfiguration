@@ -132,8 +132,8 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                             int trim_lo=TRIM_LO
                             ){
 
-      if (trim_hi < trim_mid) return std::make_pair(0,0);
-      if (trim_mid < trim_lo) return std::make_pair(0,0);
+      if (trim_hi <= trim_mid) return std::make_pair(0,0);
+      if (trim_mid <= trim_lo) return std::make_pair(0,0);
 
       float channel_mid_eff_thresh=0., channel_max_eff_thresh=0., channel_min_eff_thresh=0.;
       float channel_mid_eff_thresh_err=0., channel_max_eff_thresh_err=0., channel_min_eff_thresh_err=0.;
@@ -176,14 +176,14 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
         if (trim == trim_mid){
           channel_mid_eff_thresh = eff_thresh;
           channel_mid_eff_thresh_err = std::sqrt( pow(stdev,2.) + pow(ch_baseline_rms,2.) );
-          std::cout << "DATA "
-              << feb.getAddress()
-              << " " << vmm_id
-              << " " << channel_id
-              << " " << tpdac
-              << " " << thdac
-              << " " << trim
-              << " " << eff_thresh << std::endl;
+          // std::cout << "DATA "
+          //     << feb.getAddress()
+          //     << " " << vmm_id
+          //     << " " << channel_id
+          //     << " " << tpdac
+          //     << " " << thdac
+          //     << " " << trim
+          //     << " " << eff_thresh << std::endl;
         }
         else if (trim == trim_lo){
           channel_max_eff_thresh = eff_thresh;
@@ -618,6 +618,8 @@ int main(int ac, const char *av[]) {
             << " " << channel_id
             << " " << tpdac
             << " " << thdac
+            << " " << TRIM_MID
+            << " " << channel_mid_eff_thresh[feb_ch]
             << " " << best_channel_trim[feb_ch]
             << " " << eff_thresh << std::endl;
       }
