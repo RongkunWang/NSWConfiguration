@@ -71,12 +71,12 @@ bool check_slopes(float m1, float m2){
 }
 
 
-int calculateThdacValue(nsw::ConfigSender & cs,
-                        nsw::FEBConfig & feb,
-                        int vmm_id,
-                        int n_samples,
-                        int thdac_central_guess,
-                        std::vector<int> & thdac_guess_variations){
+int calculate_thdac_value(nsw::ConfigSender & cs,
+                          nsw::FEBConfig & feb,
+                          int vmm_id,
+                          int n_samples,
+                          int thdac_central_guess,
+                          std::vector<int> & thdac_guess_variations){
   std::vector<float> thdac_guesses_sample;
 
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
@@ -114,7 +114,7 @@ int calculateThdacValue(nsw::ConfigSender & cs,
 }
 
 
-std::pair<float,int> findLinearRegionSlope(nsw::ConfigSender & cs,
+std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                             nsw::FEBConfig & feb,
                             int vmm_id,
                             int channel_id,
@@ -219,7 +219,7 @@ std::pair<float,int> findLinearRegionSlope(nsw::ConfigSender & cs,
 
       if(debug) std::cout << "INFO " << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", avg_m " << avg_m << ", m1 " << m1 << ", m2 " << m2 << std::endl;
       if (!check_slopes(raw_m1,raw_m2)){
-        return findLinearRegionSlope(cs,
+        return find_linear_region_slope(cs,
                             feb,
                             vmm_id,
                             channel_id,
@@ -420,7 +420,7 @@ int main(int ac, const char *av[]) {
     thdac_guess_variations.push_back(thdac_central_guess + 10);
     thdac_guess_variations.push_back(thdac_central_guess + 20);
 
-    int thdac = calculateThdacValue(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
+    int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
 
     thdacs[feb.getAddress()] = thdac;
 
@@ -494,7 +494,7 @@ int main(int ac, const char *av[]) {
       float tmp_mid_eff_threshold = 0.;
       float tmp_max_eff_threshold = 0.;
 
-      std::pair<float,int> slopeAndMax = findLinearRegionSlope(cs,
+      std::pair<float,int> slopeAndMax = find_linear_region_slope(cs,
                             feb,
                             vmm_id,
                             channel_id,
