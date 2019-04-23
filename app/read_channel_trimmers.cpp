@@ -110,7 +110,7 @@ int main(int ac, const char *av[]) {
             if (targeted_vmm_id       != -1 && vmm_id       != targeted_vmm_id)       continue;
             if (targeted_channel_id   != -1 && channel_id   != targeted_channel_id)   continue;
 
-            std::cout << "CAW "
+            std::cout << "INFO "
                       << feb.getAddress() << " "
                       << vmm_id << " "
                       << channel_id << " "
@@ -119,22 +119,18 @@ int main(int ac, const char *av[]) {
                       << channel_trim  << " "
                       << std::endl;
 
-            auto shit = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
+            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
 
-            // auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
-            // auto results = readScaAttempt(5, cs, feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
-
-            // for (unsigned i = 0; i < results.size(); i++){
-            //   std::cout << "DATAZ "
-            //             << feb.getAddress() << " "
-            //             << vmm_id << " "
-            //             << channel_id << " "
-            //             << tpdac << " "
-            //             << thdac << " "
-            //             << channel_trim  << " "
-            //             << results[i] << std::endl;
-            // }
-
+            for (unsigned i = 0; i < results.size(); i++){
+              std::cout << "DATA "
+                        << feb.getAddress() << " "
+                        << vmm_id << " "
+                        << channel_id << " "
+                        << tpdac << " "
+                        << thdac << " "
+                        << channel_trim  << " "
+                        << results[i] << std::endl;
+            }
           }
         }
       }
