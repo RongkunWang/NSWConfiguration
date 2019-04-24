@@ -29,6 +29,10 @@ tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_vmm_adc_slowly app/read_vmm_adc_slowly.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(calibrate_trimmers app/calibrate_trimmers.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
