@@ -15,26 +15,12 @@
 
 #include "boost/program_options.hpp"
 
-namespace po = boost::program_options;
-
-std::string now_in_milliseconds() {
-  using namespace std::chrono;
-  auto now = system_clock::now();
-  auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
-  auto timer = system_clock::to_time_t(now);
-  std::tm bt = *std::localtime(&timer);
-  std::ostringstream oss;
-  oss << std::put_time(&bt, "%Y_%m_%d_%H_%M_%S");
-  oss << '_' << std::setfill('0') << std::setw(3) << ms.count();
-  return oss.str();
-  //std::cout << "INFO :: Start configure"
-  //<< " " << oss.str()
-  //<< std::endl;
-}
+namespace po  = boost::program_options;
+namespace chr = std::chrono;
 
 int main(int ac, const char *av[]) {
-    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
+    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
     std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
     int n_samples;
@@ -119,32 +105,14 @@ int main(int ac, const char *av[]) {
 
         for (int channel_id = 0; channel_id < CHS; channel_id++) {
 
-          if (targeted_vmm_id       != -1 && vmm_id       != targeted_vmm_id)     continue;
-          if (targeted_channel_id   != -1 && channel_id   != targeted_channel_id) continue;
+          if (targeted_vmm_id     != -1 && vmm_id     != targeted_vmm_id)     continue;
+          if (targeted_channel_id != -1 && channel_id != targeted_channel_id) continue;
 
-          // en.cppreference.com/w/cpp/io/manip/put_time
-          std::time_t  t =  std::time(nullptr);
-          std::tm     tm = *std::localtime(&t);
-
-          // using namespace std::chrono;
-          // auto now = system_clock::now();
-          // auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
-          // auto timer = system_clock::to_time_t(now);
-          // std::tm bt = *std::localtime(&timer);
-          // std::ostringstream oss;
-          // oss << std::put_time(&bt, "%Y_%m_%d_%H_%M_%S");
-          // oss << '_' << std::setfill('0') << std::setw(3) << ms.count();
-          // std::cout << "INFO :: Start configure"
-          //           << " " << oss.str()
-          //           << std::endl;
-
-
-          using namespace std::chrono;
-          time_now_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+          time_now_ms = chr::duration_cast<chr::milliseconds>
+            (chr::system_clock::now().time_since_epoch()).count();
 
           std::cout << "INFO"
                     << " " << "Start configure"
-                  //<< " " << now_in_milliseconds()
                     << " " << time_now_ms
                     << " " << feb.getAddress()
                     << " " << vmm_id
@@ -154,40 +122,25 @@ int main(int ac, const char *av[]) {
                     << " " << channel_trim
                     << std::endl;
 
-          // std::cout << "INFO"
-          //           << " " << &tm
-          //           << " " << std::put_time(&tm, "%Y_%m_%d_%Hh_%Mm_%Ss")
-          //           << " " << feb.getAddress()
-          //           << " " << vmm_id
-          //           << " " << channel_id
-          //           << " " << tpdac
-          //           << " " << thdac
-          //           << " " << channel_trim
-          //           << std::endl;
-          //sleep(60);
-
-          //cs.sendVmmConfigSingle(feb, vmm_id);
-          //cs.sendVmmConfigSingle(feb, vmm_id);
-          //cs.sendVmmConfigSingle(feb, vmm_id);
-          //cs.sendVmmConfigSingle(feb, vmm_id);
-          //cs.sendVmmConfigSingle(feb, vmm_id);
           auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
 
           for (unsigned i = 0; i < results.size(); i++){
-            std::cout << "DATA "
-                      << feb.getAddress() << " "
-                      << vmm_id << " "
-                      << channel_id << " "
-                      << tpdac << " "
-                      << thdac << " "
-                      << channel_trim  << " "
-                      << results[i] << std::endl;
+            std::cout << "DATA"
+                      << " " << feb.getAddress()
+                      << " " << vmm_id
+                      << " " << channel_id
+                      << " " << tpdac
+                      << " " << thdac
+                      << " " << channel_trim 
+                      << " " << results[i] 
+                      << std::endl;
           }
 
-          time_now_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+          time_now_ms = chr::duration_cast<chr::milliseconds>
+            (chr::system_clock::now().time_since_epoch()).count();
+
           std::cout << "INFO"
                     << " " << "  End configure"
-                  //<< " " << now_in_milliseconds()
                     << " " << time_now_ms
                     << " " << feb.getAddress()
                     << " " << vmm_id
