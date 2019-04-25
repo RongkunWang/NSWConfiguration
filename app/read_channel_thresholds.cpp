@@ -23,6 +23,8 @@ int main(int ac, const char *av[]) {
 
     int n_samples;
     int thdac;
+    int baseline;
+    int channel_trim;
     int targeted_vmm_id;
     int targeted_channel_id;
     std::string config_filename;
@@ -41,10 +43,14 @@ int main(int ac, const char *av[]) {
         default_value(10), "Number of samples to read")
         ("thdac", po::value<int>(&thdac)->
         default_value(-1), "Threshold DAC")
+        ("baseline", po::value<int>(&baseline)->
+        default_value(0), "Actually, measure the channel baseline, not the channel threshold")
         ("vmm,V", po::value<int>(&targeted_vmm_id)->
         default_value(-1), "VMM id (0-7) to read (otherwise: loop)")
         ("channel,C", po::value<int>(&targeted_channel_id)->
         default_value(-1), "VMM channel to read (otherwise: loop)")
+        ("trim,T", po::value<int>(&channel_trim)->
+        default_value(-1), "Overwrite the trim value")
       ;
 
     po::variables_map vm;
@@ -89,7 +95,6 @@ int main(int ac, const char *av[]) {
     int CHS   = 64;
     int tpdac = -1;
     int dummy = -1;
-    int channel_trim = -1;
 
     for (auto & feb : frontend_configs) {
 
@@ -103,10 +108,13 @@ int main(int ac, const char *av[]) {
           if (targeted_channel_id != -1 && channel_id != targeted_channel_id) continue;
 
           // send the channel threshold to the MO, and set the thdac
-          vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);             // Channel monitor mode: analog for everything else
-          vmms[vmm_id].setChannelRegisterOneChannel ("channel_smx", 1, channel_id); // Channel monitor mode: trim threshold for this channel
+          vmms[vmm_id].setChannelRegisterAllChannels  ("channel_smx", 0);             // Channel monitor mode: analog for everything else
+          if (!baseline)
+            vmms[vmm_id].setChannelRegisterOneChannel ("channel_smx", 1, channel_id); // Channel monitor mode: trim threshold for this channel
           if (thdac != -1)
-            vmms[vmm_id].setGlobalRegister          ("sdt_dac", thdac);             // Threshold DAC
+            vmms[vmm_id].setGlobalRegister            ("sdt_dac", thdac);             // Threshold DAC
+          if (channel_trim != -1)
+            vmms[vmm_id].setChannelRegisterAllChannels("channel_sd", channel_trim);   // Overwrite the channel trim threshold as desired
 
           std::cout << "INFO "
                     << feb.getAddress() << " "
@@ -117,7 +125,7 @@ int main(int ac, const char *av[]) {
                     << channel_trim  << " "
                     << std::endl;
 
-          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, dummy, tpdac, channel_trim, n_samples);
+          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, dummy, tpdac, dummy, n_samples);
 
           for (unsigned i = 0; i < results.size(); i++){
             std::cout << "DATA "
