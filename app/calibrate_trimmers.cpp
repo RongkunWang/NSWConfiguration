@@ -616,6 +616,7 @@ int main(int ac, const char *av[]) {
 
         // cap off the guess for trimmer value to avoid non-linear region.
         best_channel_trim[feb_ch] = trim_guess>channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
+        best_channel_trim[feb_ch] = best_channel_trim[feb_ch]<0 ? 0 : best_channel_trim[feb_ch];
 
         int thdac = thdacs[feb.getAddress()];
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, best_channel_trim[feb_ch], n_samples);
