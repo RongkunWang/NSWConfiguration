@@ -17,6 +17,7 @@ namespace po = boost::program_options;
 
 int NCH_PER_VMM = 64; //10//64; //10;//64;
 int RMS_CUTOFF = 30; // in mV
+int BASELINE_CUTOFF = 30; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
@@ -265,8 +266,8 @@ int main(int ac, const char *av[]) {
   int vmm_id;
   int n_samples;
   int rms_factor;
-  int tpdac;
-  int channel_trim;
+  int tpdac = -1;
+  int channel_trim = -1;
   std::string config_filename;
   std::string fe_name;
   po::options_description desc(description);
@@ -279,11 +280,7 @@ int main(int ac, const char *av[]) {
         "If this option is left empty, all front end elements in the config file will be scanned.")
       ("vmm,V", po::value<int>(&vmm_id)->default_value(0), "VMM id (0-7)")
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
-        //("thdac", po::value<int>(&thdac)->
-        // default_value(-1), "Threshold DAC")
       ("rms_factor", po::value<int>(&rms_factor)->default_value(-1), "RMS Factor")
-      ("tpdac", po::value<int>(&tpdac)->default_value(-1), "Test pulse DAC")
-      ("channel_trim", po::value<int>(&channel_trim)->default_value(-1), "Channel trimming DAC")
     ;
 
   po::variables_map vm;
@@ -340,6 +337,7 @@ int main(int ac, const char *av[]) {
   int offset_center = 14; // center the threshold in the middle of the window
 
   std::vector <float> fe_samples_tmp;
+  std::vector <float> fe_samples_pruned;
 
   // first read baselines
 
@@ -387,7 +385,12 @@ int main(int ac, const char *av[]) {
       channel_baseline_med[feb_ch] = median;
       channel_baseline_rms[feb_ch] = stdev;
       if (debug)
-        std::cout << "INFO " << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << " - mean: " << sample_to_mV(mean) << " , stdev: " << sample_to_mV(stdev) << std::endl;
+        std::cout << "INFO "      << feb.getAddress()
+                  << " vmm"       << vmm_id
+                  << ", channel " << channel_id
+                  << " - mean: "  << sample_to_mV(mean)
+                  << " , stdev: " << sample_to_mV(stdev)
+                  << std::endl;
 
       // if RMS of channel is too large, it's probably crap, ignore it
       // potentially output a list of channels to mask?
@@ -400,15 +403,26 @@ int main(int ac, const char *av[]) {
       }
     }
 
-    float vmm_sum    = std::accumulate(fe_samples_tmp.begin(), fe_samples_tmp.end(), 0.0);
-    float vmm_mean   = vmm_sum / fe_samples_tmp.size();
-    float vmm_stdev  = take_rms(fe_samples_tmp, vmm_mean);
-    float vmm_median = take_median(fe_samples_tmp);
+    // remove samples which are highly suspicious
+    // this can happen when a channel has a very high or low baseline, but with small RMS
+    float tmp_median = take_median(fe_samples_tmp);
+    fe_samples_pruned.clear();
+    for (auto sample: fe_samples_tmp)
+      if (fabs(sample_to_mV(sample - tmp_median)) < BASELINE_CUTOFF)
+        fe_samples_pruned.push_back(sample);
+
+    // calculate VMM median baseline and rms
+    float vmm_sum    = std::accumulate(fe_samples_pruned.begin(), fe_samples_pruned.end(), 0.0);
+    float vmm_mean   = vmm_sum / fe_samples_pruned.size();
+    float vmm_stdev  = take_rms(fe_samples_pruned, vmm_mean);
+    float vmm_median = take_median(fe_samples_pruned);
 
     // add medians, baseline to MMFE8 --> med, stdev map
     vmm_baseline_med[feb.getAddress()] = vmm_median;
     vmm_baseline_rms[feb.getAddress()] = vmm_stdev;
 
+    fe_samples_pruned.clear();
+    fe_samples_tmp.clear();
     //
     //////////////////////////////////
 
@@ -420,10 +434,17 @@ int main(int ac, const char *av[]) {
     int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
 
     if (debug)
-      std::cout << "INFO - desired threshold, in mV: " << thdac_central_guess << std::endl;
+      std::cout << "INFO - baseline_mean, baseline_med, baseline_rms, rms_factor: "
+                << feb.getAddress() << " vmm"
+                << vmm_id << ", "
+                << sample_to_mV(vmm_mean) << ", "
+                << sample_to_mV(vmm_baseline_med[feb.getAddress()]) << ", "
+                << sample_to_mV(vmm_baseline_rms[feb.getAddress()]) << ", "
+                << rms_factor
+                << std::endl;
 
     if (debug)
-      std::cout << "VMM, baseline_rms, baseline_med " << feb.getAddress() << ", " << vmm_baseline_rms[feb.getAddress()] << ", " << vmm_baseline_med[feb.getAddress()] << std::endl;
+      std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac_central_guess << " in mV, desired" << std::endl;
 
     std::vector<int> thdac_guess_variations;
 
@@ -437,14 +458,16 @@ int main(int ac, const char *av[]) {
 
     thdacs[feb.getAddress()] = thdac;
 
-    if (debug) std::cout << "Threshold for " << feb.getAddress() << " is " << thdac << std::endl;
+    if (debug)
+      std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac << std::endl;
 
     auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, thdac, -1, -1, n_samples);
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
     thdacs_sample[feb.getAddress()] = mean;
 
-    if (debug) std::cout << "Threshold for " << feb.getAddress() << " is " << sample_to_mV(mean) << " in mV" <<  std::endl;
+    if (debug)
+      std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << sample_to_mV(mean) << " in mV" <<  std::endl;
 
     //
     //////////////////////////////////
@@ -471,6 +494,13 @@ int main(int ac, const char *av[]) {
 
     vmm_mid_eff_thresh[feb.getAddress()] = vmm_eff_thresh;
 
+    if (debug)
+      std::cout << "INFO - VMM, vmm_median_trim_mid, vmm_median, vmm_eff_thresh "
+                << vmm_id << ", "
+                << sample_to_mV(vmm_median_trim_mid) << ", "
+                << sample_to_mV(vmm_median)          << ", "
+                << sample_to_mV(vmm_eff_thresh)      << ", "
+                << std::endl;
 
     //
     //////////////////////////////////
@@ -500,7 +530,8 @@ int main(int ac, const char *av[]) {
       float ch_baseline_rms = channel_baseline_rms[feb_ch];
       float ch_baseline_med = channel_baseline_med[feb_ch];
 
-      if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])) continue;
+      if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()]))
+        continue;
 
       /////////////////////////////////////
       float tmp_min_eff_threshold = 0.;
@@ -615,8 +646,8 @@ int main(int ac, const char *av[]) {
         //std::cout << "trim_guess: " << trim_guess << std::endl;
 
         // cap off the guess for trimmer value to avoid non-linear region.
-        best_channel_trim[feb_ch] = trim_guess>channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
-        best_channel_trim[feb_ch] = best_channel_trim[feb_ch]<0 ? 0 : best_channel_trim[feb_ch];
+        best_channel_trim[feb_ch] = trim_guess > channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
+        best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
 
         int thdac = thdacs[feb.getAddress()];
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, best_channel_trim[feb_ch], n_samples);
