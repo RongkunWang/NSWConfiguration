@@ -23,7 +23,7 @@ int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
     std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
-    int n_samples;
+    int n_samples = 500;
     int thdac;
     int sleep_time;
     int targeted_vmm_id;
@@ -43,8 +43,8 @@ int main(int ac, const char *av[]) {
         default_value(""),
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB).\n"
         "If this option is left empty, all front end elements in the config file will be scanned.")
-        ("samples,s", po::value<int>(&n_samples)->
-        default_value(10), "Number of samples to read")
+        //("samples,s", po::value<int>(&n_samples)->
+        //default_value(10), "Number of samples to read")
         ("thdac", po::value<int>(&thdac)->
         default_value(-1), "Threshold DAC")
         ("vmm,V", po::value<int>(&targeted_vmm_id)->
@@ -107,6 +107,7 @@ int main(int ac, const char *av[]) {
     int tpdac        = -1;
     int channel_trim = -1;
     int time_now_ms  = -1;
+    int NSAMP_PER_SHOT = 2500;
 
     for (auto & feb : frontend_configs) {
 
@@ -131,19 +132,25 @@ int main(int ac, const char *av[]) {
                     << " " << channel_trim
                     << std::endl;
 
-          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
+          //
+          // read the SCA as many times as you expect to read the scope
+          //
 
-          for (unsigned i = 0; i < results.size(); i++){
-            std::cout << "DATA"
-                      << " " << feb.getAddress()
-                      << " " << vmm_id
-                      << " " << channel_id
-                      << " " << tpdac
-                      << " " << thdac
-                      << " " << channel_trim 
-                      << " " << results[i] 
-                      << std::endl;
-          }
+	  int ntaken = 0;
+	  while (ntaken < scope_n*NSAMP_PER_SHOT) {
+	    for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples)){
+	      ntaken++;
+	      std::cout << "DATA"
+			<< " " << feb.getAddress()
+			<< " " << vmm_id
+			<< " " << channel_id
+			<< " " << tpdac
+			<< " " << thdac
+			<< " " << channel_trim 
+			<< " " << result
+			<< std::endl;
+	    }
+	  }
 
           //
           // read the scope
