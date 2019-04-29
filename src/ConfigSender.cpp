@@ -183,7 +183,7 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
 
     auto vmm = feb.getVmms()[vmm_id];
     auto vmmdata = vmm.getByteVector();
-    ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
+    //ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
     ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
 
@@ -293,7 +293,7 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
       vmms[vmm_id].setGlobalRegister("sdp_dac", tpdac);  // Test pulse DAC
     }
     else if (thdac >= 0){
-      std::cout << "thdac is nonzero: " << thdac << std::endl; 
+      // std::cout << "thdac is nonzero: " << thdac << std::endl;
       vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
       vmms[vmm_id].setGlobalRegister("sm",      2);      // Threshold DAC word
       vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);  // Threshold DAC
@@ -303,18 +303,23 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
 
     // Configure vmm with changed parameters
     std::vector<float> results = {};
-    bool success   = 0;
-    int  retry     = 0;
-    int  MAX_RETRY = 5;
+    bool   success   = 0;
+    size_t retry     = 0;
+    size_t MAX_RETRY = 5;
+    size_t MAX_SAMP  = 1000;
+    size_t n_samp    = 0;
     while (!success && retry < MAX_RETRY) {
       try {
         sendVmmConfigSingle(feb, vmm_id);
-        for (auto result: readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples))
-          results.push_back(result);
+        while(results.size() < n_samples) {
+          n_samp = std::min(MAX_SAMP, n_samples - results.size());
+          for (auto result: readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samp))
+            results.push_back(result);
+        }
         success = 1;
       }
       catch (const std::exception& e) {
-        ERS_LOG("Attempt " << retry << " failed. Next attempt. Maximum " << MAX_RETRY << " attempts.");
+        ERS_LOG("Attempt " << retry << " failed. " << e.what() << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
         results.clear();
         retry++;
         sleep(1);
