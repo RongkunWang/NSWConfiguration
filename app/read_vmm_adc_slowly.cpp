@@ -23,7 +23,7 @@ int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
     std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
-    int n_samples = 500;
+    int n_samples;
     int thdac;
     int sleep_time;
     int targeted_vmm_id;
@@ -43,8 +43,8 @@ int main(int ac, const char *av[]) {
         default_value(""),
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB).\n"
         "If this option is left empty, all front end elements in the config file will be scanned.")
-        //("samples,s", po::value<int>(&n_samples)->
-        //default_value(10), "Number of samples to read")
+        ("samples,s", po::value<int>(&n_samples)->
+        default_value(2500), "Number of samples to read")
         ("thdac", po::value<int>(&thdac)->
         default_value(-1), "Threshold DAC")
         ("vmm,V", po::value<int>(&targeted_vmm_id)->
