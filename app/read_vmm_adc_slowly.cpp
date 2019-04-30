@@ -150,6 +150,7 @@ int main(int ac, const char *av[]) {
 			<< " " << result
 			<< std::endl;
 	    }
+	    if(n_samples<=1000) break;
 	  }
 
           //
