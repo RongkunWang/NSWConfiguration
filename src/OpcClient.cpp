@@ -148,13 +148,14 @@ float nsw::OpcClient::readAnalogInput(std::string node) {
     return ainode.readValue();
 }
 
-std::vector<float> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
+std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
-    std::vector<float> values;
+    std::vector<short unsigned int> values;
 
-    ainode.getConsecutiveSamples(n_samples, values);
+    ainode.getConsecutiveRawSamples(n_samples, values);
     return values;
 }
 
 // TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
+

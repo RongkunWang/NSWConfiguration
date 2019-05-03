@@ -70,7 +70,7 @@ class OpcClient {
     float readAnalogInput(std::string node);
 
     //! Read n_samples consecutive samples from an analog output.
-    std::vector<float> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
+    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
 };
 }  // namespace nsw
 

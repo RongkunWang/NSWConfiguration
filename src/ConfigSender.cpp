@@ -246,7 +246,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
     // Read back to verify something? (TODO)
 }
 
-std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
+std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
                                                                std::string node, size_t n_samples) {
     addOpcClientIfNew(opcserver_ipport);
 
@@ -254,7 +254,7 @@ std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::str
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
 }
 
-std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                    size_t vmm_id,
                                                                    size_t channel_id,
                                                                    size_t n_samples) {
