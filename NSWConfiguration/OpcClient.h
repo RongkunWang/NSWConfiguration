@@ -43,6 +43,11 @@ class OpcClient {
 
     OpcClient(const OpcClient&) = delete;
 
+    /// Retry when communication fails
+    bool   SUCCESS          = 0;
+    size_t THIS_RETRY       = 0;
+    const size_t MAX_RETRY  = 5;
+
     // vector may not be the best option...
 
     /// Read from Spi Slave. This method will remove the current configuration.
@@ -70,7 +75,7 @@ class OpcClient {
     float readAnalogInput(std::string node);
 
     //! Read n_samples consecutive samples from an analog output.
-    std::vector<float> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
+    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
 };
 }  // namespace nsw
 

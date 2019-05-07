@@ -183,7 +183,7 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
 
     auto vmm = feb.getVmms()[vmm_id];
     auto vmmdata = vmm.getByteVector();
-    //ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
+    ERS_DEBUG(5, "Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
     ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
 
@@ -246,15 +246,99 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
     // Read back to verify something? (TODO)
 }
 
-std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
-                                                               std::string node, size_t n_samples) {
-    addOpcClientIfNew(opcserver_ipport);
-
-    ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
-    return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
+bool nsw::ConfigSender::setVmmTestPulseDAC(FEBConfig& feb, size_t vmm_id, size_t param, bool send) {
+  //
+  // param (tpdac): 0-1023
+  //
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setGlobalRegister("sdp_dac", param);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
 }
 
-std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
+bool nsw::ConfigSender::setVmmGlobalThreshold(FEBConfig& feb, size_t vmm_id, size_t param, bool send) {
+  //
+  // param (thdac): 0-1023
+  //
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setGlobalRegister("sdt_dac", param);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
+}
+
+bool nsw::ConfigSender::setVmmMonitorOutput(FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t mode, bool send) {
+  //
+  // channel_id: 0-63
+  // mode = 0: common monitor mode
+  // mode = 1: channel monitor mode
+  // In common monitor mode,
+  //     channel_id = 1: test pulse DAC
+  //     channel_id = 2: threshold DAC
+  //     channel_id = 3: bandgap reference
+  //     channel_id = 4: temperature
+  //
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setGlobalRegister("scmx", mode);
+  vmms[vmm_id].setGlobalRegister("sm",   channel_id);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
+}
+
+bool nsw::ConfigSender::setVmmChannelMOMode(FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send) {
+  //
+  // param = 0: channel analog output
+  // param = 1: channel threshold
+  //
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setChannelRegisterOneChannel("channel_smx", param, channel_id);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
+}
+
+bool nsw::ConfigSender::setVmmChannelTrimmer(FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send) {
+  //
+  // param (trim): 0-31
+  //
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setChannelRegisterOneChannel("channel_sd", param, channel_id);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
+}
+
+
+std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
+                                                                        std::string node, 
+                                                                        size_t n_samples) {
+    addOpcClientIfNew(opcserver_ipport);
+    ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
+    return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
+
+}
+
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamplesNew(FEBConfig& feb,
+                                                                      size_t vmm_id,
+                                                                      size_t channel_id,
+                                                                      size_t n_samples) {
+
+  auto opc_ip      = feb.getOpcServerIp();
+  auto feb_address = feb.getAddress();
+  auto& vmms       = feb.getVmms();
+
+  vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
+  vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+
+  sendVmmConfigSingle(feb, vmm_id);
+
+  return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
+
+}
+
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                    size_t vmm_id,
                                                                    size_t channel_id,
                                                                    int  thdac,
@@ -302,11 +386,11 @@ std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& fe
       throw std::runtime_error("You requested to read THDAC and TPDAC, but you can only read one at a time. Please choose.");
 
     // Configure vmm with changed parameters
-    std::vector<float> results = {};
+    std::vector<short unsigned int> results = {};
     bool   success   = 0;
     size_t retry     = 0;
-    size_t MAX_RETRY = 5;
     size_t MAX_SAMP  = 1000;
+    size_t MAX_RETRY = 5;
     size_t n_samp    = 0;
     while (!success && retry < MAX_RETRY) {
       try {

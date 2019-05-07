@@ -21,6 +21,7 @@ int main(int ac, const char *av[]) {
 
     std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
+    bool dump;
     int n_samples;
     int thdac;
     int targeted_vmm_id;
@@ -48,11 +49,14 @@ int main(int ac, const char *av[]) {
         default_value(-1), "VMM channel to read (otherwise: loop)")
         ("channel_trim", po::value<int>(&targeted_channel_trim)->
         default_value(-1), "Channel trimming DAC to read (otherwise: loop)")
+        ("dump", po::bool_switch()->
+        default_value(false), "Dump information to the screen")
       ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
+    dump = vm["dump"].as<bool>();
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
@@ -69,15 +73,14 @@ int main(int ac, const char *av[]) {
       exit(0);
     }
 
+    // If no name is given, find all elements
     std::set<std::string> frontend_names;
-    if (fe_name != "") {
+    if (fe_name != "")
       frontend_names.emplace(fe_name);
-    } else {  // If no name is given, find all elements
+    else
       frontend_names = reader1.getAllElementNames();
-    }
 
     std::vector<nsw::FEBConfig> frontend_configs;
-
     std::cout << "\nFollowing front ends will be configured:\n";
     std::cout <<   "========================================\n";
     for (auto & name : frontend_names) {
@@ -102,40 +105,45 @@ int main(int ac, const char *av[]) {
 
         for (int channel_id = 0; channel_id < CHS; channel_id++) {
 
-          std::cout << std::flush;
-
           for (int channel_trim = 0; channel_trim < TRIMS; channel_trim++) {
 
             if (targeted_channel_trim != -1 && channel_trim != targeted_channel_trim) continue;
             if (targeted_vmm_id       != -1 && vmm_id       != targeted_vmm_id)       continue;
             if (targeted_channel_id   != -1 && channel_id   != targeted_channel_id)   continue;
 
-            std::cout << "INFO "
-                      << feb.getAddress() << " "
-                      << vmm_id << " "
-                      << channel_id << " "
-                      << tpdac << " "
-                      << thdac << " "
-                      << channel_trim  << " "
-                      << std::endl;
-
-            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
-
-            for (unsigned i = 0; i < results.size(); i++){
-              std::cout << "DATA "
+            if (dump)
+              std::cout << "INFO "
                         << feb.getAddress() << " "
                         << vmm_id << " "
                         << channel_id << " "
                         << tpdac << " "
                         << thdac << " "
                         << channel_trim  << " "
-                        << results[i] << std::endl;
-            }
+                        << std::endl;
+
+            // set the trim, and sample it
+            cs.setVmmMonitorOutput (feb, vmm_id, channel_id, nsw::vmm::CommonMonitor,           false);
+            cs.setVmmChannelMOMode (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
+            cs.setVmmChannelTrimmer(feb, vmm_id, channel_id, (size_t)(channel_trim),            false);
+            if (thdac >= 0)
+              cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac), false);
+            auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples);
+
+            if (dump)
+              for (auto result: results)
+                std::cout << "DATA "
+                          << feb.getAddress() << " "
+                          << vmm_id << " "
+                          << channel_id << " "
+                          << tpdac << " "
+                          << thdac << " "
+                          << channel_trim  << " "
+                          << result << std::endl;
           }
         }
       }
     }
-
+    
     return 0;
 }
 

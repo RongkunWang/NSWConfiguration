@@ -92,11 +92,19 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t number_
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
-    try {
-        i2cnode.writeSlave(bs);
-    } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't write I2c: " <<  e.what() << std::endl;
+    SUCCESS    = 0;
+    THIS_RETRY = 0;
+    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+        try {
+            i2cnode.writeSlave(bs);
+            SUCCESS = 1;
+        } 
+        catch (const std::exception& e) {
+            ERS_LOG("writeI2cRaw " << THIS_RETRY << " failed. " << e.what() 
+                    << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+            THIS_RETRY++;
+            sleep(1);
+        }
     }
 }
 
@@ -148,12 +156,26 @@ float nsw::OpcClient::readAnalogInput(std::string node) {
     return ainode.readValue();
 }
 
-std::vector<float> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
+std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
-    std::vector<float> values;
+    std::vector<short unsigned int> values;
 
-    ainode.getConsecutiveSamples(n_samples, values);
+    SUCCESS    = 0;
+    THIS_RETRY = 0;
+    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+      try {
+        ainode.getConsecutiveRawSamples(n_samples, values);
+        SUCCESS = 1;
+      }
+      catch (const std::exception& e) {
+        values.clear();
+        ERS_LOG("readAnalogInputConsecutiveSamples " << THIS_RETRY << " failed. " << e.what() 
+                << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+        THIS_RETRY++;
+        sleep(1);
+      }
+    }
     return values;
 }
 

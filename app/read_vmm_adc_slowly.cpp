@@ -23,8 +23,8 @@ int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
     std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
+    bool dump;
     int n_samples;
-    int thdac;
     int sleep_time;
     int targeted_vmm_id;
     int targeted_channel_id;
@@ -45,8 +45,6 @@ int main(int ac, const char *av[]) {
         "If this option is left empty, all front end elements in the config file will be scanned.")
         ("samples,s", po::value<int>(&n_samples)->
         default_value(2500), "Number of samples to read")
-        ("thdac", po::value<int>(&thdac)->
-        default_value(-1), "Threshold DAC")
         ("vmm,V", po::value<int>(&targeted_vmm_id)->
         default_value(-1), "VMM id (0-7) to read (otherwise: loop)")
         ("channel,C", po::value<int>(&targeted_channel_id)->
@@ -59,11 +57,14 @@ int main(int ac, const char *av[]) {
         default_value(2), "Which scope channel to read")
         ("scope_overwrite", po::value<int>(&scope_overwrite)->
         default_value(1), "The output file of scope measurements: dont overwrite (0) or overwrite (1)")
+        ("dump", po::bool_switch()->
+        default_value(false), "Dump information to the screen")
       ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
     po::notify(vm);
+    dump = vm["dump"].as<bool>();
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
@@ -82,12 +83,10 @@ int main(int ac, const char *av[]) {
 
     // If no name is given, find all elements
     std::set<std::string> frontend_names;
-    if (fe_name != "") {
+    if (fe_name != "")
       frontend_names.emplace(fe_name);
-    } 
-    else {
+    else
       frontend_names = reader1.getAllElementNames();
-    }
 
     // Create config objects
     std::vector<nsw::FEBConfig> frontend_configs;
@@ -104,6 +103,7 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
     int VMMS  = 8;
     int CHS   = 64;
+    int thdac        = -1;
     int tpdac        = -1;
     int channel_trim = -1;
     int time_now_ms  = -1;
@@ -121,37 +121,45 @@ int main(int ac, const char *av[]) {
           time_now_ms = chr::duration_cast<chr::milliseconds>
             (chr::system_clock::now().time_since_epoch()).count();
 
-          std::cout << "INFO"
-                    << " " << "Start configure"
-                    << " " << time_now_ms
-                    << " " << feb.getAddress()
-                    << " " << vmm_id
-                    << " " << channel_id
-                    << " " << tpdac
-                    << " " << thdac
-                    << " " << channel_trim
-                    << std::endl;
+          if (dump)
+            std::cout << "INFO"
+                      << " " << "Start configure"
+                      << " " << time_now_ms
+                      << " " << feb.getAddress()
+                      << " " << vmm_id
+                      << " " << channel_id
+                      << " " << tpdac
+                      << " " << thdac
+                      << " " << channel_trim
+                      << std::endl;
+
+          //
+          // configure the VMM
+          //
+          cs.setVmmMonitorOutput (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,      false);
+          cs.setVmmChannelMOMode (feb, vmm_id, channel_id, nsw::vmm::ChannelAnalogOutput, false);
 
           //
           // read the SCA as many times as you expect to read the scope
           //
 
-	  int ntaken = 0;
-	  while (ntaken < scope_n*NSAMP_PER_SHOT) {
-	    for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples)){
-	      ntaken++;
-	      std::cout << "DATA"
-			<< " " << feb.getAddress()
-			<< " " << vmm_id
-			<< " " << channel_id
-			<< " " << tpdac
-			<< " " << thdac
-			<< " " << channel_trim 
-			<< " " << result
-			<< std::endl;
-	    }
-	    if(n_samples<=1000) break;
-	  }
+          int ntaken = 0;
+          while (ntaken < scope_n*NSAMP_PER_SHOT) {
+            for (auto result: cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples)) {
+              ntaken++;
+              if (dump)
+                std::cout << "DATA"
+                          << " " << feb.getAddress()
+                          << " " << vmm_id
+                          << " " << channel_id
+                          << " " << tpdac
+                          << " " << thdac
+                          << " " << channel_trim 
+                          << " " << result
+                          << std::endl;
+            }
+            if(n_samples<=1000) break;
+          }
 
           //
           // read the scope
@@ -176,17 +184,18 @@ int main(int ac, const char *av[]) {
           time_now_ms = chr::duration_cast<chr::milliseconds>
             (chr::system_clock::now().time_since_epoch()).count();
 
-          std::cout << "INFO"
-                    << " " << "  End configure"
-                    << " " << time_now_ms
-                    << " " << feb.getAddress()
-                    << " " << vmm_id
-                    << " " << channel_id
-                    << " " << tpdac
-                    << " " << thdac
-                    << " " << channel_trim
-                    << std::endl;
-          
+          if (dump)
+            std::cout << "INFO"
+                      << " " << "  End configure"
+                      << " " << time_now_ms
+                      << " " << feb.getAddress()
+                      << " " << vmm_id
+                      << " " << channel_id
+                      << " " << tpdac
+                      << " " << thdac
+                      << " " << channel_trim
+                      << std::endl;
+
           sleep(sleep_time);
 
         }

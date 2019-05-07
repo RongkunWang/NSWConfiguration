@@ -15,6 +15,10 @@
 
 namespace po = boost::program_options;
 
+std::vector<float> readScaAttempt(int max_attempts, nsw::ConfigSender* cs, nsw::FEBConfig* feb, 
+                                  int vmm_id, int channel_id, int thdac, int tpdac, int channel_trim, int n_samples);
+
+
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
@@ -80,12 +84,12 @@ int main(int ac, const char *av[]) {
 
     std::vector<nsw::FEBConfig> frontend_configs;
 
-    std::cout << "\nFollowing front ends will be configured:\n";
-    std::cout <<   "========================================\n";
+    //std::cout << "\nFollowing front ends will be configured:\n";
+    //std::cout <<   "========================================\n";
     for (auto & name : frontend_names) {
       try {
         frontend_configs.emplace_back(reader1.readConfig(name));
-        std::cout << name << std::endl;
+        //std::cout << name << std::endl;
       } catch (std::exception & e) {
         std::cout << name << " - ERROR: Skipping this FE!"
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
@@ -93,14 +97,28 @@ int main(int ac, const char *av[]) {
       // frontend_configs.back().dump();
     }
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
     nsw::ConfigSender cs;
 
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
+
+        int tries = 0;
+        std::vector<float> results = {};
+        while (results.size()==0){
+          for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples))
+            results.push_back(result);
+          if (n_samples > 0 && results.size() == 0){
+            sleep(1);
+            std::cout << "Try failed: " << tries << std::endl;
+            tries++;
+          }
+        }
+
+        // auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
+        // auto results = readScaAttempt(5, &cs, &feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
 
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         double mean = sum / results.size();
@@ -108,19 +126,19 @@ int main(int ac, const char *av[]) {
         double sq_sum = std::inner_product(results.begin(), results.end(), results.begin(), 0.0);
         double stdev = std::sqrt(sq_sum / results.size() - mean * mean);
 
-        std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
-                  << " - mean: " << mean << " , stdev: " << stdev << std::endl;
+        //std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
+        //          << " - mean: " << mean << " , stdev: " << stdev << std::endl;
 
-        for (unsigned i = 0; i < results.size(); i++){
-          std::cout << "DATA "
-                    << feb.getAddress() << " "
-                    << vmm_id << " "
-                    << channel_id << " "
-                    << tpdac << " "
-                    << thdac << " "
-                    << channel_trim  << " "
-                    << results[i] << std::endl;
-        }
+        // for (unsigned i = 0; i < results.size(); i++){
+        //   std::cout << "DATA "
+        //             << feb.getAddress() << " "
+        //             << vmm_id << " "
+        //             << channel_id << " "
+        //             << tpdac << " "
+        //             << thdac << " "
+        //             << channel_trim  << " "
+        //             << results[i] << std::endl;
+        // }
 
         // Print first 10
         // for (unsigned i = 0; i < 10; i++) {
@@ -132,3 +150,19 @@ int main(int ac, const char *av[]) {
 
     return 0;
 }
+
+std::vector<float> readScaAttempt(int max_attempts, nsw::ConfigSender cs, nsw::FEBConfig feb, 
+                                  int vmm_id, int channel_id, int thdac, int tpdac, int channel_trim, int n_samples) {
+  int attempts = 0;
+  std::vector<float> results = {};
+  while (results.size() == 0 && attempts < max_attempts){
+    for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples))
+      results.push_back(result);
+    if (n_samples > 0 && results.size() == 0){
+      sleep(1);
+      attempts++;
+    }
+  }
+  return results;
+}
+

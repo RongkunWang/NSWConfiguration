@@ -21,7 +21,7 @@ int BASELINE_CUTOFF = 30; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
-float SLOPE_CHECK = 1/1.5/1000.;
+float SLOPE_CHECK = 1/1.5/1000. * 4095.0;
 int NCH_ABOVE_THRESH_CUTOFF = 1;
 bool debug = true;
 
@@ -32,15 +32,32 @@ float take_median(std::vector<float> &v) {
   return median;
 }
 
+float take_median(std::vector<short unsigned int> &v) {
+  size_t n = v.size() / 2;
+  std::nth_element(v.begin(), v.begin()+n, v.end());
+  float median = v[n];
+  return median;
+}
+
 float sample_to_mV(float sample){
-  return sample * 1000. * 1.5; //1.5 is due to a resistor
+  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+}
+
+float sample_to_mV(short unsigned int sample){
+  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
 }
 
 float mV_to_sample(float mV_read){
-  return mV_read / 1000. / 1.5; //1.5 is due to a resistor
+  return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
 }
 
 float take_rms(std::vector<float> &v, float mean) {
+  float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+  float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+  return stdev;
+}
+
+float take_rms(std::vector<short unsigned int> &v, float mean) {
   float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
   float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
   return stdev;
@@ -84,12 +101,17 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
     if (thdac_guess_variations[i]>1023){
       if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 1023;
+      return 1023;
     } else if (thdac_guess_variations[i]<0){
       if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 0;
+      return 1023;
     }
 
-    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, thdac_guess_variations[i], -1, -1, n_samples);
+    cs.setVmmMonitorOutput  (feb, vmm_id, nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor, false);
+    cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac_guess_variations[i]),             false);
+    auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, 0, n_samples);
+
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
     thdac_guesses_sample.push_back(mean);
@@ -156,8 +178,11 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       for (auto trim : trims) {
 
-        // This function will also configure VMM with correct parameters
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, trim, n_samples);
+        cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,          false);
+        cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
+        cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(trim),                    false);
+        cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                               false);
+        auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples);
 
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
         float mean = sum / results.size();
@@ -204,6 +229,13 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
         }
       } // end of trim loop
 
+      if(debug)
+        std::cout << "Threshold errors (min_thr, mid_thr, max_thr)"
+                  << " " << channel_min_eff_thresh_err
+                  << " " << channel_mid_eff_thresh_err
+                  << " " << channel_max_eff_thresh_err
+                  << std::endl;
+
       float min = channel_min_eff_thresh;
       float mid = channel_mid_eff_thresh;
       float max = channel_max_eff_thresh;
@@ -212,24 +244,21 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
       tmp_mid_eff_threshold = mid;
       tmp_max_eff_threshold = max;
 
-      // channel threshold values, not eff. thresh
-      float raw_min = min + ch_baseline_med;
-      float raw_mid = mid + ch_baseline_med;
-      float raw_max = max + ch_baseline_med;
-
       std::pair<float,float> slopes = get_slopes(min,mid,max);
       float m1 = slopes.first;
       float m2 = slopes.second;
       float avg_m = (m1+m2)/2.;
 
-      std::pair<float,float> rawSlopes = get_slopes(raw_min,raw_mid,raw_max);
-      float raw_m1 = rawSlopes.first;
-      float raw_m2 = rawSlopes.second;
-      float avg_raw_m = (raw_m1+raw_m2)/2.;
+      if(debug) 
+        std::cout << "INFO "      << feb.getAddress() 
+                  << ", vmm"      << vmm_id 
+                  << ", channel " << channel_id 
+                  << ", avg_m "   << avg_m 
+                  << ", m1 "      << m1 
+                  << ", m2 "      << m2 
+                  << std::endl;
 
-
-      if(debug) std::cout << "INFO " << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id << ", avg_m " << avg_m << ", m1 " << m1 << ", m2 " << m2 << std::endl;
-      if (!check_slopes(raw_m1,raw_m2)){
+      if (!check_slopes(m1,m2)){
         return find_linear_region_slope(cs,
                             feb,
                             vmm_id,
@@ -267,7 +296,6 @@ int main(int ac, const char *av[]) {
   int n_samples;
   int rms_factor;
   int tpdac = -1;
-  int channel_trim = -1;
   std::string config_filename;
   std::string fe_name;
   po::options_description desc(description);
@@ -370,9 +398,11 @@ int main(int ac, const char *av[]) {
 
     fe_samples_tmp.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
+
       // Read pdo of the certain channel n_samples times.
-      // This function will also configure VMM with correct parameters
-      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, -1, -1, -1, n_samples*10);
+      cs.setVmmMonitorOutput(feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,      false);
+      cs.setVmmChannelMOMode(feb, vmm_id, channel_id, nsw::vmm::ChannelAnalogOutput, false);
+      auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples*10);
 
       // calculate channel level baseline median, rms
       float sum    = std::accumulate(results.begin(), results.end(), 0.0);
@@ -461,7 +491,9 @@ int main(int ac, const char *av[]) {
     if (debug)
       std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac << std::endl;
 
-    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, thdac, -1, -1, n_samples);
+    cs.setVmmMonitorOutput  (feb, vmm_id, nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor, false);
+    cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                                 false);
+    auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, 0, n_samples);
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
     thdacs_sample[feb.getAddress()] = mean;
@@ -477,12 +509,17 @@ int main(int ac, const char *av[]) {
     // Get VMM-level averages.
     fe_samples_tmp.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
+
       thdac = thdacs[feb.getAddress()];
-      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, TRIM_MID, n_samples);
+      cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,          false);
+      cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
+      cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(TRIM_MID),                false);
+      cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                               false);
+      auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples);
 
       // add samples to the vector for a given fe
       for (unsigned int i = 0; i < results.size(); i++) {
-        fe_samples_tmp.push_back(results[i]);
+        fe_samples_tmp.push_back((float)(results[i]));
       }
     }
 
@@ -650,11 +687,17 @@ int main(int ac, const char *av[]) {
         best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
 
         int thdac = thdacs[feb.getAddress()];
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, best_channel_trim[feb_ch], n_samples);
+        cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,            false);
+        cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold,   false);
+        cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(best_channel_trim[feb_ch]), false);
+        cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                                 false);
+        auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples);
 
-        float sum = std::accumulate(results.begin(), results.end(), 0.0);
-        float mean = sum / results.size();
-        float stdev = take_rms(results,mean);
+        // unused for now
+        // float sum = std::accumulate(results.begin(), results.end(), 0.0);
+        // float mean = sum / results.size();
+        // float stdev = take_rms(results,mean);
+
         float median = take_median(results);
         float eff_thresh = median - channel_baseline_med[feb_ch];
         std::cout << "DATA "
