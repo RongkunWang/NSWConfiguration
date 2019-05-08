@@ -127,7 +127,7 @@ int main(int ac, const char *av[]) {
             cs.setVmmChannelTrimmer(feb, vmm_id, channel_id, (size_t)(channel_trim),            false);
             if (thdac >= 0)
               cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac), false);
-            auto results = cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples);
+            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
 
             if (dump)
               for (auto result: results)

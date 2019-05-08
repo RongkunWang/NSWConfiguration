@@ -145,7 +145,7 @@ int main(int ac, const char *av[]) {
 
           int ntaken = 0;
           while (ntaken < scope_n*NSAMP_PER_SHOT) {
-            for (auto result: cs.readVmmPdoConsecutiveSamplesNew(feb, vmm_id, channel_id, n_samples)) {
+            for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples)) {
               ntaken++;
               if (dump)
                 std::cout << "DATA"

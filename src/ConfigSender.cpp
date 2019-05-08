@@ -320,7 +320,7 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
 
 }
 
-std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamplesNew(FEBConfig& feb,
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                       size_t vmm_id,
                                                                       size_t channel_id,
                                                                       size_t n_samples) {
@@ -335,81 +335,6 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamplesN
   sendVmmConfigSingle(feb, vmm_id);
 
   return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
-
-}
-
-std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
-                                                                   size_t vmm_id,
-                                                                   size_t channel_id,
-                                                                   int  thdac,
-                                                                   int  tpdac,
-                                                                   int  channel_trim,
-                                                                   size_t n_samples) {
-
-    auto opc_ip = feb.getOpcServerIp();
-    auto feb_address = feb.getAddress();
-
-    // Set sm variable (channel to monitor)
-    auto & vmms = feb.getVmms();
-
-    /* To be able to read pdo of a certain channel, VMM has to be configured
-     * in a certain way, following block updates the VMMConfig object to with
-     * correct parameters.
-     * To read the VMM threshold DAC or test pulse DAC, the scmx bit must be set to 0.
-     */
-    vmms[vmm_id].setGlobalRegister("sbmx", 1);          // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("scmx", 1);          // Set channel monitor mode
-    vmms[vmm_id].setGlobalRegister("sm",   channel_id); // Select channel to monitor
-    vmms[vmm_id].setGlobalRegister("sbfp", 1);          // Enable PDO output buffers (more stable reading)
-    if (thdac >= 0 && channel_trim >= 0){
-      vmms[vmm_id].setGlobalRegister("scmx",    1);          // Set channel monitor mode
-      vmms[vmm_id].setGlobalRegister("sm",      channel_id); // Select channel to monitor
-      vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);      // Threshold DAC
-      vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);                        // Channel monitor mode: analog for everything else
-      vmms[vmm_id].setChannelRegisterOneChannel ("channel_smx", 1, channel_id);            // Channel monitor mode: trim threshold for this channel
-      vmms[vmm_id].setChannelRegisterAllChannels("channel_sd",  0);                        // Channel trim threshold: 0 for everything else
-      vmms[vmm_id].setChannelRegisterOneChannel ("channel_sd",  channel_trim, channel_id); // Channel trim threshold: trim threshold for this channel
-    }
-    else if (tpdac >= 0){
-      std::cout << "tpdac is nonzero: " << tpdac << std::endl; 
-      vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
-      vmms[vmm_id].setGlobalRegister("sm",      1);      // Test pulse DAC word
-      vmms[vmm_id].setGlobalRegister("sdp_dac", tpdac);  // Test pulse DAC
-    }
-    else if (thdac >= 0){
-      // std::cout << "thdac is nonzero: " << thdac << std::endl;
-      vmms[vmm_id].setGlobalRegister("scmx",    0);      // Set common monitor mode
-      vmms[vmm_id].setGlobalRegister("sm",      2);      // Threshold DAC word
-      vmms[vmm_id].setGlobalRegister("sdt_dac", thdac);  // Threshold DAC
-    }
-    if (thdac >= 0 && tpdac >= 0)
-      throw std::runtime_error("You requested to read THDAC and TPDAC, but you can only read one at a time. Please choose.");
-
-    // Configure vmm with changed parameters
-    std::vector<short unsigned int> results = {};
-    bool   success   = 0;
-    size_t retry     = 0;
-    size_t MAX_SAMP  = 1000;
-    size_t MAX_RETRY = 5;
-    size_t n_samp    = 0;
-    while (!success && retry < MAX_RETRY) {
-      try {
-        sendVmmConfigSingle(feb, vmm_id);
-        while(results.size() < n_samples) {
-          n_samp = std::min(MAX_SAMP, n_samples - results.size());
-          for (auto result: readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samp))
-            results.push_back(result);
-        }
-        success = 1;
-      }
-      catch (const std::exception& e) {
-        ERS_LOG("Attempt " << retry << " failed. " << e.what() << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
-        results.clear();
-        retry++;
-        sleep(1);
-      }
-    }
-    return results;
 
 }
 
