@@ -15,10 +15,6 @@
 
 namespace po = boost::program_options;
 
-std::vector<float> readScaAttempt(int max_attempts, nsw::ConfigSender* cs, nsw::FEBConfig* feb, 
-                                  int vmm_id, int channel_id, int thdac, int tpdac, int channel_trim, int n_samples);
-
-
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
@@ -27,9 +23,6 @@ int main(int ac, const char *av[]) {
     int vmm_id;
     int channel_id;
     int n_samples;
-    int thdac;
-    int tpdac;
-    int channel_trim;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -47,14 +40,7 @@ int main(int ac, const char *av[]) {
         ("channel,C", po::value<int>(&channel_id)->
         default_value(0), "VMM channel")
         ("samples,s", po::value<int>(&n_samples)->
-        default_value(10), "Number of samples to read")
-        ("thdac", po::value<int>(&thdac)->
-        default_value(-1), "Threshold DAC")
-        ("tpdac", po::value<int>(&tpdac)->
-        default_value(-1), "Test pulse DAC")
-        ("channel_trim", po::value<int>(&channel_trim)->
-        default_value(-1), "Channel trimming DAC")
-      ;
+        default_value(10), "Number of samples to read");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -84,12 +70,12 @@ int main(int ac, const char *av[]) {
 
     std::vector<nsw::FEBConfig> frontend_configs;
 
-    //std::cout << "\nFollowing front ends will be configured:\n";
-    //std::cout <<   "========================================\n";
+    std::cout << "\nFollowing front ends will be configured:\n";
+    std::cout <<   "========================================\n";
     for (auto & name : frontend_names) {
       try {
         frontend_configs.emplace_back(reader1.readConfig(name));
-        //std::cout << name << std::endl;
+        std::cout << name << std::endl;
       } catch (std::exception & e) {
         std::cout << name << " - ERROR: Skipping this FE!"
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
@@ -97,28 +83,14 @@ int main(int ac, const char *av[]) {
       // frontend_configs.back().dump();
     }
 
-    // std::cout << "\n";
+    std::cout << "\n";
 
     nsw::ConfigSender cs;
 
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
-
-        int tries = 0;
-        std::vector<float> results = {};
-        while (results.size()==0){
-          for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples))
-            results.push_back(result);
-          if (n_samples > 0 && results.size() == 0){
-            sleep(1);
-            std::cout << "Try failed: " << tries << std::endl;
-            tries++;
-          }
-        }
-
-        // auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
-        // auto results = readScaAttempt(5, &cs, &feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples);
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
 
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         double mean = sum / results.size();
@@ -126,43 +98,16 @@ int main(int ac, const char *av[]) {
         double sq_sum = std::inner_product(results.begin(), results.end(), results.begin(), 0.0);
         double stdev = std::sqrt(sq_sum / results.size() - mean * mean);
 
-        //std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
-        //          << " - mean: " << mean << " , stdev: " << stdev << std::endl;
-
-        // for (unsigned i = 0; i < results.size(); i++){
-        //   std::cout << "DATA "
-        //             << feb.getAddress() << " "
-        //             << vmm_id << " "
-        //             << channel_id << " "
-        //             << tpdac << " "
-        //             << thdac << " "
-        //             << channel_trim  << " "
-        //             << results[i] << std::endl;
-        // }
+        std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
+                  << " - mean: " << mean << " , stdev: " << stdev << std::endl;
 
         // Print first 10
-        // for (unsigned i = 0; i < 10; i++) {
-        //     if (i >= results.size()) break;
-        //     std::cout << results[i] << ", ";
-        // }
-        // std::cout << "\n";
+        for (unsigned i = 0; i < 10; i++) {
+            if (i >= results.size()) break;
+            std::cout << results[i] << ", ";
+        }
+        std::cout << "\n";
     }
 
     return 0;
 }
-
-std::vector<float> readScaAttempt(int max_attempts, nsw::ConfigSender cs, nsw::FEBConfig feb, 
-                                  int vmm_id, int channel_id, int thdac, int tpdac, int channel_trim, int n_samples) {
-  int attempts = 0;
-  std::vector<float> results = {};
-  while (results.size() == 0 && attempts < max_attempts){
-    for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, thdac, tpdac, channel_trim, n_samples))
-      results.push_back(result);
-    if (n_samples > 0 && results.size() == 0){
-      sleep(1);
-      attempts++;
-    }
-  }
-  return results;
-}
-
