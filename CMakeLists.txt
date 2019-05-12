@@ -29,7 +29,7 @@ tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
-tdaq_add_executable(read_vmm_adc_slowly app/read_vmm_adc_slowly.cpp
+tdaq_add_executable(read_baseline_with_scope app/read_baseline_with_scope.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
