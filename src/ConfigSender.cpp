@@ -299,6 +299,24 @@ bool nsw::ConfigSender::setVmmChannelMOMode(FEBConfig& feb, size_t vmm_id, size_
   return 0;
 }
 
+
+bool nsw::ConfigSender::setVmmMonitorOutputState(FEBConfig& feb, size_t vmm_id, size_t set_on, bool send) {
+  //
+  // If set_on,     set sbfp lo and sbfm hi to read out from MO
+  // If not set_on, set sbfp hi and sbfm lo to read out PDO to SCA
+  // If send,       send config to VMM
+  //
+
+  auto& vmms = feb.getVmms();
+  vmms[vmm_id].setGlobalRegister("sbfp", !set_on);
+  vmms[vmm_id].setGlobalRegister("sbfm",  set_on);
+  if (send)
+    sendVmmConfigSingle(feb, vmm_id);
+  return 0;
+}
+
+
+
 bool nsw::ConfigSender::setVmmChannelTrimmer(FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send) {
   //
   // param (trim): 0-31

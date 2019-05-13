@@ -121,6 +121,7 @@ class ConfigSender {
     bool setVmmTestPulseDAC    (FEBConfig& feb, size_t vmm_id, size_t param, bool send);
     bool setVmmGlobalThreshold (FEBConfig& feb, size_t vmm_id, size_t param, bool send);
     bool setVmmMonitorOutput   (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t mode,  bool send);
+    bool setVmmMonitorOutputState (FEBConfig& feb, size_t vmm_id, size_t set_on, bool send);
     bool setVmmChannelTrimmer  (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send);
     bool setVmmChannelMOMode   (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send);
 
