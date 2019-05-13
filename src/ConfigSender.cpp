@@ -349,6 +349,7 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
 
   vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
   vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+  vmms[vmm_id].setGlobalRegister("sbfm", 0);  // Disable MO output buffers
 
   sendVmmConfigSingle(feb, vmm_id);
 
