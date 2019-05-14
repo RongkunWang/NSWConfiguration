@@ -31,6 +31,7 @@ int main(int ac, const char *av[]) {
     int scope_channel;
     int scope_n;
     int scope_overwrite;
+    int scope_scanFFT;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -57,6 +58,8 @@ int main(int ac, const char *av[]) {
         default_value(2), "Which scope channel to read")
         ("scope_overwrite", po::value<int>(&scope_overwrite)->
         default_value(1), "The output file of scope measurements: dont overwrite (0) or overwrite (1)")
+        ("scope_scanFFT", po::value<int>(&scope_scanFFT)->
+        default_value(1), "Scan FFT integration window ranges. Default 1.")
         ("dump", po::bool_switch()->
         default_value(false), "Dump information to the screen")
       ;
@@ -174,12 +177,13 @@ int main(int ac, const char *av[]) {
           std::string n_screens  = " -n " + std::to_string(scope_n);
           std::string sc_channel = " -c " + std::to_string(scope_channel);
           std::string overwrite  = scope_overwrite ? " -r " : "";
+          std::string scanFFT    = scope_scanFFT ? " --scanFFT " : "";
           std::string outputfile = "scope_" + feb.getAddress()
             + "_VMM_" + std::to_string(vmm_id)
             + "_CH_"  + ch_fmt.str()
             + ".dat";
           std::string output_ops = " -o " + outputfile;
-          std::string ops        = n_screens + sc_channel + overwrite + output_ops;
+          std::string ops        = n_screens + sc_channel + overwrite + scanFFT + output_ops;
           std::string cmd        = "python bb5_analysis/scripts/BB5ScopeReadout.py " + ops;
           std::cout << "RUN: " << cmd << std::endl;
           system(cmd.c_str());
