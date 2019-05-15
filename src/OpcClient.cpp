@@ -180,3 +180,4 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
 }
 
 // TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
+
