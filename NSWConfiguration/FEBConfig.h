@@ -49,6 +49,7 @@ class FEBConfig: public FEConfig {
 
     void dump();
 
+    VMMConfig & getVmm(size_t i) {return m_vmms[i];}
     const std::vector<VMMConfig> & getVmms() const {return m_vmms;}
     const I2cMasterConfig & getRocAnalog() const {return m_roc_analog;}
     const I2cMasterConfig & getRocDigital() const {return m_roc_digital;}

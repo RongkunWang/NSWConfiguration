@@ -136,16 +136,15 @@ int main(int ac, const char *av[]) {
           //
           // configure the VMM
           //
-          cs.setVmmMonitorOutput (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,      false);
-          cs.setVmmChannelMOMode (feb, vmm_id, channel_id, nsw::vmm::ChannelAnalogOutput, false);
+          feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
+          feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
 
           //
           // read the SCA as many times as you expect to read the scope
           //
-
           int ntaken = 0;
           while (ntaken < scope_n*NSAMP_PER_SHOT) {
-            for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples)) {
+            for (auto result: cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples)) {
               ntaken++;
               if (dump)
                 std::cout << "DATA"

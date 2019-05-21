@@ -108,9 +108,9 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
       return 1023;
     }
 
-    cs.setVmmMonitorOutput  (feb, vmm_id, nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor, false);
-    cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac_guess_variations[i]),             false);
-    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, n_samples);
+    feb.getVmm(vmm_id).setMonitorOutput(nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor);
+    feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac_guess_variations[i]));
+    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
@@ -178,11 +178,11 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       for (auto trim : trims) {
 
-        cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,          false);
-        cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
-        cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(trim),                    false);
-        cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                               false);
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+        feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+        feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+        feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(trim));
+        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
         float mean = sum / results.size();
@@ -400,9 +400,9 @@ int main(int ac, const char *av[]) {
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
 
       // Read pdo of the certain channel n_samples times.
-      cs.setVmmMonitorOutput(feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,      false);
-      cs.setVmmChannelMOMode(feb, vmm_id, channel_id, nsw::vmm::ChannelAnalogOutput, false);
-      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples*10);
+      feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
+      feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
+      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10);
 
       // calculate channel level baseline median, rms
       float sum    = std::accumulate(results.begin(), results.end(), 0.0);
@@ -491,9 +491,9 @@ int main(int ac, const char *av[]) {
     if (debug)
       std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac << std::endl;
 
-    cs.setVmmMonitorOutput  (feb, vmm_id, nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor, false);
-    cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                                 false);
-    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, 0, n_samples);
+    feb.getVmm(vmm_id).setMonitorOutput  (nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor);
+    feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+    auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
     float sum = std::accumulate(results.begin(), results.end(), 0.0);
     float mean = sum / results.size();
     thdacs_sample[feb.getAddress()] = mean;
@@ -511,11 +511,11 @@ int main(int ac, const char *av[]) {
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
 
       thdac = thdacs[feb.getAddress()];
-      cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,          false);
-      cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
-      cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(TRIM_MID),                false);
-      cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                               false);
-      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+      feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+      feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+      feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
+      feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+      auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
       // add samples to the vector for a given fe
       for (unsigned int i = 0; i < results.size(); i++) {
@@ -687,11 +687,11 @@ int main(int ac, const char *av[]) {
         best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
 
         int thdac = thdacs[feb.getAddress()];
-        cs.setVmmMonitorOutput  (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,            false);
-        cs.setVmmChannelMOMode  (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold,   false);
-        cs.setVmmChannelTrimmer (feb, vmm_id, channel_id, (size_t)(best_channel_trim[feb_ch]), false);
-        cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac),                                 false);
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+        feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+        feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+        feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
+        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
         // unused for now
         // float sum = std::accumulate(results.begin(), results.end(), 0.0);

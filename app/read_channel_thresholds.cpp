@@ -130,17 +130,13 @@ int main(int ac, const char *av[]) {
                       << std::endl;
 
           // configure the VMM
-          cs.setVmmMonitorOutput     (feb, vmm_id, channel_id, nsw::vmm::ChannelMonitor,          false);
-          if (threshold)
-            cs.setVmmChannelMOMode   (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
-          if (baseline)
-            cs.setVmmChannelMOMode   (feb, vmm_id, channel_id, nsw::vmm::ChannelAnalogOutput,     false);
-          if (channel_trim >= 0)
-            cs.setVmmChannelTrimmer  (feb, vmm_id, channel_id, (size_t)(channel_trim),            false);
-          if (thdac >= 0)
-            cs.setVmmGlobalThreshold (feb, vmm_id, (size_t)(thdac),                               false);
+          if (true)              feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+          if (threshold)         feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+          if (baseline)          feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelAnalogOutput);
+          if (channel_trim >= 0) feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(channel_trim));
+          if (thdac >= 0)        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
 
-          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
           if (dump)
             for (auto result: results)

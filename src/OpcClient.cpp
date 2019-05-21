@@ -164,17 +164,17 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     SUCCESS    = 0;
     THIS_RETRY = 0;
     while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
-      try {
-        ainode.getConsecutiveRawSamples(n_samples, values);
-        SUCCESS = 1;
-      }
-      catch (const std::exception& e) {
-        values.clear();
-        ERS_LOG("readAnalogInputConsecutiveSamples " << THIS_RETRY << " failed. " << e.what() 
-                << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
-        THIS_RETRY++;
-        sleep(1);
-      }
+        try {
+            ainode.getConsecutiveRawSamples(n_samples, values);
+            SUCCESS = 1;
+        }
+        catch (const std::exception& e) {
+            values.clear();
+            ERS_LOG("readAnalogInputConsecutiveSamples " << THIS_RETRY << " failed. " << e.what() 
+                    << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+            THIS_RETRY++;
+            sleep(1);
+        }
     }
     return values;
 }

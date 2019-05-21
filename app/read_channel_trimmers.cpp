@@ -122,12 +122,12 @@ int main(int ac, const char *av[]) {
                         << std::endl;
 
             // set the trim, and sample it
-            cs.setVmmMonitorOutput (feb, vmm_id, channel_id, nsw::vmm::CommonMonitor,           false);
-            cs.setVmmChannelMOMode (feb, vmm_id, channel_id, nsw::vmm::ChannelTrimmedThreshold, false);
-            cs.setVmmChannelTrimmer(feb, vmm_id, channel_id, (size_t)(channel_trim),            false);
+            feb.getVmm(vmm_id).setMonitorOutput (channel_id, nsw::vmm::ChannelMonitor);
+            feb.getVmm(vmm_id).setChannelMOMode (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+            feb.getVmm(vmm_id).setChannelTrimmer(channel_id, (size_t)(channel_trim));
             if (thdac >= 0)
-              cs.setVmmGlobalThreshold(feb, vmm_id, (size_t)(thdac), false);
-            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+              feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
             if (dump)
               for (auto result: results)

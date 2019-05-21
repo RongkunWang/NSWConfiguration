@@ -114,37 +114,10 @@ class ConfigSender {
     /// \param n_samples Number of samples to read
     /// \return vector of values that were read
     std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
-                                                       size_t vmm_id,
-                                                       size_t channel_id, 
-                                                       size_t n_samples);
-
-    bool setVmmTestPulseDAC    (FEBConfig& feb, size_t vmm_id, size_t param, bool send);
-    bool setVmmGlobalThreshold (FEBConfig& feb, size_t vmm_id, size_t param, bool send);
-    bool setVmmMonitorOutput   (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t mode,  bool send);
-    bool setVmmChannelTrimmer  (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send);
-    bool setVmmChannelMOMode   (FEBConfig& feb, size_t vmm_id, size_t channel_id, size_t param, bool send);
+                                                                 size_t vmm_id,
+                                                                 size_t n_samples);
 
 };
-
-namespace vmm {
-
-  /// vmm register values
-
-  /// scmx
-  const size_t CommonMonitor  = 0;
-  const size_t ChannelMonitor = 1;
-
-  /// sm (when scmx = 0)
-  const size_t TestPulseDAC = 1;
-  const size_t ThresholdDAC = 2;
-  const size_t BandGapRef   = 3;
-  const size_t Temperature  = 4;
-
-  /// channel_smx
-  const size_t ChannelAnalogOutput     = 0;
-  const size_t ChannelTrimmedThreshold = 1;
-
-}
 
 }  // namespace nsw
 
