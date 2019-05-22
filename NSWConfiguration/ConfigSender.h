@@ -113,8 +113,10 @@ class ConfigSender {
     /// \param channel_id The vmm channel (0-63)
     /// \param n_samples Number of samples to read
     /// \return vector of values that were read
-    std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb, size_t vmm_id,
-                                                    size_t channel_id, size_t n_samples);
+    std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
+                                                                 size_t vmm_id,
+                                                                 size_t n_samples);
+
 };
 
 }  // namespace nsw

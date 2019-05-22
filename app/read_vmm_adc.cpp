@@ -90,7 +90,9 @@ int main(int ac, const char *av[]) {
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
-        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, channel_id, n_samples);
+        feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
+        feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         double mean = sum / results.size();

@@ -43,6 +43,11 @@ class OpcClient {
 
     OpcClient(const OpcClient&) = delete;
 
+    /// Retry when communication fails
+    bool   SUCCESS          = 0;
+    size_t THIS_RETRY       = 0;
+    const size_t MAX_RETRY  = 5;
+
     // vector may not be the best option...
 
     /// Read from Spi Slave. This method will remove the current configuration.

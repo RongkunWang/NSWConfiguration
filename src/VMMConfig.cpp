@@ -102,3 +102,47 @@ void nsw::VMMConfig::setChannelRegisterOneChannel(std::string register_name, uns
 
     m_bitstring = codec.buildConfig(m_config);
 }
+
+void nsw::VMMConfig::setTestPulseDAC(size_t param) {
+    //
+    // param (tpdac): 0-1023
+    //
+    this->setGlobalRegister("sdp_dac", param);
+}
+
+void nsw::VMMConfig::setGlobalThreshold(size_t param) {
+    //
+    // param (thdac): 0-1023
+    //
+    this->setGlobalRegister("sdt_dac", param);
+}
+
+void nsw::VMMConfig::setMonitorOutput(size_t channel_id, size_t param) {
+    //
+    //
+    // param = 0: common monitor mode
+    // param = 1: channel monitor mode
+    // In common monitor mode,
+    //     channel_id = 1: test pulse DAC
+    //     channel_id = 2: threshold DAC
+    //     channel_id = 3: bandgap reference
+    //     channel_id = 4: temperature
+    //
+    this->setGlobalRegister("scmx", param);
+    this->setGlobalRegister("sm",   channel_id);
+}
+
+void nsw::VMMConfig::setChannelMOMode(size_t channel_id, size_t param) {
+    //
+    // param = 0: channel analog output
+    // param = 1: channel threshold
+    //
+    this->setChannelRegisterOneChannel("channel_smx", param, channel_id);
+}
+
+void nsw::VMMConfig::setChannelTrimmer(size_t channel_id, size_t param) {
+    //
+    // param (trim): 0-31
+    //
+    this->setChannelRegisterOneChannel("channel_sd", param, channel_id);
+}
