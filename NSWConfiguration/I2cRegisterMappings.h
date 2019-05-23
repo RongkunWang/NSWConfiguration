@@ -521,4 +521,12 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                               {"NOT_USED", 3}, {"strip_trigger_band_phid", 13}}}
 };
 
+
+
+static const i2c::AddressRegisterMap TP_REGISTERS = {
+    { "register0", {{"dummy0", 1}, {"dummy1", 1}, {"dummy2", 1}, {"dummy3", 1} } }
+};
+
+
+
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
