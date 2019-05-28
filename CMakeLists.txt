@@ -45,6 +45,10 @@ tdaq_add_executable(read_channel_thresholds app/read_channel_thresholds.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(send_config_and_ltp_testpulse app/send_config_and_ltp_testpulse.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(check_gpio app/check_gpio.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
