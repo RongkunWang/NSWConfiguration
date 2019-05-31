@@ -61,6 +61,10 @@ tdaq_add_executable(nsw_integration_tp_config app/integration_tp_config.cpp
   LINK_LIBRARIES nswconfig
 )
 
+tdaq_add_executable(nsw_tp_comm_test app/tp_comm_test.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
                  tdaq-common::ers Boost::program_options nswconfigdal
