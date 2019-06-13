@@ -14,7 +14,7 @@ NSAMPS="100"
 
 # commands
 $CFGFEB -c $CONFIG -v -r
-python NSWConfiguration/dev/mm_baselines.py -b -x $SCRIPT -c $CONFIG -s 100 -f $MMFE8S
+python NSWConfiguration/dev/mm_baselines.py -b -x $SCRIPT -c $CONFIG -s $NSAMPS -f $MMFE8S
 grep -h "^DATA" baselines_ML* > baselines.txt
 python NSWConfiguration/dev/mm_baselines.plot.py -i baselines.txt -f $MMFE8S
 
