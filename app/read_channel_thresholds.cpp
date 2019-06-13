@@ -1,6 +1,7 @@
 // Sample program to read multiple ADC values from a channel of VMM
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -110,6 +111,10 @@ int main(int ac, const char *av[]) {
 
     for (auto & feb : frontend_configs) {
 
+      std::ofstream myfile;
+      if (dump)
+        myfile.open("baselines_" + feb.getAddress() + ".txt");
+
       auto & vmms = feb.getVmms();
 
       for (int vmm_id = 0; vmm_id < VMMS; vmm_id++) {
@@ -140,7 +145,7 @@ int main(int ac, const char *av[]) {
 
           if (dump)
             for (auto result: results)
-              std::cout << "DATA "
+              myfile << "DATA "
                         << feb.getAddress() << " "
                         << vmm_id << " "
                         << channel_id << " "
@@ -148,13 +153,16 @@ int main(int ac, const char *av[]) {
                         << thdac << " "
                         << channel_trim  << " "
                         << result << std::endl;
-          
+
         }
       }
 
       // reset the MO for all channels
       for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
         vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
+
+      if (dump)
+        myfile.close();
 
     }
 
