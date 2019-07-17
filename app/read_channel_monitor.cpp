@@ -16,6 +16,19 @@
 
 namespace po = boost::program_options;
 
+struct ThreadConfig {
+  int targeted_vmm_id;
+  int targeted_channel_id;
+  int thdac;
+  int channel_trim;
+  int n_samples;
+  bool threshold;
+  bool baseline;
+  bool dump;
+  std::string outdir;
+};
+
+int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg);
 
 int main(int ac, const char *av[]) {
 
@@ -32,6 +45,7 @@ int main(int ac, const char *av[]) {
     int targeted_channel_id;
     std::string config_filename;
     std::string fe_name;
+    std::string outdir;
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -58,6 +72,8 @@ int main(int ac, const char *av[]) {
         default_value(false), "Read the channel analog output (baseline)")
         ("dump", po::bool_switch()->
         default_value(false), "Dump information to the screen")
+        ("outdir,o", po::value<std::string>(&outdir)->
+        default_value("./"), "Output directory for dumping text files")
       ;
 
     po::variables_map vm;
@@ -87,12 +103,26 @@ int main(int ac, const char *av[]) {
       exit(0);
     }
 
+    // parse input names
     std::set<std::string> frontend_names;
-    if (fe_name != "")
-      frontend_names.emplace(fe_name);
+    if (fe_name != ""){
+      if (std::count(fe_name.begin(), fe_name.end(), ',')){
+        std::istringstream ss(fe_name);
+        while(!ss.eof()){
+          std::string buf;
+          std::getline(ss, buf, ',');
+          if (buf != "")
+            frontend_names.emplace(buf);
+        }
+      }
+      else
+        frontend_names.emplace(fe_name);
+    }
     else
       frontend_names = reader1.getAllElementNames();
 
+
+    // make FEB objects
     std::vector<nsw::FEBConfig> frontend_configs;
     for (auto & name : frontend_names) {
       try {
@@ -104,68 +134,95 @@ int main(int ac, const char *av[]) {
       }
     }
 
+    // output
+    if (dump){
+      std::string cmd = "mkdir -p " + outdir;
+      system(cmd.c_str());
+      std::cout << "Dumping info to " << outdir << std::endl;
+    }
+
+    // launch
+    std::vector<boost::thread> threads = {};
+    for (auto & feb : frontend_configs){
+      ThreadConfig cfg;
+      cfg.targeted_vmm_id     = targeted_vmm_id;
+      cfg.targeted_channel_id = targeted_channel_id;
+      cfg.thdac               = thdac;
+      cfg.channel_trim        = channel_trim;
+      cfg.n_samples           = n_samples;
+      cfg.threshold           = threshold;
+      cfg.baseline            = baseline;
+      cfg.dump                = dump;
+      cfg.outdir              = outdir;
+      threads.push_back( boost::thread(read_channel_monitor, feb, cfg) );
+    }
+
+    // wait
+    for (auto& thread: threads)
+      thread.join();
+
+    return 0;
+}
+
+int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
+
     nsw::ConfigSender cs;
     int VMMS  = 8;
     int CHS   = 64;
     int tpdac = -1;
 
-    for (auto & feb : frontend_configs) {
+    std::ofstream myfile;
+    if (cfg.dump)
+      myfile.open( cfg.outdir + "/" + (cfg.baseline ? "baselines_" : "thresholds_") + feb.getAddress() + ".txt");
 
-      std::ofstream myfile;
-      if (dump)
-        myfile.open( (baseline ? "baselines_" : "thresholds_") + feb.getAddress() + ".txt");
+    auto & vmms = feb.getVmms();
 
-      auto & vmms = feb.getVmms();
+    for (int vmm_id = 0; vmm_id < VMMS; vmm_id++) {
 
-      for (int vmm_id = 0; vmm_id < VMMS; vmm_id++) {
+      for (int channel_id = 0; channel_id < CHS; channel_id++) {
 
-        for (int channel_id = 0; channel_id < CHS; channel_id++) {
+        if (cfg.targeted_vmm_id     != -1 && vmm_id     != cfg.targeted_vmm_id)     continue;
+        if (cfg.targeted_channel_id != -1 && channel_id != cfg.targeted_channel_id) continue;
 
-          if (targeted_vmm_id     != -1 && vmm_id     != targeted_vmm_id)     continue;
-          if (targeted_channel_id != -1 && channel_id != targeted_channel_id) continue;
+        if (cfg.dump)
+          std::cout << "INFO "
+                    << feb.getAddress() << " "
+                    << vmm_id << " "
+                    << channel_id << " "
+                    << tpdac << " "
+                    << cfg.thdac << " "
+                    << cfg.channel_trim  << " "
+                    << std::endl;
 
-          if (dump)
-            std::cout << "INFO "
+        // configure the VMM
+        if (true)                  feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+        if (cfg.threshold)         feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+        if (cfg.baseline)          feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelAnalogOutput);
+        if (cfg.channel_trim >= 0) feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(cfg.channel_trim));
+        if (cfg.thdac >= 0)        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(cfg.thdac));
+
+        auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, cfg.n_samples);
+
+        if (cfg.dump)
+          for (auto result: results)
+            myfile << "DATA "
                       << feb.getAddress() << " "
                       << vmm_id << " "
                       << channel_id << " "
                       << tpdac << " "
-                      << thdac << " "
-                      << channel_trim  << " "
-                      << std::endl;
+                      << cfg.thdac << " "
+                      << cfg.channel_trim  << " "
+                      << result << std::endl;
 
-          // configure the VMM
-          if (true)              feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-          if (threshold)         feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-          if (baseline)          feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelAnalogOutput);
-          if (channel_trim >= 0) feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(channel_trim));
-          if (thdac >= 0)        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
-
-          auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
-
-          if (dump)
-            for (auto result: results)
-              myfile << "DATA "
-                        << feb.getAddress() << " "
-                        << vmm_id << " "
-                        << channel_id << " "
-                        << tpdac << " "
-                        << thdac << " "
-                        << channel_trim  << " "
-                        << result << std::endl;
-
-        }
       }
-
-      // reset the MO for all channels
-      for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
-        vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
-
-      if (dump)
-        myfile.close();
-
     }
+
+    // reset the MO for all channels
+    for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
+      vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
+
+    if (cfg.dump)
+      myfile.close();
 
     return 0;
 }
-
