@@ -15,14 +15,14 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 64;  //10//64;  //10;//64;
-int RMS_CUTOFF = 30;  // in mV
-int BASELINE_CUTOFF = 30;  // in mV
+int NCH_PER_VMM = 64; //10//64; //10;//64;
+int RMS_CUTOFF = 5;//30; // in mV
+int BASELINE_CUTOFF = 10; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
 float SLOPE_CHECK = 1/1.5/1000. * 4095.0;
-int NCH_ABOVE_THRESH_CUTOFF = 1;
+int NCH_ABOVE_THRESH_CUTOFF = 63;
 bool debug = true;
 
 float take_median(std::vector<float> &v) {

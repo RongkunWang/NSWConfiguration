@@ -53,8 +53,11 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   read_vmm_adc
   read_baseline_with_scope
   calibrate_trimmers
+  calibrate_trimmers_threaded
+  calibrate_trimmers_multirms
   read_channel_trimmers
   read_channel_thresholds
+  read_channel_monitor
   send_config_and_ltp_testpulse
   check_gpio
   roc_loop_over_phase
