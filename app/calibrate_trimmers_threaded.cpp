@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 #include <numeric>
+#include <thread>
+#include <future>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
@@ -379,19 +381,19 @@ int main(int ac, const char *av[]) {
   std::cout << "Dumping info to " << outdir << std::endl;
 
   // launch threads
-  std::vector<boost::thread> threads = {};
+  std::vector< std::future<int> > threads = {};
   for (auto & feb : frontend_configs) {
     ThreadConfig cfg;
     cfg.targeted_vmm_id = vmm_id;
     cfg.n_samples       = n_samples;
     cfg.rms_factor      = rms_factor;
     cfg.outdir          = outdir;
-    threads.push_back( boost::thread(calibrate_trimmers, feb, cfg) );
+    threads.push_back( std::async(std::launch::async, calibrate_trimmers, feb, cfg) );
   }
 
   // wait
   for (auto& thread: threads)
-    thread.join();
+    thread.get();
 
 
 }
