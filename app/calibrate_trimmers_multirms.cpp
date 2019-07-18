@@ -15,8 +15,8 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 64; //10//64; //10;//64;
-int RMS_CUTOFF = 5;//30; // in mV
+int NCH_PER_VMM = 64;
+int RMS_CUTOFF = 5;       // in mV
 int BASELINE_CUTOFF = 10; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
@@ -294,7 +294,6 @@ int main(int ac, const char *av[]) {
 
   int vmm_id;
   int n_samples;
-  int rms_factor;
   int tpdac = -1;
   std::string config_filename;
   std::string fe_name;
@@ -309,7 +308,6 @@ int main(int ac, const char *av[]) {
         "If this option is left empty, all front end elements in the config file will be scanned.")
       ("vmm,V", po::value<int>(&vmm_id)->default_value(0), "VMM id (0-7)")
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
-    //("rms_factor", po::value<int>(&rms_factor)->default_value(-1), "RMS Factor")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
     ;
 
@@ -458,11 +456,22 @@ int main(int ac, const char *av[]) {
       if (fabs(sample_to_mV(sample - tmp_median)) < BASELINE_CUTOFF)
         fe_samples_pruned.push_back(sample);
 
-    // calculate VMM median baseline and rms
-    float vmm_sum    = std::accumulate(fe_samples_pruned.begin(), fe_samples_pruned.end(), 0.0);
-    float vmm_mean   = vmm_sum / fe_samples_pruned.size();
-    float vmm_stdev  = take_rms(fe_samples_pruned, vmm_mean);
-    float vmm_median = take_median(fe_samples_pruned);
+    // calculate VMM median baseline and rms, 2019
+    std::vector<float> channel_baseline_med_flattened = {};
+    std::vector<float> channel_baseline_rms_flattened = {};
+    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
+      channel_baseline_med_flattened.push_back( channel_baseline_med[std::make_pair(feb.getAddress(), channel_id)] );
+      channel_baseline_rms_flattened.push_back( channel_baseline_rms[std::make_pair(feb.getAddress(), channel_id)] );
+    }
+    float vmm_mean   = mV_to_sample(-1.0);
+    float vmm_median = take_median(channel_baseline_med_flattened);
+    float vmm_stdev  = take_median(channel_baseline_rms_flattened);
+
+    // calculate VMM median baseline and rms, 2018
+    // float vmm_sum    = std::accumulate(fe_samples_pruned.begin(), fe_samples_pruned.end(), 0.0);
+    // float vmm_mean   = vmm_sum / fe_samples_pruned.size();
+    // float vmm_stdev  = take_rms(fe_samples_pruned, vmm_mean);
+    // float vmm_median = take_median(fe_samples_pruned);
 
     // add medians, baseline to MMFE8 --> med, stdev map
     vmm_baseline_med[feb.getAddress()] = vmm_median;
@@ -479,8 +488,6 @@ int main(int ac, const char *av[]) {
     // Global Threshold Calculations
 
     bool first = true;
-    // std::vector<int> rms_factors = {10, 20};
-    // std::vector<int> rms_factors = {3, 6, 9, 12, 15};
     bool flag_trim_in_range = false;
     int good_chs = 0;
     int tot_chs = NCH_PER_VMM;
@@ -509,11 +516,11 @@ int main(int ac, const char *av[]) {
       std::vector<int> thdac_guess_variations;
       // thdac_guess_variations.push_back(thdac_central_guess - 20);
       // thdac_guess_variations.push_back(thdac_central_guess - 10);
-      thdac_guess_variations.push_back(thdac_central_guess);
-      thdac_guess_variations.push_back(thdac_central_guess + 10);
       thdac_guess_variations.push_back(thdac_central_guess + 20);
       thdac_guess_variations.push_back(thdac_central_guess + 30);
       thdac_guess_variations.push_back(thdac_central_guess + 40);
+      thdac_guess_variations.push_back(thdac_central_guess + 50);
+      thdac_guess_variations.push_back(thdac_central_guess + 60);
       int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
 
       thdacs[feb.getAddress()] = thdac;
