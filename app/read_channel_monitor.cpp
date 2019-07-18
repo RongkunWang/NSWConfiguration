@@ -7,6 +7,8 @@
 #include <map>
 #include <set>
 #include <numeric>
+#include <thread>
+#include <future>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
@@ -142,7 +144,7 @@ int main(int ac, const char *av[]) {
     }
 
     // launch
-    std::vector<boost::thread> threads = {};
+    std::vector< std::future<int> > threads = {};
     for (auto & feb : frontend_configs){
       ThreadConfig cfg;
       cfg.targeted_vmm_id     = targeted_vmm_id;
@@ -154,12 +156,12 @@ int main(int ac, const char *av[]) {
       cfg.baseline            = baseline;
       cfg.dump                = dump;
       cfg.outdir              = outdir;
-      threads.push_back( boost::thread(read_channel_monitor, feb, cfg) );
+      threads.push_back( std::async(std::launch::async, read_channel_monitor, feb, cfg) );
     }
 
     // wait
     for (auto& thread: threads)
-      thread.join();
+      thread.get();
 
     return 0;
 }
