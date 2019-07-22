@@ -36,7 +36,7 @@ namespace nsw {
 		~TPConfig() ;
 
 		uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
-		void setRegisterValue(std::string master, std::string slave, uint32_t value, , std::string register_name = "register");
+		void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
 		void dump();
 
 	};
