@@ -144,6 +144,19 @@ int main(int ac, const char *av[]) {
               vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
               vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
           }
+
+          for (auto & vmm : vmms) {
+            vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
+          }
+
+          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+
+
+          for (auto & vmm : vmms) {
+            vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+          }
+
+
           cs.sendVmmConfig(feb);  // Sends configuration to all vmm
           // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
         }

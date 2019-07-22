@@ -58,6 +58,14 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("End");
 }
 
+void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    m_frontends.clear();
+    // m_reader.reset();
+    ERS_INFO("End");
+}
+
+
 void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
     ERS_LOG("End");
@@ -97,6 +105,15 @@ void nsw::NSWConfigRc::configureFEBs() {
         auto name = fe.first;
         auto configuration = fe.second;
         if (!m_simulation) {
+            for (auto & vmm : configuration.getVmms()) { 
+                vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
+            }
+            m_sender->sendVmmConfig(configuration);
+
+            for (auto & vmm : configuration.getVmms()) { 
+                vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+            }
+
             m_sender->sendConfig(configuration);
         }
         sleep(1);  // TODO(cyildiz) remove this

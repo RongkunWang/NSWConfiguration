@@ -35,7 +35,7 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     void stopRecording(const daq::rc::TransitionCmd& cmd) override;
 
-    // void unconfigure(const daq::rc::TransitionCmd& cmd) override;
+    void unconfigure(const daq::rc::TransitionCmd& cmd) override;
 
     void user(const daq::rc::UserCmd& cmd) override;
 
