@@ -92,6 +92,8 @@ class ConfigReaderApi {
     return readFEB(element, 8, 4);
   }
 
+  virtual ptree readADDC(std::string element, size_t nart);
+
   // TODO(cyildiz): Following read functions should be deprecated!
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);

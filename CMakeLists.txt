@@ -57,12 +57,17 @@ tdaq_add_executable(roc_select_phase app/roc_select_phase.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
-                 src/FEBConfig.cpp
+                 src/FEBConfig.cpp src/ARTConfig.cpp
+                 src/ADDCConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
