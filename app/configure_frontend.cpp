@@ -29,6 +29,7 @@ int main(int ac, const char *av[]) {
     bool create_pulses;
     bool readback_tds;
     bool reset_roc;
+    bool reset_vmm;
     int vmm_to_unmask;
     int channel_to_unmask;
     std::string config_filename;
@@ -58,7 +59,9 @@ int main(int ac, const char *av[]) {
         ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
         default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
-        "Reset the ROC via SCA. This option can't be used with -r or -v");
+        "Reset the ROC via SCA. This option can't be used with -r or -v")
+        ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
+        "Hard reset vmm before configuration. Need to be used with -v");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -145,11 +148,14 @@ int main(int ac, const char *av[]) {
               vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
           }
 
-          for (auto & vmm : vmms) {
-            vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
-          }
+          if (reset_vmm)
+          {
+            for (auto & vmm : vmms) {
+              vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
+            }
 
-          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+            cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+          }
 
 
           for (auto & vmm : vmms) {

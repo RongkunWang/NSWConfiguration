@@ -24,6 +24,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
       const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
       m_dbcon = nswConfigApp->get_dbConnection();
+      m_resetvmm = nswConfigApp->get_resetVMM();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
         // TODO(cyildiz): catch and throw correct exceptions
@@ -105,10 +106,13 @@ void nsw::NSWConfigRc::configureFEBs() {
         auto name = fe.first;
         auto configuration = fe.second;
         if (!m_simulation) {
-            for (auto & vmm : configuration.getVmms()) { 
-                vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
+            if (m_resetvmm)
+            {
+                for (auto & vmm : configuration.getVmms()) { 
+                    vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
+                }
+                m_sender->sendVmmConfig(configuration);
             }
-            m_sender->sendVmmConfig(configuration);
 
             for (auto & vmm : configuration.getVmms()) { 
                 vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0

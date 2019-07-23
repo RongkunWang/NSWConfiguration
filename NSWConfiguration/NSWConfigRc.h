@@ -64,6 +64,9 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     // Database connection string
     std::string m_dbcon;
+
+    // reset the vmms before config
+    bool m_resetvmm;
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
