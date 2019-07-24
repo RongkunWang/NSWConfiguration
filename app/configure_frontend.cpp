@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <thread>
+#include <future>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
@@ -14,8 +16,21 @@
 
 namespace po = boost::program_options;
 
-void readTDS(nsw::FEBConfig & feb) {
-}
+struct ThreadConfig {
+  bool configure_vmm;
+  bool configure_roc;
+  bool configure_tds;
+  bool create_pulses;
+  bool readback_tds;
+  bool reset_roc;
+  bool reset_vmm;
+  int vmm_to_unmask;
+  int channel_to_unmask;
+};
+
+int active_threads(std::vector< std::future<int> >* threads);
+int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg);
+void readTDS(nsw::FEBConfig & feb) {}
 
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
@@ -32,6 +47,7 @@ int main(int ac, const char *av[]) {
     bool reset_vmm;
     int vmm_to_unmask;
     int channel_to_unmask;
+    int max_threads;
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
@@ -58,6 +74,8 @@ int main(int ac, const char *av[]) {
         default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
         ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
         default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
+        ("max_threads,m", po::value<int>(&max_threads)->
+        default_value(-1), "Maximum number of threads to run")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v")
         ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
@@ -118,104 +136,140 @@ int main(int ac, const char *av[]) {
 
     std::cout << "\n";
 
+    // launch threads
+    auto threads = new std::vector< std::future<int> >();
+
+    for (auto & feb : frontend_configs){
+
+      if (max_threads > 0) {
+        int n_active = active_threads(threads);
+        while(n_active >= max_threads) {
+          std::cout << "Too many active threads (" << n_active << "), waiting for fewer than " << max_threads << std::endl;
+          sleep(2);
+          n_active = active_threads(threads);
+        }
+      }
+
+      ThreadConfig cfg;
+      cfg.configure_vmm     = configure_vmm;
+      cfg.configure_roc     = configure_roc;
+      cfg.configure_tds     = configure_tds;
+      cfg.create_pulses     = create_pulses;
+      cfg.readback_tds      = readback_tds;
+      cfg.reset_roc         = reset_roc;
+      cfg.reset_vmm         = reset_vmm;
+      cfg.vmm_to_unmask     = vmm_to_unmask;
+      cfg.channel_to_unmask = channel_to_unmask;
+      threads->push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
+    }
+
+    // wait
+    for (auto& thread: *threads)
+      thread.get();
+
+    return 0;
+
+}
+
+int active_threads(std::vector< std::future<int> >* threads){
+  int nfinished = 0;
+  for (auto& thread: *threads)
+    if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+      nfinished++;
+  return (int)(threads->size()) - nfinished;
+}
+
+int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
+
+    std::cout << "New thread in configure_frontend for " << feb.getAddress() << std::endl;
+
     nsw::ConfigSender cs;
 
-    if (reset_roc) {
-        for (auto & feb : frontend_configs) {
-            std::cout << "Only resetting ROC" << std::endl;
-            auto opc_ip = feb.getOpcServerIp();
-            cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
-            sleep(1);
-            cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
-        }
+    // Reset ROC and exit
+    if (cfg.reset_roc) {
+        std::cout << "Only resetting ROC" << std::endl;
+        auto opc_ip = feb.getOpcServerIp();
+        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
+        sleep(1);
+        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
         return 0;
     }
 
     // Send all ROC config
-    if (configure_roc) {
-        for (auto & feb : frontend_configs) {
-            cs.sendRocConfig(feb);
-        }
+    if (cfg.configure_roc) {
+        cs.sendRocConfig(feb);
     }
 
-    if (configure_vmm) {
-        for (auto & feb : frontend_configs) {
-          /// This options are used for ADDC testing
-          auto & vmms = feb.getVmms();
-          if (channel_to_unmask != -1 && vmm_to_unmask != -1) {
-              std::cout << "Unmasking channel " << channel_to_unmask << " in vmm " << vmm_to_unmask << std::endl;
-              vmms[vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, channel_to_unmask);
-              vmms[vmm_to_unmask].setGlobalRegister("sm", channel_to_unmask);
+    // Send all VMM config
+    if (cfg.configure_vmm) {
+      /// This options are used for ADDC testing
+        auto & vmms = feb.getVmms();
+        if (cfg.channel_to_unmask != -1 && cfg.vmm_to_unmask != -1) {
+            std::cout << "Unmasking channel " << cfg.channel_to_unmask << " in vmm " << cfg.vmm_to_unmask << std::endl;
+            vmms[cfg.vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, cfg.channel_to_unmask);
+            vmms[cfg.vmm_to_unmask].setGlobalRegister("sm", cfg.channel_to_unmask);
+        }
+
+        if (cfg.reset_vmm)
+        {
+          for (auto & vmm : vmms) {
+            vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
           }
 
-          if (reset_vmm)
-          {
-            for (auto & vmm : vmms) {
-              vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
-            }
-
-            cs.sendVmmConfig(feb);  // Sends configuration to all vmm
-          }
+          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
 
 
           for (auto & vmm : vmms) {
             vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
           }
-
-
-          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
-          // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
         }
+
+        cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+        // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
     }
 
-    if (configure_tds) {
-        for (auto & feb : frontend_configs) {
-            cs.sendTdsConfig(feb);  // Sends configuration to all tds
-        }
+    if (cfg.configure_tds) {
+        cs.sendTdsConfig(feb);  // Sends configuration to all tds
     }
 
-    if (readback_tds) {
-        std::cout << "Reading back TDS" << std::endl;
-        for (auto & feb : frontend_configs) {
-            std::cout << "\nFEB: " << feb.getAddress() << std::endl;
-            auto opc_ip = feb.getOpcServerIp();
-            auto feb_address = feb.getAddress();
-            for (auto tds : feb.getTdss()) {  // Each tds is I2cMasterConfig
-                std::cout << "\nTDS: " << tds.getName() << std::endl;
-                for (auto tds_i2c_address : tds.getAddresses()) {
-                    auto address_to_read = nsw::stripReadonly(tds_i2c_address);
-                    auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
-                    std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
-                    auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
-                    std::cout << std::dec << "\n";
-                    tds.decodeVector(tds_i2c_address, dataread);
-                    std::cout << "Readback as bytes: ";
-                    for (auto val : dataread) {
-                        std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << ", ";
-                    }
-                    std::cout << "\n";
+    if (cfg.readback_tds) {
+        std::cout << "Reading back TDS. FEB: " << feb.getAddress() << std::endl;
+        auto opc_ip = feb.getOpcServerIp();
+        auto feb_address = feb.getAddress();
+        for (auto tds : feb.getTdss()) {  // Each tds is I2cMasterConfig
+            std::cout << "\nTDS: " << tds.getName() << std::endl;
+            for (auto tds_i2c_address : tds.getAddresses()) {
+                auto address_to_read = nsw::stripReadonly(tds_i2c_address);
+                auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
+                std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
+                auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
+                std::cout << std::dec << "\n";
+                tds.decodeVector(tds_i2c_address, dataread);
+                std::cout << "Readback as bytes: ";
+                for (auto val : dataread) {
+                    std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << ", ";
                 }
+                std::cout << "\n";
             }
         }
     }
 
-    if (create_pulses) {
-        for (auto & feb : frontend_configs) {
-            auto opc_ip = feb.getOpcServerIp();
-            auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
-            uint8_t data[] = {0};
-            for (int i = 0; i < 10; i++) {
-                std::cout << "Creating 10 test pulse" << std::endl;
-                data[0] = 0xff;
-                cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
-                // sleep(1);
+    if (cfg.create_pulses) {
+        auto opc_ip = feb.getOpcServerIp();
+        auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
+        uint8_t data[] = {0};
+        for (int i = 0; i < 10; i++) {
+            std::cout << "Creating 10 test pulse" << std::endl;
+            data[0] = 0xff;
+            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+            // sleep(1);
 
-                data[0] = 0x0;
-                cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
-                // sleep(1);
-            }
+            data[0] = 0x0;
+            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+            // sleep(1);
         }
     }
 
     return 0;
 }
+

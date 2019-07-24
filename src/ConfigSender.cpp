@@ -183,7 +183,7 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
 
     auto vmm = feb.getVmms()[vmm_id];
     auto vmmdata = vmm.getByteVector();
-    ERS_LOG("Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
+    ERS_DEBUG(1, "Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
     ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
 
@@ -246,36 +246,29 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
     // Read back to verify something? (TODO)
 }
 
-std::vector<float> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
-                                                               std::string node, size_t n_samples) {
+std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
+                                                                        std::string node, 
+                                                                        size_t n_samples) {
     addOpcClientIfNew(opcserver_ipport);
-
     ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
+
 }
 
-std::vector<float> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
-                                                                   size_t vmm_id,
-                                                                   size_t channel_id,
-                                                                   size_t n_samples) {
-    auto opc_ip = feb.getOpcServerIp();
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
+                                                                                size_t vmm_id,
+                                                                                size_t n_samples) {
+
+    auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
-
-    // Set sm variable (channel to monitor)
-    auto & vmms = feb.getVmms();
-
-    /* To be able to read pdo of a certain channel, VMM has to be configured
-     * in a certain way, following block updates the VMMConfig object to with
-     * correct parameters
-     */
+    auto& vmms       = feb.getVmms();
+    
     vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("scmx", 1);  // Set channel monitor mode
-    vmms[vmm_id].setGlobalRegister("sm", channel_id);  // Select channel to monitor
     vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
-
-    // Configure vmm with changed parameters
+    
     sendVmmConfigSingle(feb, vmm_id);
-
+    
     return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
+
 }
 

@@ -29,6 +29,22 @@ tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_baseline_with_scope app/read_baseline_with_scope.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(calibrate_trimmers app/calibrate_trimmers.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(read_channel_trimmers app/read_channel_trimmers.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(read_channel_thresholds app/read_channel_thresholds.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(check_gpio app/check_gpio.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )

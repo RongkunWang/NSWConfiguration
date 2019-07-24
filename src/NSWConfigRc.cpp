@@ -112,10 +112,10 @@ void nsw::NSWConfigRc::configureFEBs() {
                     vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
                 }
                 m_sender->sendVmmConfig(configuration);
-            }
 
-            for (auto & vmm : configuration.getVmms()) { 
-                vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+                for (auto & vmm : configuration.getVmms()) { 
+                    vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+                }
             }
 
             m_sender->sendConfig(configuration);
