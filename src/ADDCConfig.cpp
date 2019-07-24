@@ -2,9 +2,11 @@
 #include "boost/optional.hpp"
 #include "NSWConfiguration/ADDCConfig.h"
 
-nsw::ADDCConfig::ADDCConfig(ptree config):
-    FEConfig(config) {
+#include "boost/property_tree/json_parser.hpp"
 
+nsw::ADDCConfig::ADDCConfig(ptree config):
+    FEConfig(config)
+{
     // std::cout << "ADDCConfig constructor!" << std::endl;
 
     /// ADDC has 2 ART ASICs

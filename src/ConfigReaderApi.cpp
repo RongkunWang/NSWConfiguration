@@ -285,8 +285,6 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
     ptree feb = m_config.get_child(element);
     ptree art_common = m_config.get_child("art_common_config");
-    art_common.put("OpcServerIp", "none");  // TODO(tuna): Do what Cenk does for VMM
-    art_common.put("OpcNodeId",   "none");  // TODO(tuna): Do what Cenk does for VMM
 
     for ( size_t i = 0; i < nart; i++ ) {
         std::string name = "art" + std::to_string(i);

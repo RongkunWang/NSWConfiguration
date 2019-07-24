@@ -18,7 +18,10 @@ using boost::property_tree::ptree;
 
 namespace nsw {
 
-class ARTConfig: public FEConfig {
+class ARTConfig {
+ protected:
+    ptree m_config;
+
  private:
     std::string name;
 
@@ -29,6 +32,7 @@ class ARTConfig: public FEConfig {
     explicit ARTConfig(ptree config);
     ~ARTConfig() {}
 
+    ptree getConfig() const {return m_config;}
     void dump() {}
 
     std::string getName() { return name; }

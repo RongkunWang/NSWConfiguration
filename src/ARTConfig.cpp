@@ -9,7 +9,9 @@
 
 using boost::property_tree::ptree;
 
-nsw::ARTConfig::ARTConfig(ptree config): FEConfig(config) {
+nsw::ARTConfig::ARTConfig(ptree config):
+    m_config(config)
+{
     // std::cout << "ART Constructor!" << std::endl;
 }
 
