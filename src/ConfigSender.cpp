@@ -246,6 +246,119 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
     // Read back to verify something? (TODO)
 }
 
+void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
+
+    size_t art_size = 2;
+    uint8_t art_data[] = {0x0,0x0};
+    size_t gbtx_size = 3;
+    uint8_t gbtx_data[] = {0x0,0x0,0x0}; // 2 for address (i), 1 for data
+    int progress = 1;
+    int art_mask = 0;
+    bool train = 0;
+
+    auto opc_ip                      = feb.getOpcServerIp();
+    auto sca_address                 = feb.getAddress();
+    auto ARTCoreregisters            = feb.ARTCoreregisters();
+    auto ARTregisters                = feb.ARTregisters();
+    auto ARTregistervalues           = feb.ARTregistervalues();
+    auto GBTx_eport_registers        = feb.GBTx_eport_registers();
+    auto ADDC_GBTx_ConfigurationData = feb.GBTx_ConfigurationData();
+
+    // art
+    for (auto art: feb.getARTs()) {
+
+        std::string gpio = ".gpio.art" + std::to_string(art.index());
+
+        // reset cfg
+        sendGPIO(opc_ip, sca_address + gpio + "Rstn",  0);  usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "Rstn",  1);  usleep(10000);
+        // reset i2c
+        sendGPIO(opc_ip, sca_address + gpio + "SRstn", 0); usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "SRstn", 1); usleep(10000);
+        // reset core
+        sendGPIO(opc_ip, sca_address + gpio + "CRstn", 0); usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "CRstn", 1); usleep(10000);
+
+        // init sca rst
+        sendGPIO(opc_ip, sca_address + gpio + "SRstn", 1); usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "CRstn", 1); usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "Rstn",  1); usleep(10000);
+
+    }
+
+    // gbt
+    for (auto gbtx: {0, 1}) {
+
+        std::string gpio = ".gpio.gbtx" + std::to_string(gbtx);
+        std::string gbtx_str = ".gbtx" + std::to_string(gbtx) + ".gbtx" + std::to_string(gbtx);
+
+        sendGPIO(opc_ip, sca_address + gpio + "Rstn", 0); usleep(10000);
+        sendGPIO(opc_ip, sca_address + gpio + "Rstn", 1); usleep(10000);
+
+        int pr = 0;
+        for (uint i=0; i<ADDC_GBTx_ConfigurationData.size(); i++) {
+            if((((i*20)/ADDC_GBTx_ConfigurationData.size())%20) - pr == 1 && progress) {
+                pr++;
+                std::cout << "." << std::flush;
+            }
+            gbtx_data[1] = ((uint8_t) ((i) >> 8));
+            gbtx_data[0] = ((uint8_t) ((i) & 0xff));
+            gbtx_data[2] = ADDC_GBTx_ConfigurationData[i];
+            sendI2cRaw(opc_ip, sca_address + gbtx_str, gbtx_data, gbtx_size);
+        }
+
+    }
+
+    // more art
+    for (auto art: feb.getARTs()) {
+
+        std::string core = ".art" + std::to_string(art.index()) + "Core.art" + std::to_string(art.index()) + "Core";
+
+        // art_bcid_config
+        art_data[0] = 14;
+        art_data[1] = 0xF0;
+        sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+        art_data[0] = 15;
+        art_data[1] = 0xFF;
+        sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+
+        // art_mask_config
+        for (uint i=0; i<ARTCoreregisters.size(); i++) {
+            art_data[0] = ARTCoreregisters[i];
+            art_data[1] = (uint8_t)((art_mask >> (8*i)) & 0xff);
+            sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+        }
+
+        // art_failsafe_mode
+        bool fs = art.getEnableFailsafe();
+        art_data[0] = 3;
+        art_data[1] = (fs) ? 0x06 : 0x0E;
+        sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+        art_data[0] = 4;
+        art_data[1] = (fs) ? 0x27 : 0x3F;
+        sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+
+        // art_pattern_mode_config
+        for (uint i=0; i<ARTregisters.size(); i++) {
+            art_data[0] = ARTregisters[i];
+            art_data[1] = ARTregistervalues[i];
+            sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
+        }
+
+    }
+
+    // more gbt
+    for (auto gbtx: {0, 1}) {
+        std::string gbtx_str = ".gbtx" + std::to_string(gbtx) + ".gbtx" + std::to_string(gbtx);
+        for (uint i=0; i<GBTx_eport_registers.size(); i++) {
+            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
+            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
+            gbtx_data[2] = train ? 0xff : 0x00;
+            sendI2cRaw(opc_ip, sca_address + gbtx_str, gbtx_data, gbtx_size);
+        }
+    }
+}
+
 std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
                                                                         std::string node, 
                                                                         size_t n_samples) {

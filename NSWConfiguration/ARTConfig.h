@@ -24,6 +24,8 @@ class ARTConfig {
 
  private:
     std::string name;
+    size_t i_art;
+    bool failsafe;
 
  public:
     // nsw::I2cMasterConfig core;
@@ -37,6 +39,12 @@ class ARTConfig {
 
     std::string getName() { return name; }
     void setName(std::string str) { name = str; }
+
+    int index() { return i_art; }
+    void setIndex(int i) { i_art = i; }
+
+    int getEnableFailsafe() { return failsafe; }
+    void setEnableFailsafe(bool x) { failsafe = x; }
 
     int register0_test_00();
 
