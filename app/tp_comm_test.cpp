@@ -1,6 +1,7 @@
 // Sample program to read configuration from db/json
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -11,12 +12,40 @@
 #include "NSWConfiguration/OpcClient.h"
 
 #include "boost/program_options.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 
 namespace po = boost::program_options;
-
+namespace pt = boost::property_tree;
+using boost::property_tree::ptree;
 
 int main(int argc, const char *argv[]) 
 {
+
+    std::string config_filename = "/afs/cern.ch/user/b/bbullard/public/nsw/conf/NSWConfiguration/test/TP_testRegisterConfig.json";
+    // Testing json parsing
+    nsw::ConfigReader reader_tp("json://" + config_filename);
+    reader_tp.readConfig();
+    auto tp_config_tree = pt::ptree();
+    try {
+      tp_config_tree = reader_tp.readConfig("TP-0001");
+    }
+    catch (std::exception &e) {
+      std::cout << "Make sure the json is formed correctly. "
+                << "Can't read config file due to : " << e.what() << std::endl;
+      std::cout << "Exiting..." << std::endl;
+      exit(0);
+    }
+
+    std::cout << "tp_config_tree: " << &tp_config_tree << std::endl;
+    std::ofstream ptree_out;
+    ptree_out.open("ptree_testParsingOutput.json");
+    pt::write_json(std::cout, tp_config_tree);
+    ptree_out.close();
+    //pt::write_json("ptree_testParsingOutput.json", tp_config_tree);
+    //nsw::FEBConfig tp(tp_config_tree);
+
+    std::cout << "Should have parsed JSON file by now" << std::endl;
 
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 

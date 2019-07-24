@@ -1,0 +1,12 @@
+{
+  "tp_common_config": {
+    "TP-0001": {
+      "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+      "OpcNodeId": "Dummy Node ID",
+      "Slave1": {
+        "Register1": 0,
+        "Register2": 102
+      }
+    }
+  }
+}

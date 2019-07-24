@@ -25,6 +25,8 @@ ptree ConfigReaderApi::read(std::string element) {
         return readPFEB(element);
     } else if (nsw::getElementType(element) == "SFEB") {
         return readSFEB(element);
+    } else if (nsw::getElementType(element) == "TP") {
+        return readTP(element);
     }
 }
 
@@ -74,6 +76,24 @@ ptree ConfigReaderApi::readVMM(std::string element) {
             type = "tree";
         }
         ERS_DEBUG(5, name << ", " << type);
+    }
+
+    return tree;
+}
+
+ptree ConfigReaderApi::readTP(std::string element) {
+    ptree tree;
+    ERS_LOG("Reading configuration for TP: " << element);
+    
+    // Create tree with default values from common config
+    tree = m_config.get_child("tp_common_config");
+   
+    // TO DO: change tp_part to descriptive name
+    ptree tp_part = tree.get_child(element);
+    ptree registers = tp_part.get_child("Slave1");
+
+    for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+      std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
     }
 
     return tree;
@@ -276,9 +296,10 @@ ptree ConfigReaderApi::readTDS(std::string element) {
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
-    ERS_LOG(s);
 
+    ERS_LOG(s);
     try {
+        std::cout << "JsonApi::read():\tTrying to read Json file " << m_file_path << std::endl;
         boost::property_tree::read_json(m_file_path, m_config);
     } catch(std::exception & e) {
         ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception

@@ -11,6 +11,7 @@ nsw::TPConfig::TPConfig(ptree config):
         // m_tp_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
         // m_tp_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS)
         {
+        std::cout << "TPConfig::TPConfig()" << std::endl;
     /// A FE can have up to 8 vmms, the config ptree should be constructed with correct number vmms
     // for (int i = 0; i < 8; i++) {
     //     std::string vmmname = "vmm" + std::to_string(i);
