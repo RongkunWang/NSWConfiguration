@@ -103,6 +103,10 @@ class ConfigSender {
     std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
                                           uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
 
+    // Send I2c register as vector for ADDC
+    void sendI2cAtAddress(std::string opcserver_ipport, std::string node,
+                          std::vector<uint8_t> address, std::vector<uint8_t> data);
+
     /// Read multiple consecutive samples from an analog input
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
                                                          std::string node, size_t n_samples);

@@ -71,13 +71,15 @@ std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_i
     return readdata;
 }
 
-std::vector<uint8_t> nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
-                                                         std::string node,
-                                                         std::vector<uint8_t> address,
-                                                         std::vector<uint8_t> data) {
+void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
+                                         std::string node,
+                                         std::vector<uint8_t> address,
+                                         std::vector<uint8_t> data) {
+
     // Insert the address in the beginning of data vector
     for (auto & address_byte : address){
-      data.push_front(address_byte);
+        // data.push_front(address_byte);
+        data.insert(data.begin(), address_byte);
     }
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, data.data(), data.size());
 }
