@@ -522,7 +522,648 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
-    { "0:registerMyName", {{"dllLockedV", 1}, {"reserved", 1}, {"dllLockCfg", 2}, {"muxEn2to8",1},{"muzEn1to8",1},{"dllCoarseLockDetection",1},{"dllResetFromCfg"},1} }
+    {"0:registerMyName_0",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muzEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"1:registerMyName_1",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"2:registerMyName_2",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"3:registerMyName_3",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"4:registerMyName_4",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"5:registerMyName_5",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"6:registerMyName_6",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"7:registerMyName_7",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"8:registerMyName_8",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"9:registerMyName_9",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"10:registerMyName_10",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"11:registerMyName_11",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"12:registerMyName_12",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"13:registerMyName_13",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"14:registerMyName_14",
+     {
+         {"channelLockedV",           8}
+     }
+    },
+    {"15:registerMyName_15",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"16:registerMyName_16",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"17:registerMyName_17",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"18:registerMyName_18",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"19:registerMyName_19",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"20:registerMyName_20",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"21:registerMyName_21",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"22:registerMyName_22",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"23:registerMyName_23",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"24:registerMyName_24",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"25:registerMyName_25",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"26:registerMyName_26",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"27:registerMyName_27",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"28:registerMyName_28",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"29:registerMyName_29",
+     {
+         {"channelLockedV",           8}
+     }
+    },
+    {"30:registerMyName_30",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"31:registerMyName_31",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"32:registerMyName_32",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"33:registerMyName_33",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"34:registerMyName_34",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"35:registerMyName_35",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"36:registerMyName_36",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"37:registerMyName_37",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"38:registerMyName_38",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"39:registerMyName_39",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"40:registerMyName_40",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"41:registerMyName_41",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"42:registerMyName_42",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"43:registerMyName_43",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"44:registerMyName_44",
+     {
+         {"channelLockedV",           8}
+     }
+    },
+    {"45:registerMyName_45",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"46:registerMyName_46",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"47:registerMyName_47",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"48:registerMyName_48",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"49:registerMyName_49",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"50:registerMyName_50",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"51:registerMyName_51",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"52:registerMyName_52",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"53:registerMyName_53",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"54:registerMyName_54",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"55:registerMyName_55",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"56:registerMyName_56",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"57:registerMyName_57",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"58:registerMyName_58",
+     {
+         {"phaseSelectChannel1output",4},
+         {"phaseSelectChannel0output",4}
+     }
+    },
+    {"59:registerMyName_59",
+     {
+         {"channelLockedV",           8}
+     }
+    },
+    {"60:registerMyName_60",
+     {
+         {"dllLockedMask",            4},
+         {"txcset",                   4}
+     }
+    },
+    {"61:registerMyName_61",
+     {
+         {"NOT_USED",                 2},
+         {"resetAll",                 1},
+         {"test_mux",                 1},
+         {"rxOffSclk",                1},
+         {"rxTermSclk",               1},
+         {"rxTermClk_i",              2}
+     }
+    },
+    {"62:registerMyName_62",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"63:registerMyName_63",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"64:registerMyName_64",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"65:registerMyName_65",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"66:registerMyName_66",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"67:registerMyName_67",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"68:registerMyName_68",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"69:registerMyName_69",
+     {
+         {"rxTermEnable",             8}
+     }
+    }
+};
+
+static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
+    {"0:registerMyName_0",
+     {
+         {"c_disable_arthist",         1},
+         {"c_bypass_pa",               1},
+         {"rxterm",                    2},
+         {"txcset",                    4}
+     }
+    },
+    {"1:registerMyName_1",
+     {
+         {"cfg_dout_time2",            1},
+         {"cfg_bcr_sel",               1},
+         {"cfg_bcrout_sel",            1},
+         {"cfg_art_revall",            1},
+         {"cfg_art_revbank",           4}
+     }
+    },
+    {"2:registerMyName_2",
+     {
+         {"cfg_dout_pattern",          1},
+         {"cfg_dout_artbypass",        1},
+         {"cfg_dout_hitlist",          1},
+         {"cfg_dout_artflags",         1},
+         {"cfg_dout_time",             1},
+         {"cfg_artmask",               3}
+     }
+    },
+    {"3:registerMyName_3",
+     {
+         {"cfg_deser_flagmask",        8}
+     }
+    },
+    {"4:registerMyName_4",
+     {
+         {"cfg_deser_flagpatt",        8}
+     }
+    },
+    {"5:registerMyName_5",
+     {
+         {"cfg_din_invert[7:0]",       8}
+     }
+    },
+    {"6:registerMyName_6",
+     {
+         {"cfg_din_invert[15:8]",      8}
+     }
+    },
+    {"7:registerMyName_7",
+     {
+         {"cfg_din_invert[23:16]",     8}
+     }
+    },
+    {"8:registerMyName_8",
+     {
+         {"cfg_din_invert[31:24]",     8}
+     }
+    },
+    {"9:registerMyName_9",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"10:registerMyName_10",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"11:registerMyName_11",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"12:registerMyName_12",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"13:registerMyName_13",
+     {
+         {"cfg_bcid0[7:0]",            8}
+     }
+    },
+    {"14:registerMyName_14",
+     {
+         {"cfg_bcid1[3:0]",            4},
+         {"cfg_bcid0[11:8]",           4}
+     }
+    },
+    {"15:registerMyName_15",
+     {
+         {"cfg_bcid1[11:4]",           8}
+     }
+    },
+     // here be dragons
+    {"16:registerMyName_16",
+     {
+         {"cfg_artbypass_sel_ch1[2:0]", 3},
+         {"cfg_artbypass_sel_ch0[4:0]", 5}
+     }
+    },
+    {"17:registerMyName_17",
+     {
+         {"cfg_artbypass_sel_ch3[0]",   1},
+         {"cfg_artbypass_sel_ch2[4:0]", 5},
+         {"cfg_artbypass_sel_ch1[4:3]", 2}
+     }
+    },
+    {"18:registerMyName_18",
+     {
+         {"cfg_artbypass_sel_ch4[3:0]", 4},
+         {"cfg_artbypass_sel_ch3[4:1]", 4}
+     }
+    },
+    {"19:registerMyName_19",
+     {
+         {"cfg_artbypass_sel_ch6[1:0]", 2},
+         {"cfg_artbypass_sel_ch5[4:0]", 5},
+         {"cfg_artbypass_sel_ch4[4]",   1}
+     }
+    },
+    {"20:registerMyName_20",
+     {
+         {"cfg_artbypass_sel_ch7[4:0]", 5},
+         {"cfg_artbypass_sel_ch6[4:2]", 3}
+     }
+    },
+    {"21:registerMyName_21",
+     {
+         {"cfg_pattern_data_φ0[7:0]", 8}
+     }
+    },
+    {"22:registerMyName_22",
+     {
+         {"cfg_pattern_data_φ1[1:0]",  2},
+         {"cfg_pattern_data_φ0[13:8]", 6}
+     }
+    },
+    {"23:registerMyName_23",
+     {
+         {"cfg_pattern_data_φ1[9:2]", 8}
+     }
+    },
+    {"24:registerMyName_24",
+     {
+         {"cfg_pattern_data_φ2[3:0]",   4},
+         {"cfg_pattern_data_φ1[13:10]", 4}
+     }
+    },
+    {"25:registerMyName_25",
+     {
+         {"cfg_pattern_data_φ2[11:4]", 8}
+     }
+    },
+    {"26:registerMyName_26",
+     {
+         {"cfg_pattern_data_φ3[5:0]",   6},
+         {"cfg_pattern_data_φ2[13:12]", 2}
+     }
+    },
+    {"27:registerMyName_27",
+     {
+         {"cfg_pattern_data_φ3[13:6]", 8}
+     }
+    },
+    {"28:registerMyName_28",
+     {
+         {"cfg_pattern_data_φ4[7:0]", 8}
+     }
+    },
+    {"29:registerMyName_29",
+     {
+         {"cfg_pattern_data_φ5[1:0]",  2},
+         {"cfg_pattern_data_φ4[13:8]", 6}
+     }
+    },
+    {"30:registerMyName_30",
+     {
+         {"cfg_pattern_data_φ5[9:2]", 8}
+     }
+    },
+    {"31:registerMyName_31",
+     {
+         {"cfg_pattern_data_φ6[3:0]",   4},
+         {"cfg_pattern_data_φ5[13:10]", 4}
+     }
+    },
+    {"32:registerMyName_32",
+     {
+         {"cfg_pattern_data_φ6[11:4]", 8}
+     }
+    },
+    {"33:registerMyName_33",
+     {
+         {"cfg_pattern_data_φ7[5:0]",   6},
+         {"cfg_pattern_data_φ6[13:12]", 2}
+     }
+    },
+    {"34:registerMyName_34",
+     {
+         {"cfg_pattern_data_φ7[13:6]", 8}
+     }
+    }
 };
 
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
+
