@@ -71,6 +71,17 @@ std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_i
     return readdata;
 }
 
+std::vector<uint8_t> nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
+                                                         std::string node,
+                                                         std::vector<uint8_t> address,
+                                                         std::vector<uint8_t> data) {
+    // Insert the address in the beginning of data vector
+    for (auto & address_byte : address){
+      data.push_front(address_byte);
+    }
+    nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, data.data(), data.size());
+}
+
 void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
     auto data = cfg.getByteVector();
     sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
@@ -247,6 +258,11 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 }
 
 void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
+
+    // TODO: 
+    // - get the address from the string name ("0:registerAddress" -> You should extract 0)
+    // - Convert it to uint8_t
+    // - Use sendI2cAtAddress method to send the configuration
 
     size_t art_size = 2;
     uint8_t art_data[] = {0x0,0x0};

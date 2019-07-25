@@ -521,4 +521,8 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                               {"NOT_USED", 3}, {"strip_trigger_band_phid", 13}}}
 };
 
+static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
+    { "0:registerMyName", {{"dllLockedV", 1}, {"reserved", 1}, {"dllLockCfg", 2}, {"muxEn2to8",1},{"muzEn1to8",1},{"dllCoarseLockDetection",1},{"dllResetFromCfg"},1} }
+};
+
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
