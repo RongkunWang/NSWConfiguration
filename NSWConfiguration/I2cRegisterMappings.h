@@ -19,10 +19,11 @@
 
 #include "NSWConfiguration/Types.h"
 
-static const char ROC_ANALOG_NAME[] = "rocPllCoreAnalog";
+static const char ROC_ANALOG_NAME[]  = "rocPllCoreAnalog";
 static const char ROC_DIGITAL_NAME[] = "rocCoreDigital";
-
-static const char TDS_NAME[] = "tds";
+static const char TDS_NAME[]         = "tds";
+static const char ART_CORE_NAME[]    = "art_core";
+static const char ART_PLL_NAME[]     = "art_pll";
 
 static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
     { "reg064ePllVmm0", {
@@ -522,7 +523,7 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
-    {"0:registerMyName_0",
+    {"00:registerMyName_0",
      {
          {"dllLockedV",               1},
          {"reserved",                 1},
@@ -533,14 +534,14 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"dllResetFromCfg",          1}
      }
     },
-    {"1:registerMyName_1",
+    {"01:registerMyName_1",
      {
          {"dataRateDll",              2},
          {"dllConfirmCountSelect",    2},
          {"dllChargePumpCurrent",     4}
      }
     },
-    {"2:registerMyName_2",
+    {"02:registerMyName_2",
      {
          {"enableGroup",              1},
          {"outRegEn",                 1},
@@ -549,40 +550,40 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"trackMode",                2}
      }
     },
-    {"3:registerMyName_3",
+    {"03:registerMyName_3",
      {
          {"enableChannel",            8}
      }
     },
-    {"4:registerMyName_4",
+    {"04:registerMyName_4",
      {
          {"resetChannel",             8}
      }
     },
-    {"5:registerMyName_5",
+    {"05:registerMyName_5",
      {
          {"trainChannel",             8}
      }
     },
-    {"6:registerMyName_6",
+    {"06:registerMyName_6",
      {
          {"phaseSelectChannel1input", 4},
          {"phaseSelectChannel0input", 4}
      }
     },
-    {"7:registerMyName_7",
+    {"07:registerMyName_7",
      {
          {"phaseSelectChannel3input", 4},
          {"phaseSelectChannel2input", 4}
      }
     },
-    {"8:registerMyName_8",
+    {"08:registerMyName_8",
      {
          {"phaseSelectChannel5input", 4},
          {"phaseSelectChannel4input", 4}
      }
     },
-    {"9:registerMyName_9",
+    {"09:registerMyName_9",
      {
          {"phaseSelectChannel7input", 4},
          {"phaseSelectChannel6input", 4}
@@ -961,7 +962,7 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
-    {"0:registerMyName_0",
+    {"00:registerMyName_0",
      {
          {"c_disable_arthist",         1},
          {"c_bypass_pa",               1},
@@ -969,7 +970,7 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"txcset",                    4}
      }
     },
-    {"1:registerMyName_1",
+    {"01:registerMyName_1",
      {
          {"cfg_dout_time2",            1},
          {"cfg_bcr_sel",               1},
@@ -978,7 +979,7 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"cfg_art_revbank",           4}
      }
     },
-    {"2:registerMyName_2",
+    {"02:registerMyName_2",
      {
          {"cfg_dout_pattern",          1},
          {"cfg_dout_artbypass",        1},
@@ -988,37 +989,37 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"cfg_artmask",               3}
      }
     },
-    {"3:registerMyName_3",
+    {"03:registerMyName_3",
      {
          {"cfg_deser_flagmask",        8}
      }
     },
-    {"4:registerMyName_4",
+    {"04:registerMyName_4",
      {
          {"cfg_deser_flagpatt",        8}
      }
     },
-    {"5:registerMyName_5",
+    {"05:registerMyName_5",
      {
          {"cfg_din_invert[7:0]",       8}
      }
     },
-    {"6:registerMyName_6",
+    {"06:registerMyName_6",
      {
          {"cfg_din_invert[15:8]",      8}
      }
     },
-    {"7:registerMyName_7",
+    {"07:registerMyName_7",
      {
          {"cfg_din_invert[23:16]",     8}
      }
     },
-    {"8:registerMyName_8",
+    {"08:registerMyName_8",
      {
          {"cfg_din_invert[31:24]",     8}
      }
     },
-    {"9:registerMyName_9",
+    {"09:registerMyName_9",
      {
          {"cfg_din_mask[7:0]",         8}
      }
@@ -1089,78 +1090,78 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
     },
     {"21:registerMyName_21",
      {
-         {"cfg_pattern_data_φ0[7:0]", 8}
+         {"cfg_pattern_data_phi0[7:0]", 8}
      }
     },
     {"22:registerMyName_22",
      {
-         {"cfg_pattern_data_φ1[1:0]",  2},
-         {"cfg_pattern_data_φ0[13:8]", 6}
+         {"cfg_pattern_data_phi1[1:0]",  2},
+         {"cfg_pattern_data_phi0[13:8]", 6}
      }
     },
     {"23:registerMyName_23",
      {
-         {"cfg_pattern_data_φ1[9:2]", 8}
+         {"cfg_pattern_data_phi1[9:2]", 8}
      }
     },
     {"24:registerMyName_24",
      {
-         {"cfg_pattern_data_φ2[3:0]",   4},
-         {"cfg_pattern_data_φ1[13:10]", 4}
+         {"cfg_pattern_data_phi2[3:0]",   4},
+         {"cfg_pattern_data_phi1[13:10]", 4}
      }
     },
     {"25:registerMyName_25",
      {
-         {"cfg_pattern_data_φ2[11:4]", 8}
+         {"cfg_pattern_data_phi2[11:4]", 8}
      }
     },
     {"26:registerMyName_26",
      {
-         {"cfg_pattern_data_φ3[5:0]",   6},
-         {"cfg_pattern_data_φ2[13:12]", 2}
+         {"cfg_pattern_data_phi3[5:0]",   6},
+         {"cfg_pattern_data_phi2[13:12]", 2}
      }
     },
     {"27:registerMyName_27",
      {
-         {"cfg_pattern_data_φ3[13:6]", 8}
+         {"cfg_pattern_data_phi3[13:6]", 8}
      }
     },
     {"28:registerMyName_28",
      {
-         {"cfg_pattern_data_φ4[7:0]", 8}
+         {"cfg_pattern_data_phi4[7:0]", 8}
      }
     },
     {"29:registerMyName_29",
      {
-         {"cfg_pattern_data_φ5[1:0]",  2},
-         {"cfg_pattern_data_φ4[13:8]", 6}
+         {"cfg_pattern_data_phi5[1:0]",  2},
+         {"cfg_pattern_data_phi4[13:8]", 6}
      }
     },
     {"30:registerMyName_30",
      {
-         {"cfg_pattern_data_φ5[9:2]", 8}
+         {"cfg_pattern_data_phi5[9:2]", 8}
      }
     },
     {"31:registerMyName_31",
      {
-         {"cfg_pattern_data_φ6[3:0]",   4},
-         {"cfg_pattern_data_φ5[13:10]", 4}
+         {"cfg_pattern_data_phi6[3:0]",   4},
+         {"cfg_pattern_data_phi5[13:10]", 4}
      }
     },
     {"32:registerMyName_32",
      {
-         {"cfg_pattern_data_φ6[11:4]", 8}
+         {"cfg_pattern_data_phi6[11:4]", 8}
      }
     },
     {"33:registerMyName_33",
      {
-         {"cfg_pattern_data_φ7[5:0]",   6},
-         {"cfg_pattern_data_φ6[13:12]", 2}
+         {"cfg_pattern_data_phi7[5:0]",   6},
+         {"cfg_pattern_data_phi6[13:12]", 2}
      }
     },
     {"34:registerMyName_34",
      {
-         {"cfg_pattern_data_φ7[13:6]", 8}
+         {"cfg_pattern_data_phi7[13:6]", 8}
      }
     }
 };

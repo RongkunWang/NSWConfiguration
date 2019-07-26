@@ -1,4 +1,4 @@
-// Program to set ADDC configuration and compare goodness with TP
+// Program to set ADDC configuration?
 
 #include <iostream>
 #include <string>
@@ -21,7 +21,7 @@ int main(int argc, const char *argv[])
     desc.add_options()
         ("help,h", "produce help message")
         ("config_file", po::value<std::string>(&config_filename)->
-         default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/addc_test_mmfe8_1_mwe.json"),
+         default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/addc_test_art_common_config.json"),
          "Configuration file path")
         ("name,n", po::value<std::string>(&fe_name)->
          default_value("ADDC_config_00,ADDC_config_01"),
@@ -83,7 +83,7 @@ int main(int argc, const char *argv[])
     for (auto & feb: frontend_configs){
         std::cout << "Found " << feb.getAddress() << " @ " << feb.getOpcServerIp() << std::endl;
         for (auto art: feb.getARTs()){
-            std::cout << "Found " << art.getName() << " with JSON::art_test " << art.register0_test_00() << std::endl;
+            std::cout << "Found " << art.getName() << " with JSON::art_test " << art.register0_test_00() << " and " << art.art_core_cfg_deser_flagmask() << std::endl;
         }
     }
 

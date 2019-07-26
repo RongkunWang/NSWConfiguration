@@ -13,11 +13,13 @@ using boost::property_tree::ptree;
 
 int main(int argc, const char *argv[]) {
     auto roc_digital = ROC_DIGITAL_REGISTERS;
-    auto roc_analog = ROC_ANALOG_REGISTERS;
-    auto tds = TDS_REGISTERS;
+    auto roc_analog  = ROC_ANALOG_REGISTERS;
+    auto tds         = TDS_REGISTERS;
+    auto art_core    = ART_CORE_REGISTERS;
+    auto art_pll     = ART_PLL_REGISTERS;
     // If there is a new object in I2cRegisterMappings, add it to the following list
 
-    auto all = {roc_digital, roc_analog, tds};
+    auto all = {roc_digital, roc_analog, tds, art_core, art_pll};
     for (auto i2cmaster : all) {
         bool first1 = true;
         for (auto address : i2cmaster) {

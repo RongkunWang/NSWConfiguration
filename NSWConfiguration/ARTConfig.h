@@ -28,14 +28,16 @@ class ARTConfig {
     bool failsafe;
 
  public:
-    // nsw::I2cMasterConfig core;
-    // nsw::I2cMasterConfig ps;
+    nsw::I2cMasterConfig core;
+    nsw::I2cMasterConfig pll;
 
     explicit ARTConfig(ptree config);
     ~ARTConfig() {}
 
     ptree getConfig() const {return m_config;}
     void dump() {}
+    void dump_core() { core.dump(); }
+    void dump_pll()  { pll .dump(); }
 
     std::string getName() { return name; }
     void setName(std::string str) { name = str; }
@@ -47,6 +49,7 @@ class ARTConfig {
     void setEnableFailsafe(bool x) { failsafe = x; }
 
     int register0_test_00();
+    int art_core_cfg_deser_flagmask();
 
 };
 
