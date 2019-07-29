@@ -22,5 +22,5 @@ int nsw::ARTConfig::register0_test_00() {
 }
 
 int nsw::ARTConfig::art_core_cfg_deser_flagmask() {
-    return core.getRegisterValue("03:registerMyName_3", "cfg_deser_flagmask");
+    return core.getRegisterValue("03", "cfg_deser_flagmask");
 }

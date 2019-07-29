@@ -79,12 +79,20 @@ int main(int argc, const char *argv[])
         }
     }
 
+    // the sender
+    nsw::ConfigSender cs;
+
     // announce
     for (auto & feb: frontend_configs){
         std::cout << "Found " << feb.getAddress() << " @ " << feb.getOpcServerIp() << std::endl;
         for (auto art: feb.getARTs()){
             std::cout << "Found " << art.getName() << " with JSON::art_test " << art.register0_test_00() << " and " << art.art_core_cfg_deser_flagmask() << std::endl;
         }
+        std::cout << std::endl;
+        std::cout << std::endl;
+        cs.sendAddcConfig(feb);
+        std::cout << std::endl;
+        std::cout << std::endl;
     }
 
     return 0;

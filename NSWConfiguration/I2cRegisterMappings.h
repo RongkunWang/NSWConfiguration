@@ -523,7 +523,7 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
-    {"00:registerMyName_0",
+    {"00",
      {
          {"dllLockedV",               1},
          {"reserved",                 1},
@@ -534,14 +534,14 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"dllResetFromCfg",          1}
      }
     },
-    {"01:registerMyName_1",
+    {"01",
      {
          {"dataRateDll",              2},
          {"dllConfirmCountSelect",    2},
          {"dllChargePumpCurrent",     4}
      }
     },
-    {"02:registerMyName_2",
+    {"02",
      {
          {"enableGroup",              1},
          {"outRegEn",                 1},
@@ -550,75 +550,75 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"trackMode",                2}
      }
     },
-    {"03:registerMyName_3",
+    {"03",
      {
          {"enableChannel",            8}
      }
     },
-    {"04:registerMyName_4",
+    {"04",
      {
          {"resetChannel",             8}
      }
     },
-    {"05:registerMyName_5",
+    {"05",
      {
          {"trainChannel",             8}
      }
     },
-    {"06:registerMyName_6",
+    {"06",
      {
          {"phaseSelectChannel1input", 4},
          {"phaseSelectChannel0input", 4}
      }
     },
-    {"07:registerMyName_7",
+    {"07",
      {
          {"phaseSelectChannel3input", 4},
          {"phaseSelectChannel2input", 4}
      }
     },
-    {"08:registerMyName_8",
+    {"08",
      {
          {"phaseSelectChannel5input", 4},
          {"phaseSelectChannel4input", 4}
      }
     },
-    {"09:registerMyName_9",
+    {"09",
      {
          {"phaseSelectChannel7input", 4},
          {"phaseSelectChannel6input", 4}
      }
     },
-    {"10:registerMyName_10",
+    {"10",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"11:registerMyName_11",
+    {"11",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"12:registerMyName_12",
+    {"12",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"13:registerMyName_13",
+    {"13",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"14:registerMyName_14",
+    {"14",
      {
          {"channelLockedV",           8}
      }
     },
-    {"15:registerMyName_15",
+    {"15",
      {
          {"dllLockedV",               1},
          {"reserved",                 1},
@@ -629,14 +629,14 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"dllResetFromCfg",          1}
      }
     },
-    {"16:registerMyName_16",
+    {"16",
      {
          {"dataRateDll",              2},
          {"dllConfirmCountSelect",    2},
          {"dllChargePumpCurrent",     4}
      }
     },
-    {"17:registerMyName_17",
+    {"17",
      {
          {"enableGroup",              1},
          {"outRegEn",                 1},
@@ -645,75 +645,75 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"trackMode",                2}
      }
     },
-    {"18:registerMyName_18",
+    {"18",
      {
          {"enableChannel",            8}
      }
     },
-    {"19:registerMyName_19",
+    {"19",
      {
          {"resetChannel",             8}
      }
     },
-    {"20:registerMyName_20",
+    {"20",
      {
          {"trainChannel",             8}
      }
     },
-    {"21:registerMyName_21",
+    {"21",
      {
          {"phaseSelectChannel1input", 4},
          {"phaseSelectChannel0input", 4}
      }
     },
-    {"22:registerMyName_22",
+    {"22",
      {
          {"phaseSelectChannel3input", 4},
          {"phaseSelectChannel2input", 4}
      }
     },
-    {"23:registerMyName_23",
+    {"23",
      {
          {"phaseSelectChannel5input", 4},
          {"phaseSelectChannel4input", 4}
      }
     },
-    {"24:registerMyName_24",
+    {"24",
      {
          {"phaseSelectChannel7input", 4},
          {"phaseSelectChannel6input", 4}
      }
     },
-    {"25:registerMyName_25",
+    {"25",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"26:registerMyName_26",
+    {"26",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"27:registerMyName_27",
+    {"27",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"28:registerMyName_28",
+    {"28",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"29:registerMyName_29",
+    {"29",
      {
          {"channelLockedV",           8}
      }
     },
-    {"30:registerMyName_30",
+    {"30",
      {
          {"dllLockedV",               1},
          {"reserved",                 1},
@@ -724,14 +724,14 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"dllResetFromCfg",          1}
      }
     },
-    {"31:registerMyName_31",
+    {"31",
      {
          {"dataRateDll",              2},
          {"dllConfirmCountSelect",    2},
          {"dllChargePumpCurrent",     4}
      }
     },
-    {"32:registerMyName_32",
+    {"32",
      {
          {"enableGroup",              1},
          {"outRegEn",                 1},
@@ -740,75 +740,75 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"trackMode",                2}
      }
     },
-    {"33:registerMyName_33",
+    {"33",
      {
          {"enableChannel",            8}
      }
     },
-    {"34:registerMyName_34",
+    {"34",
      {
          {"resetChannel",             8}
      }
     },
-    {"35:registerMyName_35",
+    {"35",
      {
          {"trainChannel",             8}
      }
     },
-    {"36:registerMyName_36",
+    {"36",
      {
          {"phaseSelectChannel1input", 4},
          {"phaseSelectChannel0input", 4}
      }
     },
-    {"37:registerMyName_37",
+    {"37",
      {
          {"phaseSelectChannel3input", 4},
          {"phaseSelectChannel2input", 4}
      }
     },
-    {"38:registerMyName_38",
+    {"38",
      {
          {"phaseSelectChannel5input", 4},
          {"phaseSelectChannel4input", 4}
      }
     },
-    {"39:registerMyName_39",
+    {"39",
      {
          {"phaseSelectChannel7input", 4},
          {"phaseSelectChannel6input", 4}
      }
     },
-    {"40:registerMyName_40",
+    {"40",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"41:registerMyName_41",
+    {"41",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"42:registerMyName_42",
+    {"42",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"43:registerMyName_43",
+    {"43",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"44:registerMyName_44",
+    {"44",
      {
          {"channelLockedV",           8}
      }
     },
-    {"45:registerMyName_45",
+    {"45",
      {
          {"dllLockedV",               1},
          {"reserved",                 1},
@@ -819,14 +819,14 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"dllResetFromCfg",          1}
      }
     },
-    {"46:registerMyName_46",
+    {"46",
      {
          {"dataRateDll",              2},
          {"dllConfirmCountSelect",    2},
          {"dllChargePumpCurrent",     4}
      }
     },
-    {"47:registerMyName_47",
+    {"47",
      {
          {"enableGroup",              1},
          {"outRegEn",                 1},
@@ -835,81 +835,81 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"trackMode",                2}
      }
     },
-    {"48:registerMyName_48",
+    {"48",
      {
          {"enableChannel",            8}
      }
     },
-    {"49:registerMyName_49",
+    {"49",
      {
          {"resetChannel",             8}
      }
     },
-    {"50:registerMyName_50",
+    {"50",
      {
          {"trainChannel",             8}
      }
     },
-    {"51:registerMyName_51",
+    {"51",
      {
          {"phaseSelectChannel1input", 4},
          {"phaseSelectChannel0input", 4}
      }
     },
-    {"52:registerMyName_52",
+    {"52",
      {
          {"phaseSelectChannel3input", 4},
          {"phaseSelectChannel2input", 4}
      }
     },
-    {"53:registerMyName_53",
+    {"53",
      {
          {"phaseSelectChannel5input", 4},
          {"phaseSelectChannel4input", 4}
      }
     },
-    {"54:registerMyName_54",
+    {"54",
      {
          {"phaseSelectChannel7input", 4},
          {"phaseSelectChannel6input", 4}
      }
     },
-    {"55:registerMyName_55",
+    {"55",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"56:registerMyName_56",
+    {"56",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"57:registerMyName_57",
+    {"57",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"58:registerMyName_58",
+    {"58",
      {
          {"phaseSelectChannel1output",4},
          {"phaseSelectChannel0output",4}
      }
     },
-    {"59:registerMyName_59",
+    {"59",
      {
          {"channelLockedV",           8}
      }
     },
-    {"60:registerMyName_60",
+    {"60",
      {
          {"dllLockedMask",            4},
          {"txcset",                   4}
      }
     },
-    {"61:registerMyName_61",
+    {"61",
      {
          {"NOT_USED",                 2},
          {"resetAll",                 1},
@@ -919,42 +919,42 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"rxTermClk_i",              2}
      }
     },
-    {"62:registerMyName_62",
+    {"62",
      {
          {"rxOff",                    8}
      }
     },
-    {"63:registerMyName_63",
+    {"63",
      {
          {"rxOff",                    8}
      }
     },
-    {"64:registerMyName_64",
+    {"64",
      {
          {"rxOff",                    8}
      }
     },
-    {"65:registerMyName_65",
+    {"65",
      {
          {"rxOff",                    8}
      }
     },
-    {"66:registerMyName_66",
+    {"66",
      {
          {"rxTermEnable",             8}
      }
     },
-    {"67:registerMyName_67",
+    {"67",
      {
          {"rxTermEnable",             8}
      }
     },
-    {"68:registerMyName_68",
+    {"68",
      {
          {"rxTermEnable",             8}
      }
     },
-    {"69:registerMyName_69",
+    {"69",
      {
          {"rxTermEnable",             8}
      }
@@ -962,7 +962,7 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
 };
 
 static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
-    {"00:registerMyName_0",
+    {"00",
      {
          {"c_disable_arthist",         1},
          {"c_bypass_pa",               1},
@@ -970,7 +970,7 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"txcset",                    4}
      }
     },
-    {"01:registerMyName_1",
+    {"01",
      {
          {"cfg_dout_time2",            1},
          {"cfg_bcr_sel",               1},
@@ -979,7 +979,7 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"cfg_art_revbank",           4}
      }
     },
-    {"02:registerMyName_2",
+    {"02",
      {
          {"cfg_dout_pattern",          1},
          {"cfg_dout_artbypass",        1},
@@ -989,177 +989,177 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
          {"cfg_artmask",               3}
      }
     },
-    {"03:registerMyName_3",
+    {"03",
      {
          {"cfg_deser_flagmask",        8}
      }
     },
-    {"04:registerMyName_4",
+    {"04",
      {
          {"cfg_deser_flagpatt",        8}
      }
     },
-    {"05:registerMyName_5",
+    {"05",
      {
          {"cfg_din_invert[7:0]",       8}
      }
     },
-    {"06:registerMyName_6",
+    {"06",
      {
          {"cfg_din_invert[15:8]",      8}
      }
     },
-    {"07:registerMyName_7",
+    {"07",
      {
          {"cfg_din_invert[23:16]",     8}
      }
     },
-    {"08:registerMyName_8",
+    {"08",
      {
          {"cfg_din_invert[31:24]",     8}
      }
     },
-    {"09:registerMyName_9",
+    {"09",
      {
          {"cfg_din_mask[7:0]",         8}
      }
     },
-    {"10:registerMyName_10",
+    {"10",
      {
          {"cfg_din_mask[7:0]",         8}
      }
     },
-    {"11:registerMyName_11",
+    {"11",
      {
          {"cfg_din_mask[7:0]",         8}
      }
     },
-    {"12:registerMyName_12",
+    {"12",
      {
          {"cfg_din_mask[7:0]",         8}
      }
     },
-    {"13:registerMyName_13",
+    {"13",
      {
          {"cfg_bcid0[7:0]",            8}
      }
     },
-    {"14:registerMyName_14",
+    {"14",
      {
          {"cfg_bcid1[3:0]",            4},
          {"cfg_bcid0[11:8]",           4}
      }
     },
-    {"15:registerMyName_15",
+    {"15",
      {
          {"cfg_bcid1[11:4]",           8}
      }
     },
      // here be dragons
-    {"16:registerMyName_16",
+    {"16",
      {
          {"cfg_artbypass_sel_ch1[2:0]", 3},
          {"cfg_artbypass_sel_ch0[4:0]", 5}
      }
     },
-    {"17:registerMyName_17",
+    {"17",
      {
          {"cfg_artbypass_sel_ch3[0]",   1},
          {"cfg_artbypass_sel_ch2[4:0]", 5},
          {"cfg_artbypass_sel_ch1[4:3]", 2}
      }
     },
-    {"18:registerMyName_18",
+    {"18",
      {
          {"cfg_artbypass_sel_ch4[3:0]", 4},
          {"cfg_artbypass_sel_ch3[4:1]", 4}
      }
     },
-    {"19:registerMyName_19",
+    {"19",
      {
          {"cfg_artbypass_sel_ch6[1:0]", 2},
          {"cfg_artbypass_sel_ch5[4:0]", 5},
          {"cfg_artbypass_sel_ch4[4]",   1}
      }
     },
-    {"20:registerMyName_20",
+    {"20",
      {
          {"cfg_artbypass_sel_ch7[4:0]", 5},
          {"cfg_artbypass_sel_ch6[4:2]", 3}
      }
     },
-    {"21:registerMyName_21",
+    {"21",
      {
          {"cfg_pattern_data_phi0[7:0]", 8}
      }
     },
-    {"22:registerMyName_22",
+    {"22",
      {
          {"cfg_pattern_data_phi1[1:0]",  2},
          {"cfg_pattern_data_phi0[13:8]", 6}
      }
     },
-    {"23:registerMyName_23",
+    {"23",
      {
          {"cfg_pattern_data_phi1[9:2]", 8}
      }
     },
-    {"24:registerMyName_24",
+    {"24",
      {
          {"cfg_pattern_data_phi2[3:0]",   4},
          {"cfg_pattern_data_phi1[13:10]", 4}
      }
     },
-    {"25:registerMyName_25",
+    {"25",
      {
          {"cfg_pattern_data_phi2[11:4]", 8}
      }
     },
-    {"26:registerMyName_26",
+    {"26",
      {
          {"cfg_pattern_data_phi3[5:0]",   6},
          {"cfg_pattern_data_phi2[13:12]", 2}
      }
     },
-    {"27:registerMyName_27",
+    {"27",
      {
          {"cfg_pattern_data_phi3[13:6]", 8}
      }
     },
-    {"28:registerMyName_28",
+    {"28",
      {
          {"cfg_pattern_data_phi4[7:0]", 8}
      }
     },
-    {"29:registerMyName_29",
+    {"29",
      {
          {"cfg_pattern_data_phi5[1:0]",  2},
          {"cfg_pattern_data_phi4[13:8]", 6}
      }
     },
-    {"30:registerMyName_30",
+    {"30",
      {
          {"cfg_pattern_data_phi5[9:2]", 8}
      }
     },
-    {"31:registerMyName_31",
+    {"31",
      {
          {"cfg_pattern_data_phi6[3:0]",   4},
          {"cfg_pattern_data_phi5[13:10]", 4}
      }
     },
-    {"32:registerMyName_32",
+    {"32",
      {
          {"cfg_pattern_data_phi6[11:4]", 8}
      }
     },
-    {"33:registerMyName_33",
+    {"33",
      {
          {"cfg_pattern_data_phi7[5:0]",   6},
          {"cfg_pattern_data_phi6[13:12]", 2}
      }
     },
-    {"34:registerMyName_34",
+    {"34",
      {
          {"cfg_pattern_data_phi7[13:6]", 8}
      }
