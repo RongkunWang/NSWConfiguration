@@ -613,11 +613,11 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"phaseSelectChannel0output",4}
      }
     },
-    {"14",
-     {
-         {"channelLockedV",           8}
-     }
-    },
+    // {"14",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
     {"15",
      {
          {"dllLockedV",               1},
@@ -708,11 +708,11 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"phaseSelectChannel0output",4}
      }
     },
-    {"29",
-     {
-         {"channelLockedV",           8}
-     }
-    },
+    // {"29",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
     {"30",
      {
          {"dllLockedV",               1},
@@ -803,11 +803,11 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"phaseSelectChannel0output",4}
      }
     },
-    {"44",
-     {
-         {"channelLockedV",           8}
-     }
-    },
+    // {"44",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
     {"45",
      {
          {"dllLockedV",               1},
@@ -898,11 +898,11 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
          {"phaseSelectChannel0output",4}
      }
     },
-    {"59",
-     {
-         {"channelLockedV",           8}
-     }
-    },
+    // {"59",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
     {"60",
      {
          {"dllLockedMask",            4},
@@ -911,7 +911,7 @@ static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
     },
     {"61",
      {
-         {"NOT_USED",                 2},
+         {"unused",                   2},
          {"resetAll",                 1},
          {"test_mux",                 1},
          {"rxOffSclk",                1},
