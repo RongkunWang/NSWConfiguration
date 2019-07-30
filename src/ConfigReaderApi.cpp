@@ -210,10 +210,10 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
         }
     }
 
-    ptree tds_common = m_config.get_child("tds_common_config");
     for ( int i = 0; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
+        ptree tds_common = m_config.get_child("tds_common_config");
         if (feb.get_child_optional(name)) {  // If node exists
             specific = feb.get_child(name);
         }
