@@ -106,6 +106,8 @@ void nsw::NSWConfigRc::configureFEBs() {
         auto name = fe.first;
         auto configuration = fe.second;
         if (!m_simulation) {
+            m_sender->sendRocConfig(configuration);
+            
             if (m_resetvmm)
             {
                 for (auto & vmm : configuration.getVmms()) { 
@@ -117,8 +119,9 @@ void nsw::NSWConfigRc::configureFEBs() {
                     vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
                 }
             }
+            m_sender->sendVmmConfig(configuration);
 
-            m_sender->sendConfig(configuration);
+            m_sender->sendTdsConfig(configuration);
         }
         sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending config to: " << name);
