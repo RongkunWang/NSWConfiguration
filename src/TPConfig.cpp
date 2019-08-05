@@ -6,36 +6,54 @@
 
 
 nsw::TPConfig::TPConfig(ptree config):
-        FEConfig(config)
-        // ROC_ANALOG_NAME, etc need to be changed
-        // m_tp_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
-        // m_tp_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS)
-        {
-        std::cout << "TPConfig::TPConfig()" << std::endl;
-    /// A FE can have up to 8 vmms, the config ptree should be constructed with correct number vmms
-    // for (int i = 0; i < 8; i++) {
-    //     std::string vmmname = "vmm" + std::to_string(i);
-    //     if (config.find(vmmname) != config.not_found()) {
-    //         ERS_DEBUG(3, "VMM id:" << vmmname);
-    //         m_vmms.emplace_back(config.get_child(vmmname));
-    //         m_vmms.back().setName(vmmname);
-    //     }
-    // }
+FEConfig(config)
+{
+	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	{
+		std::string mastername = "i2cMaster" + std::to_string(i);
+		if (config.find(mastername) != config.not_found())
+		{
+			// make map pair or register file object (alloc memory first) and it's index name
+			ERS_DEBUG(3, "creating object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]);
 
-    /// A FE can have up to 3 tdss, the config ptree should be constructed with correct number vmms
-    for (int i = 0; i < 16; i++) {
-        std::string mastername = "i2cMaster" + std::to_string(i);
-        if (config.find(mastername) != config.not_found()) {
-            ERS_DEBUG(3, "I2c master id:" << mastername);
-            m_config_elements.emplace_back(config.get_child(mastername), mastername, TP_REGISTERS);
-        }
-    }
+			m_I2cMasterConfigPtrArr[i] = new I2cMasterConfig(config.get_child(registerFilesNamesArr[i]), registerFilesNamesArr[i], registerFilesArr[i]);
+			m_registerFiles.insert(std::make_pair(registerFilesNamesArr[i], m_I2cMasterConfigPtrArr[i]));
+		}
+		else
+		{
+			// register file name was declred but not found in ptree
+			ERS_DEBUG(3, "mastername[" << mastername << "] : " << registerFilesNamesArr[i] << " not found!!");
+		}
+	}
 }
 
-void nsw::TPConfig::dump() {
-    // m_tp_analog.dump();
-    // m_tp_digital.dump();
-    // std::cout << "Number of TDS: " << m_tdss.size() << std::endl;
-    for (auto config_element : m_config_elements) {config_element.dump();}
-    // std::cout << "Number of VMMs: " << m_vmms.size() << std::endl;
+void nsw::TPConfig::setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name)
+{
+	// set value of a register which salve of is on a register file (master)
+	m_registerFiles[master]->setRegisterValue(slave, register_name, value);
 }
+
+uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, std::string register_name)
+{
+	// get value of a register which salve of is on a register file (master)
+	return m_registerFiles[master]->getRegisterValue(slave, register_name);
+}
+
+void nsw::TPConfig::dump()
+{
+	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	{
+		m_registerFiles[registerFilesNamesArr[i]]->dump();
+	}
+}
+
+nsw::TPConfig::~TPConfig( )
+{
+	// deallocate all memory taken in the constructor
+	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	{
+		ERS_DEBUG(3, "deallocate object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]  << " object address = " << static_cast<void*>(m_registerFiles[registerFilesNamesArr[i]]));
+		delete m_registerFiles[registerFilesNamesArr[i]];
+	}
+}
+
