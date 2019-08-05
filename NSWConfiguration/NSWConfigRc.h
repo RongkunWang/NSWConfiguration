@@ -35,7 +35,7 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     void stopRecording(const daq::rc::TransitionCmd& cmd) override;
 
-    // void unconfigure(const daq::rc::TransitionCmd& cmd) override;
+    void unconfigure(const daq::rc::TransitionCmd& cmd) override;
 
     void user(const daq::rc::UserCmd& cmd) override;
 
@@ -64,6 +64,9 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     // Database connection string
     std::string m_dbcon;
+
+    // reset the vmms before config
+    bool m_resetvmm;
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
