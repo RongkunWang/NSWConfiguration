@@ -51,7 +51,33 @@ class VMMConfig: public FEConfig {
     void setGlobalRegister(std::string register_name, unsigned value);
     void setChannelRegisterAllChannels(std::string register_name, unsigned value);
     void setChannelRegisterOneChannel(std::string register_name, unsigned value, size_t channel);
+
+    void setTestPulseDAC    (size_t param);
+    void setGlobalThreshold (size_t param);
+    void setMonitorOutput   (size_t channel_id, size_t param);
+    void setChannelTrimmer  (size_t channel_id, size_t param);
+    void setChannelMOMode   (size_t channel_id, size_t param);
 };
+
+namespace vmm {
+
+    /// vmm register values
+
+    /// scmx
+    const size_t CommonMonitor  = 0;
+    const size_t ChannelMonitor = 1;
+
+    /// sm (when scmx = 0)
+    const size_t TestPulseDAC = 1;
+    const size_t ThresholdDAC = 2;
+    const size_t BandGapRef   = 3;
+    const size_t Temperature  = 4;
+    
+    /// channel_smx
+    const size_t ChannelAnalogOutput     = 0;
+    const size_t ChannelTrimmedThreshold = 1;
+
+}
 
 }  // namespace nsw
 

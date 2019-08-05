@@ -24,6 +24,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
       const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
       m_dbcon = nswConfigApp->get_dbConnection();
+      m_resetvmm = nswConfigApp->get_resetVMM();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
         // TODO(cyildiz): catch and throw correct exceptions
@@ -57,6 +58,14 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     configureFEBs();  // Configure all front-ends
     ERS_LOG("End");
 }
+
+void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    m_frontends.clear();
+    // m_reader.reset();
+    ERS_INFO("End");
+}
+
 
 void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
@@ -97,7 +106,22 @@ void nsw::NSWConfigRc::configureFEBs() {
         auto name = fe.first;
         auto configuration = fe.second;
         if (!m_simulation) {
-            m_sender->sendConfig(configuration);
+            m_sender->sendRocConfig(configuration);
+            
+            if (m_resetvmm)
+            {
+                for (auto & vmm : configuration.getVmms()) { 
+                    vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
+                }
+                m_sender->sendVmmConfig(configuration);
+
+                for (auto & vmm : configuration.getVmms()) { 
+                    vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+                }
+            }
+            m_sender->sendVmmConfig(configuration);
+
+            m_sender->sendTdsConfig(configuration);
         }
         sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending config to: " << name);

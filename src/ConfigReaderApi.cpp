@@ -27,6 +27,8 @@ ptree ConfigReaderApi::read(std::string element) {
         return readSFEB(element);
     } else if (nsw::getElementType(element) == "TP") {
         return readTP(element);
+    } else if (nsw::getElementType(element) == "ADDC") {
+        return readADDC(element, 2);
     }
 }
 
@@ -228,10 +230,10 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
         }
     }
 
-    ptree tds_common = m_config.get_child("tds_common_config");
     for ( int i = 0; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
+        ptree tds_common = m_config.get_child("tds_common_config");
         if (feb.get_child_optional(name)) {  // If node exists
             specific = feb.get_child(name);
         }
@@ -292,6 +294,31 @@ ptree ConfigReaderApi::readTDS(std::string element) {
     }
 
     return tree;
+}
+
+ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
+
+    // how to dump a json to screen:
+    // std::stringstream ss;
+    // boost::property_tree::json_parser::write_json(ss, m_config);
+    // std::cout << ss.str() << std::endl;
+
+    ptree feb = m_config.get_child(element);
+    ptree art_common = m_config.get_child("art_common_config");
+    art_common.put("OpcServerIp", "none");  // TODO(tuna): Do what Cenk does for VMM
+    art_common.put("OpcNodeId",   "none");  // TODO(tuna): Do what Cenk does for VMM
+
+    for ( size_t i = 0; i < nart; i++ ) {
+        std::string name = "art" + std::to_string(i);
+        ptree specific;
+        if (feb.get_child_optional(name)) {  // If node exists
+            specific = feb.get_child(name);
+        }
+        mergeI2cMasterTree(specific, art_common);
+        feb.put_child(name, art_common);
+    }
+
+    return feb;
 }
 
 ptree & JsonApi::read() {

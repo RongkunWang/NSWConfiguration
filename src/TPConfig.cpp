@@ -31,6 +31,8 @@ void nsw::TPConfig::setRegisterValue(std::string master, std::string slave, uint
 {
 	// set value of a register which salve of is on a register file (master)
 	m_registerFiles[master]->setRegisterValue(slave, register_name, value);
+
+	return;
 }
 
 uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, std::string register_name)
@@ -45,6 +47,8 @@ void nsw::TPConfig::dump()
 	{
 		m_registerFiles[registerFilesNamesArr[i]]->dump();
 	}
+
+	return;
 }
 
 nsw::TPConfig::~TPConfig( )
@@ -55,5 +59,7 @@ nsw::TPConfig::~TPConfig( )
 		ERS_DEBUG(3, "deallocate object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]  << " object address = " << static_cast<void*>(m_registerFiles[registerFilesNamesArr[i]]));
 		delete m_registerFiles[registerFilesNamesArr[i]];
 	}
+
+	return;
 }
 

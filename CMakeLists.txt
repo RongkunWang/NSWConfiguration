@@ -29,6 +29,22 @@ tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_baseline_with_scope app/read_baseline_with_scope.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(calibrate_trimmers app/calibrate_trimmers.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(read_channel_trimmers app/read_channel_trimmers.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(read_channel_thresholds app/read_channel_thresholds.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(check_gpio app/check_gpio.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
@@ -41,12 +57,17 @@ tdaq_add_executable(roc_select_phase app/roc_select_phase.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
-                 src/FEBConfig.cpp
+                 src/FEBConfig.cpp src/ARTConfig.cpp
+                 src/ADDCConfig.cpp
                  src/TPConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
