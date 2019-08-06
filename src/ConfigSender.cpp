@@ -261,18 +261,11 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 
 void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
 
-    // TODO: 
-    // - get the address from the string name ("0:registerAddress" -> You should extract 0)
-    // - Convert it to uint8_t
-    // - Use sendI2cAtAddress method to send the configuration
-
     size_t art_size = 2;
     uint8_t art_data[] = {0x0,0x0};
     size_t gbtx_size = 3;
     uint8_t gbtx_data[] = {0x0,0x0,0x0}; // 2 for address (i), 1 for data
-    int progress = 1;
-    int art_mask = 0;
-    bool train = 0;
+    // int progress = 1;
 
     auto opc_ip                      = feb.getOpcServerIp();
     auto sca_addr                    = feb.getAddress();
@@ -282,9 +275,8 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
     auto GBTx_eport_registers        = feb.GBTx_eport_registers();
     auto ADDC_GBTx_ConfigurationData = feb.GBTx_ConfigurationData();
 
-    // art
+    // art common config
     for (auto art: feb.getARTs()) {
-
         for (auto tup: {std::make_pair("Core", art.core),
                         std::make_pair("Ps",   art.pll)}) {
             auto name = sca_addr + "." + art.getName() + tup.first + "." + art.getName() + tup.first;
@@ -292,125 +284,116 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
             for (auto ab : addr_bitstr) {
                 art_data[0] = static_cast<uint8_t>( std::stoi(ab.first) );
                 art_data[1] = static_cast<uint8_t>( std::stoi(ab.second, nullptr, 2) );
-                // sendI2cRaw(opc_ip, name, art_data, art_size);
-                std::cout << "sendAddc address   " << name        << std::endl;
-                std::cout << "sendAddc art_data0 " << "0x" << std::hex << unsigned(art_data[0]) << std::endl;
-                std::cout << "sendAddc art_data1 " << "0x" << std::hex << unsigned(art_data[1]) << std::endl;
-                std::cout << "---------------------------" << std::dec << std::endl;
+                sendI2cRaw(opc_ip, name, art_data, art_size);
             }
         }
     }
 
-    // // tmp 0
-    // void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
-    //                                          std::string node,
-    //                                          std::vector<uint8_t> address,
-    //                                          std::vector<uint8_t> data);
-    // nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, data.data(), data.size());
+    // Reset ARTs
+    std::cout << "ART reset" << std::endl;
+    for (auto art: feb.getARTs()) {
+        auto name = sca_addr + ".gpio." + art.getName();
+        sendGPIO(opc_ip, name + "Rstn",  0); usleep(10000); // reset cfg
+        sendGPIO(opc_ip, name + "Rstn",  1); usleep(10000);
+        sendGPIO(opc_ip, name + "SRstn", 0); usleep(10000); // reset i2c
+        sendGPIO(opc_ip, name + "SRstn", 1); usleep(10000);
+        sendGPIO(opc_ip, name + "CRstn", 0); usleep(10000); // reset core
+        sendGPIO(opc_ip, name + "CRstn", 1); usleep(10000);
+    }
 
-    // // tmp 1
-    // void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
-    //                                             std::string topnode, nsw::I2cMasterConfig& cfg);
-    // //             
-    // auto address = sca_address + "." + cfg.getName() + "." + ab.first;
-    // auto bitstr = ab.second;
-    // auto data = nsw::stringToByteVector(bitstr);
-    // sendI2cRaw(opcserver_ipport, address, data.data(), data.size());                            
+    // Mask ARTs
+    std::cout << "ART mask" << std::endl;
+    for (auto art: feb.getARTs()) {
+        auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
+        for (auto reg: ARTCoreregisters) {
+            art_data[0] = reg;
+            art_data[1] = 0xFF;
+            sendI2cRaw(opc_ip, name, art_data, art_size);
+        }
+    }
+
+    // Train GBTx
+    for (auto art: feb.getARTs()) {
+
+        bool train;
+        auto core = sca_addr + \
+            ".art"  + std::to_string(art.index()) + "Core" + \
+            ".art"  + std::to_string(art.index()) + "Core";
+        auto gbtx = sca_addr + \
+            ".gbtx" + std::to_string(art.index()) + \
+            ".gbtx" + std::to_string(art.index());
+
+        // ART pattern mode
+        std::cout << "ART pattern mode" << std::endl;
+        for (uint i=0; i<ARTregisters.size(); i++) {
+            art_data[0] = ARTregisters[i];
+            art_data[1] = ARTregistervalues[i];
+            sendI2cRaw(opc_ip, core, art_data, art_size);
+        }
+
+        // GBTx to training mode
+        std::cout << "GBTx training mode" << std::endl;
+        gbtx_data[0] = 62;
+        gbtx_data[1] = 0;
+        gbtx_data[2] = 0x15;
+        sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
+
+        // Enable GBTx eport training
+        std::cout << "GBTx eport enable" << std::endl;
+        train = 1;
+        for (uint i=0; i<GBTx_eport_registers.size(); i++) {
+            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
+            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
+            gbtx_data[2] = train ? 0xff : 0x00;
+            sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
+        }
+
+        // Pause
+        usleep(100000);
+
+        // Disable GBTx eport training
+        std::cout << "GBTx eport disable" << std::endl;
+        train = 0;
+        for (uint i=0; i<GBTx_eport_registers.size(); i++) {
+            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
+            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
+            gbtx_data[2] = train ? 0xff : 0x00;
+            sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
+        }
+
+        // ART default mode
+        std::cout << "ART default mode" << std::endl;
+        for (auto reg: ARTregisters) {
+            auto addr_bitstr = art.core.getBitstreamMap();
+            for (auto ab : addr_bitstr) {
+                if (reg == static_cast<uint8_t>( std::stoi(ab.first) )) {
+                    art_data[0] = static_cast<uint8_t>( std::stoi(ab.first) );
+                    art_data[1] = static_cast<uint8_t>( std::stoi(ab.second, nullptr, 2) );
+                    sendI2cRaw(opc_ip, core, art_data, art_size);
+                    break;
+                }
+            }
+        }
 
 
-    // art
-    // for (auto art: feb.getARTs()) {
+    }
 
-    //     std::string gpio = ".gpio.art" + std::to_string(art.index());
-
-    //     // reset cfg
-    //     sendGPIO(opc_ip, sca_address + gpio + "Rstn",  0);  usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "Rstn",  1);  usleep(10000);
-    //     // reset i2c
-    //     sendGPIO(opc_ip, sca_address + gpio + "SRstn", 0); usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "SRstn", 1); usleep(10000);
-    //     // reset core
-    //     sendGPIO(opc_ip, sca_address + gpio + "CRstn", 0); usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "CRstn", 1); usleep(10000);
-
-    //     // init sca rst
-    //     sendGPIO(opc_ip, sca_address + gpio + "SRstn", 1); usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "CRstn", 1); usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "Rstn",  1); usleep(10000);
-
-    // }
-
-    // gbt
-    // for (auto gbtx: {0, 1}) {
-
-    //     std::string gpio = ".gpio.gbtx" + std::to_string(gbtx);
-    //     std::string gbtx_str = ".gbtx" + std::to_string(gbtx) + ".gbtx" + std::to_string(gbtx);
-
-    //     sendGPIO(opc_ip, sca_address + gpio + "Rstn", 0); usleep(10000);
-    //     sendGPIO(opc_ip, sca_address + gpio + "Rstn", 1); usleep(10000);
-
-    //     int pr = 0;
-    //     for (uint i=0; i<ADDC_GBTx_ConfigurationData.size(); i++) {
-    //         if((((i*20)/ADDC_GBTx_ConfigurationData.size())%20) - pr == 1 && progress) {
-    //             pr++;
-    //             std::cout << "." << std::flush;
-    //         }
-    //         gbtx_data[1] = ((uint8_t) ((i) >> 8));
-    //         gbtx_data[0] = ((uint8_t) ((i) & 0xff));
-    //         gbtx_data[2] = ADDC_GBTx_ConfigurationData[i];
-    //         sendI2cRaw(opc_ip, sca_address + gbtx_str, gbtx_data, gbtx_size);
-    //     }
-
-    // }
-
-    // more art
-    // for (auto art: feb.getARTs()) {
-
-    //     std::string core = ".art" + std::to_string(art.index()) + "Core.art" + std::to_string(art.index()) + "Core";
-
-    //     // art_bcid_config
-    //     art_data[0] = 14;
-    //     art_data[1] = 0xF0;
-    //     sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-    //     art_data[0] = 15;
-    //     art_data[1] = 0xFF;
-    //     sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-
-    //     // art_mask_config
-    //     for (uint i=0; i<ARTCoreregisters.size(); i++) {
-    //         art_data[0] = ARTCoreregisters[i];
-    //         art_data[1] = (uint8_t)((art_mask >> (8*i)) & 0xff);
-    //         sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-    //     }
-
-    //     // art_failsafe_mode
-    //     bool fs = art.getEnableFailsafe();
-    //     art_data[0] = 3;
-    //     art_data[1] = (fs) ? 0x06 : 0x0E;
-    //     sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-    //     art_data[0] = 4;
-    //     art_data[1] = (fs) ? 0x27 : 0x3F;
-    //     sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-
-    //     // art_pattern_mode_config
-    //     for (uint i=0; i<ARTregisters.size(); i++) {
-    //         art_data[0] = ARTregisters[i];
-    //         art_data[1] = ARTregistervalues[i];
-    //         sendI2cRaw(opc_ip, sca_address + core, art_data, art_size);
-    //     }
-
-    // }
-
-    // more gbt
-    // for (auto gbtx: {0, 1}) {
-    //     std::string gbtx_str = ".gbtx" + std::to_string(gbtx) + ".gbtx" + std::to_string(gbtx);
-    //     for (uint i=0; i<GBTx_eport_registers.size(); i++) {
-    //         gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
-    //         gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
-    //         gbtx_data[2] = train ? 0xff : 0x00;
-    //         sendI2cRaw(opc_ip, sca_address + gbtx_str, gbtx_data, gbtx_size);
-    //     }
-    // }
+    // Unmask
+    std::cout << "ART unmask" << std::endl;
+    for (auto art: feb.getARTs()) {
+        auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
+        for (auto reg: ARTCoreregisters) {
+            auto addr_bitstr = art.core.getBitstreamMap();
+            for (auto ab : addr_bitstr) {
+                if (reg == static_cast<uint8_t>( std::stoi(ab.first) )) {
+                    art_data[0] = static_cast<uint8_t>( std::stoi(ab.first) );
+                    art_data[1] = static_cast<uint8_t>( std::stoi(ab.second, nullptr, 2) );
+                    sendI2cRaw(opc_ip, name, art_data, art_size);
+                    break;
+                }
+            }
+        }
+    }
 
 }
 
