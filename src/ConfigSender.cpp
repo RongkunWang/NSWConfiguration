@@ -216,28 +216,28 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
 void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
                                       const I2cMasterConfig & analog, const I2cMasterConfig & digital) {
     // 1. Reset all logics
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 0);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 0);
 
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 1);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocSResetN", 1);
 
     sendI2cMasterConfig(opc_ip, sca_address, analog);
 
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 1);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 1);
 
-    // ERS_DEBUG(2, "Waiting for ROC Pll locks...");
-    // bool roc_locked = 0;
-    // while (!roc_locked) {
-    //     bool rPll1 = readGPIO(opc_ip, sca_address + ".gpio.rocPllLocked");
-    //     bool rPll2 = readGPIO(opc_ip, sca_address + ".gpio.rocPllRocLocked");
-    //     roc_locked = rPll1 & rPll2;
-    //     ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
-    // }
+    ERS_DEBUG(2, "Waiting for ROC Pll locks...");
+    bool roc_locked = 0;
+    while (!roc_locked) {
+        bool rPll1 = readGPIO(opc_ip, sca_address + ".gpio.rocPllLocked");
+        bool rPll2 = readGPIO(opc_ip, sca_address + ".gpio.rocPllRocLocked");
+        roc_locked = rPll1 & rPll2;
+        ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
+    }
 
-    // sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
+    sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
 
-    // sendI2cMasterConfig(opc_ip, sca_address, digital);
+    sendI2cMasterConfig(opc_ip, sca_address, digital);
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
