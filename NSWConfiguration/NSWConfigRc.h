@@ -54,10 +54,14 @@ class NSWConfigRc: public daq::rc::Controllable {
     //! Configure all front ends in m_frontends
     void configureFEBs();
 
+    //! Configure all ADDCs in m_addcs
+    void configureADDCs();
+
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
     std::map<std::string, FEBConfig> m_frontends;   //! Each element is [frontend_name, frontend_config]
+    std::map<std::string, ADDCConfig> m_addcs;      //!
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;
