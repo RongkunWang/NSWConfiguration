@@ -15,6 +15,7 @@ from collections import OrderedDict
 import subprocess
 import time
 from random import randrange,shuffle
+import distutils.spawn
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--inputFile","-i",  type = str, help="input csv file", default = "scax_test.txt")
@@ -43,6 +44,13 @@ print("Welcome to scax_stress_test. I'm going to write a bunch of values to regi
 for setting in dir(args):
 	if not setting[0]=="_":
 		print( ">>> ... Setting: {: >20} {: >40}".format(setting, eval("args.%s"%setting) ) )
+
+
+# Check that I have access to nsw_tp_comm_test
+if not distutils.spawn.find_executable("nsw_tp_comm_test"):
+	print("... WARNING: I can't find nsw_tp_comm_test. Make sure it's in your PATH.")
+	print("... export PATH=$PATH:/path/to/x86_64-centos7-gcc8-opt/NSWConfiguration/")
+	sys.exit(1)
 
 
 if not args.generate:
@@ -82,7 +90,7 @@ for iReg,regAddr in enumerate(dictOfRegisters):
 		print(iReg)
 
 	for master in listOfMasters:
-		command = "./nsw_tp_comm_test -W -r %s -m %s -s NSW_TrigProc_STGC.I2C_%d.bus%d"%(regAddr,dictOfRegisters[regAddr],master,master)
+		command = "nsw_tp_comm_test -W -r %s -m %s -s NSW_TrigProc_STGC.I2C_%d.bus%d"%(regAddr,dictOfRegisters[regAddr],master,master)
 		if args.debug:
 			print(command)
 
@@ -105,7 +113,7 @@ for iReg,regAddr in enumerate(dictOfRegisters):
 		print(iReg)
 
 	for master in listOfMasters:
-		command = "timeout 5 ./nsw_tp_comm_test -R -r %s -s NSW_TrigProc_STGC.I2C_%d.bus%d"%(regAddr,master,master)
+		command = "timeout 5 nsw_tp_comm_test -R -r %s -s NSW_TrigProc_STGC.I2C_%d.bus%d"%(regAddr,master,master)
 		if args.debug:
 			print(command)
 		if not args.dryRun:
