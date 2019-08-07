@@ -247,12 +247,13 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 }
 
 
-void sendTpConfig(const nsw::TPConfig& tp) {
+void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
   auto opc_ip = tp.getOpcServerIp();
   auto tp_address = tp.getAddress();
 
-  for (auto i2c : tp.getI2cMasters())
-    sendI2cMasterConfig(opc_ip, tp_address, tp.getI2c());
+  I2cMasterConfig *masters = tp.getI2cMasters();
+  for (int i = 0; i < tp.getNumMasters(); i++)
+    sendI2cMasterConfig(opc_ip, tp_address, masters[i]);
 }
 
 std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,

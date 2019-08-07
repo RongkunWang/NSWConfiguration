@@ -25,6 +25,7 @@ namespace nsw {
 	class TPConfig: public FEConfig {
 
 	private:
+    const uint8_t m_numMasters;
 		std::map<std::string,I2cMasterConfig*> m_registerFiles;
     I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
 
@@ -37,12 +38,11 @@ namespace nsw {
 
 		uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
 		void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
-		
-    I2cMasterConfig* getI2cMasters() { return I2cMasterConfig; }
-
     void dump();
-
-	};
+    
+    I2cMasterConfig* getI2cMasters() { return *m_I2cMasterConfigPtrArr; }
+	  const uint8_t getNumMasters() { return m_numMasters; }
+  };
 
 }  // namespace nsw
 

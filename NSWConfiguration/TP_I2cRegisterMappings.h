@@ -695,7 +695,7 @@ static const i2c::AddressRegisterMap TP_REGISTERS_SL_out = {
  */
 #define NUM_REGISTER_FILES 10
 
-i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
+const i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
 	TP_REGISTERS_NSW,
 	TP_REGISTERS_MM_lnk,
 	TP_REGISTERS_MM_addc,
@@ -708,7 +708,7 @@ i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
 	TP_REGISTERS_SL_out,
 	};
 
-std::string registerFilesNamesArr[NUM_REGISTER_FILES] = {
+const std::string registerFilesNamesArr[NUM_REGISTER_FILES] = {
 	TP_NAME_NSW,
 	TP_NAME_MM_lnk,
 	TP_NAME_MM_addc,

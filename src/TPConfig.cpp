@@ -6,9 +6,10 @@
 
 
 nsw::TPConfig::TPConfig(ptree config):
-FEConfig(config)
+FEConfig(config),
+m_numMasters(NUM_REGISTER_FILES)
 {
-	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	for (int i = 0; i < m_numMasters; i++)
 	{
 		std::string mastername = registerFilesNamesArr[i];
 		if (config.find(mastername) != config.not_found())
@@ -43,7 +44,7 @@ uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, 
 
 void nsw::TPConfig::dump()
 {
-	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	for (int i = 0; i < m_numMasters; i++)
 	{
 		m_registerFiles[registerFilesNamesArr[i]]->dump();
 	}
@@ -54,7 +55,7 @@ void nsw::TPConfig::dump()
 nsw::TPConfig::~TPConfig( )
 {
 	// deallocate all memory taken in the constructor
-	for (int i = 0; i < NUM_REGISTER_FILES; i++)
+	for (int i = 0; i < m_numMasters; i++)
 	{
 		ERS_DEBUG(3, "deallocate object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]  << " object address = " << static_cast<void*>(m_registerFiles[registerFilesNamesArr[i]]));
 		delete m_registerFiles[registerFilesNamesArr[i]];
