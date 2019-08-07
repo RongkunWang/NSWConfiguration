@@ -84,19 +84,12 @@ ptree ConfigReaderApi::readVMM(std::string element) {
 }
 
 ptree ConfigReaderApi::readTP(std::string element) {
-    ptree tree;
     ERS_LOG("Reading configuration for TP: " << element);
-    
-    // Create tree with default values from common config
-    tree = m_config.get_child("tp_common_config");
-   
-    // TO DO: change tp_part to descriptive name
-    ptree tp_part = tree.get_child(element);
-    ptree registers = tp_part.get_child("Slave1");
+    ptree tree = m_config.get_child(element);
 
-    for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
-      std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
-    }
+    //for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //  std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    //}
 
     return tree;
 }

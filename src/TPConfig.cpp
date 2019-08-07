@@ -10,7 +10,7 @@ FEConfig(config)
 {
 	for (int i = 0; i < NUM_REGISTER_FILES; i++)
 	{
-		std::string mastername = "i2cMaster" + std::to_string(i);
+		std::string mastername = registerFilesNamesArr[i];
 		if (config.find(mastername) != config.not_found())
 		{
 			// make map pair or register file object (alloc memory first) and it's index name

@@ -26,18 +26,21 @@ namespace nsw {
 
 	private:
 		std::map<std::string,I2cMasterConfig*> m_registerFiles;
-		I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
-	public:
-	//! Constructor.
-	//! The ptree in the argument should contain
-	//! - OpcServerIp, OpcNodeId
+    I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
 
+  public:
+	  //! Constructor.
+	  //! The ptree in the argument should contain
+	  //! - OpcServerIp, OpcNodeId
 		explicit TPConfig(ptree config);
-		~TPConfig() ;
+    ~TPConfig() ;
 
 		uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
 		void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
-		void dump();
+		
+    I2cMasterConfig* getI2cMasters() { return I2cMasterConfig; }
+
+    void dump();
 
 	};
 

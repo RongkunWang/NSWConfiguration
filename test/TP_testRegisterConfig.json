@@ -1,12 +1,18 @@
 {
   "tp_common_config": {
-    "TP-0001": {
-      "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
-      "OpcNodeId": "Dummy Node ID",
-      "Slave1": {
-        "Register1": 0,
-        "Register2": 102
-      }
+    "NSW": {
+      "NSW_Firmware_version_time_stamp_0000" : 0,
+      "NSW_EndcapSector_ID_0001" : 0,
+      "NSW_XL1ID_0002" : 0
+    }
+  }
+  
+  "STGCTP-0001": {
+    "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+    "OpcNodeId": "NSW_TrigProc_STGC",
+    "NSW": {
+      "NSW_EndcapSector_ID_0001" : 0,
+      "NSW_XL1ID_0002" : 0
     }
   }
 }
