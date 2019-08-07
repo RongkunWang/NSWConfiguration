@@ -16,7 +16,7 @@
 namespace po = boost::program_options;
 
 int NCH_PER_VMM = 64;
-int RMS_CUTOFF = 5;       // in mV
+int RMS_CUTOFF = 10;      // in mV
 int BASELINE_CUTOFF = 10; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
