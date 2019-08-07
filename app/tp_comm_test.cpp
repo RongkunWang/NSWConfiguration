@@ -22,13 +22,14 @@ using boost::property_tree::ptree;
 int main(int argc, const char *argv[]) 
 {
 
+    std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
     std::string config_filename = "/afs/cern.ch/user/b/bbullard/public/nsw/conf/NSWConfiguration/test/TP_testRegisterConfig.json";
     // Testing json parsing
     nsw::ConfigReader reader_tp("json://" + config_filename);
     reader_tp.readConfig();
     auto tp_config_tree = pt::ptree();
     try {
-      tp_config_tree = reader_tp.readConfig("TP-0001");
+      tp_config_tree = reader_tp.readConfig("STGCTP-0001");
     }
     catch (std::exception &e) {
       std::cout << "Make sure the json is formed correctly. "
@@ -43,13 +44,13 @@ int main(int argc, const char *argv[])
     pt::write_json(std::cout, tp_config_tree);
     ptree_out.close();
     //pt::write_json("ptree_testParsingOutput.json", tp_config_tree);
-    //nsw::FEBConfig tp(tp_config_tree);
+    nsw::TPConfig tp(tp_config_tree);
 
-    std::cout << "Should have parsed JSON file by now" << std::endl;
-
-    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
-
-    std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
+    // setRegisterValue(std::string master, std::string slave, uint32_t value);
+    // getRegisterValue(std::string master, std::string slave);
+    
+    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
+    cs.sendTpConfig(tp);
 
     std::string opc_ip;
     bool readMode;
@@ -82,7 +83,6 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
 
     // auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!! fine for now
     // nsw::TPConfig tp(addcconfig0);
