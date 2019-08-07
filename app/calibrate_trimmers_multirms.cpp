@@ -411,6 +411,10 @@ int main(int ac, const char *av[]) {
     //////////////////////////////////
     // VMM-level calculations
 
+    // write baseline
+    std::ofstream myfile;
+    myfile.open("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+
     fe_samples_tmp.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
 
@@ -418,6 +422,18 @@ int main(int ac, const char *av[]) {
       feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
       feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
       auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10);
+
+      // write to file
+      for (auto result: results)
+        myfile << "DATA"
+               << " " << feb.getAddress()
+               << " " << vmm_id
+               << " " << channel_id
+               << " " << tpdac
+               << " " << -1
+               << " " << -1
+               << " " << result
+               << std::endl;
 
       // calculate channel level baseline median, rms
       float sum    = std::accumulate(results.begin(), results.end(), 0.0);
@@ -447,6 +463,9 @@ int main(int ac, const char *av[]) {
         fe_samples_tmp.push_back(results[i]);
       }
     }
+
+    myfile.close();
+
 
     // remove samples which are highly suspicious
     // this can happen when a channel has a very high or low baseline, but with small RMS
@@ -773,6 +792,7 @@ int main(int ac, const char *av[]) {
       first = false;
 
     }
+
   }
   
   return 0;
