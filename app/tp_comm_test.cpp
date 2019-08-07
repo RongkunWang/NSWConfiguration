@@ -38,7 +38,7 @@ int main(int argc, const char *argv[])
             "message to write in hex (Default: 0xC0FFEEEE)")
         ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
             "slave bus to write to(Default: NSW_TrigProc_STGC.I2C_0.bus0)")
-        ("regAddr,r", po::value<std::string>(&regAddr)->default_value("0x000"),
+        ("regAddr,r", po::value<std::string>(&regAddr)->default_value("0x0000"),
             "register to read from/write to(Default: 0x2AD)")
         ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
             "hostname for OPC server");
@@ -68,6 +68,31 @@ int main(int argc, const char *argv[])
     std::vector<uint8_t> outdata;
 
     std::vector<uint8_t> regAddrVec;
+
+    unsigned long registerAddressValue = std::strtoul(regAddr.data(), 0, 16);
+    assert(registerAddressValue<0x0400);
+
+    // Clean up strings
+    auto cleanup = [](std::string & string){
+        size_t found = string.find("0x");
+        if(found!=std::string::npos) string.erase(found,2);
+        found = string.find("0X");
+        if(found!=std::string::npos) string.erase(found,2);
+        return;
+    };
+    cleanup(regAddr); cleanup(message);
+    // regAddr.erase(regAddr.find("0x"),2);
+    // regAddr.erase(regAddr.find("0X"),2);
+    // message.erase(message.find("0x"),2);
+    // message.erase(message.find("0X"),2);
+
+    // Zero pad the hex so that it fits into a round number of 8-bit bytes.
+    if(regAddr.size()%2){
+        regAddr.insert(0,"0");
+    }
+    if(message.size()%2){
+        message.insert(0,"0");
+    }
 
     regAddrVec = nsw::hexStringToByteVector(regAddr,4,true);
     std::cout << "... Register address array: ";
@@ -105,6 +130,10 @@ int main(int argc, const char *argv[])
 
         std::vector<uint8_t> entirePayload(regAddrVec);
         entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
+
+        for (uint i=0; i<entirePayload.size(); i++) {
+            std::cout << std::hex << unsigned(entirePayload[i]) << " ";
+        }
 
         if(test==0){
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
