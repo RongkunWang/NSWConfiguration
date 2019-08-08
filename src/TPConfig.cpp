@@ -17,6 +17,7 @@ m_numMasters(NUM_REGISTER_FILES)
 			// make map pair or register file object (alloc memory first) and it's index name
 			ERS_DEBUG(3, "creating object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]);
 
+      std::cout << "TPConfig::TPConfig(...) :\tConstructing I2cMaster " << registerFilesNamesArr[i] << std::endl;
 			m_I2cMasterConfigPtrArr[i] = new I2cMasterConfig(config.get_child(registerFilesNamesArr[i]), registerFilesNamesArr[i], registerFilesArr[i]);
 			m_registerFiles.insert(std::make_pair(registerFilesNamesArr[i], m_I2cMasterConfigPtrArr[i]));
 		}

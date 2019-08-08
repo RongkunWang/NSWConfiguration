@@ -100,6 +100,8 @@ void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
         for (auto d : data) {
             ERS_DEBUG(5, "data: " << static_cast<unsigned>(d));
         }
+        std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t topnode: " << topnode << std::endl;
+        std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t address: " << address << std::endl;
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
     }
 }
@@ -250,6 +252,8 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
   auto opc_ip = tp.getOpcServerIp();
   auto tp_address = tp.getAddress();
+
+  std::cout << "nsw::ConfigSender::sendTpConfig(...) :\t tp_address: " << tp_address << std::endl;
 
   I2cMasterConfig *masters = tp.getI2cMasters();
   for (int i = 0; i < tp.getNumMasters(); i++)

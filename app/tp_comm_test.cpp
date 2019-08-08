@@ -21,9 +21,9 @@ using boost::property_tree::ptree;
 
 int main(int argc, const char *argv[]) 
 {
-
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
     std::string config_filename = "/afs/cern.ch/user/b/bbullard/public/nsw/conf/NSWConfiguration/test/TP_testRegisterConfig.json";
+    
     // Testing json parsing
     nsw::ConfigReader reader_tp("json://" + config_filename);
     reader_tp.readConfig();
@@ -38,20 +38,25 @@ int main(int argc, const char *argv[])
       exit(0);
     }
 
-    std::cout << "tp_config_tree: " << &tp_config_tree << std::endl;
     std::ofstream ptree_out;
     ptree_out.open("ptree_testParsingOutput.json");
-    pt::write_json(std::cout, tp_config_tree);
+    pt::write_json(ptree_out, tp_config_tree);
     ptree_out.close();
-    //pt::write_json("ptree_testParsingOutput.json", tp_config_tree);
+    
+    std::cout << "Parsed ptree, about to build TPConfig" << std::endl;
+
     nsw::TPConfig tp(tp_config_tree);
+    tp.dump();
 
     // setRegisterValue(std::string master, std::string slave, uint32_t value);
     // getRegisterValue(std::string master, std::string slave);
     
     nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
+    
+    std::cout << "Created a ConfigSender" << std::endl;
     cs.sendTpConfig(tp);
 
+    /*
     std::string opc_ip;
     bool readMode;
     bool writeMode;
@@ -154,7 +159,7 @@ int main(int argc, const char *argv[])
 
     std::cout << "... Done with TP Comm test" << std::endl;
 
-
+    */
     return 0;
 
 }

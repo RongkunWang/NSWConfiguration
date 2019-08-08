@@ -8,11 +8,15 @@
   },
   
   "STGCTP-0001": {
-    "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+    "OpcServerIp": "pcatlnswfelix01.cern.ch:48020",
     "OpcNodeId": "NSW_TrigProc_STGC",
     "NSW": {
-      "NSW_EndcapSector_ID_0001" : 0,
-      "NSW_XL1ID_0002" : 0
+      "NSW_EndcapSector_ID_0001" : {
+        "register" : 0
+      },
+      "NSW_XL1ID_0002" : {
+        "register" : 0
+      }
     }
   }
 }
