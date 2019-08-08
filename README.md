@@ -66,7 +66,7 @@ The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment
 ```bash
 mkdir work
 cd work
-printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\nSET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 99.0.0)\n" > CMakeLists.txt
+printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 99.0.0)\n" > CMakeLists.txt
 ```
 
 If you will use another tdaq release, replace 99.0.0 with the release number (for instance 8.1.1)
