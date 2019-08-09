@@ -156,10 +156,9 @@ int main(int argc, const char *argv[])
 
 
     // tp = nsw::TPConfig();
-
+    */
     std::cout << "... Done with TP Comm test" << std::endl;
 
-    */
     return 0;
 
 }

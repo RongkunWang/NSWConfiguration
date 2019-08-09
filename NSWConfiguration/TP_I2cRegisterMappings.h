@@ -34,11 +34,11 @@ static const i2c::AddressRegisterMap TP_REGISTERS_NSW = {
  */
 #define NUM_REGISTER_FILES 1
 
-static const i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
+const i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
   TP_REGISTERS_NSW,
   };
 
-static const std::string registerFilesNamesArr[NUM_REGISTER_FILES] = {
+const std::string registerFilesNamesArr[NUM_REGISTER_FILES] = {
   TP_NAME_NSW,
   };
 

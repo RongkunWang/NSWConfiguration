@@ -92,12 +92,25 @@ void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::s
 void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
                                             std::string topnode, const nsw::I2cMasterConfig& cfg) {
     ERS_LOG("Sending I2c configuration to " << topnode << "." << cfg.getName());
+    
     auto addr_bitstr = cfg.getBitstreamMap();
+    std::vector<std::string> key_vec;
     for (auto ab : addr_bitstr) {
-        auto address = topnode + "." + cfg.getName() + "." + ab.first;  // Full I2C address
+        key_vec.push_back(ab.first);
+    }
+    std::vector<std::string>::iterator it;
+
+    for (auto ab : addr_bitstr) {
+        it = std::find(key_vec.begin(), key_vec.end(), ab.first);
+        std::cout << "Iterator found " << ab.first << " at " << std::distance(key_vec.begin(), it) << std::endl;
+
+        auto address = topnode + "." + cfg.getName() + "." + "bus0";//ab.first;  // Full I2C address
         auto bitstr = ab.second;
+        std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t ab.first: " << ab.first << std::endl;
+        std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t ab.second: " << ab.second << std::endl;
         auto data = nsw::stringToByteVector(bitstr);
         for (auto d : data) {
+            std::cout << static_cast<unsigned>(d) << std::endl;
             ERS_DEBUG(5, "data: " << static_cast<unsigned>(d));
         }
         std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t topnode: " << topnode << std::endl;
@@ -253,11 +266,22 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
   auto opc_ip = tp.getOpcServerIp();
   auto tp_address = tp.getAddress();
 
-  std::cout << "nsw::ConfigSender::sendTpConfig(...) :\t tp_address: " << tp_address << std::endl;
-
   I2cMasterConfig *masters = tp.getI2cMasters();
   for (int i = 0; i < tp.getNumMasters(); i++)
     sendI2cMasterConfig(opc_ip, tp_address, masters[i]);
+    /*ERS_LOG("Sending I2c configuration to " << tp_address << "." << masters[i].getName());
+    auto addr_bitstr = masters[i].getBitstreamMap();
+    for (auto ab : addr_bitstr) {
+        auto address = tp_address + "." + masters[i].getName() + "." + "bus0";  // Full I2C address
+        auto bitstr = ab.second;
+        auto data = nsw::stringToByteVector(bitstr);
+        for (auto d : data) {
+            ERS_DEBUG(5, "data: " << static_cast<unsigned>(d));
+        }
+        std::cout << "nsw::ConfigSender::sendTpConfig(...) :\t topnode: " << tp_address << std::endl;
+        std::cout << "nsw::ConfigSender::sendTpConfig(...) :\t address: " << address << std::endl;
+        sendI2cRaw(opc_ip, address, data.data(), data.size());
+    }*/
 }
 
 std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,

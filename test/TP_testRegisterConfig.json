@@ -12,10 +12,10 @@
     "OpcNodeId": "NSW_TrigProc_STGC",
     "NSW": {
       "NSW_EndcapSector_ID_0001" : {
-        "register" : 0
+        "register" : 6
       },
       "NSW_XL1ID_0002" : {
-        "register" : 0
+        "register" : 8
       }
     }
   }
