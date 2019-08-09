@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <future>
 
 #include "RunControl/RunControl.h"
 #include "RunControl/Common/RunControlCommands.h"
@@ -53,6 +54,11 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     //! Configure all front ends in m_frontends
     void configureFEBs();
+    void configureFEB(std::string name);
+
+    //! Count how many threads are running
+    size_t active_threads();
+    bool too_many_threads();
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
@@ -67,6 +73,11 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     // reset the vmms before config
     bool m_resetvmm;
+
+    // thread management
+    size_t m_max_threads;
+    std::unique_ptr< std::vector< std::future<void> > > m_threads;
+
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_

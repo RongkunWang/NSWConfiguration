@@ -25,6 +25,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
       m_dbcon = nswConfigApp->get_dbConnection();
       m_resetvmm = nswConfigApp->get_resetVMM();
+      m_max_threads = nswConfigApp->get_maxThreads();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
         // TODO(cyildiz): catch and throw correct exceptions
@@ -33,8 +34,9 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
 
     // std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
     // m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
-    m_reader = std::make_unique<nsw::ConfigReader>(m_dbcon);
-    m_sender = std::make_unique<nsw::ConfigSender>();
+    m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
+    m_sender  = std::make_unique<nsw::ConfigSender>();
+    m_threads = std::make_unique<std::vector< std::future<void> > >();
 
     auto config = m_reader->readConfig();
 
@@ -101,31 +103,50 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
 }
 
 void nsw::NSWConfigRc::configureFEBs() {
-    ERS_INFO("Configuring all Front ends");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendRocConfig(configuration);
-            
-            if (m_resetvmm)
-            {
-                for (auto & vmm : configuration.getVmms()) { 
-                    vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1 
-                }
-                m_sender->sendVmmConfig(configuration);
-
-                for (auto & vmm : configuration.getVmms()) { 
-                    vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
-                }
-            }
-            m_sender->sendVmmConfig(configuration);
-
-            m_sender->sendTdsConfig(configuration);
-        }
-        sleep(1);  // TODO(cyildiz) remove this
-        ERS_LOG("Sending config to: " << name);
+    m_threads->clear();
+    for (const auto& kv: m_frontends) {
+        while(too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        &nsw::NSWConfigRc::configureFEB,
+                                        this,
+                                        kv.first));
     }
+    // wait
+    for (auto& thread: *m_threads)
+        thread.get();
+}
+
+void nsw::NSWConfigRc::configureFEB(std::string name) {
+
+    // how can we avoid this?
+    auto local_sender = std::make_unique<nsw::ConfigSender>();
+
+    ERS_INFO("Configuring front end " + name);
+    if (m_frontends.count(name) == 0)
+        throw std::runtime_error("NSWConfigRc::configureFEB has bad name: " + name);
+
+    auto configuration = m_frontends.at(name);
+    if (!m_simulation) {
+        local_sender->sendRocConfig(configuration);
+
+        if (m_resetvmm)
+        {
+            for (auto & vmm : configuration.getVmms()) {
+                vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
+            }
+            local_sender->sendVmmConfig(configuration);
+
+            for (auto & vmm : configuration.getVmms()) {
+                vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+            }
+        }
+        local_sender->sendVmmConfig(configuration);
+
+        local_sender->sendTdsConfig(configuration);
+    }
+    usleep(100000);
+    ERS_LOG("Sending config to: " << name);
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
@@ -152,4 +173,24 @@ void nsw::NSWConfigRc::configureROCs() {
         sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending ROC config to: " << name);
     }
+}
+
+size_t nsw::NSWConfigRc::active_threads() {
+    size_t nfinished = 0;
+    for (auto& thread: *m_threads)
+        if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            nfinished++;
+    return m_threads->size() - nfinished;
+}
+
+bool nsw::NSWConfigRc::too_many_threads() {
+    size_t nthreads = active_threads();
+    bool decision = (nthreads >= m_max_threads);
+    if(decision){
+        std::cout << "Too many active threads ("
+                  << nthreads
+                  << "), waiting for fewer than "
+                  << m_max_threads << std::endl;
+    }
+    return decision;
 }
