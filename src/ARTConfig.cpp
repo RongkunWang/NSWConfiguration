@@ -12,7 +12,7 @@ using boost::property_tree::ptree;
 nsw::ARTConfig::ARTConfig(ptree config):
     m_config(config),
     core(config.get_child(ART_CORE_NAME), ART_CORE_NAME, ART_CORE_REGISTERS),
-    pll (config.get_child(ART_PLL_NAME),  ART_PLL_NAME,  ART_PLL_REGISTERS)
+    ps  (config.get_child(ART_PS_NAME),   ART_PS_NAME,   ART_PS_REGISTERS)
 {
     // std::cout << "ART Constructor!" << std::endl;
 }

@@ -23,7 +23,7 @@ static const char ROC_ANALOG_NAME[]  = "rocPllCoreAnalog";
 static const char ROC_DIGITAL_NAME[] = "rocCoreDigital";
 static const char TDS_NAME[]         = "tds";
 static const char ART_CORE_NAME[]    = "art_core";
-static const char ART_PLL_NAME[]     = "art_pll";
+static const char ART_PS_NAME[]      = "art_ps";
 
 static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
     { "reg064ePllVmm0", {
@@ -522,7 +522,7 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                               {"NOT_USED", 3}, {"strip_trigger_band_phid", 13}}}
 };
 
-static const i2c::AddressRegisterMap ART_PLL_REGISTERS = {
+static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
     {"00",
      {
          {"dllLockedV",               1},

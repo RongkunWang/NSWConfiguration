@@ -278,7 +278,7 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& feb) {
     // art common config
     for (auto art: feb.getARTs()) {
         for (auto tup: {std::make_pair("Core", art.core),
-                        std::make_pair("Ps",   art.pll)}) {
+                        std::make_pair("Ps",   art.ps)}) {
             auto name = sca_addr + "." + art.getName() + tup.first + "." + art.getName() + tup.first;
             auto addr_bitstr = tup.second.getBitstreamMap();
             for (auto ab : addr_bitstr) {

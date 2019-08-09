@@ -29,7 +29,7 @@ class ARTConfig {
 
  public:
     nsw::I2cMasterConfig core;
-    nsw::I2cMasterConfig pll;
+    nsw::I2cMasterConfig ps;
 
     explicit ARTConfig(ptree config);
     ~ARTConfig() {}
@@ -37,7 +37,7 @@ class ARTConfig {
     ptree getConfig() const {return m_config;}
     void dump() {}
     void dump_core() { core.dump(); }
-    void dump_pll()  { pll .dump(); }
+    void dump_ps()   { ps  .dump(); }
 
     std::string getName() { return name; }
     void setName(std::string str) { name = str; }
