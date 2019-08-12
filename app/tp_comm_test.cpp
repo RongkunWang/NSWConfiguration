@@ -1,62 +1,26 @@
 // Sample program to read configuration from db/json
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/TPConfig.h"
-// #include "NSWConfiguration/ROCConfig.h"
+// #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/OpcClient.h"
 
 #include "boost/program_options.hpp"
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
 
 namespace po = boost::program_options;
-namespace pt = boost::property_tree;
-using boost::property_tree::ptree;
+
 
 int main(int argc, const char *argv[]) 
 {
+
+    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
+
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
-    std::string config_filename = "/afs/cern.ch/user/b/bbullard/public/nsw/conf/NSWConfiguration/test/TP_testRegisterConfig.json";
-    
-    // Testing json parsing
-    nsw::ConfigReader reader_tp("json://" + config_filename);
-    reader_tp.readConfig();
-    auto tp_config_tree = pt::ptree();
-    try {
-      tp_config_tree = reader_tp.readConfig("STGCTP-0001");
-    }
-    catch (std::exception &e) {
-      std::cout << "Make sure the json is formed correctly. "
-                << "Can't read config file due to : " << e.what() << std::endl;
-      std::cout << "Exiting..." << std::endl;
-      exit(0);
-    }
 
-    std::ofstream ptree_out;
-    ptree_out.open("ptree_testParsingOutput.json");
-    pt::write_json(ptree_out, tp_config_tree);
-    ptree_out.close();
-    
-    std::cout << "Parsed ptree, about to build TPConfig" << std::endl;
-
-    nsw::TPConfig tp(tp_config_tree);
-    tp.dump();
-
-    // setRegisterValue(std::string master, std::string slave, uint32_t value);
-    // getRegisterValue(std::string master, std::string slave);
-    
-    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
-    
-    std::cout << "Created a ConfigSender" << std::endl;
-    cs.sendTpConfig(tp);
-
-    /*
     std::string opc_ip;
     bool readMode;
     bool writeMode;
@@ -74,7 +38,7 @@ int main(int argc, const char *argv[])
             "message to write in hex (Default: 0xC0FFEEEE)")
         ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
             "slave bus to write to(Default: NSW_TrigProc_STGC.I2C_0.bus0)")
-        ("regAddr,r", po::value<std::string>(&regAddr)->default_value("0x000"),
+        ("regAddr,r", po::value<std::string>(&regAddr)->default_value("0x0000"),
             "register to read from/write to(Default: 0x2AD)")
         ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
             "hostname for OPC server");
@@ -88,6 +52,7 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
+    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
 
     // auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!! fine for now
     // nsw::TPConfig tp(addcconfig0);
@@ -103,6 +68,31 @@ int main(int argc, const char *argv[])
     std::vector<uint8_t> outdata;
 
     std::vector<uint8_t> regAddrVec;
+
+    unsigned long registerAddressValue = std::strtoul(regAddr.data(), 0, 16);
+    assert(registerAddressValue<0x0400);
+
+    // Clean up strings
+    auto cleanup = [](std::string & string){
+        size_t found = string.find("0x");
+        if(found!=std::string::npos) string.erase(found,2);
+        found = string.find("0X");
+        if(found!=std::string::npos) string.erase(found,2);
+        return;
+    };
+    cleanup(regAddr); cleanup(message);
+    // regAddr.erase(regAddr.find("0x"),2);
+    // regAddr.erase(regAddr.find("0X"),2);
+    // message.erase(message.find("0x"),2);
+    // message.erase(message.find("0X"),2);
+
+    // Zero pad the hex so that it fits into a round number of 8-bit bytes.
+    if(regAddr.size()%2){
+        regAddr.insert(0,"0");
+    }
+    if(message.size()%2){
+        message.insert(0,"0");
+    }
 
     regAddrVec = nsw::hexStringToByteVector(regAddr,4,true);
     std::cout << "... Register address array: ";
@@ -141,6 +131,10 @@ int main(int argc, const char *argv[])
         std::vector<uint8_t> entirePayload(regAddrVec);
         entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
 
+        for (uint i=0; i<entirePayload.size(); i++) {
+            std::cout << std::hex << unsigned(entirePayload[i]) << " ";
+        }
+
         if(test==0){
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
             if (readMode){
@@ -156,8 +150,9 @@ int main(int argc, const char *argv[])
 
 
     // tp = nsw::TPConfig();
-    */
+
     std::cout << "... Done with TP Comm test" << std::endl;
+
 
     return 0;
 

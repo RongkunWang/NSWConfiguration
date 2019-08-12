@@ -54,7 +54,7 @@ void nsw::TPConfig::dump()
 	for (int i = 0; i < m_numMasters; i++)
 	{
     if (!m_registerFiles[registerFilesNamesArr[i]]) std::cout << "Nothing here!" << std::endl;
-		m_registerFiles[registerFilesNamesArr[i]]->dump();
+		else m_registerFiles[registerFilesNamesArr[i]]->dump();
 	}
    
   std::cout << "nsw::TPConfig::dump() :\tDump m_config" << std::endl;   
