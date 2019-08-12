@@ -15,6 +15,17 @@
 // template<size_t N1, size_t N2>
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);
 
+
+std::vector<unsigned char> nsw::intToByteVector(int value, size_t nbytes, bool littleEndian) {
+  std::vector<unsigned char> byteVector(nbytes);
+  for (int i = 0; i < nbytes; i++)
+    byteVector.at(i) = (value >> (i * 8));
+  if (!littleEndian)
+    std::reverse(byteVector.begin(), byteVector.end());
+  return byteVector;
+}
+
+
 std::string nsw::reversedBitString(unsigned value, size_t nbits) {
     std::bitset<32> b(value);
     auto str = b.to_string();
@@ -31,7 +42,7 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 }
 
 std::string nsw::getElementType(std::string element_name) {
-    for (auto name : std::vector<std::string>({"VMM", "TDS", "ROC", "MMFE8", "PFEB", "SFEB", "ADDC"})) {
+    for (auto name : std::vector<std::string>({"VMM", "TDS", "ROC", "MMFE8", "PFEB", "SFEB", "TP", "ADDC"})) {
         if (element_name.find(name) != std::string::npos) {
             ERS_DEBUG(2, "Found instance of " << name << " configuration: " << element_name);
             return name;

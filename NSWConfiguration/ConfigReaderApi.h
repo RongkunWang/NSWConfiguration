@@ -98,7 +98,8 @@ class ConfigReaderApi {
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);
   virtual ptree readTDS(std::string element_name);
-
+  virtual ptree readTP(std::string element_name);
+  
   virtual ~ConfigReaderApi() {}
 };
 
@@ -107,7 +108,9 @@ class JsonApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit JsonApi(std::string file_path): m_file_path(file_path) {}
+  explicit JsonApi(std::string file_path): m_file_path(file_path) {
+  std::cout << "JsonApi constructed" << std::endl;
+  }
   ptree & read();
 };
 

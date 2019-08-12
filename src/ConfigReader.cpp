@@ -28,6 +28,7 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string):
     // Open db, json file or oracle db
     if (m_connection_string.find("json://") == 0) {
         std::string file_path = m_connection_string.substr(std::string("json://").length());
+        std::cout << "ConfigReader::ConfigReader(...):\tCalling JsonApi with path:" << file_path << std::endl;
         m_api = std::make_unique<JsonApi> (file_path);
     } else  if (m_connection_string.find("xml://") == 0) {
         std::string file_path = m_connection_string.substr(std::string("xml://").length());

@@ -22,24 +22,28 @@ using boost::property_tree::ptree;
 
 namespace nsw {
 
-	class TPConfig: public FEConfig {
+    class TPConfig: public FEConfig {
 
-	private:
-		std::map<std::string,I2cMasterConfig*> m_registerFiles;
-		I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
-	public:
-	//! Constructor.
-	//! The ptree in the argument should contain
-	//! - OpcServerIp, OpcNodeId
+    private:
+    const uint8_t m_numMasters;
+    std::map<std::string,I2cMasterConfig*> m_registerFiles;
+    I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
+    void restructureConfig();
 
-		explicit TPConfig(ptree config);
-		~TPConfig() ;
+  public:
+    //! Constructor.
+    //! The ptree in the argument should contain
+    //! - OpcServerIp, OpcNodeId
+    explicit TPConfig(ptree config);
+    ~TPConfig() ;
 
-		uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
-		void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
-		void dump();
+    uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
+    void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
+    void dump();
 
-	};
+    std::map<std::string,I2cMasterConfig*> getI2cMastersMap() { return m_registerFiles; }
+    const uint8_t getNumMasters() { return m_numMasters; }
+  };
 
 }  // namespace nsw
 
