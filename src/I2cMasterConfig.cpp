@@ -13,7 +13,6 @@
 #include "NSWConfiguration/Types.h"
 
 nsw::I2cMasterCodec::I2cMasterCodec(const i2c::AddressRegisterMap & ar_map): m_addr_reg(ar_map) {
-    std::cout << "nsw::I2cMasterCodec::I2cMasterCodec" << std::endl;
     calculateSizesAndPositions();
 }
 
@@ -55,7 +54,6 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
 }
 
 i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
-    std::cout << "nsw::I2cMasterCodec" << std::endl;
     i2c::AddressBitstreamMap bitstreams;
     for (auto e : m_addr_reg) {
         auto address = e.first;

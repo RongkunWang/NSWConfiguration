@@ -319,7 +319,6 @@ ptree & JsonApi::read() {
 
     ERS_LOG(s);
     try {
-        std::cout << "JsonApi::read():\tTrying to read Json file " << m_file_path << std::endl;
         boost::property_tree::read_json(m_file_path, m_config);
     } catch(std::exception & e) {
         ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception
