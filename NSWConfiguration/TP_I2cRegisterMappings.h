@@ -25,7 +25,7 @@
 static const char TP_NAME_NSW[] ="NSW";
 static const i2c::AddressRegisterMap TP_REGISTERS_NSW = {
     { "NSW_Firmware_version_time_stamp_0000_READONLY", { {"register", 32 } } },
-    { "NSW_EndcapSector_ID_0001", { {"register", 5 } } },
+    { "NSW_EndcapSector_ID_0001", { {"register", 32 } } },
     { "NSW_XL1ID_0002", { {"register", 8 } } },
   };
 
