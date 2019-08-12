@@ -78,10 +78,6 @@ tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
   LINK_LIBRARIES nswconfig
 )
 
-tdaq_add_executable(nsw_integration_tp_config app/integration_tp_config.cpp
-  LINK_LIBRARIES nswconfig
-)
-
 tdaq_add_executable(nsw_tp_comm_test app/tp_comm_test.cpp
   LINK_LIBRARIES nswconfig Boost::program_options 
 )

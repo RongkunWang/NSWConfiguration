@@ -251,11 +251,12 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
     auto opc_ip = tp.getOpcServerIp();
     auto tp_address = tp.getAddress();
 
-    I2cMasterConfig *masters = tp.getI2cMasters();
+    std::map<std::string,I2cMasterConfig*> masters = tp.getI2cMastersMap();
     for (int i = 0; i < tp.getNumMasters(); i++){
         // sendI2cMasterConfig(opc_ip, tp_address, masters[i]);
-        ERS_LOG("Sending I2c configuration to " << tp_address << "." << masters[i].getName());
-        auto addr_bitstr = masters[i].getBitstreamMap();
+        if ( !masters[registerFilesNamesArr[i]] ) continue;
+        ERS_LOG("Sending I2c configuration to " << tp_address << "." << masters[registerFilesNamesArr[i]]->getName());
+        auto addr_bitstr = masters[registerFilesNamesArr[i]]->getBitstreamMap();
         std::vector<std::string> key_vec;
         for (auto regEntry : registerFilesOrderArr[i]) {
             key_vec.push_back(regEntry);
@@ -271,7 +272,7 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
                 std::cout << reg << " ";
             std::cout << std::endl;
 
-            auto address = tp_address + "." + masters[i].getName() + "." + "bus" + std::to_string(i);//ab.first;  // Full I2C address
+            auto address = tp_address + "." + masters[registerFilesNamesArr[i]]->getName() + "." + "bus" + std::to_string(i);//ab.first;  // Full I2C address
             auto bitstr = std::string(32 - ab.second.length(), '0') + ab.second;
             std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t ab.first: " << ab.first << std::endl;
             std::cout << "nsw::ConfigSender::sendI2cMasterConfig(...) :\t ab.second: " << bitstr << std::endl;

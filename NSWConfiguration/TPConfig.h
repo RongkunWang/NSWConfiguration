@@ -41,7 +41,7 @@ namespace nsw {
     void setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name = "register");
     void dump();
 
-    I2cMasterConfig* getI2cMasters() { return *m_I2cMasterConfigPtrArr; }
+    std::map<std::string,I2cMasterConfig*> getI2cMastersMap() { return m_registerFiles; }
     const uint8_t getNumMasters() { return m_numMasters; }
   };
 
