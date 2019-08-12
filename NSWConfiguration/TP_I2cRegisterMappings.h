@@ -27,7 +27,12 @@ static const i2c::AddressRegisterMap TP_REGISTERS_NSW = {
     { "NSW_Firmware_version_time_stamp_0000_READONLY", { {"register", 32 } } },
     { "NSW_EndcapSector_ID_0001", { {"register", 32 } } },
     { "NSW_XL1ID_0002", { {"register", 8 } } },
-  };
+};
+static const std::vector<std::string> TP_REGISTERORDER_NSW = {
+    "NSW_Firmware_version_time_stamp_0000_READONLY",
+    "NSW_EndcapSector_ID_0001",
+    "NSW_XL1ID_0002",
+};
 
 /*
  * Map-Pairing Register Files Arrays
@@ -35,11 +40,15 @@ static const i2c::AddressRegisterMap TP_REGISTERS_NSW = {
 #define NUM_REGISTER_FILES 1
 
 const i2c::AddressRegisterMap registerFilesArr[NUM_REGISTER_FILES] = {
-  TP_REGISTERS_NSW,
-  };
+    TP_REGISTERS_NSW,
+};
 
 const std::string registerFilesNamesArr[NUM_REGISTER_FILES] = {
-  TP_NAME_NSW,
-  };
+    TP_NAME_NSW,
+};
+
+const std::vector<std::string> registerFilesOrderArr[NUM_REGISTER_FILES] = {
+    TP_REGISTERORDER_NSW,
+};
 
 #endif // NSWCONFIGURATION_TP_I2CREGISTERMAPPINGS_H_
