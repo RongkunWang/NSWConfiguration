@@ -27,7 +27,6 @@ namespace nsw {
     private:
     const uint8_t m_numMasters;
     std::map<std::string,I2cMasterConfig*> m_registerFiles;
-    I2cMasterConfig *m_I2cMasterConfigPtrArr[NUM_REGISTER_FILES] = {NULL};
     void restructureConfig();
 
   public:
