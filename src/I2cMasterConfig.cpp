@@ -67,7 +67,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
             child = config.get_child(address);
         } catch (const boost::property_tree::ptree_bad_path& e) {
             std::string temp = e.what();
-            nsw::MissingI2cAddress issue(ERS_HERE, temp.c_str());
+            nsw::MissingI2cAddress issue(ERS_HERE, temp.c_str() << " [Missing address " << address << " from JSON/ptree]");
             ers::error(issue);
             throw issue;
         }
@@ -88,6 +88,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(ptree config) {
                 } catch (const boost::property_tree::ptree_bad_path& e) {
                     std::string temp = address + ": " + e.what();
                     nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
+                    
                     ers::error(issue);
                     throw issue;
                 }
