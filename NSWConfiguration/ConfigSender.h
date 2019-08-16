@@ -66,7 +66,7 @@ class ConfigSender {
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// High level send function
-    void sendTpConfig(const nsw::TPConfig& tp);
+    void sendTpConfig(nsw::TPConfig& tp);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);
