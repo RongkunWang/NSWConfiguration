@@ -87,9 +87,9 @@ ptree ConfigReaderApi::readTP(std::string element) {
     ERS_LOG("Reading configuration for TP: " << element);
     ptree tree = m_config.get_child(element);
 
-    //for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
-    //  std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
-    //}
+    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    // }
 
     return tree;
 }
@@ -290,7 +290,6 @@ ptree ConfigReaderApi::readTDS(std::string element) {
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
-
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
