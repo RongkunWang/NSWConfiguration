@@ -87,11 +87,13 @@ std::vector<uint8_t> nsw::hexStringToByteVector(std::string hexstr, int length =
         substr = hexstr.substr(pos, 2);
         ERS_DEBUG(6, std::string("substr: ") << substr);
         byte = static_cast<uint8_t> (std::strtoul(substr.c_str(), 0, 16));
-        if(littleEndian) vec.insert(vec.begin(),byte);
-        else vec.push_back(byte);
+        if (littleEndian)
+            vec.insert(vec.begin(), byte);
+        else
+            vec.push_back(byte);
         ERS_DEBUG(6, std::hex << "0x" << unsigned(byte));
     }
-    std::vector<uint8_t> vecFront(vec.begin(),vec.begin()+length);
+    std::vector<uint8_t> vecFront(vec.begin(), vec.begin()+length);
     ERS_DEBUG(6, "Vector size: " << std::dec << vecFront.size());
     return vecFront;
 }

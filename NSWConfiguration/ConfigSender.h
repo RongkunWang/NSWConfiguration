@@ -66,7 +66,7 @@ class ConfigSender {
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// High level send function
-    void sendTpConfig(nsw::TPConfig& tp);
+    void sendTpConfig(const nsw::TPConfig& tp);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);
@@ -119,7 +119,6 @@ class ConfigSender {
     std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                  size_t vmm_id,
                                                                  size_t n_samples);
-
 };
 
 }  // namespace nsw
