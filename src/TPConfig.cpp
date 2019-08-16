@@ -12,18 +12,15 @@ FEConfig(config),
 m_numMasters(NUM_REGISTER_FILES) {
     // restructureConfig();
 
-    for (int i = 0; i < m_numMasters; i++)
-    {
+    for (int i = 0; i < m_numMasters; i++) {
         std::string mastername = registerFilesNamesArr[i];
-        if (config.find(mastername) != config.not_found())
-        {
+        if (config.find(mastername) != config.not_found()) {
             // make map pair or register file object (alloc memory first) and it's index name
             ERS_DEBUG(3, "creating object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]);
             m_registerFiles.insert(std::make_pair(registerFilesNamesArr[i],
-                new I2cMasterConfig(config.get_child(registerFilesNamesArr[i]),registerFilesNamesArr[i], registerFilesArr[i]) ));
-        }
-        else
-        {
+                new I2cMasterConfig(config.get_child(registerFilesNamesArr[i]),
+                    registerFilesNamesArr[i], registerFilesArr[i]) ));
+        } else {
             // register file name was declred but not found in ptree
             ERS_DEBUG(3, "mastername[" << mastername << "] : " <<
                 registerFilesNamesArr[i] + ".bus" + std::to_string(i) << " not found!!");
@@ -44,10 +41,9 @@ uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, 
 }
 
 void nsw::TPConfig::dump() {
-    for (int i = 0; i < m_numMasters; i++)
-    {
+    for (int i = 0; i < m_numMasters; i++) {
         if (!m_registerFiles[registerFilesNamesArr[i]])
-            ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i] );
+            ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i]);
         else
             m_registerFiles[registerFilesNamesArr[i]]->dump();
     }
@@ -69,12 +65,13 @@ void nsw::TPConfig::restructureConfig() {
         std::string value;
         // loop over registers in master
         for (ptree::iterator pos = master_tree.begin(); pos != master_tree.end(); pos++) {
-            if (master_tree.empty())
-                ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i] );
-            else {
+            if (master_tree.empty()){
+                ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i]);
+            } else {
                 registerName = pos->first;
                 value = pos->second.data();
-                m_config_copy.put(registerFilesNamesArr[i] + ".bus"+std::to_string(i)+"." + registerName + ".register", value);
+                m_config_copy.put(registerFilesNamesArr[i] + ".bus"+std::to_string(i)+"." +
+                    registerName + ".register", value);
             }
         }
     }
@@ -82,10 +79,9 @@ void nsw::TPConfig::restructureConfig() {
     boost::property_tree::write_json(std::cout, m_config);
 }
 
-nsw::TPConfig::~TPConfig( ) {
+nsw::TPConfig::~TPConfig() {
     // deallocate all memory taken in the constructor
-    for (int i = 0; i < m_numMasters; i++)
-    {
+    for (int i = 0; i < m_numMasters; i++) {
         ERS_DEBUG(3, "deallocate object: m_registerFiles[" << i << "] : " << registerFilesNamesArr[i]  <<
             " object address = " << static_cast<void*>(m_registerFiles[registerFilesNamesArr[i]]));
         delete m_registerFiles[registerFilesNamesArr[i]];

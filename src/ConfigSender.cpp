@@ -261,7 +261,8 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
         for (auto ab : addr_bitstr) {
             it = std::find(key_vec.begin(), key_vec.end(), ab.first);
             auto registerAddress = nsw::intToByteVector(std::distance(key_vec.begin(), it), 4);
-            auto address = tp_address + "." + masters[registerFilesNamesArr[i]]->getName() + "." + "bus" + std::to_string(i);
+            auto address = tp_address + "." + masters[registerFilesNamesArr[i]]->getName() +
+                "." + "bus" + std::to_string(i);
             auto bitstr = std::string(32 - ab.second.length(), '0') + ab.second;
             auto data = nsw::stringToByteVector(bitstr);
             std::reverse(data.begin(), data.end());
@@ -279,11 +280,10 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
     addOpcClientIfNew(opcserver_ipport);
     ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
-
 }
 
-std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb, size_t vmm_id, size_t n_samples) {
-
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
+    size_t vmm_id, size_t n_samples) {
     auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
     auto& vmms       = feb.getVmms();
@@ -294,6 +294,5 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
     sendVmmConfigSingle(feb, vmm_id);
 
     return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
-
 }
 
