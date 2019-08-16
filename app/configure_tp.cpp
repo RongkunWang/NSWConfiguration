@@ -19,8 +19,7 @@ namespace po = boost::program_options;
 namespace pt = boost::property_tree;
 using boost::property_tree::ptree;
 
-int main(int ac, const char *av[])
-{
+int main(int ac, const char *av[]){
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string config_filename;
@@ -62,7 +61,7 @@ int main(int ac, const char *av[])
     // setRegisterValue(std::string master, std::string slave, uint32_t value);
     // getRegisterValue(std::string master, std::string slave);
 
-    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
+    nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
 
     std::cout << "Created a ConfigSender" << std::endl;
     cs.sendTpConfig(tp);
@@ -70,5 +69,4 @@ int main(int ac, const char *av[])
     std::cout << "... Done with configure_tp" << std::endl;
 
     return 0;
-
 }

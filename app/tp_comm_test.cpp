@@ -14,9 +14,7 @@
 namespace po = boost::program_options;
 
 
-int main(int argc, const char *argv[]) 
-{
-
+int main(int argc, const char *argv[]){
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
@@ -52,7 +50,7 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
+    nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
 
     // auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!! fine for now
     // nsw::TPConfig tp(addcconfig0);
@@ -70,31 +68,31 @@ int main(int argc, const char *argv[])
     std::vector<uint8_t> regAddrVec;
 
     unsigned long registerAddressValue = std::strtoul(regAddr.data(), 0, 16);
-    assert(registerAddressValue<0x0400);
+    assert(registerAddressValue < 0x0400);
 
     // Clean up strings
     auto cleanup = [](std::string & string){
         size_t found = string.find("0x");
-        if(found!=std::string::npos) string.erase(found,2);
+        if (found != std::string::npos) string.erase(found, 2);
         found = string.find("0X");
-        if(found!=std::string::npos) string.erase(found,2);
+        if (found != std::string::npos) string.erase(found, 2);
         return;
     };
     cleanup(regAddr); cleanup(message);
-    // regAddr.erase(regAddr.find("0x"),2);
-    // regAddr.erase(regAddr.find("0X"),2);
-    // message.erase(message.find("0x"),2);
-    // message.erase(message.find("0X"),2);
+    // regAddr.erase(regAddr.find("0x"), 2);
+    // regAddr.erase(regAddr.find("0X"), 2);
+    // message.erase(message.find("0x"), 2);
+    // message.erase(message.find("0X"), 2);
 
     // Zero pad the hex so that it fits into a round number of 8-bit bytes.
-    if(regAddr.size()%2){
-        regAddr.insert(0,"0");
+    if (regAddr.size()%2){
+        regAddr.insert(0, "0");
     }
-    if(message.size()%2){
-        message.insert(0,"0");
+    if (message.size()%2){
+        message.insert(0, "0");
     }
 
-    regAddrVec = nsw::hexStringToByteVector(regAddr,4,true);
+    regAddrVec = nsw::hexStringToByteVector(regAddr, 4, true);
     std::cout << "... Register address array: ";
     for (uint i=0; i<regAddrVec.size(); i++) {
         std::cout << std::hex << unsigned(regAddrVec[i]) << " ";
@@ -102,10 +100,9 @@ int main(int argc, const char *argv[])
     std::cout << std::endl;
 
     if (readMode) {
-        if(test==0){
+        if (test==0){
             std::cout << "... Testing the readout of a register via I2c..." << std::endl;
             outdata = cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
-            // outdata = cs.readI2cAtAddress("pcatlnswfelix01.cern.ch:48020", "NSW_TrigProc_STGC.I2C_0.bus0", regAddrVec.data(), regAddrVec.size(), 4);
             for (uint i=0; i<outdata.size(); i++) {
                 std::cout << std::hex << unsigned(outdata[i]) << std::endl;
             }
@@ -135,7 +132,7 @@ int main(int argc, const char *argv[])
             std::cout << std::hex << unsigned(entirePayload[i]) << " ";
         }
 
-        if(test==0){
+        if (test==0){
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
             if (readMode){
                 std::cout << "... Reading data back from register: " << std::endl;
@@ -145,14 +142,9 @@ int main(int argc, const char *argv[])
                 }
             }
         }
-
     }
 
-
-    // tp = nsw::TPConfig();
-
     std::cout << "... Done with TP Comm test" << std::endl;
-
 
     return 0;
 
