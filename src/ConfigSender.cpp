@@ -51,18 +51,12 @@ bool nsw::ConfigSender::readGPIO(std::string opcserver_ipport, std::string node)
     return m_clients[opcserver_ipport]->readGPIO(node);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport,
-                                                std::string node,
-                                                size_t number_of_bytes) {
+std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport, std::string node, size_t number_of_bytes) {
     addOpcClientIfNew(opcserver_ipport);
     return m_clients[opcserver_ipport]->readI2c(node, number_of_bytes);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport,
-                                                         std::string node,
-                                                         uint8_t* address,
-                                                         size_t address_size,
-                                                         size_t number_of_bytes) {
+std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport, std::string node, uint8_t* address, size_t address_size, size_t number_of_bytes) {
     // Write only the address without data
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, address_size);
 
@@ -89,8 +83,7 @@ void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::s
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
-                                            std::string topnode, const nsw::I2cMasterConfig& cfg) {
+void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg) {
     ERS_LOG("Sending I2c configuration to " << topnode << "." << cfg.getName());
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
@@ -200,8 +193,7 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
     }
 }
 
-void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
-                                      const I2cMasterConfig & analog, const I2cMasterConfig & digital) {
+void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & analog, const I2cMasterConfig & digital) {
     // 1. Reset all logics
     sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
     sendGPIO(opc_ip, sca_address + ".gpio.rocPllResetN", 0);
@@ -278,18 +270,14 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
     }
 }
 
-std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
-                                                                        std::string node,
-                                                                        size_t n_samples) {
+std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport, std::string node, size_t n_samples) {
     addOpcClientIfNew(opcserver_ipport);
     ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
 
 }
 
-std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
-                                                                                size_t vmm_id,
-                                                                                size_t n_samples) {
+std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb, size_t vmm_id, size_t n_samples) {
 
     auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();

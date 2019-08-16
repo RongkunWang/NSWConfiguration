@@ -108,9 +108,7 @@ class JsonApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit JsonApi(std::string file_path): m_file_path(file_path) {
-  std::cout << "JsonApi constructed" << std::endl;
-  }
+  explicit JsonApi(std::string file_path): m_file_path(file_path) {}
   ptree & read();
 };
 

@@ -17,12 +17,12 @@
 
 
 std::vector<unsigned char> nsw::intToByteVector(int value, size_t nbytes, bool littleEndian) {
-  std::vector<unsigned char> byteVector(nbytes);
-  for (int i = 0; i < nbytes; i++)
-    byteVector.at(i) = (value >> (i * 8));
-  if (!littleEndian)
-    std::reverse(byteVector.begin(), byteVector.end());
-  return byteVector;
+    std::vector<unsigned char> byteVector(nbytes);
+    for (int i = 0; i < nbytes; i++)
+        byteVector.at(i) = (value >> (i * 8));
+    if (!littleEndian)
+        std::reverse(byteVector.begin(), byteVector.end());
+    return byteVector;
 }
 
 

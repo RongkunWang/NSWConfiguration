@@ -61,9 +61,9 @@ int main(int ac, const char *av[])
 
     // setRegisterValue(std::string master, std::string slave, uint32_t value);
     // getRegisterValue(std::string master, std::string slave);
-    
+
     nsw::ConfigSender cs; // in principle the config sender is all that is needed for now
-    
+
     std::cout << "Created a ConfigSender" << std::endl;
     cs.sendTpConfig(tp);
 
