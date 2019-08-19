@@ -16,9 +16,9 @@
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);
 
 
-std::vector<unsigned char> nsw::intToByteVector(int value, size_t nbytes, bool littleEndian) {
-    std::vector<unsigned char> byteVector(nbytes);
-    for (int i = 0; i < nbytes; i++)
+std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool littleEndian) {
+    std::vector<uint8_t> byteVector(nbytes);
+    for (size_t i = 0; i < nbytes; i++)
         byteVector.at(i) = (value >> (i * 8));
     if (!littleEndian)
         std::reverse(byteVector.begin(), byteVector.end());
