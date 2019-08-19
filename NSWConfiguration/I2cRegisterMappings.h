@@ -489,7 +489,7 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                     {"NOT_USED", 3}, {"Chan069", 5}, {"NOT_USED", 3}, {"Chan068", 5},
                     {"NOT_USED", 3}, {"Chan067", 5}, {"NOT_USED", 3}, {"Chan066", 5},
                     {"NOT_USED", 3}, {"Chan065", 5}, {"NOT_USED", 3}, {"Chan064", 5}}},
-     
+
      {"register10", {{"NOT_USED", 3}, {"Chan095", 5}, {"NOT_USED", 3}, {"Chan094", 5},
                      {"NOT_USED", 3}, {"Chan093", 5}, {"NOT_USED", 3}, {"Chan092", 5},
                      {"NOT_USED", 3}, {"Chan091", 5}, {"NOT_USED", 3}, {"Chan090", 5},

@@ -25,6 +25,8 @@ ptree ConfigReaderApi::read(std::string element) {
         return readPFEB(element);
     } else if (nsw::getElementType(element) == "SFEB") {
         return readSFEB(element);
+    } else if (nsw::getElementType(element) == "TP") {
+        return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
         return readADDC(element, 2);
     }
@@ -77,6 +79,17 @@ ptree ConfigReaderApi::readVMM(std::string element) {
         }
         ERS_DEBUG(5, name << ", " << type);
     }
+
+    return tree;
+}
+
+ptree ConfigReaderApi::readTP(std::string element) {
+    ERS_LOG("Reading configuration for TP: " << element);
+    ptree tree = m_config.get_child(element);
+
+    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    // }
 
     return tree;
 }
@@ -277,7 +290,6 @@ ptree ConfigReaderApi::readTDS(std::string element) {
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
-
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
@@ -303,8 +315,8 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
-    ERS_LOG(s);
 
+    ERS_LOG(s);
     try {
         boost::property_tree::read_json(m_file_path, m_config);
     } catch(std::exception & e) {

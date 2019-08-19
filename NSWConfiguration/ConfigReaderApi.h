@@ -98,7 +98,8 @@ class ConfigReaderApi {
   virtual ptree readVMM(std::string element_name);
   virtual ptree readROC(std::string element_name);
   virtual ptree readTDS(std::string element_name);
-
+  virtual ptree readTP(std::string element_name);
+  
   virtual ~ConfigReaderApi() {}
 };
 

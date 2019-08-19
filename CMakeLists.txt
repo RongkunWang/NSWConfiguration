@@ -68,6 +68,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp
+                 src/TPConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
@@ -75,6 +76,14 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
 
 tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
   LINK_LIBRARIES nswconfig
+)
+
+tdaq_add_executable(nsw_tp_comm_test app/tp_comm_test.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options 
+)
+
+tdaq_add_executable(configure_tp app/configure_tp.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options 
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp

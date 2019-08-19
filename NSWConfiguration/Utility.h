@@ -31,6 +31,9 @@ std::bitset<N1 + N2 + N3> concatenate(std::bitset<N1> b1, std::bitset<N2> b2, st
     return concatenate(concatenate(b1, b2), b3);
 }
 
+/// Returns byte vector for the value of size nbytes
+std::vector<uint8_t> intToByteVector(uint32_t value, size_t nbytes, bool littleEndian = true);
+
 /// Returns bit pattern for the value
 std::string bitString(unsigned value, size_t nbits);
 
@@ -53,6 +56,7 @@ std::string getElementType(std::string);
 void checkOverflow(size_t register_size, unsigned value, std::string register_name);
 
 std::vector<uint8_t> stringToByteVector(std::string bitstr);
+std::vector<uint8_t> hexStringToByteVector(std::string hexstr, int length, bool littleEndian);
 
 /// Converts string of bits to string of bytes in hexadecimal
 std::string bitstringToHexString(std::string bitstr);
