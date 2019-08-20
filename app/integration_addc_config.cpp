@@ -96,7 +96,7 @@ int main(int argc, const char *argv[]) {
     size_t art_size = 2;
     uint8_t art_data[] = {0x0, 0x0};  // 1 for address (i), 1 for data
 
-    for (uint i=0; i<ADDCConfigurationData.size(); i++) {
+    for (uint i = 0; i < ADDCConfigurationData.size(); i++) {
         gbtx_data[1] = ((uint8_t) ((i) >> 8));
         gbtx_data[0] = ((uint8_t) ((i) & 0xff));
         gbtx_data[2] = ADDCConfigurationData[i];
@@ -129,7 +129,7 @@ int main(int argc, const char *argv[]) {
                                             0x3f, 0x00, 0xf0, 0xff,
                                             0x03, 0x00, 0x80};
 
-    for (uint i=0; i<ARTregisters.size(); i++) {
+    for (uint i = 0; i < ARTregisters.size(); i++) {
         art_data[0] = ARTregisters[i];
         art_data[1] = ARTregistervalues[i];
         cs.sendI2cRaw(opc_ip, sca_address + ".art0Core.art0Core", art_data, art_size);
@@ -145,7 +145,7 @@ int main(int argc, const char *argv[]) {
     // implement some reading of a register via I2C just to test
     std::vector<uint8_t> outdata = cs.readI2cAtAddress(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
     std::cout << "Testing the readout of a register via I2c..." << std::endl;
-    for (uint i=0; i<outdata.size(); i++) {
+    for (uint i = 0; i < outdata.size(); i++) {
         std::cout << outdata[i] << ", " << std::endl;
     }
 
@@ -155,7 +155,7 @@ int main(int argc, const char *argv[]) {
     std::vector<uint8_t> GBTxregisters {78, 79, 80, 102, 103, 104, 126, 127, 128,
             150, 151, 152, 174, 175, 176, 198, 199, 200, 222, 223, 224};
 
-    for (uint i=0; i<GBTxregisters.size(); i++) {
+    for (uint i = 0; i < GBTxregisters.size(); i++) {
         gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) >> 8));
         gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
         gbtx_data[2] = 0xff;
@@ -165,16 +165,16 @@ int main(int argc, const char *argv[]) {
     // 6.d fix the e-port phase
     std::cout << "step 6d" << std::endl;
     sleep(1);
-    for (uint i=0; i<GBTxregisters.size(); i++) {
+    for (uint i = 0; i < GBTxregisters.size(); i++) {
         gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) >> 8));
         gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
         gbtx_data[2] = 0x00;
         cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
     }
 
-    // 7.a repeat above for ART1 and GBTx0: set the ART1 ASIC to provide continuous “010101…” 
+    // 7.a repeat above for ART1 and GBTx0: set the ART1 ASIC to provide continuous “010101…”
     std::cout << "step 7a" << std::endl;
-    for (uint i=0; i<ARTregisters.size(); i++) {
+    for (uint i = 0; i < ARTregisters.size(); i++) {
         art_data[0] = ARTregisters[i];
         art_data[1] = ARTregistervalues[i];
         cs.sendI2cRaw(opc_ip, sca_address + ".art1Core.art1Core", art_data, art_size);
@@ -189,7 +189,7 @@ int main(int argc, const char *argv[]) {
 
     // 7.c Enable the GBTx training for eport
     std::cout << "step 7c" << std::endl;
-    for (uint i=0; i<GBTxregisters.size(); i++) {
+    for (uint i = 0; i < GBTxregisters.size(); i++) {
         gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) >> 8));
         gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
         gbtx_data[2] = 0xff;
@@ -199,7 +199,7 @@ int main(int argc, const char *argv[]) {
     // 7.d fix the e-port phase
     std::cout << "step 7d" << std::endl;
     sleep(1);
-    for (uint i=0; i<GBTxregisters.size(); i++) {
+    for (uint i = 0; i < GBTxregisters.size(); i++) {
         gbtx_data[1] = ((uint8_t) ((GBTxregisters[i]) >> 8));
         gbtx_data[0] = ((uint8_t) ((GBTxregisters[i]) & 0xff));
         gbtx_data[2] = 0x00;
@@ -207,7 +207,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // 8. bit order alignment
-    // 8.a 
+    // 8.a
     std::cout << "step 8a" << std::endl;
     art_data[0] = 2;
     art_data[1] = 0x10;
@@ -216,15 +216,16 @@ int main(int argc, const char *argv[]) {
     // 8.b Mask off the ART input channels to avoid interferences
     std::cout << "step 8b" << std::endl;
     std::vector<uint8_t> ARTCoreregisters {9, 10, 11, 12};
-    for (uint i=0; i<ARTCoreregisters.size(); i++) {
+    for (uint i = 0; i < ARTCoreregisters.size(); i++) {
         art_data[0] = ARTCoreregisters[i];
         art_data[1] = 0xff;
         cs.sendI2cRaw(opc_ip, sca_address + ".art0Core.art0Core", art_data, art_size);
     }
 
-    // 8.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx0 160M clock. 
-    // To do that, write the phase value to the GBTx0 register 8, 
-    // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96 and the rest bits are fixed. --> ?????
+    // 8.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx0 160M clock.
+    // To do that, write the phase value to the GBTx0 register 8,
+    // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96
+    //     and the rest bits are fixed. --> ?????
 
     // loop and test values between 0 and 255 to be written to GBTx0 register 8
     // sleep for some time
@@ -233,7 +234,7 @@ int main(int argc, const char *argv[]) {
 
     // for (uint i=0; i<256; i++) //exact number??
     // {
-    //     gbtx_data[1] = 0; 
+    //     gbtx_data[1] = 0;
     //     gbtx_data[0] = 8;
     //     gbtx_data[2] = i;
     //     cs.sendI2cRaw(opc_ip, sca_address + ".gbtx0.gbtx0", gbtx_data, gbtx_size);
@@ -241,7 +242,7 @@ int main(int argc, const char *argv[]) {
     // }
 
     // 9. repeat bit order alignment on ART1/GBTx1
-    // 9.a 
+    // 9.a
     std::cout << "step 9a" << std::endl;
     art_data[0] = 2;
     art_data[1] = 0x10;
@@ -249,19 +250,20 @@ int main(int argc, const char *argv[]) {
 
     // 9.b Mask off the ART input channels to avoid interferences
     std::cout << "step 9b" << std::endl;
-    for (uint i=0; i<ARTCoreregisters.size(); i++) {
+    for (uint i = 0; i < ARTCoreregisters.size(); i++) {
         art_data[0] = ARTCoreregisters[i];
         art_data[1] = 0xff;
         cs.sendI2cRaw(opc_ip, sca_address + ".art1Core.art1Core", art_data, art_size);
     }
 
-    // 9.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx1 160M clock. 
-    // To do that, write the phase value to the GBTx1 register 8, 
-    // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96 and the rest bits are fixed. --> ?????
+    // 9.c Check the received ART data on the Trigger processor end, scan the phase of the GBTx1 160M clock.
+    // To do that, write the phase value to the GBTx1 register 8,
+    // check the output 112 bit data until the 12-bit BCID counter be found in bit 107~96
+    //     and the rest bits are fixed. --> ?????
     std::cout << "step 9c" << std::endl;
-    // for (uint i=0; i<256; i++) 
+    // for (uint i=0; i<256; i++)
     // {
-    //     gbtx_data[1] = 0; 
+    //     gbtx_data[1] = 0;
     //     gbtx_data[0] = 8;
     //     gbtx_data[2] = i;
     //     cs.sendI2cRaw(opc_ip, sca_address + ".gbtx1.gbtx1", gbtx_data, gbtx_size);
@@ -270,7 +272,7 @@ int main(int argc, const char *argv[]) {
 
     // 10.
     std::cout << "step 10" << std::endl;
-    for (uint i=0; i<ARTCoreregisters.size(); i++) {
+    for (uint i = 0; i < ARTCoreregisters.size(); i++) {
         art_data[0] = ARTCoreregisters[i]; 
         art_data[1] = 0x00;
         cs.sendI2cRaw(opc_ip, sca_address + ".art0Core.art0Core", art_data, art_size);
@@ -280,7 +282,7 @@ int main(int argc, const char *argv[]) {
     // anything else needed?
 
     // Yes: bits for BCR counters
-    // 11 
+    // 11
     std::cout << "step 11" << std::endl;
     art_data[0] = 14;
     art_data[1] = 0xF;
@@ -292,5 +294,4 @@ int main(int argc, const char *argv[]) {
     cs.sendI2cRaw(opc_ip, sca_address + ".art1Core.art1Core", art_data, art_size);
 
     return 0;
-
 }
