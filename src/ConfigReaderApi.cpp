@@ -25,6 +25,8 @@ ptree ConfigReaderApi::read(std::string element) {
         return readPFEB(element);
     } else if (nsw::getElementType(element) == "SFEB") {
         return readSFEB(element);
+    } else if (nsw::getElementType(element) == "TP") {
+        return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
         return readADDC(element, 2);
     }
@@ -77,6 +79,17 @@ ptree ConfigReaderApi::readVMM(std::string element) {
         }
         ERS_DEBUG(5, name << ", " << type);
     }
+
+    return tree;
+}
+
+ptree ConfigReaderApi::readTP(std::string element) {
+    ERS_LOG("Reading configuration for TP: " << element);
+    ptree tree = m_config.get_child(element);
+
+    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    // }
 
     return tree;
 }
@@ -210,10 +223,10 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
         }
     }
 
-    ptree tds_common = m_config.get_child("tds_common_config");
     for ( int i = 0; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
+        ptree tds_common = m_config.get_child("tds_common_config");
         if (feb.get_child_optional(name)) {  // If node exists
             specific = feb.get_child(name);
         }
@@ -314,8 +327,8 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
-    ERS_LOG(s);
 
+    ERS_LOG(s);
     try {
         boost::property_tree::read_json(m_file_path, m_config);
     } catch(std::exception & e) {

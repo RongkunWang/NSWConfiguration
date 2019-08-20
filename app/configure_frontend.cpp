@@ -23,6 +23,7 @@ struct ThreadConfig {
   bool create_pulses;
   bool readback_tds;
   bool reset_roc;
+  bool reset_vmm;
   int vmm_to_unmask;
   int channel_to_unmask;
 };
@@ -43,6 +44,7 @@ int main(int ac, const char *av[]) {
     bool create_pulses;
     bool readback_tds;
     bool reset_roc;
+    bool reset_vmm;
     int vmm_to_unmask;
     int channel_to_unmask;
     int max_threads;
@@ -75,7 +77,9 @@ int main(int ac, const char *av[]) {
         ("max_threads,m", po::value<int>(&max_threads)->
         default_value(-1), "Maximum number of threads to run")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
-        "Reset the ROC via SCA. This option can't be used with -r or -v");
+        "Reset the ROC via SCA. This option can't be used with -r or -v")
+        ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
+        "Hard reset vmm before configuration. Need to be used with -v");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -153,6 +157,7 @@ int main(int ac, const char *av[]) {
       cfg.create_pulses     = create_pulses;
       cfg.readback_tds      = readback_tds;
       cfg.reset_roc         = reset_roc;
+      cfg.reset_vmm         = reset_vmm;
       cfg.vmm_to_unmask     = vmm_to_unmask;
       cfg.channel_to_unmask = channel_to_unmask;
       threads->push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
@@ -204,6 +209,21 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
             vmms[cfg.vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, cfg.channel_to_unmask);
             vmms[cfg.vmm_to_unmask].setGlobalRegister("sm", cfg.channel_to_unmask);
         }
+
+        if (cfg.reset_vmm)
+        {
+          for (auto & vmm : vmms) {
+            vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
+          }
+
+          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+
+
+          for (auto & vmm : vmms) {
+            vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+          }
+        }
+
         cs.sendVmmConfig(feb);  // Sends configuration to all vmm
         // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
     }
@@ -220,7 +240,7 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
             std::cout << "\nTDS: " << tds.getName() << std::endl;
             for (auto tds_i2c_address : tds.getAddresses()) {
                 auto address_to_read = nsw::stripReadonly(tds_i2c_address);
-                auto size_in_bytes = tds.getTotalSize(address_to_read)/8;
+                auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
                 std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
                 auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
                 std::cout << std::dec << "\n";
