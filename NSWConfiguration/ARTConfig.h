@@ -42,6 +42,10 @@ class ARTConfig {
     std::string getName() { return name; }
     void setName(std::string str) { name = str; }
 
+    std::string getNameCore() { return getName() + "Core." + getName() + "Core"; }
+    std::string getNamePs()   { return getName() + "Ps."   + getName() + "Ps"; }
+    std::string getNameGbtx() { return "gbtx" + std::to_string(index()) + ".gbtx" + std::to_string(index()); }
+
     int index() { return i_art; }
     void setIndex(int i) { i_art = i; }
 
