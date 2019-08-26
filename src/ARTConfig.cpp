@@ -9,10 +9,18 @@
 
 using boost::property_tree::ptree;
 
-nsw::ARTConfig::ARTConfig(ptree config): FEConfig(config) {
+nsw::ARTConfig::ARTConfig(ptree config):
+    m_config(config),
+    core(config.get_child(ART_CORE_NAME), ART_CORE_NAME, ART_CORE_REGISTERS),
+    ps  (config.get_child(ART_PS_NAME),   ART_PS_NAME,   ART_PS_REGISTERS)
+{
     // std::cout << "ART Constructor!" << std::endl;
 }
 
 int nsw::ARTConfig::register0_test_00() { 
     return m_config.get_child("register0").get<int>("test_00");
+}
+
+int nsw::ARTConfig::art_core_cfg_deser_flagmask() {
+    return core.getRegisterValue("03", "cfg_deser_flagmask");
 }

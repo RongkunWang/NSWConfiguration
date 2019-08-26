@@ -13,6 +13,8 @@
 #include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/TDSConfig.h"
+#include "NSWConfiguration/ADDCConfig.h"
+#include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
 
 
@@ -65,6 +67,9 @@ class ConfigSender {
     /// High level send function - TODO(cyildiz): deprecate
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
+    /// Send configuration to ADDC and its ARTs
+    void sendAddcConfig(const nsw::ADDCConfig& feb);
+
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);
 
@@ -101,6 +106,10 @@ class ConfigSender {
     // Read back I2c register as vector for ADDC
     std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
                                           uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
+
+    // Send I2c register as vector for ADDC
+    void sendI2cAtAddress(std::string opcserver_ipport, std::string node,
+                          std::vector<uint8_t> address, std::vector<uint8_t> data);
 
     /// Read multiple consecutive samples from an analog input
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,

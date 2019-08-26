@@ -60,10 +60,14 @@ class NSWConfigRc: public daq::rc::Controllable {
     size_t active_threads();
     bool too_many_threads();
 
+    //! Configure all ADDCs in m_addcs
+    void configureADDCs();
+
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
     std::map<std::string, FEBConfig> m_frontends;   //! Each element is [frontend_name, frontend_config]
+    std::map<std::string, ADDCConfig> m_addcs;      //!
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;

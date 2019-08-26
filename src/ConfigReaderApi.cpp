@@ -290,24 +290,36 @@ ptree ConfigReaderApi::readTDS(std::string element) {
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
+
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
     // std::cout << ss.str() << std::endl;
 
     ptree feb = m_config.get_child(element);
-    ptree art_common = m_config.get_child("art_common_config");
-    art_common.put("OpcServerIp", "none");  // TODO(tuna): Do what Cenk does for VMM
-    art_common.put("OpcNodeId",   "none");  // TODO(tuna): Do what Cenk does for VMM
 
     for ( size_t i = 0; i < nart; i++ ) {
+
         std::string name = "art" + std::to_string(i);
+
+        // top-level registers (not art_core and art_ps)
         ptree specific;
-        if (feb.get_child_optional(name)) {  // If node exists
+        ptree common = m_config.get_child("art_common_config");
+        if (feb.get_child_optional(name))
             specific = feb.get_child(name);
+        mergeI2cMasterTree(specific, common);
+
+        // art_core and art_ps
+        for ( auto name_i2c : {"art_core", "art_ps"} ) {
+            ptree specific_i2c;
+            ptree common_i2c = common.get_child(name_i2c);
+            if (specific.get_child_optional(name_i2c))
+                specific_i2c = specific.get_child(name_i2c);
+            mergeI2cMasterTree(specific_i2c, common_i2c);
+            common.put_child(name_i2c, common_i2c);
         }
-        mergeI2cMasterTree(specific, art_common);
-        feb.put_child(name, art_common);
+
+        feb.put_child(name, common);
     }
 
     return feb;

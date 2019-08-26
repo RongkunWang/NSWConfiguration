@@ -48,7 +48,10 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
           <<"========================================");
     for (auto & name : frontend_names) {
       try {
-        m_frontends.emplace(std::make_pair(name, m_reader->readConfig(name)));
+        if (nsw::getElementType(name) == "ADDC")
+          m_addcs.emplace(    std::make_pair(name, m_reader->readConfig(name)));
+        else
+          m_frontends.emplace(std::make_pair(name, m_reader->readConfig(name)));
         std::cout << name << std::endl;
       } catch (std::exception & e) {
         // TODO(cyildiz): turn into exception
@@ -58,6 +61,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     }
 
     configureFEBs();  // Configure all front-ends
+    configureADDCs();  // Configure all ADDCs
     ERS_LOG("End");
 }
 
@@ -147,6 +151,18 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
     }
     usleep(100000);
     ERS_LOG("Sending config to: " << name);
+}
+
+void nsw::NSWConfigRc::configureADDCs() {
+    ERS_INFO("Configuring all ADDCs");
+    for (auto fe : m_addcs) {
+        auto name = fe.first;
+        auto configuration = fe.second;
+        if (!m_simulation) {
+            m_sender->sendAddcConfig(configuration);
+        }
+        ERS_LOG("Sending config to: " << name);
+    }
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
