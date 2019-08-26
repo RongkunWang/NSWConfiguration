@@ -18,12 +18,8 @@ int main(int argc, const char *argv[]) {
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string opc_ip;
-    bool readMode;
-    bool writeMode;
     std::string slaveAddr;
-    std::string regAddr;
     std::string niter;
-    std::string message;
     std::string bc_center;
     std::string bc_left;
     std::string bc_right;
@@ -32,10 +28,6 @@ int main(int argc, const char *argv[]) {
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
-        ("read,R", po::bool_switch(&readMode)->default_value(false),
-            "read value at address(Default: False)")
-        ("write,W", po::bool_switch(&writeMode)->default_value(false),
-            "write value at address(Default: False)")
         ("iterations,n", po::value <std::string>(&niter)->default_value("1"),
             "number of iterations to write the payload (Default: 1)")
         ("windowCenter, bc_c", po::value <std::string>(&bc_center)->default_value("20"),
@@ -50,8 +42,6 @@ int main(int argc, const char *argv[]) {
              "artBCID in hex (Default: 10A)")
         ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
             "slave bus to write to (Default: NSW_TrigProc_STGC.I2C_0.bus0)")
-        ("regAddr,r", po::value<std::string>(&regAddr)->default_value("0x0000"),
-            "register to read from/write to (Default: 0x2AD)")
         ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
             "hostname for OPC server (Default: pcatlnswfelix01.cern.ch:48020)");
 
@@ -67,11 +57,11 @@ int main(int argc, const char *argv[]) {
     std::stringstream ss;
     ss << std::hex << artBCID;
     ss >> artBCID_int;
-    int bc_ctr;
+    int bc_center_int;
     std::stringstream sss;
     sss << std::hex << bc_center;
-    sss >> bc_ctr;
-    int sum = artBCID_int + bc_ctr;
+    sss >> bc_center_int;
+    int sum = artBCID_int + bc_center_int;
     //turn the sum into a hex string
     std::stringstream stream;
     stream << std::hex << sum;
@@ -92,32 +82,19 @@ int main(int argc, const char *argv[]) {
 
     nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
 
-    int test = 0;
-
-    std::vector<uint8_t> data;
-    std::vector<uint8_t> outdata;
-
-    std::vector<uint8_t> regAddrVec;
-
-    unsigned long registerAddressValue = std::strtoul(regAddr.data(), 0, 16);
-    assert(registerAddressValue < 0x0400);
-
     // Clean up strings
     auto cleanup = [](std::string & string) {
         size_t found = string.find("0x");
         if (found != std::string::npos) string.erase(found, 2);
         found = string.find("0X");
         if (found != std::string::npos) string.erase(found, 2);
+
+        if (string.size()%2) {
+            string.insert(0, "0");
+        }
+
         return;
     };
-
-    // Zero pad the hex so that it fits into a round number of 8-bit bytes.
-    if (regAddr.size()%2) {
-        regAddr.insert(0, "0");
-    }
-    if (message.size()%2) {
-        message.insert(0, "0");
-    }
 
     // Clean up strings
     auto buildEntireMessage = [](std::string & tmp_addr, std::string & tmp_message) {
@@ -184,37 +161,26 @@ int main(int argc, const char *argv[]) {
     };
 
     std::vector<uint8_t> entirePayload;
-    std::vector <uint8_t> entireLine;
     for (auto header_ele : header){
-        std::cout << " writing header once" << std::endl;
-        cleanup(header_ele.first); cleanup(header_ele.second);
-        if (header_ele.first.size()%2) {
-            header_ele.first.insert(0, "0");
-        }
-        if (header_ele.second.size()%2) {
-            header_ele.second.insert(0, "0");
-        }
-        entireLine = buildEntireMessage(header_ele.first, header_ele.second);
-        cs.sendI2cRaw(opc_ip, slaveAddr, entireLine.data(), entireLine.size() );
+        std::cout << "... writing initialization of L1a packet builder options" << std::endl;
+        cleanup(header_ele.first);
+        cleanup(header_ele.second);
+        entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
+        cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
     }
 
     for (size_t iter =0 ; iter < n_iter; iter++) {
         for (auto packet : messageList) {
-            std::cout << " writing the " <<iter<<"th "<<"packet"<< std::endl;
-            cleanup(packet.first); cleanup(packet.second);
-            if (packet.first.size()%2) {
-                packet.first.insert(0, "0");
-            }
-            if (packet.second.size()%2) {
-                packet.second.insert(0, "0");
-            }
+            std::cout << "... sending loopback data iteration: " << iter << std::endl;
+            cleanup(packet.first);
+            cleanup(packet.second);
             entirePayload = buildEntireMessage(packet.first, packet.second);
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
         }
 
     }
 
-    regAddrVec = nsw::hexStringToByteVector("01", 4, true);
+    std::vector<uint8_t> regAddrVec = nsw::hexStringToByteVector("01", 4, true);
     cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
 
     std::cout << "... Done with MMTP Loopback test" << std::endl;
