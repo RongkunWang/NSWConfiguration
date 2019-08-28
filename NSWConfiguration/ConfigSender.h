@@ -70,6 +70,9 @@ class ConfigSender {
     /// Send configuration to ADDC and its ARTs
     void sendAddcConfig(const nsw::ADDCConfig& feb);
 
+    /// Send configuration to ADDC for aligning ART to TP
+    void alignAddcGbtxTp(const nsw::ADDCConfig& feb);
+
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);
 

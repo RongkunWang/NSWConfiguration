@@ -25,7 +25,7 @@ class ARTConfig {
  private:
     std::string name;
     size_t i_art;
-    bool failsafe;
+    size_t n_phase = 32;
 
  public:
     nsw::I2cMasterConfig core;
@@ -49,11 +49,13 @@ class ARTConfig {
     int index() { return i_art; }
     void setIndex(int i) { i_art = i; }
 
-    int getEnableFailsafe() { return failsafe; }
-    void setEnableFailsafe(bool x) { failsafe = x; }
-
+    size_t NPhase() { return n_phase; }
     int register0_test_00();
     int art_core_cfg_deser_flagmask();
+    int TP_GBTxAlignmentBit();
+    std::string getOpcNodeId_TP();
+    bool IsAlignedWithTP(std::vector<uint8_t> vec);
+    bool failsafe();
 
 };
 

@@ -1,5 +1,6 @@
 // Program to set ADDC configuration?
 
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,20 +18,27 @@ int main(int argc, const char *argv[])
 {
     std::string config_filename;
     std::string board_name;
+    bool dont_config;
+    bool dont_align;
 
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file", po::value<std::string>(&config_filename)->
+        ("config_file,C", po::value<std::string>(&config_filename)->
          default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/addc_test_art_common_config.json"),
          "Configuration file path")
+        ("dont_config", po::bool_switch()->
+         default_value(false), "Option to NOT configure the ADDCs")
+        ("dont_align", po::bool_switch()->
+         default_value(false), "Option to NOT align the ADDCs to the TPs")
         ("name,n", po::value<std::string>(&board_name)->
-         default_value("ADDC_config_00,ADDC_config_01"),
-         "The name of frontend to configure (should contain ADDC).");
+         default_value(""), "The name of frontend to configure (should start with ADDC_).");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
+    dont_config = vm["dont_config"].as<bool>();
+    dont_align  = vm["dont_align" ].as<bool>();
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
@@ -89,19 +97,21 @@ int main(int argc, const char *argv[])
     // the sender
     nsw::ConfigSender cs;
 
-    // announce
+    // announce and go
     for (auto & addc: addc_configs){
         std::cout << "Found " << addc.getAddress() << " @ " << addc.getOpcServerIp() << std::endl;
         for (auto art: addc.getARTs()){
             std::cout << "Found " << art.getName()
-                      << " with JSON::art_test "<< art.register0_test_00()
-                      << " and " << art.art_core_cfg_deser_flagmask() << std::endl;
+                      << " with OpcNodeId_TP " << art.getOpcNodeId_TP() << std::endl;
         }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        cs.sendAddcConfig(addc);
-        std::cout << std::endl;
-        std::cout << std::endl;
+        if (!dont_config) {
+            std::cout << "Sending ADDC configuration... " << std::endl;
+            cs.sendAddcConfig(addc);
+        }
+        if (!dont_align) {
+            std::cout << "Aligning ADDC to TP... " << std::endl;
+            cs.alignAddcGbtxTp(addc);
+        }
     }
 
     return 0;

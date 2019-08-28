@@ -450,14 +450,15 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
     // Failsafe mode
     if (verbose)
         std::cout << "ART flag mode (failsafe or no)" << std::endl;
-    bool failsafe = 1;
     for (auto art: addc.getARTs()) {
+        if (verbose)
+            std::cout << "Failsafe for: " << art.getName() << ": " << art.failsafe() << std::endl;
         auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
         art_data[0] = 3;
-        art_data[1] = failsafe ? 0x06 : 0x0E;
+        art_data[1] = art.failsafe() ? 0x06 : 0x0E;
         sendI2cRaw(opc_ip, name, art_data, art_size);
         art_data[0] = 4;
-        art_data[1] = failsafe ? 0x27 : 0x3F;
+        art_data[1] = art.failsafe() ? 0x27 : 0x3F;
         sendI2cRaw(opc_ip, name, art_data, art_size);
     }
     if (verbose)
@@ -482,6 +483,72 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
     }
     if (verbose)
         std::cout << "-> done" << std::endl;
+}
+
+void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
+
+    bool verbose = 1;
+
+    // the TP register
+    std::string regAddr = "0x02";
+    auto regAddrVec = nsw::hexStringToByteVector(regAddr, 4, true);
+
+    size_t gbtx_size = 3;
+    uint8_t gbtx_data[] = {0x0,0x0,0x0};
+    size_t n_attempts = 0;
+    size_t max_attempts = 2;
+
+    // align each ART
+    for (auto art: addc.getARTs()){
+
+        // allow N failed attempts
+        while (n_attempts < max_attempts) {
+
+            if (verbose)
+                std::cout << addc.getAddress() << "/" << art.getName()
+                          << " GBTx phase alignment attempt " << n_attempts << std::endl;
+            bool success = 0;
+
+            for (uint phase = 0; phase < art.NPhase(); phase++) {
+
+                // addc phase
+                if (verbose) {
+                    std::stringstream zeropad;
+                    zeropad << std::hex << std::setfill('0') << std::setw(2) << phase;
+                    std::cout << addc.getAddress() << "/" << art.getName()
+                              << " GBTx phase = " << zeropad.str() << " -> ";
+                }
+                gbtx_data[1] = 0;
+                gbtx_data[0] = 8;
+                gbtx_data[2] = phase;
+                sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                usleep(100000);
+
+                // TP response
+                auto outdata = readI2cAtAddress(addc.getOpcServerIp(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
+                if (verbose)
+                    std::cout << art.getOpcNodeId_TP() << " = " << nsw::vectorToBitString(outdata) << std::endl;
+                usleep(100000);
+
+                // success?
+                if (art.IsAlignedWithTP(outdata)) {
+                    if (verbose)
+                        std::cout << addc.getAddress() << "/" << art.getName()
+                                  << " Aligned!" << std::endl;
+                    success = 1;
+                    break;
+                }
+            }
+
+            // try again?
+            if (success)
+                break;
+            if (verbose && n_attempts == max_attempts-1)
+                std::cout << addc.getAddress() << "/" << art.getName()
+                          << " Failed!" << std::endl;
+            n_attempts++;
+        }
+    }
 }
 
 void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
