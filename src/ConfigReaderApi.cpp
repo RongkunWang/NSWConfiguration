@@ -23,8 +23,10 @@ ptree ConfigReaderApi::read(std::string element) {
         return readMMFE8(element);
     } else if (nsw::getElementType(element) == "PFEB") {
         return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB_old") {
+        return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-        return readSFEB(element);
+        return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "TP") {
         return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
