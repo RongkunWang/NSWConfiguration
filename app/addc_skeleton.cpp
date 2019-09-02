@@ -102,7 +102,9 @@ int main(int argc, const char *argv[])
         std::cout << "Found " << addc.getAddress() << " @ " << addc.getOpcServerIp() << std::endl;
         for (auto art: addc.getARTs()){
             std::cout << "Found " << art.getName()
-                      << " with OpcNodeId_TP " << art.getOpcNodeId_TP() << std::endl;
+                      << " with OpcNodeId_TP " << art.getOpcNodeId_TP()
+                      << " and TP_GBTxAlignmentBit " << art.TP_GBTxAlignmentBit()
+                      << std::endl;
         }
         if (!dont_config) {
             std::cout << "Sending ADDC configuration... " << std::endl;
