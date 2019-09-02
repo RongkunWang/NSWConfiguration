@@ -310,11 +310,10 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
         // top-level registers
         // i.e. not art_core and art_ps, which are i2c master trees
-        for (ptree::iterator iter_addresses = specific.begin();
-             iter_addresses != specific.end(); iter_addresses++) {
-            std::string address = iter_addresses->first;
+        for (auto iter: specific) {
+            std::string address = iter.first;
             if (address != "art_core" && address != "art_ps")
-                common.put_child(address, iter_addresses->second);
+                common.put_child(address, iter.second);
         }
 
         // art_core and art_ps
