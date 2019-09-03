@@ -202,10 +202,13 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
+  // this is used for outside
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
+    // HACK!
+    int ntds = feb.getTdss().size();
     for (auto tds : feb.getTdss()) {
-        sendTdsConfig(opc_ip, feb_address, tds);
+        sendTdsConfig(opc_ip, feb_address, tds, ntds);
     }
 }
 
@@ -237,6 +240,7 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
+  // unused yet
     auto opc_ip = tds.getOpcServerIp();
     auto tds_address = tds.getAddress();
 
@@ -247,8 +251,19 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
     // Read back to verify something? (TODO)
 }
 
-void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds) {
-    sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds) {
+  // internal
+  if (ntds <= 3)
+    // old boards
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+  else
+  {
+    // new boards
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsaReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsbReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdscReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
+  }
 
     sendI2cMasterConfig(opc_ip, sca_address, tds);
 
