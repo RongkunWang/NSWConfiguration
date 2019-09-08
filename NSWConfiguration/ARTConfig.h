@@ -50,9 +50,11 @@ class ARTConfig {
     void setIndex(int i) { i_art = i; }
 
     size_t NPhase() { return n_phase; }
+    std::string PhaseToString(uint phase);
     int register0_test_00();
     int art_core_cfg_deser_flagmask();
     int TP_GBTxAlignmentBit();
+    std::string getOpcServerIp_TP();
     std::string getOpcNodeId_TP();
     bool IsAlignedWithTP(std::vector<uint8_t> vec);
     bool failsafe();

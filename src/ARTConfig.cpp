@@ -25,6 +25,10 @@ int nsw::ARTConfig::art_core_cfg_deser_flagmask() {
     return core.getRegisterValue("03", "cfg_deser_flagmask");
 }
 
+std::string nsw::ARTConfig::getOpcServerIp_TP() {
+    return m_config.get<std::string>("OpcServerIp_TP");
+}
+
 std::string nsw::ARTConfig::getOpcNodeId_TP() {
     return m_config.get<std::string>("OpcNodeId_TP");
 }
@@ -51,4 +55,10 @@ bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
                      ((uint32_t)(vec[1]) << 16) +
                      ((uint32_t)(vec[0]) << 24);
     return reg32 & (uint32_t)(pow(2, boi));
+}
+
+std::string nsw::ARTConfig::PhaseToString(uint phase) {
+    std::stringstream zeropad;
+    zeropad << std::hex << std::setfill('0') << std::setw(2) << phase;
+    return zeropad.str();
 }

@@ -102,7 +102,8 @@ int main(int argc, const char *argv[])
         std::cout << "Found " << addc.getAddress() << " @ " << addc.getOpcServerIp() << std::endl;
         for (auto art: addc.getARTs()){
             std::cout << "Found " << art.getName()
-                      << " with OpcNodeId_TP " << art.getOpcNodeId_TP()
+                      << " with OpcServerIp_TP " << art.getOpcServerIp_TP()
+                      << " and OpcNodeId_TP "    << art.getOpcNodeId_TP()
                       << " and TP_GBTxAlignmentBit " << art.TP_GBTxAlignmentBit()
                       << std::endl;
         }
