@@ -14,12 +14,15 @@
 
 namespace po = boost::program_options;
 
+std::string strf_time();
+
 int main(int argc, const char *argv[]) 
 {
     std::string config_filename;
     std::string board_name;
     bool dont_config;
     bool dont_align;
+    bool dont_watch;
 
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
@@ -31,6 +34,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to NOT configure the ADDCs")
         ("dont_align", po::bool_switch()->
          default_value(false), "Option to NOT align the ADDCs to the TPs")
+        ("dont_watch", po::bool_switch()->
+         default_value(false), "Option to NOT monitor the ADDC-TP alignment vs time")
         ("name,n", po::value<std::string>(&board_name)->
          default_value(""), "The name of frontend to configure (should start with ADDC_).");
 
@@ -39,6 +44,7 @@ int main(int argc, const char *argv[])
     po::notify(vm);
     dont_config = vm["dont_config"].as<bool>();
     dont_align  = vm["dont_align" ].as<bool>();
+    dont_watch  = vm["dont_watch"].as<bool>();
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
@@ -117,6 +123,59 @@ int main(int argc, const char *argv[])
         }
     }
 
+    // watch alignment?
+    if (!dont_align && !dont_watch) {
+        size_t i  = 0;
+        size_t slp = 5;
+        std::string phase_position = "";
+        for (auto & addc: addc_configs) {
+            for (auto art: addc.getARTs()) {
+                phase_position = art.TP_GBTxAlignmentPhase();
+                break;
+            }
+            break;
+        }
+        std::string fname = "addc_alignment_" + strf_time() + "_" + phase_position + "_phase.txt";
+        std::ofstream myfile;
+        myfile.open(fname);
+        std::cout << "Watching ADDC-TP alignment."              << std::endl;
+        std::cout << "Sleep time: " + std::to_string(slp) + "s" << std::endl;
+        std::cout << "Output file: " << fname                   << std::endl;
+        std::cout << "Press Ctrl+C to exit"                     << std::endl;
+        auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
+        while (false) {
+            myfile << "Time " << strf_time() << std::endl;
+            for (auto & addc: addc_configs){
+                for (auto art: addc.getARTs()){
+                    auto outdata = cs.readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
+                    usleep(10000);
+                    auto aligned = art.IsAlignedWithTP(outdata);
+                    std::stringstream result;
+                    result << addc.getAddress() << " "
+                           << art.getName()     << " "
+                           << aligned << std::endl;
+                    myfile << result.str();
+                }
+            }
+            if (i % 100 == 0)
+                std::cout << std::endl << strf_time() << " " << std::flush;
+            std::cout << "." << std::flush;
+            i++;
+            sleep(slp);
+        }
+        myfile.close();
+    }
+
     return 0;
+}
+
+std::string strf_time() {
+    std::stringstream ss;
+    std::string out;
+    std::time_t result = std::time(nullptr);
+    std::tm tm = *std::localtime(&result);
+    ss << std::put_time(&tm, "%Y_%m_%d_%Hh%Mm%Ss");
+    ss >> out;
+    return out;
 }
 
