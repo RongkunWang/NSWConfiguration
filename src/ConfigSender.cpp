@@ -513,8 +513,19 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                             break;
                     }
 
-                    // choose middle
-                    uint chosen_phase = good_phases[ good_phases.size()/2 ];
+                    // choose which phase
+                    uint chosen_phase = 0;
+                    std::string phase_position = art.TP_GBTxAlignmentPhase();
+                    if (phase_position == "first")
+                        chosen_phase = good_phases.front();
+                    else if (phase_position == "middle")
+                        chosen_phase = good_phases[ good_phases.size()/2 ];
+                    else if (phase_position == "last")
+                        chosen_phase = good_phases.back();
+                    else
+                        throw std::runtime_error("Need ART phase to be first, middle, or last; got " + phase_position);
+
+                    // apply choice
                     gbtx_data[2] = chosen_phase;
                     sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
                     ERS_DEBUG(1, addc.getAddress() << "/" << art.getName() << " Aligned! Chosen phase: " << std::to_string(chosen_phase));
