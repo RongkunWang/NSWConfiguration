@@ -41,6 +41,10 @@ int nsw::ARTConfig::TP_GBTxAlignmentBit() {
     return m_config.get<int>("TP_GBTxAlignmentBit");
 }
 
+std::string nsw::ARTConfig::TP_GBTxAlignmentPhase() {
+    return m_config.get<std::string>("TP_GBTxAlignmentPhase");
+}
+
 bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
     // bit of interest
     int boi = TP_GBTxAlignmentBit();

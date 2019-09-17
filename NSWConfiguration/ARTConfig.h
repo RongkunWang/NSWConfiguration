@@ -54,6 +54,7 @@ class ARTConfig {
     int register0_test_00();
     int art_core_cfg_deser_flagmask();
     int TP_GBTxAlignmentBit();
+    std::string TP_GBTxAlignmentPhase();
     std::string getOpcServerIp_TP();
     std::string getOpcNodeId_TP();
     bool IsAlignedWithTP(std::vector<uint8_t> vec);
