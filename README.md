@@ -58,14 +58,14 @@ source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
 ```bash
 git clone https://github.com/quasar-team/open62541-compat.git
 cd open62541-compat
-git checkout v1.1.1
+git checkout v1.1.3-rc0
 ```
 
 Build the software.
 ```bash
 mkdir build
 cd build
-cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON -DBoost_NO_BOOST_CMAKE=ON
+cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
 make -j
 ```
 
