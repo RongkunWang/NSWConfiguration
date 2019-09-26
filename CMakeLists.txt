@@ -61,14 +61,22 @@ tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_router app/router.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
-                 src/ADDCConfig.cpp
-                 src/TPConfig.cpp
+                 src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
+                 src/TPConfig.cpp src/RouterConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
