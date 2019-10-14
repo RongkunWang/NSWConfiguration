@@ -23,6 +23,7 @@ int main(int argc, const char *argv[])
     bool dont_config;
     bool dont_align;
     bool dont_watch;
+    int manual_phase;
 
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
@@ -36,6 +37,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to NOT align the ADDCs to the TPs")
         ("dont_watch", po::bool_switch()->
          default_value(false), "Option to NOT monitor the ADDC-TP alignment vs time")
+        ("manual_phase", po::value<int>(&manual_phase)->
+         default_value(-1), "Manual phase of ART alignment")
         ("name,n", po::value<std::string>(&board_name)->
          default_value(""), "The name of frontend to configure (should start with ADDC_).");
 
@@ -121,6 +124,27 @@ int main(int argc, const char *argv[])
             std::cout << "Aligning ADDC to TP... " << std::endl;
             cs.alignAddcGbtxTp(addc);
         }
+        if (manual_phase >= 0){
+            auto phase = (uint)(manual_phase);
+            std::cout << "Sending manual phase " << unsigned(phase) << " to each ART" << std::endl;
+            size_t gbtx_size = 3;
+            uint8_t gbtx_data[] = {0x0,0x0,0x0};
+            auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
+            for (auto art: addc.getARTs()){
+                gbtx_data[1] = 0;
+                gbtx_data[0] = 8;
+                gbtx_data[2] = (uint)(phase);
+                cs.sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                usleep(100000);
+                auto outdata = cs.readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
+                usleep(10000);
+                auto aligned = art.IsAlignedWithTP(outdata);
+                std::cout << "Result: "
+                          << addc.getAddress() << " "
+                          << art.getName()     << " "
+                          << "-> alignment = " << aligned << std::endl;
+            }
+        }
     }
 
     // watch alignment?
@@ -143,7 +167,7 @@ int main(int argc, const char *argv[])
         std::cout << "Output file: " << fname                   << std::endl;
         std::cout << "Press Ctrl+C to exit"                     << std::endl;
         auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
-        while (false) {
+        while (true) {
             myfile << "Time " << strf_time() << std::endl;
             for (auto & addc: addc_configs){
                 for (auto art: addc.getARTs()){
