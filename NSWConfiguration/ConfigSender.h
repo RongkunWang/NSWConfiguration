@@ -16,6 +16,8 @@
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/RouterConfig.h"
 
 
 namespace nsw {
@@ -69,6 +71,12 @@ class ConfigSender {
 
     /// Send configuration to ADDC and its ARTs
     void sendAddcConfig(const nsw::ADDCConfig& feb);
+
+    /// High level send function
+    void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
+
+    /// High level send function
+    void sendRouterConfig(const nsw::RouterConfig& obj);
 
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);

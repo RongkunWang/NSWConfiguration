@@ -67,7 +67,7 @@ class ConfigReaderApi {
 
   /// Get names of all Front end elements in the configuration
   /// The base class method iterates through config ptree and finds all
-  /// elements that start with MMFE8, PFEB, SFEB, ADDC in the name.
+  /// elements that start with MMFE8, PFEB, SFEB, ADDC, PadTriggerSCA, Router in the name.
   /// The results contain the full path of the element in the ptree
   std::set<std::string> getAllElementNames();
 
@@ -94,6 +94,8 @@ class ConfigReaderApi {
   }
 
   virtual ptree readADDC(std::string element, size_t nart);
+  virtual ptree readPadTriggerSCA(std::string element);
+  virtual ptree readRouter(std::string element);
 
   // TODO(cyildiz): Following read functions should be deprecated!
   virtual ptree readVMM(std::string element_name);
