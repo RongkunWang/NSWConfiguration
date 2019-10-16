@@ -62,6 +62,8 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     //! Configure all ADDCs in m_addcs
     void configureADDCs();
+    void configureADDC(std::string name);
+    void alignADDCsToTP();
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;

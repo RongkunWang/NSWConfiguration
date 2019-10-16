@@ -62,12 +62,14 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
 
     configureFEBs();  // Configure all front-ends
     configureADDCs();  // Configure all ADDCs
+    alignADDCsToTP();
     ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
     m_frontends.clear();
+    m_addcs.clear();
     // m_reader.reset();
     ERS_INFO("End");
 }
@@ -154,15 +156,34 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
 }
 
 void nsw::NSWConfigRc::configureADDCs() {
-    ERS_INFO("Configuring all ADDCs");
-    for (auto fe : m_addcs) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendAddcConfig(configuration);
-        }
-        ERS_LOG("Sending config to: " << name);
+    ERS_LOG("Configuring all ADDCs");
+    m_threads->clear();
+    for (const auto& kv: m_addcs) {
+        while(too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        &nsw::NSWConfigRc::configureADDC,
+                                        this,
+                                        kv.first));
     }
+    for (auto& thread: *m_threads)
+        thread.get();
+}
+
+void nsw::NSWConfigRc::configureADDC(std::string name) {
+    ERS_LOG("Configuring ADDC: " + name);
+    if (m_addcs.count(name) == 0)
+        throw std::runtime_error("NSWConfigRc::configureADDC has bad name: " + name);
+    auto local_sender = std::make_unique<nsw::ConfigSender>();
+    auto configuration = m_addcs.at(name);
+    if (!m_simulation)
+        local_sender->sendAddcConfig(configuration);
+    usleep(10000);
+    ERS_LOG("Finished config to: " << name);
+}
+
+void nsw::NSWConfigRc::alignADDCsToTP() {
+    ERS_LOG("This function needs to be implemented!");
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
