@@ -257,7 +257,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 
 void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
 
-    ERS_INFO(addc.getAddress() << " Begin configuration...");
+    ERS_LOG(addc.getAddress() << " Begin configuration...");
     size_t art_size = 2;
     uint8_t art_data[] = {0x0,0x0};
     size_t gbtx_size = 3;
@@ -452,7 +452,7 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
         }
     }
     ERS_DEBUG(1, "-> done");
-    ERS_INFO(addc.getAddress() << " Configuration done.");
+    ERS_LOG(addc.getAddress() << " Configuration done.");
 }
 
 void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
@@ -530,7 +530,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                     // apply choice
                     gbtx_data[2] = chosen_phase;
                     sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
-                    ERS_INFO(addc.getAddress() << "/" << art.getName() << " Aligned! Chosen phase: " << std::to_string(chosen_phase));
+                    ERS_LOG(addc.getAddress() << "/" << art.getName() << " Aligned! Chosen phase: " << std::to_string(chosen_phase));
                     success = 1;
                     break;
                 }
@@ -541,7 +541,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                 break;
             if (n_attempts == max_attempts-1) {
                 auto msg = addc.getAddress() + "/" + art.getName() + " failed TP alignment! Crashing.";
-                ERS_INFO(msg);
+                ERS_LOG(msg);
                 throw std::runtime_error(msg);;
             }
             n_attempts++;
