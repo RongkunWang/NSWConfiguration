@@ -65,11 +65,19 @@ class NSWConfigRc: public daq::rc::Controllable {
     void configureADDC(std::string name);
     void alignADDCsToTP();
 
+    //! Configure all Routers, Pad Triggers, and Trigger Processors
+    void configureRouters();
+    void configurePadTriggers();
+    void configureTPs();
+
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
-    std::map<std::string, FEBConfig> m_frontends;   //! Each element is [frontend_name, frontend_config]
-    std::map<std::string, ADDCConfig> m_addcs;      //!
+    std::map<std::string, FEBConfig>           m_frontends;   //! Each element is [frontend_name, frontend_config]
+    std::map<std::string, ADDCConfig>          m_addcs;       //!
+    std::map<std::string, RouterConfig>        m_routers;     //!
+    std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
+    std::map<std::string, TPConfig>            m_tps;         //!
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;
