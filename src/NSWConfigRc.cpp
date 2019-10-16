@@ -138,13 +138,16 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
 
         if (m_resetvmm)
         {
+            std::vector <unsigned> reset_ori;
             for (auto & vmm : configuration.getVmms()) {
+                reset_ori.push_back(vmm.getGlobalRegister("reset"));  // Set reset bits to 1
                 vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
             }
             local_sender->sendVmmConfig(configuration);
 
+            size_t i = 0;
             for (auto & vmm : configuration.getVmms()) {
-                vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+                vmm.setGlobalRegister("reset", reset_ori[i++]);  // Set reset bits to original
             }
         }
         local_sender->sendVmmConfig(configuration);

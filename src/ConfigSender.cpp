@@ -202,10 +202,13 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
+  // this is used for outside
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
+    // HACK!
+    int ntds = feb.getTdss().size();
     for (auto tds : feb.getTdss()) {
-        sendTdsConfig(opc_ip, feb_address, tds);
+        sendTdsConfig(opc_ip, feb_address, tds, ntds);
     }
 }
 
@@ -237,6 +240,7 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
+  // unused yet
     auto opc_ip = tds.getOpcServerIp();
     auto tds_address = tds.getAddress();
 
@@ -247,8 +251,19 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
     // Read back to verify something? (TODO)
 }
 
-void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds) {
-    sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds) {
+  // internal
+  if (ntds <= 3)
+    // old boards
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+  else
+  {
+    // new boards
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsaReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsbReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdscReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
+  }
 
     sendI2cMasterConfig(opc_ip, sca_address, tds);
 
@@ -579,6 +594,122 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
             sendI2cRaw(opc_ip, address, data.data(), data.size());
         }
     }
+}
+
+void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj) {
+
+    // basics
+    auto opc_ip   = obj.getOpcServerIp();
+    auto sca_addr = obj.getAddress();
+    std::vector<std::string> repeaters = {"1", "2", "3", "4", "5", "6"};
+    std::vector<std::string> vttxs = {"1", "2"};
+
+    // I2C
+    size_t address_size_repeater = 1;
+    size_t data_size_repeater    = 2;
+    uint8_t address_repeater[]   = {0x0};
+    uint8_t data_data_repeater[] = {0x00, 0x2F};
+
+    // 0.0: Repeater GPIO
+    std::cout << "Repeater GPIO. Writing 1" << std::endl;
+    for (auto rep: repeaters) {
+        sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 1);
+        usleep(100000);
+    }
+
+    // 0.1: Read them
+    for (auto rep: repeaters) {
+        std::cout << " Readback " << rep << ": " << readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep) << std::endl;
+        usleep(100000);
+    }
+    std::cout << std::endl;
+
+    // 1.0 Repeater I2C
+    std::cout << "Repeater I2C. Writing " << std::hex << unsigned(data_data_repeater[1]) << std::dec << std::endl;
+    for (auto rep: repeaters) {
+        std::string node = sca_addr + ".repeaterChip" + rep + ".chip" + rep;
+        sendI2cRaw(opc_ip, node, data_data_repeater, data_size_repeater);
+        usleep(100000);
+    }
+
+    // 1.1 Read them
+    for (auto rep: repeaters) {
+        std::string node = sca_addr + ".repeaterChip" + rep + ".chip" + rep;
+        auto val = readI2cAtAddress(opc_ip, node, address_repeater, address_size_repeater);
+        std::cout << " Readback " << rep << ": " << unsigned(val[0]) << std::endl;
+        usleep(100000);
+    }
+    std::cout << std::endl;
+
+    // VTTX
+    size_t address_size = 1;
+    size_t data_size    = 2;
+    uint8_t address[]   = {0x0};
+    uint8_t data_data[] = {0x0, 0xC7};
+
+    // 2.0 VTTX
+    std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1]) << std::dec << std::endl;
+    for (auto vttx: vttxs) {
+        std::string node = sca_addr + ".vttx" + vttx + ".chipVTT" + vttx;
+        sendI2cRaw(opc_ip, node, data_data, data_size);
+        usleep(100000);
+    }
+
+    // 2.1 Read them
+    for (auto vttx: vttxs) {
+        std::string node = sca_addr + ".vttx" + vttx + ".chipVTT" + vttx;
+        auto val = readI2cAtAddress(opc_ip, node, address, address_size);
+        std::cout << " Readback " << vttx << ": " << std::hex << unsigned(val[0]) << std::dec << std::endl;
+        usleep(100000);
+    }
+
+}
+
+void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
+
+    auto opc_ip   = obj.getOpcServerIp();
+    auto sca_addr = obj.getAddress();
+
+    // Set Router control mode to SCA mode: Line 17 in excel
+    auto ctrlMod0 = sca_addr + ".gpio.ctrlMod0";
+    auto ctrlMod1 = sca_addr + ".gpio.ctrlMod1";
+    sendGPIO(opc_ip, ctrlMod0, 0);
+    sendGPIO(opc_ip, ctrlMod1, 0);
+    std::cout << std::left << std::setw(30) << ctrlMod0 << " " << readGPIO(opc_ip, ctrlMod0) << std::endl;
+    std::cout << std::left << std::setw(30) << ctrlMod1 << " " << readGPIO(opc_ip, ctrlMod1) << std::endl;
+
+    // Send Soft_RST: Line 11 in excel
+    auto soft_reset = sca_addr + ".gpio.softReset";
+    sendGPIO(opc_ip, soft_reset, 1); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
+    sendGPIO(opc_ip, soft_reset, 0); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
+
+    // Read SCA IO status back: Line 6 & 8 in excel
+    // (only need to match with star mark bits)
+    std::vector< std::pair<std::string, bool> > check = { {"fpgaConfigOK",   1},
+                                                          {"mmcmBotLock",    1},
+                                                          {"fpgaInit",       1},
+                                                          {"rxClkReady",     1},
+                                                          {"txClkReady",     1},
+                                                          {"cpllTopLock",    1},
+                                                          {"cpllBotLock",    1},
+                                                          {"mmcmTopLock",    1},
+                                                          {"semFatalError",  0},
+                                                          {"masterChannel0", 1} };
+    for (auto kv: check) {
+        auto bit = sca_addr + ".gpio." + kv.first;
+        bool exp = kv.second;
+        bool obs = readGPIO(opc_ip, bit);
+        bool yay = obs==exp;
+        std::cout << std::left << std::setw(30) << bit << " ::"
+                  << " Expected = " << exp
+                  << " Observed = " << obs
+                  << " -> " << (yay ? "Good" : "Bad")
+                  << std::endl;
+    }
+
+    // Reset cout
+    std::cout << std::setw(0);
+
 }
 
 std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,

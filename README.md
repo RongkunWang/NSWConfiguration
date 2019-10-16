@@ -23,23 +23,42 @@
 
 These instructions are for centos7, for SLC6, check older versions of the README file.
 
+### Prerequisites
+
+First you need to decide which tdaq release you will use. Possible options:
+- ```nightly```: latest changes, not be ideal for long term stability
+- ```tdaq-08-03-01```: August 2019 release with new implementation of Software ROD and ALTI
+- other: Keep following Detector/DAQ meetings for newer releases.
+
+Lets say you chose tdaq release tdaq-08-03-01. Set the environment and find out which LCG
+release you are using. (Each tdaq release is compiled against a certain LCG release)
+
+```bash
+ssh lxplus7.cern.ch
+source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 x86_64-centos7-gcc8-opt
+echo $TDAQ_LCG_RELEASE   # LCG release you should use
+echo $CMTCONFIG   # Tag that defines OS and gcc version. For this example, it's: ```x86_64-centos7-gcc8-opt```
+```
+
 ### External Software
 
 NSW Configuration requires external Opc related software to build and run.
-Note that you can skip this step and use installation from /eos area (see below)
+Note that you can skip this step and use installation from prebuilt /eos or /afs areas (see below)
 
 * Go to any lxplus node with centos7: ```ssh lxplus7.cern.ch```
 
-* Set lcg environment:
+* Set lcg environment with correct tag(CMTCONFIG) and LCG version from previous step
 ```bash
-source /cvmfs/sft.cern.ch/lcg/views/LCG_94a/x86_64-centos7-gcc8-opt/setup.sh
+export LCG_VERSION=LCG_96
+export HW_TAG=x86_64-centos7-gcc8-opt
+source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
 ```
 
-* Clone open62541-compat package and select correct tag
+* Clone open62541-compat package and select correct git tag
 ```bash
 git clone https://github.com/quasar-team/open62541-compat.git
 cd open62541-compat
-git checkout v1.1.1
+git checkout v1.1.3-rc0
 ```
 
 Build the software.
@@ -58,6 +77,12 @@ open62541/libopen62541.a
 
 The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment variable to compile NSWConfiguration
 
+To use the OPC libraries in a partition, create a installed area under open62541-compat directory, and copy libraries there:
+```bash
+mkdir -p installed/$HW_TAG/lib/
+cp build/libopen62541-compat.so  installed/$HW_TAG/lib/
+```
+
 ### NSWConfiguration
 
 * Go to any lxplus node: ```ssh lxplus7.cern.ch```
@@ -66,12 +91,12 @@ The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment
 ```bash
 mkdir work
 cd work
-printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 99.0.0)\n" > CMakeLists.txt
+printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 8.3.1)\n" > CMakeLists.txt
 ```
 
-If you will use another tdaq release, replace 99.0.0 with the release number (for instance 8.1.1)
+If you will use another tdaq release, replace 8.3.1 with the release number (for nightly use 99.0.0)
 
-* Checkout this package using with `--recursive` option to get submodules
+* Clone this package using with `--recursive` option to get submodules
 
 ```bash
 git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfiguration.git
@@ -80,7 +105,7 @@ git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfig
   For latter, you can your build from previous step, or a build from eos area
 
 ```bash
-source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh nightly # replace nightly with prod if you want to use production release
+source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 # replace nightly with any other release
 export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-v1.1.1
 ```
 

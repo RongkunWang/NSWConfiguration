@@ -16,6 +16,8 @@
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/RouterConfig.h"
 
 
 namespace nsw {
@@ -47,7 +49,7 @@ class ConfigSender {
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
     /// Send configuration to tds
-    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds);
+    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds);
 
     /// Send configuration to all ROC, VMM and TDS that belongs to the FEB
     void sendConfig(const nsw::FEBConfig& feb);
@@ -72,6 +74,12 @@ class ConfigSender {
 
     /// Send configuration to ADDC for aligning ART to TP
     void alignAddcGbtxTp(const nsw::ADDCConfig& feb);
+
+    /// High level send function
+    void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
+
+    /// High level send function
+    void sendRouterConfig(const nsw::RouterConfig& obj);
 
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);

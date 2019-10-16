@@ -212,15 +212,18 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
 
         if (cfg.reset_vmm)
         {
+          std::vector <unsigned> reset_ori;
           for (auto & vmm : vmms) {
+            reset_ori.push_back(vmm.getGlobalRegister("reset"));  // Set reset bits to 1
             vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
           }
 
           cs.sendVmmConfig(feb);  // Sends configuration to all vmm
 
 
+          size_t i = 0;
           for (auto & vmm : vmms) {
-            vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+            vmm.setGlobalRegister("reset", reset_ori[i++]);  // Set reset bits to original
           }
         }
 

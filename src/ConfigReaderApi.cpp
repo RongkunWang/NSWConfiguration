@@ -23,12 +23,18 @@ ptree ConfigReaderApi::read(std::string element) {
         return readMMFE8(element);
     } else if (nsw::getElementType(element) == "PFEB") {
         return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB_old") {
+        return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-        return readSFEB(element);
+        return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "TP") {
         return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
         return readADDC(element, 2);
+    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
+        return readPadTriggerSCA(element);
+    } else if (nsw::getElementType(element) == "Router") {
+        return readRouter(element);
     }
 }
 
@@ -37,7 +43,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
       read();
     }
 
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*", m_config);
 }
 
 std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
@@ -329,6 +335,22 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
         feb.put_child(name, common);
     }
 
+    return feb;
+}
+
+ptree ConfigReaderApi::readPadTriggerSCA(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
+    return feb;
+}
+
+ptree ConfigReaderApi::readRouter(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
     return feb;
 }
 
