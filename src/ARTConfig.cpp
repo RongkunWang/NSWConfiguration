@@ -41,6 +41,10 @@ int nsw::ARTConfig::TP_GBTxAlignmentBit() {
     return m_config.get<int>("TP_GBTxAlignmentBit");
 }
 
+bool nsw::ARTConfig::TP_GBTxAlignmentSkip() {
+    return (bool)(m_config.get<int>("TP_GBTxAlignmentSkip"));
+}
+
 std::string nsw::ARTConfig::TP_GBTxAlignmentPhase() {
     return m_config.get<std::string>("TP_GBTxAlignmentPhase");
 }

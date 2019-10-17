@@ -484,6 +484,12 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
     // align each ART
     for (auto art: addc.getARTs()){
 
+        // allow this to be skipped
+        if (art.TP_GBTxAlignmentSkip()) {
+            ERS_LOG(addc.getAddress() << "/" << art.getName() << " Skipping phase alignment to TP");
+            continue;
+        }
+
         // allow N failed attempts
         while (n_attempts < max_attempts) {
 

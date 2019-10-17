@@ -192,7 +192,20 @@ void nsw::NSWConfigRc::configureADDC(std::string name) {
 }
 
 void nsw::NSWConfigRc::alignADDCsToTP() {
-    ERS_LOG("This function needs to be implemented!");
+    //
+    // Keep an eye on this. It might be slow.
+    // But be cautious if trying to parallelize:
+    //    its not a good idea for 16 ADDC threads
+    //    to be querying a TP reg simultaneously
+    //
+    ERS_LOG("Aligning ADDCs to TP");
+    for (auto obj: m_addcs) {
+        auto name   = obj.first;
+        auto config = obj.second;
+        ERS_LOG("Aligning " << name);
+        m_sender->alignAddcGbtxTp(config);
+    }
+    ERS_LOG("Finished aligning ADDCs to TP");
 }
 
 void nsw::NSWConfigRc::configureRouters() {
