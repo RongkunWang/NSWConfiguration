@@ -497,18 +497,22 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                       << " GBTx phase alignment attempt " << n_attempts);
             bool success = 0;
 
-            for (uint phase = 0; phase < art.NPhase(); phase++) {
+            for (auto phase: art.TP_GBTxAlignmentPhasesToTest()) {
+
+                // beware
+                if (phase >= art.NPhase())
+                    throw std::runtime_error("This ART phase is not okay: " + phase);
 
                 // addc phase
                 gbtx_data[1] = 0;
                 gbtx_data[0] = 8;
                 gbtx_data[2] = phase;
                 sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
-                usleep(100000);
+                usleep(art.TP_GBTxAlignmentSleepTime());
 
                 // TP response
                 auto outdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
-                usleep(100000);
+                usleep(art.TP_GBTxAlignmentSleepTime());
 
                 // debug
                 ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
@@ -524,8 +528,9 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                     for (uint next = 1; phase+next < art.NPhase(); next++) {
                         gbtx_data[2] = phase+next;
                         sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                        usleep(art.TP_GBTxAlignmentSleepTime());
                         auto nextdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
-                        usleep(100000);
+                        usleep(art.TP_GBTxAlignmentSleepTime());
                         ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
                                   << " GBTx phase = " << art.PhaseToString(phase+next)
                                   << " -> " << art.getOpcNodeId_TP()

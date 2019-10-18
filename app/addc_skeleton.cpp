@@ -114,7 +114,10 @@ int main(int argc, const char *argv[])
                       << " with OpcServerIp_TP " << art.getOpcServerIp_TP()
                       << " and OpcNodeId_TP "    << art.getOpcNodeId_TP()
                       << " and TP_GBTxAlignmentBit " << art.TP_GBTxAlignmentBit()
-                      << std::endl;
+                      << " and TP_GBTxAlignmentCommonPhases = ";
+            for (auto ph: art.TP_GBTxAlignmentCommonPhases())
+                std::cout << ph << " ";
+            std::cout << std::endl;
         }
         if (!dont_config) {
             std::cout << "Sending ADDC configuration... " << std::endl;

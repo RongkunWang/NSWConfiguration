@@ -45,8 +45,28 @@ bool nsw::ARTConfig::TP_GBTxAlignmentSkip() {
     return (bool)(m_config.get<int>("TP_GBTxAlignmentSkip"));
 }
 
+std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentCommonPhases() {
+    std::vector<uint> phases = {};
+    for (auto ph : m_config.get_child("TP_GBTxAlignmentCommonPhases"))
+        phases.push_back(ph.second.get_value<uint>());
+    return phases;
+}
+
 std::string nsw::ARTConfig::TP_GBTxAlignmentPhase() {
     return m_config.get<std::string>("TP_GBTxAlignmentPhase");
+}
+
+std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentPhasesToTest() {
+    std::vector<uint> phases = {};
+    for (auto ph: TP_GBTxAlignmentCommonPhases())
+        phases.push_back(ph);
+    for (uint ph = 0; ph < NPhase(); ph++)
+        phases.push_back(ph);
+    return phases;
+}
+
+int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() {
+    return m_config.get<int>("TP_GBTxAlignmentSleepTime");
 }
 
 bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
