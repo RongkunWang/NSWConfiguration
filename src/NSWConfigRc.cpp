@@ -76,6 +76,9 @@ void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
     m_frontends.clear();
     m_addcs.clear();
+    m_routers.clear();
+    m_ptscas.clear();
+    m_tps.clear();
     // m_reader.reset();
     ERS_INFO("End");
 }
