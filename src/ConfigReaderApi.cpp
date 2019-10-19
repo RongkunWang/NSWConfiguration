@@ -308,12 +308,19 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
         std::string name = "art" + std::to_string(i);
 
-        // top-level registers (not art_core and art_ps)
+        // check for ART-specific configuration
         ptree specific;
         ptree common = m_config.get_child("art_common_config");
         if (feb.get_child_optional(name))
             specific = feb.get_child(name);
-        mergeI2cMasterTree(specific, common);
+
+        // top-level registers
+        // i.e. not art_core and art_ps, which are i2c master trees
+        for (auto iter: specific) {
+            std::string address = iter.first;
+            if (address != "art_core" && address != "art_ps")
+                common.put_child(address, iter.second);
+        }
 
         // art_core and art_ps
         for ( auto name_i2c : {"art_core", "art_ps"} ) {

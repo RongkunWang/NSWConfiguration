@@ -48,10 +48,13 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
           <<"========================================");
     for (auto & name : frontend_names) {
       try {
-        if (nsw::getElementType(name) == "ADDC")
-          m_addcs.emplace(    std::make_pair(name, m_reader->readConfig(name)));
+        auto this_pair = std::make_pair(name, m_reader->readConfig(name));
+        if      (nsw::getElementType(name) == "ADDC")          m_addcs  .emplace(this_pair);
+        else if (nsw::getElementType(name) == "Router")        m_routers.emplace(this_pair);
+        else if (nsw::getElementType(name) == "PadTriggerSCA") m_ptscas .emplace(this_pair);
+        else if (nsw::getElementType(name) == "TP")            m_tps    .emplace(this_pair);
         else
-          m_frontends.emplace(std::make_pair(name, m_reader->readConfig(name)));
+          m_frontends.emplace(this_pair);
         std::cout << name << std::endl;
       } catch (std::exception & e) {
         // TODO(cyildiz): turn into exception
@@ -60,14 +63,22 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       }
     }
 
-    configureFEBs();  // Configure all front-ends
-    configureADDCs();  // Configure all ADDCs
+    configureFEBs();        // Configure all front-ends
+    configureADDCs();       // Configure all ADDCs
+    configureRouters();     // Configure all Routers
+    configurePadTriggers(); // Configure all Pad Triggers
+    configureTPs();         // Configure all Trigger processors
+    alignADDCsToTP();
     ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
     m_frontends.clear();
+    m_addcs.clear();
+    m_routers.clear();
+    m_ptscas.clear();
+    m_tps.clear();
     // m_reader.reset();
     ERS_INFO("End");
 }
@@ -157,15 +168,75 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
 }
 
 void nsw::NSWConfigRc::configureADDCs() {
-    ERS_INFO("Configuring all ADDCs");
-    for (auto fe : m_addcs) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendAddcConfig(configuration);
-        }
-        ERS_LOG("Sending config to: " << name);
+    ERS_LOG("Configuring all ADDCs");
+    m_threads->clear();
+    for (const auto& kv: m_addcs) {
+        while(too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        &nsw::NSWConfigRc::configureADDC,
+                                        this,
+                                        kv.first));
     }
+    for (auto& thread: *m_threads)
+        thread.get();
+}
+
+void nsw::NSWConfigRc::configureADDC(std::string name) {
+    ERS_LOG("Configuring ADDC: " + name);
+    if (m_addcs.count(name) == 0)
+        throw std::runtime_error("NSWConfigRc::configureADDC has bad name: " + name);
+    auto local_sender = std::make_unique<nsw::ConfigSender>();
+    auto configuration = m_addcs.at(name);
+    if (!m_simulation)
+        local_sender->sendAddcConfig(configuration);
+    usleep(10000);
+    ERS_LOG("Finished config to: " << name);
+}
+
+void nsw::NSWConfigRc::alignADDCsToTP() {
+    //
+    // Keep an eye on this. It might be slow.
+    // But be cautious if trying to parallelize:
+    //    its not a good idea for 16 ADDC threads
+    //    to be querying a TP reg simultaneously
+    //
+    ERS_LOG("Aligning ADDCs to TP");
+    for (auto obj: m_addcs) {
+        auto name   = obj.first;
+        auto config = obj.second;
+        ERS_LOG("Aligning " << name);
+        m_sender->alignAddcGbtxTp(config);
+    }
+    ERS_LOG("Finished aligning ADDCs to TP");
+}
+
+void nsw::NSWConfigRc::configureRouters() {
+    ERS_LOG("Configuring all Routers");
+    for (auto obj : m_routers) {
+        auto name = obj.first;
+        auto configuration = obj.second;
+        ERS_LOG("Sending config to: " << name);
+        if (!m_simulation)
+            m_sender->sendRouterConfig(configuration);
+    }
+    ERS_LOG("Finished configuration of Routers");
+}
+
+void nsw::NSWConfigRc::configurePadTriggers() {
+    ERS_LOG("Configuring all PadTriggerSCAs");
+    for (auto obj : m_ptscas) {
+        auto name = obj.first;
+        auto configuration = obj.second;
+        ERS_LOG("Sending config to: " << name);
+        if (!m_simulation)
+            m_sender->sendPadTriggerSCAConfig(configuration);
+    }
+    ERS_LOG("Finished configuration of PadTriggerSCAs");
+}
+
+void nsw::NSWConfigRc::configureTPs() {
+    ERS_LOG("This function needs to be implemented!");
 }
 
 void nsw::NSWConfigRc::configureVMMs() {

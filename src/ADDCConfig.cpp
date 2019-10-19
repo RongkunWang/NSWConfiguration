@@ -16,7 +16,6 @@ nsw::ADDCConfig::ADDCConfig(ptree config):
             m_arts.emplace_back(config.get_child(artname));
             m_arts.back().setName(artname);
             m_arts.back().setIndex(i);
-            m_arts.back().setEnableFailsafe(0);
         }
     }
 

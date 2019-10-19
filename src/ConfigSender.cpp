@@ -272,12 +272,11 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 
 void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
 
-    bool verbose = 1;
+    ERS_LOG(addc.getAddress() << " Begin configuration...");
     size_t art_size = 2;
     uint8_t art_data[] = {0x0,0x0};
     size_t gbtx_size = 3;
     uint8_t gbtx_data[] = {0x0,0x0,0x0}; // 2 for address (i), 1 for data
-    // int progress = 1;
 
     auto opc_ip                      = addc.getOpcServerIp();
     auto sca_addr                    = addc.getAddress();
@@ -288,30 +287,25 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
     auto ADDC_GBTx_ConfigurationData = addc.GBTx_ConfigurationData();
 
     // init_sca_rst_gpio
-    if (verbose)
-        std::cout << "ART reset, step 0..." << std::endl;
+    ERS_DEBUG(1, "ART reset, step 0...");
     sendGPIO(opc_ip, sca_addr + ".gpio.art0SRstn", 1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.art1SRstn", 1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.art0CRstn", 1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.art1CRstn", 1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.art0Rstn",  1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.art1Rstn",  1); usleep(10000);
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // Reset GBTx0 and GBTx1
-    if (verbose)
-        std::cout << "GBT reset..." << std::endl;
+    ERS_DEBUG(1, "GBT reset...");
     sendGPIO(opc_ip, sca_addr + ".gpio.gbtx0Rstn", 0); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.gbtx0Rstn", 1); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.gbtx1Rstn", 0); usleep(10000);
     sendGPIO(opc_ip, sca_addr + ".gpio.gbtx1Rstn", 1); usleep(10000);
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // Set GBTx0 and GBTx1 configuration
-    if (verbose)
-        std::cout << "GBT configuration" << std::endl;
+    ERS_DEBUG(1, "GBT configuration");
     for (auto art: addc.getARTs()) {
         auto gbtx = sca_addr + "." + art.getNameGbtx();
         for (uint i = 0; i < ADDC_GBTx_ConfigurationData.size(); i++) {
@@ -319,21 +313,19 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             gbtx_data[0] = ((uint8_t) ((i) & 0xff));
             gbtx_data[2] = ADDC_GBTx_ConfigurationData[i];
             if (i % 50 == 0)
-                if (verbose)
-                    std::cout << "GBT configuration of " << gbtx << " " << i << " / " << ADDC_GBTx_ConfigurationData.size() << std::endl;
+                ERS_DEBUG(1, "GBT configuration of "
+                          << gbtx << " " << i << " / "
+                          << ADDC_GBTx_ConfigurationData.size());
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size); usleep(10000);
         }
     }
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // Reset ARTs
-    if (verbose)
-        std::cout << "ART reset" << std::endl;
+    ERS_DEBUG(1, "ART reset");
     for (auto art: addc.getARTs()) {
         auto name = sca_addr + ".gpio." + art.getName();
-        if (verbose)
-            std::cout << "ART reset: " << name << std::endl;
+        ERS_DEBUG(1, "ART reset: " << name);
         sendGPIO(opc_ip, name + "Rstn",  0); usleep(10000); // reset cfg
         sendGPIO(opc_ip, name + "Rstn",  1); usleep(10000);
         sendGPIO(opc_ip, name + "SRstn", 0); usleep(10000); // reset i2c
@@ -341,19 +333,16 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
         sendGPIO(opc_ip, name + "CRstn", 0); usleep(10000); // reset core
         sendGPIO(opc_ip, name + "CRstn", 1); usleep(10000);
     }
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // art common config
-    if (verbose)
-        std::cout << "ART common config" << std::endl;
+    ERS_DEBUG(1, "ART common config");
     for (auto art: addc.getARTs()) {
         for (auto tup: {std::make_pair("Core", art.core),
                         std::make_pair("Ps",   art.ps)}) {
             auto name = sca_addr + "." + art.getName() + tup.first + "." + art.getName() + tup.first;
             auto addr_bitstr = tup.second.getBitstreamMap();
-            if (verbose)
-                std::cout << "ART common config " << name << std::endl;
+            ERS_DEBUG(1, "ART common config " << name);
             for (auto ab : addr_bitstr) {
                 art_data[0] = static_cast<uint8_t>( std::stoi(ab.first) );
                 art_data[1] = static_cast<uint8_t>( std::stoi(ab.second, nullptr, 2) );
@@ -361,12 +350,10 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             }
         }
     }
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // Mask ARTs
-    if (verbose)
-        std::cout << "ART mask" << std::endl;
+    ERS_DEBUG(1, "ART mask");
     for (auto art: addc.getARTs()) {
         auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
         for (auto reg: ARTCoreregisters) {
@@ -375,12 +362,10 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             sendI2cRaw(opc_ip, name, art_data, art_size);
         }
     }
-    if (verbose)
-        std::cout << " -> done" << std::endl;
+    ERS_DEBUG(1, " -> done");
 
     // Train GBTx
-    if (verbose)
-        std::cout << "Train GBTx" << std::endl;
+    ERS_DEBUG(1, "Train GBTx");
     for (auto art: addc.getARTs()) {
 
         bool train;
@@ -392,29 +377,24 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             ".gbtx" + std::to_string(art.index());
 
         // ART pattern mode
-        if (verbose)
-            std::cout << "ART pattern mode" << std::endl;
+        ERS_DEBUG(1, "ART pattern mode");
         for (uint i=0; i<ARTregisters.size(); i++) {
             art_data[0] = ARTregisters[i];
             art_data[1] = ARTregistervalues[i];
             sendI2cRaw(opc_ip, core, art_data, art_size);
         }
-        if (verbose)
-            std::cout << "-> done" << std::endl;
+        ERS_DEBUG(1, "-> done");
 
         // GBTx to training mode
-        if (verbose)
-            std::cout << "GBTx training mode" << std::endl;
+        ERS_DEBUG(1, "GBTx training mode");
         gbtx_data[0] = 62;
         gbtx_data[1] = 0;
         gbtx_data[2] = 0x15;
         sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
-        if (verbose)
-            std::cout << "-> done" << std::endl;
+        ERS_DEBUG(1, "-> done");
 
         // Enable GBTx eport training
-        if (verbose)
-            std::cout << "GBTx eport enable" << std::endl;
+        ERS_DEBUG(1, "GBTx eport enable");
         train = 1;
         for (uint i=0; i<GBTx_eport_registers.size(); i++) {
             gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
@@ -422,15 +402,13 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             gbtx_data[2] = train ? 0xff : 0x00;
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
         }
-        if (verbose)
-            std::cout << "-> done" << std::endl;
+        ERS_DEBUG(1, "-> done");
 
         // Pause
         usleep(1000000);
 
         // Disable GBTx eport training
-        if (verbose)
-            std::cout << "GBTx eport disable" << std::endl;
+        ERS_DEBUG(1, "GBTx eport disable");
         train = 0;
         for (uint i=0; i<GBTx_eport_registers.size(); i++) {
             gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
@@ -438,12 +416,10 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             gbtx_data[2] = train ? 0xff : 0x00;
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
         }
-        if (verbose)
-            std::cout << "-> done" << std::endl;
+        ERS_DEBUG(1, "-> done");
 
         // ART default mode
-        if (verbose)
-            std::cout << "ART default mode" << std::endl;
+        ERS_DEBUG(1, "ART default mode");
         for (auto reg: ARTregisters) {
             auto addr_bitstr = art.core.getBitstreamMap();
             for (auto ab : addr_bitstr) {
@@ -455,32 +431,27 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
                 }
             }
         }
-        if (verbose)
-            std::cout << "-> done" << std::endl;
+        ERS_DEBUG(1, "-> done");
 
     }
-    if (verbose)
-        std::cout << " -> done (Train GBTx)" << std::endl;
+    ERS_DEBUG(1, " -> done (Train GBTx)");
 
     // Failsafe mode
-    if (verbose)
-        std::cout << "ART flag mode (failsafe or no)" << std::endl;
-    bool failsafe = 1;
+    ERS_DEBUG(1, "ART flag mode (failsafe or no)");
     for (auto art: addc.getARTs()) {
+        ERS_DEBUG(1, "Failsafe for: " << art.getName() << ": " << art.failsafe());
         auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
         art_data[0] = 3;
-        art_data[1] = failsafe ? 0x06 : 0x0E;
+        art_data[1] = art.failsafe() ? 0x06 : 0x0E;
         sendI2cRaw(opc_ip, name, art_data, art_size);
         art_data[0] = 4;
-        art_data[1] = failsafe ? 0x27 : 0x3F;
+        art_data[1] = art.failsafe() ? 0x27 : 0x3F;
         sendI2cRaw(opc_ip, name, art_data, art_size);
     }
-    if (verbose)
-        std::cout << "-> done" << std::endl;
+    ERS_DEBUG(1, "-> done");
 
     // Unmask, according to config
-    if (verbose)
-        std::cout << "ART unmask" << std::endl;
+    ERS_DEBUG(1, "ART unmask");
     for (auto art: addc.getARTs()) {
         auto name = sca_addr + "." + art.getName() + "Core" + "." + art.getName() + "Core";
         for (auto reg: ARTCoreregisters) {
@@ -495,8 +466,113 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
             }
         }
     }
-    if (verbose)
-        std::cout << "-> done" << std::endl;
+    ERS_DEBUG(1, "-> done");
+    ERS_LOG(addc.getAddress() << " Configuration done.");
+}
+
+void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
+
+    // the TP register
+    std::string regAddr = "0x02";
+    auto regAddrVec = nsw::hexStringToByteVector(regAddr, 4, true);
+
+    size_t gbtx_size = 3;
+    uint8_t gbtx_data[] = {0x0,0x0,0x0};
+    size_t n_attempts = 0;
+    size_t max_attempts = 2;
+
+    // align each ART
+    for (auto art: addc.getARTs()){
+
+        // allow this to be skipped
+        if (art.TP_GBTxAlignmentSkip()) {
+            ERS_LOG(addc.getAddress() << "/" << art.getName() << " Skipping phase alignment to TP");
+            continue;
+        }
+
+        // allow N failed attempts
+        while (n_attempts < max_attempts) {
+
+            ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
+                      << " GBTx phase alignment attempt " << n_attempts);
+            bool success = 0;
+
+            for (auto phase: art.TP_GBTxAlignmentPhasesToTest()) {
+
+                // beware
+                if (phase >= art.NPhase())
+                    throw std::runtime_error("This ART phase is not okay: " + phase);
+
+                // addc phase
+                gbtx_data[1] = 0;
+                gbtx_data[0] = 8;
+                gbtx_data[2] = phase;
+                sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                usleep(art.TP_GBTxAlignmentSleepTime());
+
+                // TP response
+                auto outdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
+                usleep(art.TP_GBTxAlignmentSleepTime());
+
+                // debug
+                ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
+                          << " GBTx phase = " << art.PhaseToString(phase)
+                          << " -> " << art.getOpcNodeId_TP()
+                          << " = " << nsw::vectorToBitString(outdata));
+
+                // success?
+                if (art.IsAlignedWithTP(outdata)) {
+
+                    // check subsequent phases
+                    std::vector<uint> good_phases = {phase};
+                    for (uint next = 1; phase+next < art.NPhase(); next++) {
+                        gbtx_data[2] = phase+next;
+                        sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                        usleep(art.TP_GBTxAlignmentSleepTime());
+                        auto nextdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
+                        usleep(art.TP_GBTxAlignmentSleepTime());
+                        ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
+                                  << " GBTx phase = " << art.PhaseToString(phase+next)
+                                  << " -> " << art.getOpcNodeId_TP()
+                                  << " = " << nsw::vectorToBitString(nextdata));
+                        if (art.IsAlignedWithTP(nextdata))
+                            good_phases.push_back(phase+next);
+                        else
+                            break;
+                    }
+
+                    // choose which phase
+                    uint chosen_phase = 0;
+                    std::string phase_position = art.TP_GBTxAlignmentPhase();
+                    if (phase_position == "first")
+                        chosen_phase = good_phases.front();
+                    else if (phase_position == "middle")
+                        chosen_phase = good_phases[ good_phases.size()/2 ];
+                    else if (phase_position == "last")
+                        chosen_phase = good_phases.back();
+                    else
+                        throw std::runtime_error("Need ART phase to be first, middle, or last; got " + phase_position);
+
+                    // apply choice
+                    gbtx_data[2] = chosen_phase;
+                    sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
+                    ERS_LOG(addc.getAddress() << "/" << art.getName() << " Aligned! Chosen phase: " << std::to_string(chosen_phase));
+                    success = 1;
+                    break;
+                }
+            }
+
+            // try again?
+            if (success)
+                break;
+            if (n_attempts == max_attempts-1) {
+                auto msg = addc.getAddress() + "/" + art.getName() + " failed TP alignment! Crashing.";
+                ERS_LOG(msg);
+                throw std::runtime_error(msg);;
+            }
+            n_attempts++;
+        }
+    }
 }
 
 void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
