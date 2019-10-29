@@ -696,6 +696,7 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
 
     // Read SCA IO status back: Line 6 & 8 in excel
     // (only need to match with star mark bits)
+    bool all_ok = 1;
     std::vector< std::pair<std::string, bool> > check = { {"fpgaConfigOK",   1},
                                                           {"mmcmBotLock",    1},
                                                           {"fpgaInit",       1},
@@ -716,10 +717,19 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
                   << " Observed = " << obs
                   << " -> " << (yay ? "Good" : "Bad")
                   << std::endl;
+        if (!yay)
+            all_ok = 0;
     }
 
     // Reset cout
     std::cout << std::setw(0);
+
+    // Complain if bad config
+    if (!all_ok) {
+        auto msg = opc_ip + "/" + sca_addr + " Configuration error. Crashing.";
+        std::cout << msg << std::endl;
+        throw std::runtime_error(msg);
+    }
 
 }
 
