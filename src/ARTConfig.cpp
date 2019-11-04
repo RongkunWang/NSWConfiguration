@@ -90,3 +90,7 @@ std::string nsw::ARTConfig::PhaseToString(uint phase) {
     zeropad << std::hex << std::setfill('0') << std::setw(2) << phase;
     return zeropad.str();
 }
+
+bool nsw::ARTConfig::IsMyTP(std::string ServerIp, std::string NodeId){
+    return ServerIp==getOpcServerIp_TP() && NodeId==getOpcNodeId_TP();
+}
