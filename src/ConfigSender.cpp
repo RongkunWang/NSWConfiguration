@@ -7,6 +7,10 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
 
+#include "boost/property_tree/ptree.hpp"
+using boost::property_tree::ptree;
+
+
 nsw::ConfigSender::ConfigSender() {
 }
 
@@ -201,14 +205,14 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 }
 
-void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
+void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds) {
   // this is used for outside
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
     // HACK!
     int ntds = feb.getTdss().size();
     for (auto tds : feb.getTdss()) {
-        sendTdsConfig(opc_ip, feb_address, tds, ntds);
+        sendTdsConfig(opc_ip, feb_address, tds, ntds, reset_tds);
     }
 }
 
@@ -248,10 +252,12 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
 
     sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
 
+
     // Read back to verify something? (TODO)
 }
 
-void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds) {
+void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds, bool reset_tds) 
+{
   // internal
   if (ntds <= 3)
     // old boards
@@ -265,7 +271,46 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
   }
 
+
     sendI2cMasterConfig(opc_ip, sca_address, tds);
+    if (reset_tds)
+    {
+      // copy out the configuration, etc
+      I2cMasterConfig tdss(tds);
+      ptree config = tdss.getConfig();
+      // TDS reset
+      // SER
+      config.put("register12.resets", 0x14);
+      tdss.buildConfig(config);
+      // Debug
+      // unsigned int reset_byte = config.get<unsigned int>("register12.resets");
+      // std::cout << "=======" << std::endl;
+      // std::cout  << "tds reset byte: " << reset_byte << std::endl;
+      // std::cout << "=======" << std::endl;
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      config.put("register12.resets", 0x0);
+      tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      // logic
+      config.put("register12.resets", 0x06);
+      tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      config.put("register12.resets", 0x0);
+      tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      // ePLL
+      config.put("register12.resets", 0x20);
+      tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      config.put("register12.resets", 0x0);
+      tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+    }
 
     // Read back to verify something? (TODO)
 }

@@ -87,6 +87,8 @@ class NSWConfigRc: public daq::rc::Controllable {
 
     // reset the vmms before config
     bool m_resetvmm;
+    // reset the tds SER, logic, ePLL after configuration
+    bool m_resettds;
 
     // thread management
     size_t m_max_threads;

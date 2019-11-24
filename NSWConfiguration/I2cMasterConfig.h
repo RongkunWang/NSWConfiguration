@@ -104,12 +104,18 @@ class I2cMasterConfig {
  public:
     explicit I2cMasterConfig(ptree config, std::string name, const i2c::AddressRegisterMap & reg):
         m_config(config), m_name(name), m_codec(reg) {
-            m_address_bitstream = m_codec.buildConfig(config);
+            buildConfig(config);
         }
 
     ~I2cMasterConfig() {}
 
+    void buildConfig(ptree config){
+      m_address_bitstream = m_codec.buildConfig(config);
+    }
+
     std::string getName() const { return m_name;}
+
+    const ptree & getConfig() const {return m_config;}
 
     void setName(std::string name) { m_name = name;}
 

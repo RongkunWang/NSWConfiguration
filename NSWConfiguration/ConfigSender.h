@@ -49,7 +49,7 @@ class ConfigSender {
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
     /// Send configuration to tds
-    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds);
+    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds, bool reset_tds=false);
 
     /// Send configuration to all ROC, VMM and TDS that belongs to the FEB
     void sendConfig(const nsw::FEBConfig& feb);
@@ -64,7 +64,7 @@ class ConfigSender {
     void sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vmm_id);
 
     /// Send configuration to all tds in the feb
-    void sendTdsConfig(const nsw::FEBConfig& feb);
+    void sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds=false);
 
     /// High level send function - TODO(cyildiz): deprecate
     void sendTdsConfig(const nsw::TDSConfig& tds);
