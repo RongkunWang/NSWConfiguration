@@ -91,7 +91,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
 
 void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
                                             const nsw::I2cMasterConfig& cfg, std::string reg_address) {
-    ERS_LOG("Sending I2c configuration to " << topnode << "." << reg_address);
+    ERS_LOG("Sending I2c configuration to " << topnode << "." + cfg.getName() + "." << reg_address);
     auto addr_bitstr = cfg.getBitstreamMap();
     auto address = topnode + "." + cfg.getName() + "." + reg_address;  // Full I2C address
     auto bitstr = addr_bitstr[reg_address];
@@ -278,15 +278,16 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       // copy out the configuration, etc
       I2cMasterConfig tdss(tds);
       ptree config = tdss.getConfig();
-      // TDS reset
-      // SER
-      config.put("register12.resets", 0x14);
-      tdss.buildConfig(config);
+      // TDS resets
+
+      // ePLL
+      config.put("register12.resets", 0x20);
       // Debug
       // unsigned int reset_byte = config.get<unsigned int>("register12.resets");
       // std::cout << "=======" << std::endl;
       // std::cout  << "tds reset byte: " << reset_byte << std::endl;
       // std::cout << "=======" << std::endl;
+      tdss.buildConfig(config);
       sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
 
       config.put("register12.resets", 0x0);
@@ -301,9 +302,9 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       config.put("register12.resets", 0x0);
       tdss.buildConfig(config);
       sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
-
-      // ePLL
-      config.put("register12.resets", 0x20);
+      
+      // SER
+      config.put("register12.resets", 0x14);
       tdss.buildConfig(config);
       sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
 

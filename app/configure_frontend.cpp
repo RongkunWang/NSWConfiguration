@@ -81,7 +81,7 @@ int main(int ac, const char *av[]) {
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v")
         ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
-        "Hard reset vmm before configuration. Need to be used with -v");
+        "Hard reset vmm before configuration. Need to be used with -v")
         ("resettds", po::bool_switch(&reset_tds)->default_value(false),
         "Reset TDS SER, logic, ePLL after configuring tds. Need to be used with -t");
 
