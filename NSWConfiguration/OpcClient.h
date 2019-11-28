@@ -76,6 +76,11 @@ class OpcClient {
 
     //! Read n_samples consecutive samples from an analog output.
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
+
+    // Read back ROC. Easy busy...
+         uint8_t readRocRaw(std::string node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay);
+    
+        
 };
 }  // namespace nsw
 

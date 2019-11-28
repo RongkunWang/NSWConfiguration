@@ -90,7 +90,10 @@ class ConfigSender {
     /// Write only one of the register addresses in I2cMaster
     void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
                              std::string reg_address);
-
+/// Read back Roc register as uint8_t
+    uint8_t readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, 
+                                  uint8_t registerAddress, unsigned int delay );
+                                  
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 

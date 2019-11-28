@@ -61,6 +61,99 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
     }
 }
 
+
+uint8_t nsw::OpcClient::readRocRaw( std::string node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay )
+{
+
+    UaoClientForOpcUaSca::IoBatch ioBatch( m_session.get(), UaNodeId( node.c_str(), 2 ) );
+
+    ioBatch.addSetPins( { { scl, true }, { sda, true } } );
+    ioBatch.addSetPinsDirections( { { scl, UaoClientForOpcUaSca::IoBatch::OUTPUT }, { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } }, 10 );
+
+    ioBatch.addSetPins( { { scl, true }, { sda, true } }, i2cDelay );
+	ioBatch.addSetPins( { { sda, false } }, i2cDelay );
+	ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    uint8_t byte = 0xF1;
+
+    for( auto i = 0; i < 8; ++i )
+    {
+
+      if ( byte & 0x80 )
+        ioBatch.addSetPins( { { sda, true } } );
+      else
+        ioBatch.addSetPins( { { sda, false } } );
+
+      byte <<= 1;
+
+      ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+      ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    }
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+    ioBatch.addSetPins( { { sda, false } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addGetPins();
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+
+    for( auto i = 0; i < 8; ++i )
+    {
+
+      if ( registerAddress & 0x80 )
+        ioBatch.addSetPins( { { sda, true } } );
+      else
+        ioBatch.addSetPins( { { sda, false } } );
+
+      registerAddress <<= 1;
+
+      ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+      ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    }
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+    ioBatch.addSetPins( { { sda, false } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addGetPins();
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+
+    for ( auto i = 0; i < 8; ++i )
+    {
+
+        ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+        ioBatch.addGetPins();
+        ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+        
+    }
+
+    ioBatch.addSetPins( { { sda, true } }, i2cDelay );
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    ioBatch.addSetPins( { { sda, false } }, i2cDelay );
+	ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+	ioBatch.addSetPins( { { sda, true } }, i2cDelay );
+
+    auto interestingPinSda = UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
+
+    std::bitset<8> registerValue;
+
+    for ( auto i = 0; i < 8; ++i )
+	{
+		registerValue[7-i] = interestingPinSda[i+2];
+	}
+
+    return (uint8_t)(registerValue.to_ulong());
+}
+
+
 std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t number_of_chunks) {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
