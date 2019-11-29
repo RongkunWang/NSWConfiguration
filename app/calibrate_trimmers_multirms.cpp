@@ -23,6 +23,7 @@ int TRIM_LO = 0;
 int TRIM_MID = 14;
 float SLOPE_CHECK = 1/1.5/1000. * 4095.0;
 int NCH_ABOVE_THRESH_CUTOFF = 63;
+bool isMM = 1;
 bool debug = true;
 
 float take_median(std::vector<float> &v) {
@@ -40,15 +41,24 @@ float take_median(std::vector<short unsigned int> &v) {
 }
 
 float sample_to_mV(float sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return sample * 1000. * factor / 4095.0;
+    // return sample * 1000. * 1.0 / 4095.0;
+    // return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
 }
 
 float sample_to_mV(short unsigned int sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return sample * 1000. * factor / 4095.0;
+    // return sample * 1000. * 1.0 / 4095.0;
+    // return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
 }
 
 float mV_to_sample(float mV_read){
-  return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return mV_read / 1000. / factor * 4095.0;
+    // return mV_read / 1000. / 1.0 * 4095.0;
+    // return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
 }
 
 float take_rms(std::vector<float> &v, float mean) {
@@ -95,6 +105,7 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
                           int n_samples,
                           int thdac_central_guess,
                           std::vector<int> & thdac_guess_variations){
+  std::vector<float> thdac_guesses_vars_okay;
   std::vector<float> thdac_guesses_sample;
 
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
@@ -112,27 +123,33 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
     feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac_guess_variations[i]));
     auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
-    float sum = std::accumulate(results.begin(), results.end(), 0.0);
-    float mean = sum / results.size();
-    thdac_guesses_sample.push_back(mean);
+    // use the median, and
+    // avoid suspicious threshold measurements
+    float median = take_median(results);
+    bool measurement_ok = (median > 10);
+    if (measurement_ok) {
+        thdac_guesses_vars_okay.push_back((float)(thdac_guess_variations[i]));
+        thdac_guesses_sample.push_back(median);
+    }
     if (debug)
       std::cout << "INFO "
           << feb.getAddress()
           << " vmm" << vmm_id
           << ", thdac " << thdac_guess_variations[i]
-          << ", thdac (mV) " << sample_to_mV(mean)
+          << ", thdac (mV) " << sample_to_mV(median)
+          << (measurement_ok ? "" : "       <- Skipping suspicious measurement")
           << std::endl;
   }
 
   // do fit to a line
-  float thdac_guess_mean = std::accumulate(thdac_guess_variations.begin(), thdac_guess_variations.end(), 0.0)/thdac_guess_variations.size();
+  float thdac_guess_mean = std::accumulate(thdac_guesses_vars_okay.begin(), thdac_guesses_vars_okay.end(), 0.0)/thdac_guesses_vars_okay.size();
   float thdac_guess_sample_mean = std::accumulate(thdac_guesses_sample.begin(), thdac_guesses_sample.end(), 0.0)/thdac_guesses_sample.size();
 
   float num = 0.;
   float denom = 0.;
-  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
-    num += (thdac_guess_variations[i]-thdac_guess_mean) * (thdac_guesses_sample[i]-thdac_guess_sample_mean);
-    denom += pow((thdac_guess_variations[i]-thdac_guess_mean),2);
+  for (unsigned int i = 0; i < thdac_guesses_vars_okay.size(); i++){
+    num += (thdac_guesses_vars_okay[i]-thdac_guess_mean) * (thdac_guesses_sample[i]-thdac_guess_sample_mean);
+    denom += pow((thdac_guesses_vars_okay[i]-thdac_guess_mean),2);
   }
 
   float thdac_slope = num/denom;
@@ -295,6 +312,7 @@ int main(int ac, const char *av[]) {
   int vmm_id;
   int n_samples;
   int tpdac = -1;
+  bool isSTGC = 0;
   std::string config_filename;
   std::string fe_name;
   std::string rms_str;
@@ -309,11 +327,17 @@ int main(int ac, const char *av[]) {
       ("vmm,V", po::value<int>(&vmm_id)->default_value(0), "VMM id (0-7)")
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
+      ("isSTGC", po::bool_switch()->default_value(false), "Use the sTGC configuration")
     ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
   po::notify(vm);
+  isSTGC = vm["isSTGC"].as<bool>();
+  isMM = !isSTGC;
+  std::cout << std::endl;
+  std::cout << "The detector under test is " << ((isMM) ? "MM" : "sTGC") << std::endl;
+  std::cout << std::endl;
 
   if (vm.count("help")) {
       std::cout << desc << "\n";
@@ -415,6 +439,10 @@ int main(int ac, const char *av[]) {
     std::ofstream myfile;
     myfile.open("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
 
+    // write Summary (@patmasid - Prachi)
+    /*std::ofstream myfile_summary;
+      myfile_summary.open("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");*/
+
     fe_samples_tmp.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
 
@@ -453,6 +481,16 @@ int main(int ac, const char *av[]) {
                   << " , stdev: " << sample_to_mV(stdev)
                   << std::endl;
 
+      //@patmasid - Prachi                                                                                                                                                          
+      /*myfile_summary << "SUMMARY"
+                     << " " << feb.getAddress()
+                     << " vmm " << vmm_id
+                     << " channel " << channel_id
+                     << " mean " << mean
+                     << " stdev " << stdev
+                     << " median " << median
+                     << std::endl;*/
+
       // if RMS of channel is too large, it's probably crap, ignore it
       // potentially output a list of channels to mask?
       if ( sample_to_mV(stdev) > RMS_CUTOFF )
@@ -462,11 +500,13 @@ int main(int ac, const char *av[]) {
       for (unsigned int i = 0; i < results.size(); i++) {
         fe_samples_tmp.push_back(results[i]);
       }
+
     }
 
     myfile.close();
 
-
+    //myfile_summary.close();
+    
     // remove samples which are highly suspicious
     // this can happen when a channel has a very high or low baseline, but with small RMS
     float tmp_median = take_median(fe_samples_tmp);
@@ -518,6 +558,7 @@ int main(int ac, const char *av[]) {
       std::cout << "INFO - rms_factor = " << rms_factor << std::endl;
 
       int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
+      // int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + (int)(offset_center * 50.0/32.0);
 
       if (debug)
         std::cout << "INFO - baseline_mean, baseline_med, baseline_rms, rms_factor: "
