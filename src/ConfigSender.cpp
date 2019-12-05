@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+
 #include "ers/ers.h"
 
 #include "NSWConfiguration/ConfigSender.h"
@@ -752,5 +753,37 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
     sendVmmConfigSingle(feb, vmm_id);
 
     return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
+}
+
+
+
+int nsw::ConfigSender::readSCAID(FEBConfig& feb) {
+
+    auto opc_ip      = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+
+    addOpcClientIfNew(opc_ip);
+
+    return m_clients[opc_ip]->readScaID(feb_address);
+}
+
+std::string nsw::ConfigSender::readSCAAddress(FEBConfig& feb) {
+
+    auto opc_ip      = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+
+    addOpcClientIfNew(opc_ip);
+
+    return m_clients[opc_ip]->readScaAddress(feb_address);
+}
+
+bool nsw::ConfigSender::readSCAOnline(FEBConfig& feb) {
+
+    auto opc_ip      = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+
+    addOpcClientIfNew(opc_ip);
+
+    return m_clients[opc_ip]->readScaOnline(feb_address);
 }
 

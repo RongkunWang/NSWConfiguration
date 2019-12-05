@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
@@ -139,6 +140,17 @@ class ConfigSender {
     std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                  size_t vmm_id,
                                                                  size_t n_samples);
+
+    // Read SCA ID 
+    int readSCAID(FEBConfig& feb);
+
+    // Read SCA Address 
+    std::string readSCAAddress(FEBConfig& feb);
+
+    // Read SCA Online Status 
+    bool readSCAOnline(FEBConfig& feb);
+
+
 };
 
 }  // namespace nsw
