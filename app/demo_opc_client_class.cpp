@@ -12,7 +12,7 @@ int main() {
     std::string server_ip = "pcatlnswfelix01.cern.ch:48020";
 
     auto client = std::make_unique<nsw::OpcClient>(server_ip);
-
+   /*
     std::vector<uint8_t> vmmbytes = {0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x15, 0x11, 0x12, 0x14, 0x14};
     std::vector<uint8_t> tdsbytes = {0x11, 0x12, 0x13, 0x14};
     bool gpio_value = true;
@@ -39,7 +39,7 @@ int main() {
         std::cout << "\n";
         usleep(1000000);
     }
-    
+    */
 
 
     std::string node = "SCA on MM-L1DDCvPreProduction.gbtx3.gbtx3";
@@ -76,5 +76,4 @@ int main() {
       std::cout << std::hex << static_cast<uint32_t>(el) << ",";
     }
     std::cout << std::endl;
-  
 }
