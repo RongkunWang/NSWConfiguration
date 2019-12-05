@@ -8,6 +8,12 @@
 #include "NSWConfiguration/OpcClient.h"
 
 int main() {
+
+    std::string server_ip = "pcatlnswfelix04.cern.ch:48020";
+    auto client = std::make_unique<nsw::OpcClient>(server_ip);
+    std::string sca = "MMFE8_L1P1_IPL";
+
+	/*
     std::string server_ip = "pcatlnswfelix01.cern.ch:48020";
 
     auto client = std::make_unique<nsw::OpcClient>(server_ip);
@@ -39,7 +45,7 @@ int main() {
         std::cout << "\n";
         usleep(1000000);
     }
-    */
+    
 
 
     std::string node = "SCA on MM-L1DDCvPreProduction.gbtx3.gbtx3";
@@ -76,4 +82,5 @@ int main() {
       std::cout << std::hex << static_cast<uint32_t>(el) << ",";
     }
     std::cout << std::endl;
+    */
 }

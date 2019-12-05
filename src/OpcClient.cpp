@@ -10,6 +10,7 @@
 #include "NSWConfiguration/OpcClient.h"
 
 
+
 nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
     // Can we have multiple init() in the same application?
@@ -178,6 +179,22 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     }
     return values;
 }
+
+int nsw::OpcClient::readScaID(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readId();
+}
+
+std::string nsw::OpcClient::readScaAddress(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readAddress().toUtf8();
+}
+
+bool nsw::OpcClient::readScaOnline(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readOnline();
+}
+
 
 // TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
 

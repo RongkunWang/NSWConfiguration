@@ -20,6 +20,7 @@ int main() {
     // UaPlatformLayer::init();
 
     // UaClientSdk::UaSession* session = ClientSessionFactory::connect("opc.tcp://pcatlnswdev01.cern.ch:4841");
+
     UaClientSdk::UaSession* session = ClientSessionFactory::connect("opc.tcp://pcatlnswfelix01.cern.ch:4841");
     if (!session)
         return -1;
@@ -82,5 +83,6 @@ int main() {
 
         usleep(1000000);
     }
+ 
 }
 

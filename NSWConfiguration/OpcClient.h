@@ -19,6 +19,8 @@
 #include "UaoClientForOpcUaSca/include/I2cSlave.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
+#include "UaoClientForOpcUaSca/include/SCA.h"
+
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
@@ -76,7 +78,18 @@ class OpcClient {
 
     //! Read n_samples consecutive samples from an analog output.
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
-};
+
+    // Read SCA ID
+    int readScaID(std::string node); 
+
+    // Read SCA Address
+    std::string readScaAddress(std::string node);
+
+    // Read SCA Online Status
+    bool readScaOnline(std::string node);
+
+};    
+
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_
