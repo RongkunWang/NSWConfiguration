@@ -81,11 +81,6 @@ void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendVmmConfig(const nsw::VMMConfig& cfg) {
-    auto data = cfg.getByteVector();
-    sendSpiRaw(cfg.getOpcServerIp(), cfg.getAddress(), data.data(), data.size());
-}
-
 void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
                                             const nsw::I2cMasterConfig& cfg, std::string reg_address) {
     ERS_LOG("Sending I2c configuration to " << topnode << "." << reg_address);
@@ -112,35 +107,6 @@ void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
         }
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
     }
-}
-
-void nsw::ConfigSender::sendRocConfig(const nsw::ROCConfig& roc) {
-    auto opc_ip = roc.getOpcServerIp();
-    auto roc_address = roc.getAddress();
-
-    // 1. Reset all logics
-    sendGPIO(opc_ip, roc_address + ".gpio.rocCoreResetN", 0);
-    sendGPIO(opc_ip, roc_address + ".gpio.rocPllResetN", 0);
-    sendGPIO(opc_ip, roc_address + ".gpio.rocSResetN", 0);
-
-    sendGPIO(opc_ip, roc_address + ".gpio.rocSResetN", 1);
-
-    sendI2cMasterConfig(opc_ip, roc_address, roc.analog);
-
-    sendGPIO(opc_ip, roc_address + ".gpio.rocPllResetN", 1);
-
-    ERS_DEBUG(2, "Waiting for ROC Pll locks...");
-    bool roc_locked = 0;
-    while (!roc_locked) {
-        bool rPll1 = readGPIO(opc_ip, roc_address + ".gpio.rocPllLocked");
-        bool rPll2 = readGPIO(opc_ip, roc_address + ".gpio.rocPllRocLocked");
-        roc_locked = rPll1 & rPll2;
-        ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
-    }
-
-    sendGPIO(opc_ip, roc_address + ".gpio.rocCoreResetN", 1);
-
-    sendI2cMasterConfig(opc_ip, roc_address, roc.digital);
 }
 
 void nsw::ConfigSender::sendConfig(const nsw::FEBConfig& feb) {
@@ -238,18 +204,6 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
     sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
 
     sendI2cMasterConfig(opc_ip, sca_address, digital);
-}
-
-void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
-  // unused yet
-    auto opc_ip = tds.getOpcServerIp();
-    auto tds_address = tds.getAddress();
-
-    sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
-
-    sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
-
-    // Read back to verify something? (TODO)
 }
 
 void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds) {

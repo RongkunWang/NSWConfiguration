@@ -6,9 +6,6 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/VMMConfig.h"
-#include "NSWConfiguration/ROCConfig.h"
-#include "NSWConfiguration/OpcClient.h"
 
 int main(int argc, const char *argv[]) {
 
