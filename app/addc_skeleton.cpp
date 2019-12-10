@@ -21,14 +21,16 @@ int configure_addc(nsw::ADDCConfig feb);
 int change_phase(nsw::ADDCConfig addc, uint phase, uint fine, std::vector<bool> aligned);
 std::string strf_time();
 
-int main(int argc, const char *argv[]) 
+int main(int argc, const char *argv[])
 {
     std::string config_filename;
     std::string board_name;
     bool dont_config;
     bool dont_align;
     bool dont_watch;
+    bool map_phase;
     int manual_phase;
+    int bcr_phase;
 
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
@@ -42,8 +44,12 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to NOT align the ADDCs to the TPs")
         ("dont_watch", po::bool_switch()->
          default_value(false), "Option to NOT monitor the ADDC-TP alignment vs time")
+        ("map_phase", po::bool_switch()->
+         default_value(false), "Option to turn on phase mapping mode")
         ("manual_phase", po::value<int>(&manual_phase)->
          default_value(-1), "Manual phase of ART alignment")
+        ("bcr_phase", po::value<int>(&bcr_phase)->
+         default_value(0), "Manual phase of ART BCRCLK")
         ("name,n", po::value<std::string>(&board_name)->
          default_value(""), "The name of frontend to configure (should start with ADDC_).");
 
@@ -53,11 +59,12 @@ int main(int argc, const char *argv[])
     dont_config = vm["dont_config"].as<bool>();
     dont_align  = vm["dont_align" ].as<bool>();
     dont_watch  = vm["dont_watch"].as<bool>();
+    map_phase   = vm["map_phase"].as<bool>();
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
-    }    
+    }
 
     // create a json reader
     nsw::ConfigReader reader1("json://" + config_filename);
@@ -132,10 +139,40 @@ int main(int argc, const char *argv[])
         for (auto & addc: addc_configs){
             std::cout << "Sending ADDC configuration... " << std::endl;
             threads->push_back( std::async(std::launch::async, configure_addc, addc) );
-            // cs.sendAddcConfig(addc);
         }
         for (auto& thread: *threads)
             thread.get();
+    }
+
+    // ART BCRCLK
+    uint phase_end = (uint)(bcr_phase);
+    size_t gbtx_size = 3;
+    uint8_t gbtx_data[] = {0x0,0x0,0x0};
+    uint8_t rbph_data[] = {0x0,0x0,0x0};
+    for (auto & addc: addc_configs) {
+        for (auto art: addc.getARTs()) {
+            auto opc_ip = addc.getOpcServerIp();
+            auto name   = addc.getAddress() + "." + art.getNameGbtx();
+            uint phase = 0;
+            while (phase <= phase_end) {
+                // coarse phase
+                gbtx_data[0] = 11;
+                gbtx_data[1] = 0;
+                gbtx_data[2] = (uint8_t)(phase);
+                cs.sendI2cRaw(opc_ip, name, gbtx_data, gbtx_size);
+                // readback
+                rbph_data[0] = 11; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(phase);
+                auto readback_phase = cs.readI2cAtAddress(opc_ip, name, rbph_data, 2, 1);
+                if (readback_phase.size()==0)
+                    throw std::runtime_error("Unable to readback phase in change_phase");
+                // announce
+                auto msg1 = opc_ip + "/" + name;
+                auto msg2 = " set phase = " + std::to_string(phase) + " -> readback = " + std::to_string(readback_phase[0]);
+                std::cout << msg1 << msg2 << std::endl;
+                usleep(20000);
+                phase = phase + 1;
+            }
+        }
     }
 
     // smart alignment
@@ -175,14 +212,33 @@ int main(int argc, const char *argv[])
             // currently require 2 consecutive phases
             std::vector<bool> skip_me = {};
             std::vector<bool> prev_ok = {};
+            std::vector<uint> cons_ok = {};
             for (int i = 0; i < 32; i++) {
                 skip_me.push_back(1);
                 prev_ok.push_back(0);
+                cons_ok.push_back(0);
             }
             for (auto & addc: addc_configs)
                 for (auto art: addc.getARTs())
                     if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
-                        skip_me[(size_t)(art.TP_GBTxAlignmentBit())] = 0;
+                        skip_me[art.TP_GBTxAlignmentBit()] = 0;
+
+            // first check: am I already aligned? if so, dont try to realign me.
+            std::cout << tp.first << "/" << tp.second << " Reading register" << std::endl;
+            auto outdata = cs.readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
+            std::cout << tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata) << std::endl;
+            for (auto & addc: addc_configs)
+                for (auto art: addc.getARTs())
+                    if (art.IsMyTP(tp.first, tp.second) && art.IsAlignedWithTP(outdata))
+                        skip_me[art.TP_GBTxAlignmentBit()] = 1;
+
+
+            std::ofstream myfileLive;
+            if(map_phase){
+                std::string fnameLive = "addc_alignment_" + strf_time() + "_phase_liveLoopingMonitor.txt";
+                myfileLive.open(fnameLive);
+                max_attempts = 1000;
+            }
 
             // try N times
             for (size_t attempt = 0; attempt < max_attempts; attempt++) {
@@ -196,28 +252,14 @@ int main(int argc, const char *argv[])
 
                 std::cout << "Alignment attempt " << attempt << std::endl;
 
-                // first check: am I already aligned? if so, dont try to realign me.
-                // std::cout << tp.first << "/" << tp.second << " Reading register" << std::endl;
-                // auto outdata = cs.readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
-                // std::cout << tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata) << std::endl;
-                // for (auto & addc: addc_configs)
-                //     for (auto art: addc.getARTs())
-                //         if (art.IsMyTP(tp.first, tp.second) && art.IsAlignedWithTP(outdata))
-                //             skip_me[art.TP_GBTxAlignmentBit()] = 1;
-
                 // loop over phases
-                for (uint phase = 0; phase < 32; phase++) {
+                // for (uint phase = 0; phase < 32; phase++) {
+                for (uint phase = 0; phase < 8; phase++) {
 
-                    // for (uint fine = 0; fine < 16; fine++) {
-                    for (uint fine = 0; fine < 1; fine++) {
-
-                        // skip known non-working phases
-                        if (fine > 0 && (phase==0  || phase==1  || phase==2  ||
-                                         phase==3  || phase==4  || phase==5  ||
-                                         phase==11 || phase==12 || phase==13 ||
-                                         phase==19 || phase==20 || phase==21 ||
-                                         phase==27 || phase==28 || phase==29))
-                            continue;
+                    uint nFine = 1;
+                    // uint nFine = 16;
+                    // if (attempt>0) nFine = 16;
+                    for (uint fine = 0; fine < nFine; fine++) {
 
                         // check if we need to align
                         bool at_least_one = 0;
@@ -244,17 +286,35 @@ int main(int argc, const char *argv[])
                             auto outdata = cs.readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
                             std::cout << tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata) << std::endl;
 
-                            // record output
-                            for (auto & addc: addc_configs) {
-                                for (auto art: addc.getARTs()) {
-                                    auto bit = art.TP_GBTxAlignmentBit();
-                                    if (art.TP_GBTxAlignmentSkip() || !art.IsMyTP(tp.first, tp.second))
-                                        continue;
-                                    if (skip_me[bit])
-                                        continue;
-                                    auto ok = art.IsAlignedWithTP(outdata);
-                                    skip_me[bit] = ok && prev_ok[bit];
-                                    prev_ok[bit] = ok;
+                            if(!map_phase){
+                                // record output
+                                for (auto & addc: addc_configs) {
+                                    for (auto art: addc.getARTs()) {
+                                        auto bit = art.TP_GBTxAlignmentBit();
+                                        if (art.TP_GBTxAlignmentSkip() || !art.IsMyTP(tp.first, tp.second))
+                                            continue;
+                                        if (skip_me[bit])
+                                            continue;
+                                        auto ok = art.IsAlignedWithTP(outdata);
+                                        skip_me[bit] = ok && prev_ok[bit];
+                                        prev_ok[bit] = ok;
+                                        cons_ok[bit] = ok ? cons_ok[bit]+1 : 0;
+                                    }
+                                }
+                            } else {
+                                myfileLive << "Time " << strf_time() << std::endl;
+                                for (auto & addc: addc_configs){
+                                    for (auto art: addc.getARTs()){
+                                        auto aligned = art.IsAlignedWithTP(outdata);
+                                        std::stringstream result;
+                                        result << addc.getAddress() << " "
+                                               << art.getName()     << " "
+                                               << phase << " "
+                                               << fine << " "
+                                               << aligned << std::endl;
+                                        myfileLive << result.str();
+                                        // std::cout << result.str();
+                                    }
                                 }
                             }
                         }
@@ -273,7 +333,7 @@ int main(int argc, const char *argv[])
         if (manual_phase >= 0){
             for (uint phase = 0; phase <= (uint)(manual_phase); phase++) {
                 // auto phase = (uint)(manual_phase);
-                std::cout << "Sending manual phase " << phase << " to each ART";
+                std::cout << "Sending manual phase " << phase << " to each ART" << std::endl;
                 size_t gbtx_size = 3;
                 uint8_t gbtx_data[] = {0x0,0x0,0x0};
                 auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
@@ -343,8 +403,8 @@ int main(int argc, const char *argv[])
                 }
             }
             if (i % 100 == 0)
-                std::cout << std::endl << strf_time() << " " << std::flush;
-            std::cout << "." << std::flush;
+                std::cout << std::endl << strf_time() << " " << std::endl << std::flush;
+            std::cout << "." << std::endl << std::flush;
             i++;
             sleep(slp);
         }
@@ -403,7 +463,7 @@ int change_phase(nsw::ADDCConfig addc, uint phase, uint fine, std::vector<bool> 
         local_sender->sendI2cRaw(opc_ip, name, gbtx_data, gbtx_size);
         // readback
         rbph_data[0] = 8; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(phase);
-        rbph_data[0] = 4; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(fine);
+        rbfi_data[0] = 4; rbfi_data[1] = 0; rbfi_data[2] = (uint8_t)(fine);
         auto readback_phase = local_sender->readI2cAtAddress(opc_ip, name, rbph_data, 2, 1);
         auto readback_fine  = local_sender->readI2cAtAddress(opc_ip, name, rbfi_data, 2, 1);
         if (readback_phase.size()==0)
