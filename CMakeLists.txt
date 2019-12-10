@@ -25,6 +25,10 @@ tdaq_add_executable(read_sca_info app/read_sca_info.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_mmfe8_pcb_location app/read_mmfe8_pcb_location.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(read_tds_continous app/read_tds_continous.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
