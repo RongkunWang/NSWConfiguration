@@ -468,12 +468,13 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
         }
     }
     ERS_DEBUG(1, "-> done");
+
     ERS_LOG(addc.getAddress() << " Configuration done.");
 }
 
 void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
 
-    // the TP register
+    // the TP register for alignment
     std::string regAddr = "0x02";
     auto regAddrVec = nsw::hexStringToByteVector(regAddr, 4, true);
 
@@ -507,13 +508,13 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                 // addc phase
                 gbtx_data[1] = 0;
                 gbtx_data[0] = 8;
-                gbtx_data[2] = phase;
+                gbtx_data[2] = (uint8_t)(phase);
                 sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
                 usleep(art.TP_GBTxAlignmentSleepTime());
+                // std::cout << "Setting:  " << unsigned(gbtx_data[2]) << std::endl;
 
                 // TP response
                 auto outdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
-                usleep(art.TP_GBTxAlignmentSleepTime());
 
                 // debug
                 ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
@@ -531,7 +532,6 @@ void nsw::ConfigSender::alignAddcGbtxTp(const nsw::ADDCConfig& addc) {
                         sendI2cRaw(addc.getOpcServerIp(), addc.getAddress() + "." + art.getNameGbtx(), gbtx_data, gbtx_size);
                         usleep(art.TP_GBTxAlignmentSleepTime());
                         auto nextdata = readI2cAtAddress(art.getOpcServerIp_TP(), art.getOpcNodeId_TP(), regAddrVec.data(), regAddrVec.size(), 4);
-                        usleep(art.TP_GBTxAlignmentSleepTime());
                         ERS_DEBUG(1, addc.getAddress() << "/" << art.getName()
                                   << " GBTx phase = " << art.PhaseToString(phase+next)
                                   << " -> " << art.getOpcNodeId_TP()
