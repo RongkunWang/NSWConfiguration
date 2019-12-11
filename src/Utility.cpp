@@ -8,13 +8,10 @@
 
 #include "boost/foreach.hpp"
 
-#include "ers/ers.h"
-
 #include "NSWConfiguration/Utility.h"
 
 // template<size_t N1, size_t N2>
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);
-
 
 std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool littleEndian) {
     std::vector<uint8_t> byteVector(nbytes);
@@ -59,7 +56,9 @@ void nsw::checkOverflow(size_t register_size, unsigned value, std::string regist
                            + std::to_string(register_size) + ", max value: "
                            + std::to_string(std::pow(2, register_size)-1)
                            + ", actual value: " + std::to_string(value);
-        throw std::runtime_error(err);  // TODO(cyildiz): convert to ers
+        nsw::RegisterOverflow issue(ERS_HERE, err.c_str());
+        ers::warning(issue);
+        throw issue;
     }
 }
 
@@ -135,6 +134,7 @@ std::string nsw::bitstringToHexString(std::string bitstr) {
 }
 
 std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config) {
+    // This function does something similar to nsw::I2cMasterCodec::buildConfig, but it's more generic
     std::string tempstr;
     for (auto ns : name_sizes) {
         auto name = ns.first;
@@ -148,12 +148,8 @@ std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>
             try {
                 value = config.get<unsigned>(name);
             } catch (const boost::property_tree::ptree_bad_path& e) {
-                std::string temp = e.what();
-                // nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
-                // ers::error(issue);
-                // throw issue;
-                // TODO(cyildiz): Throw an exception that should be propagated by caller
-                std::cout << "Problem: " << temp << std::endl;
+                ERS_LOG("Problem: " << e.what());
+                throw;
             }
             nsw::checkOverflow(size, value, name);
         }

@@ -28,12 +28,12 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       m_max_threads = nswConfigApp->get_maxThreads();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
-        // TODO(cyildiz): catch and throw correct exceptions
-        ERS_LOG("Configuration issue: " << ex.what());
+        std::stringstream ss;
+        ss << "Problem reading OKS configuration of NSWConfigRc: " << ex.what();
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str().c_str());
+        ers::fatal(issue);
     }
 
-    // std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
-    // m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
     m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
     m_sender  = std::make_unique<nsw::ConfigSender>();
     m_threads = std::make_unique<std::vector< std::future<void> > >();
@@ -57,9 +57,12 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
           m_frontends.emplace(this_pair);
         std::cout << name << std::endl;
       } catch (std::exception & e) {
-        // TODO(cyildiz): turn into exception
-        std::cout << name << " - ERROR: Skipping this FE!"
+        std::stringstream ss;
+        ss << " Skipping FE: " << name
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str().c_str());
+        ers::warning(issue);
+        ERS_LOG(ss.str());
       }
     }
 
@@ -138,8 +141,12 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
     auto local_sender = std::make_unique<nsw::ConfigSender>();
 
     ERS_INFO("Configuring front end " + name);
-    if (m_frontends.count(name) == 0)
-        throw std::runtime_error("NSWConfigRc::configureFEB has bad name: " + name);
+    if (m_frontends.count(name) == 0) {
+        std::string err = "FEB has bad name: " + name;
+        nsw::NSWConfigIssue issue(ERS_HERE, err.c_str());
+        ers::error(issue);
+    }
+
 
     auto configuration = m_frontends.at(name);
     if (!m_simulation) {
@@ -184,8 +191,11 @@ void nsw::NSWConfigRc::configureADDCs() {
 
 void nsw::NSWConfigRc::configureADDC(std::string name) {
     ERS_LOG("Configuring ADDC: " + name);
-    if (m_addcs.count(name) == 0)
-        throw std::runtime_error("NSWConfigRc::configureADDC has bad name: " + name);
+    if (m_addcs.count(name) == 0) {
+        std::string err = "ADDC has bad name: " + name;
+        nsw::NSWConfigIssue issue(ERS_HERE, err.c_str());
+        ers::error(issue);
+    }
     auto local_sender = std::make_unique<nsw::ConfigSender>();
     auto configuration = m_addcs.at(name);
     if (!m_simulation)
@@ -247,7 +257,6 @@ void nsw::NSWConfigRc::configureVMMs() {
         if (!m_simulation) {
             m_sender->sendVmmConfig(configuration);
         }
-        sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending VMM config to: " << name);
     }
 }
@@ -260,7 +269,6 @@ void nsw::NSWConfigRc::configureROCs() {
         if (!m_simulation) {
             m_sender->sendRocConfig(configuration);
         }
-        sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending ROC config to: " << name);
     }
 }

@@ -24,6 +24,12 @@ ERS_DECLARE_ISSUE(nsw,
                   ((size_t)channel)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  VmmConfigIssue,
+                  "Unexpected problem: " << message,
+                  ((const char*)message)
+                  )
+
 namespace nsw {
 
 class VMMConfig {

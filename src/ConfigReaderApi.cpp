@@ -78,9 +78,17 @@ void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
 
             //  Check if node exists in specific tree, and replace the value from common
             if (!common.get_optional<std::string>(node).is_initialized()) {
-                nsw::ConfigBadNode issue(ERS_HERE, node, "i2c element");
+                nsw::ConfigBadNode issue(ERS_HERE, node, "i2c master. See err file for details");
                 ers::error(issue);
-                // throw issue;  // TODO(cyildiz): throw or just error?
+
+                std::stringstream ss;
+                ss << "Problematic i2c common ptree: " << std::endl;
+                boost::property_tree::json_parser::write_json(ss, common);
+                ss << "Problematic i2c specific ptree: " << std::endl;
+                boost::property_tree::json_parser::write_json(ss, specific);
+                std::cerr << ss.str() << std::endl;
+
+                throw issue;
             } else {
                 common.put(node, iter_registers->second.data());
             }
@@ -98,7 +106,15 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
         if (!common.get_optional<std::string>(registername).is_initialized()) {
             nsw::ConfigBadNode issue(ERS_HERE, registername, "vmm");
             ers::error(issue);
-            // throw issue;  // TODO(cyildiz): throw or just error?
+
+            std::stringstream ss;
+            ss << "Problematic vmm common ptree: " << std::endl;
+            boost::property_tree::json_parser::write_json(ss, common);
+            ss << "Problematic vmm specific ptree: " << std::endl;
+            boost::property_tree::json_parser::write_json(ss, specific);
+            std::cerr << ss.str() << std::endl;
+
+            throw issue;
         } else {
             if (registername.find("channel_" == 0)) {
               ptree temp = iter_registers->second;
@@ -121,6 +137,8 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
             specific = feb.get_child(name);
         }
         ptree common = roc_common.get_child(name);
+
+        ERS_DEBUG(4, "Merging " << name << " ptree");
         mergeI2cMasterTree(specific, common);
         feb.put_child(name, common);
     }
@@ -238,8 +256,9 @@ ptree & JsonApi::read() {
     try {
         boost::property_tree::read_json(m_file_path, m_config);
     } catch(std::exception & e) {
-        ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception
-        throw;
+        nsw::ConfigIssue issue(ERS_HERE, e.what());
+        ers::fatal(issue);
+        throw issue;
     }
   return m_config;
 }
@@ -251,8 +270,9 @@ ptree & XmlApi::read() {
     try {
         boost::property_tree::read_xml(m_file_path, m_config);
     } catch(std::exception & e) {
-        ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception
-        throw;
+        nsw::ConfigIssue issue(ERS_HERE, e.what());
+        ers::fatal(issue);
+        throw issue;
     }
     return m_config;
 }
@@ -269,7 +289,9 @@ ptree & OksApi::read() {
       ERS_LOG("read oks dummy ");
     } catch(std::exception & e) {
       ERS_LOG("Failed: " << e.what());
-      throw;
+      nsw::ConfigIssue issue(ERS_HERE, e.what());
+      ers::fatal(issue);
+      throw issue;
     }
   return m_config;
 }

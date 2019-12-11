@@ -69,7 +69,9 @@ void nsw::VMMConfig::setGlobalRegister(std::string register_name, unsigned value
     try {
         m_bitstring = codec.buildConfig(m_config);
     } catch(std::exception & e) {
-        throw e;
+        nsw::VmmConfigIssue issue(ERS_HERE, e.what());
+        ers::error(issue);
+        throw issue;
     }
 }
 
