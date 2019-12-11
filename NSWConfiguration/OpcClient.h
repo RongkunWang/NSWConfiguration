@@ -19,6 +19,7 @@
 #include "UaoClientForOpcUaSca/include/I2cSlave.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
+#include "UaoClientForOpcUaSca/include/IoBatch.h"
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"

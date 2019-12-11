@@ -146,8 +146,9 @@ endif()
 
 include_directories(${OPC_OPEN62541_PATH}/include)
 include_directories(${OPC_OPEN62541_PATH}/build/open62541/)
+include_directories(${OPC_OPEN62541_PATH}/build/LogIt/include)
 
-file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*.cpp)
+file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*)
 
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
@@ -159,6 +160,7 @@ tdaq_add_library(nswopcclient
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
         ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
         rt
+        Protobuf
 )
 
 #tdaq_add_executable(demo_opc_client
