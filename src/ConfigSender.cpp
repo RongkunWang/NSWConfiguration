@@ -32,6 +32,12 @@ void nsw::ConfigSender::sendSpi(std::string opcserver_ipport, std::string node, 
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, vdata.data(), vdata.size());
 }
 
+uint8_t nsw::ConfigSender::readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay ) {
+  addOpcClientIfNew(opcserver_ipport);
+  return m_clients[opcserver_ipport]->readRocRaw(node, sclLine, sdaLine, registerAddress, delay);
+}
+
+
 void nsw::ConfigSender::sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
