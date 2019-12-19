@@ -90,7 +90,15 @@ class ConfigSender {
     /// Write only one of the register addresses in I2cMaster
     void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
                              std::string reg_address);
-/// Read back Roc register as uint8_t
+
+    /// Read back ROC
+    /// \param opcserver_ipport OPCServer IP and port
+    /// \param node node ID in the OPC space, something such as "SCA Name.gpio.bitBanger"
+    /// \param sclLine scl lines to use
+    /// \param sdaLine sda lines to use
+    /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
+    /// \param delay I2c delay value, 2 corresponds to 100kHz
+    /// \return result 8 bit register value
     uint8_t readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, 
                                   uint8_t registerAddress, unsigned int delay );
                                   
