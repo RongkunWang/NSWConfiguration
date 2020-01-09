@@ -4,6 +4,7 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
+#include <fstream>
 
 #include "ers/ers.h"
 
@@ -279,6 +280,39 @@ std::string nsw::OpcClient::readScaAddress(std::string node) {
 bool nsw::OpcClient::readScaOnline(std::string node) {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readOnline();
+}
+
+void nsw::OpcClient::writeXilinxFpga(std::string node, std::string bitfile_path) {
+    UaoClientForOpcUaSca::XilinxFpga fpga(m_session.get(), UaNodeId(node.c_str(), 2));
+
+    // Read file content and convert to UaByteString
+    std::vector<uint8_t> bytes;
+    UaByteString bs;
+
+    // Open file in binary mode and immediately go to end
+    std::ifstream input(bitfile_path, std::ios::binary| std::ios::ate);
+
+    if (input.is_open()) {
+        auto size = input.tellg();  // Current position, which is end of file
+        ERS_DEBUG(4, "File size in bytes: " << size);
+        std::unique_ptr<char[]> bytes(new char[size]);
+        input.seekg(0, std::ios::beg);  // Go to beginning of file
+        input.read(bytes.get(), size);  // Read the whole file into memory block
+        input.close();
+        bs.setByteString(size, reinterpret_cast<uint8_t*>(bytes.get()));
+        ERS_DEBUG(4, "Node: " << node << ", Data size: " << size
+                  << ", data[0]: " << static_cast<unsigned>(bytes.get()[0]));
+
+        try {
+            fpga.program(bs);
+        } catch (const std::exception& e) {
+            // TODO(cyildiz) handle exception properly
+            std::cout << "Can't program FPGA: " << e.what() << std::endl;
+        }
+    } else {  // File doesn't exist?
+      // TODO(cyildiz) handle exception properly
+      std::cout << "Can't open bitfile: " << bitfile_path << std::endl;
+    }
 }
 
 

@@ -793,3 +793,8 @@ bool nsw::ConfigSender::readSCAOnline(FEBConfig& feb) {
     return m_clients[opc_ip]->readScaOnline(feb_address);
 }
 
+void nsw::ConfigSender::sendFPGA(std::string opcserver_ipport, std::string node,
+                                 std::string bitfile_path) {
+    addOpcClientIfNew(opcserver_ipport);
+    m_clients[opcserver_ipport]->writeXilinxFpga(node, bitfile_path);
+}
