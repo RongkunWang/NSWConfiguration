@@ -319,6 +319,12 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc) {
                           << ADDC_GBTx_ConfigurationData.size());
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size); usleep(10000);
         }
+        // To fix 6/2 bit split from GBTx bug, try moving the 40 MHz TTC clock as suggested by DM.
+        gbtx_data[1] = ((uint8_t) (0) );
+        gbtx_data[0] = ((uint8_t) (9) );
+        gbtx_data[2] = ((uint8_t) (8) );
+        sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size); usleep(10000);
+
     }
     ERS_DEBUG(1, " -> done");
 
