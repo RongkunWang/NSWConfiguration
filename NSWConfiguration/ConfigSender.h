@@ -71,10 +71,12 @@ class ConfigSender {
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// Send configuration to ADDC and its ARTs
-    void sendAddcConfig(const nsw::ADDCConfig& feb);
+    /// By default (i_art == -1), configure both ARTs
+    void sendAddcConfig(const nsw::ADDCConfig& feb, int i_art = -1);
 
     /// Send configuration to ADDC for aligning ART to TP
-    void alignAddcGbtxTp(const nsw::ADDCConfig& feb);
+    void alignAddcGbtxTp(const std::map<std::string, nsw::ADDCConfig> & addcs_map);
+    void alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs);
 
     /// High level send function
     void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
