@@ -115,7 +115,6 @@ int main(int argc, const char *argv[]) {
     };
 
     std::vector<std::pair<std::string, std::string> > messageList = {
-
         // This is the setup of the test including the size of the BC window to consider
 
         {"01", "01"},  // disables the ADDC emulator output
