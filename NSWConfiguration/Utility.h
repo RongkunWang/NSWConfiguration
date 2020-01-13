@@ -32,7 +32,7 @@ std::bitset<N1 + N2 + N3> concatenate(std::bitset<N1> b1, std::bitset<N2> b2, st
 }
 
 /// Returns byte vector for the value of size nbytes
-std::vector<unsigned char> intToByteVector(int value, size_t nbytes, bool littleEndian = true);
+std::vector<uint8_t> intToByteVector(uint32_t value, size_t nbytes, bool littleEndian = true);
 
 /// Returns bit pattern for the value
 std::string bitString(unsigned value, size_t nbits);

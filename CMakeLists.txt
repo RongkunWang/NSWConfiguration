@@ -21,6 +21,10 @@ tdaq_add_executable(configure_frontend app/configure_frontend.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(read_sca_info app/read_sca_info.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(read_tds_continous app/read_tds_continous.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
@@ -61,21 +65,37 @@ tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(nsw_trigger_loop_mm app/trigger_loop_mm.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_router app/router.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/FEConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
-                 src/ADDCConfig.cpp
-                 src/TPConfig.cpp
+                 src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
+                 src/TPConfig.cpp src/RouterConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
 )
 
 tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
-  LINK_LIBRARIES nswconfig
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_align_addc_and_tp app/align_addc_and_tp.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
 tdaq_add_executable(tp_comm_test app/tp_comm_test.cpp
@@ -138,8 +158,9 @@ endif()
 
 include_directories(${OPC_OPEN62541_PATH}/include)
 include_directories(${OPC_OPEN62541_PATH}/build/open62541/)
+include_directories(${OPC_OPEN62541_PATH}/build/LogIt/include)
 
-file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*.cpp)
+file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*)
 
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
@@ -151,6 +172,7 @@ tdaq_add_library(nswopcclient
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
         ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
         rt
+        Protobuf
 )
 
 #tdaq_add_executable(demo_opc_client

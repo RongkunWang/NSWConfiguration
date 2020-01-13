@@ -19,8 +19,8 @@ nsw::FEBConfig::FEBConfig(ptree config):
         }
     }
 
-    /// A FE can have up to 3 tdss, the config ptree should be constructed with correct number vmms
-    for (int i = 0; i < 3; i++) {
+    /// A FE can have up to 4 tdss, the config ptree should be constructed with correct number vmms
+    for (int i = 0; i < 4; i++) {
         std::string tdsname = "tds" + std::to_string(i);
         if (config.find(tdsname) != config.not_found()) {
             ERS_DEBUG(3, "TDS id:" << tdsname);

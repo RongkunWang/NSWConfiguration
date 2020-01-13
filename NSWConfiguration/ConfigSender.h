@@ -8,12 +8,17 @@
 #include <string>
 #include <vector>
 
+
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/TDSConfig.h"
+#include "NSWConfiguration/ADDCConfig.h"
+#include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/RouterConfig.h"
 
 
 namespace nsw {
@@ -45,7 +50,7 @@ class ConfigSender {
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
     /// Send configuration to tds
-    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds);
+    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds, int ntds);
 
     /// Send configuration to all ROC, VMM and TDS that belongs to the FEB
     void sendConfig(const nsw::FEBConfig& feb);
@@ -65,6 +70,20 @@ class ConfigSender {
     /// High level send function - TODO(cyildiz): deprecate
     void sendTdsConfig(const nsw::TDSConfig& tds);
 
+    /// Send configuration to ADDC and its ARTs
+    /// By default (i_art == -1), configure both ARTs
+    void sendAddcConfig(const nsw::ADDCConfig& feb, int i_art = -1);
+
+    /// Send configuration to ADDC for aligning ART to TP
+    void alignAddcGbtxTp(const std::map<std::string, nsw::ADDCConfig> & addcs_map);
+    void alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs);
+
+    /// High level send function
+    void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
+
+    /// High level send function
+    void sendRouterConfig(const nsw::RouterConfig& obj);
+
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);
 
@@ -75,6 +94,17 @@ class ConfigSender {
     void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
                              std::string reg_address);
 
+    /// Read back ROC
+    /// \param opcserver_ipport OPCServer IP and port
+    /// \param node node ID in the OPC space, something such as "SCA Name.gpio.bitBanger"
+    /// \param sclLine scl lines to use
+    /// \param sdaLine sda lines to use
+    /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
+    /// \param delay I2c delay value, 2 corresponds to 100kHz
+    /// \return result 8 bit register value
+    uint8_t readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, 
+                                  uint8_t registerAddress, unsigned int delay );
+                                  
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
@@ -102,6 +132,10 @@ class ConfigSender {
     std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
                                           uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
 
+    // Send I2c register as vector for ADDC
+    void sendI2cAtAddress(std::string opcserver_ipport, std::string node,
+                          std::vector<uint8_t> address, std::vector<uint8_t> data);
+
     /// Read multiple consecutive samples from an analog input
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
                                                          std::string node, size_t n_samples);
@@ -119,6 +153,17 @@ class ConfigSender {
     std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                  size_t vmm_id,
                                                                  size_t n_samples);
+
+    // Read SCA ID 
+    int readSCAID(FEBConfig& feb);
+
+    // Read SCA Address 
+    std::string readSCAAddress(FEBConfig& feb);
+
+    // Read SCA Online Status 
+    bool readSCAOnline(FEBConfig& feb);
+
+
 };
 
 }  // namespace nsw

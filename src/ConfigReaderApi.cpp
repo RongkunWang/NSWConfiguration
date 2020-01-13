@@ -23,12 +23,18 @@ ptree ConfigReaderApi::read(std::string element) {
         return readMMFE8(element);
     } else if (nsw::getElementType(element) == "PFEB") {
         return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB_old") {
+        return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-        return readSFEB(element);
+        return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "TP") {
         return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
         return readADDC(element, 2);
+    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
+        return readPadTriggerSCA(element);
+    } else if (nsw::getElementType(element) == "Router") {
+        return readRouter(element);
     }
 }
 
@@ -37,7 +43,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
       read();
     }
 
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*", m_config);
 }
 
 std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
@@ -290,26 +296,61 @@ ptree ConfigReaderApi::readTDS(std::string element) {
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
+
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
     // std::cout << ss.str() << std::endl;
 
     ptree feb = m_config.get_child(element);
-    ptree art_common = m_config.get_child("art_common_config");
-    art_common.put("OpcServerIp", "none");  // TODO(tuna): Do what Cenk does for VMM
-    art_common.put("OpcNodeId",   "none");  // TODO(tuna): Do what Cenk does for VMM
 
     for ( size_t i = 0; i < nart; i++ ) {
+
         std::string name = "art" + std::to_string(i);
+
+        // check for ART-specific configuration
         ptree specific;
-        if (feb.get_child_optional(name)) {  // If node exists
+        ptree common = m_config.get_child("art_common_config");
+        if (feb.get_child_optional(name))
             specific = feb.get_child(name);
+
+        // top-level registers
+        // i.e. not art_core and art_ps, which are i2c master trees
+        for (auto iter: specific) {
+            std::string address = iter.first;
+            if (address != "art_core" && address != "art_ps")
+                common.put_child(address, iter.second);
         }
-        mergeI2cMasterTree(specific, art_common);
-        feb.put_child(name, art_common);
+
+        // art_core and art_ps
+        for ( auto name_i2c : {"art_core", "art_ps"} ) {
+            ptree specific_i2c;
+            ptree common_i2c = common.get_child(name_i2c);
+            if (specific.get_child_optional(name_i2c))
+                specific_i2c = specific.get_child(name_i2c);
+            mergeI2cMasterTree(specific_i2c, common_i2c);
+            common.put_child(name_i2c, common_i2c);
+        }
+
+        feb.put_child(name, common);
     }
 
+    return feb;
+}
+
+ptree ConfigReaderApi::readPadTriggerSCA(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
+    return feb;
+}
+
+ptree ConfigReaderApi::readRouter(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
     return feb;
 }
 

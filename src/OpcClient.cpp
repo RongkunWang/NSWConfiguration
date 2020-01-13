@@ -10,6 +10,7 @@
 #include "NSWConfiguration/OpcClient.h"
 
 
+
 nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
     // Can we have multiple init() in the same application?
@@ -60,6 +61,92 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
         std::cout << "Can't write SpiSlave: " <<  e.what() << std::endl;
     }
 }
+
+
+uint8_t nsw::OpcClient::readRocRaw(std::string node, unsigned int scl, unsigned int sda,
+                                    uint8_t registerAddress, unsigned int i2cDelay) {
+
+    UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
+
+    ioBatch.addSetPins( { { scl, true }, { sda, true } } );
+    ioBatch.addSetPinsDirections( { { scl, UaoClientForOpcUaSca::IoBatch::OUTPUT }, { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } }, 10 );
+
+    ioBatch.addSetPins( { { scl, true }, { sda, true } }, i2cDelay );
+    ioBatch.addSetPins( { { sda, false } }, i2cDelay );
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    uint8_t byte = 0xF1;
+
+    for (auto i = 0; i < 8; ++i) {
+
+      if ( byte & 0x80 ) {
+        ioBatch.addSetPins( { { sda, true } } );
+      } else {
+        ioBatch.addSetPins( { { sda, false } } );
+      }
+
+      byte <<= 1;
+
+      ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+      ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    }
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+    ioBatch.addSetPins( { { sda, false } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addGetPins();
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+
+    for (auto i = 0; i < 8; ++i) {
+      if ( registerAddress & 0x80 ) {
+        ioBatch.addSetPins( { { sda, true } } );
+      } else {
+        ioBatch.addSetPins( { { sda, false } } );
+      }
+
+      registerAddress <<= 1;
+
+      ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+      ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    }
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+    ioBatch.addSetPins( { { sda, false } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addGetPins();
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
+
+    for (auto i = 0; i < 8; ++i) {
+        ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+        ioBatch.addGetPins();
+        ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+    }
+
+    ioBatch.addSetPins( { { sda, true } }, i2cDelay );
+
+    ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addSetPins( { { scl, false } }, i2cDelay );
+
+    ioBatch.addSetPins( { { sda, false } }, i2cDelay );
+    ioBatch.addSetPins( { { scl, true } }, i2cDelay );
+    ioBatch.addSetPins( { { sda, true } }, i2cDelay );
+
+    auto interestingPinSda = UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
+
+    std::bitset<8> registerValue;
+
+    for ( auto i = 0; i < 8; ++i ) {
+        registerValue[7-i] = interestingPinSda[i+2];
+    }
+
+    return (uint8_t)(registerValue.to_ulong());
+}
+
 
 std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t number_of_chunks) {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
@@ -178,6 +265,22 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     }
     return values;
 }
+
+int nsw::OpcClient::readScaID(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readId();
+}
+
+std::string nsw::OpcClient::readScaAddress(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readAddress().toUtf8();
+}
+
+bool nsw::OpcClient::readScaOnline(std::string node) {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    return scanode.readOnline();
+}
+
 
 // TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
 

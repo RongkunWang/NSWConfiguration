@@ -19,6 +19,8 @@
 #include "UaoClientForOpcUaSca/include/I2cSlave.h"
 #include "UaoClientForOpcUaSca/include/DigitalIO.h"
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
+#include "UaoClientForOpcUaSca/include/SCA.h"
+#include "UaoClientForOpcUaSca/include/IoBatch.h"
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
@@ -76,6 +78,24 @@ class OpcClient {
 
     //! Read n_samples consecutive samples from an analog output.
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
+
+    // Read SCA ID
+    int readScaID(std::string node); 
+
+    // Read SCA Address
+    std::string readScaAddress(std::string node);
+
+    // Read SCA Online Status
+    bool readScaOnline(std::string node);
+
+    /// Read back ROC
+    /// \param node node ID in the OPC space, something such as "SCA Name.gpio.bitBanger"
+    /// \param scl scl lines to use
+    /// \param sda sda lines to use
+    /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
+    /// \param i2cDelay I2c delay value, 2 corresponds to 100kHz
+    /// \return result 8 bit register value
+    uint8_t readRocRaw(std::string node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay);
 };
 }  // namespace nsw
 

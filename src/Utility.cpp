@@ -16,9 +16,9 @@
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);
 
 
-std::vector<unsigned char> nsw::intToByteVector(int value, size_t nbytes, bool littleEndian) {
-    std::vector<unsigned char> byteVector(nbytes);
-    for (int i = 0; i < nbytes; i++)
+std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool littleEndian) {
+    std::vector<uint8_t> byteVector(nbytes);
+    for (size_t i = 0; i < nbytes; i++)
         byteVector.at(i) = (value >> (i * 8));
     if (!littleEndian)
         std::reverse(byteVector.begin(), byteVector.end());
@@ -42,7 +42,8 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 }
 
 std::string nsw::getElementType(std::string element_name) {
-    for (auto name : std::vector<std::string>({"VMM", "TDS", "ROC", "MMFE8", "PFEB", "SFEB", "TP", "ADDC"})) {
+    for (auto name : std::vector<std::string>({"VMM", "TDS", "ROC", "MMFE8", "PFEB", "SFEB_old", "SFEB", 
+                                               "TP", "ADDC", "PadTriggerSCA", "Router"})) {
         if (element_name.find(name) != std::string::npos) {
             ERS_DEBUG(2, "Found instance of " << name << " configuration: " << element_name);
             return name;
