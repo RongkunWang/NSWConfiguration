@@ -143,37 +143,38 @@ int main(int argc, const char *argv[])
         for (auto& thread: *threads)
             thread.get();
     }
+    cs.alignAddcGbtxTp(addc_configs);
 
     // ART BCRCLK
-    uint phase_end = (uint)(bcr_phase);
-    size_t gbtx_size = 3;
-    uint8_t gbtx_data[] = {0x0,0x0,0x0};
-    uint8_t rbph_data[] = {0x0,0x0,0x0};
-    for (auto & addc: addc_configs) {
-        for (auto art: addc.getARTs()) {
-            auto opc_ip = addc.getOpcServerIp();
-            auto name   = addc.getAddress() + "." + art.getNameGbtx();
-            uint phase = 0;
-            while (phase <= phase_end) {
-                // coarse phase
-                gbtx_data[0] = 11;
-                gbtx_data[1] = 0;
-                gbtx_data[2] = (uint8_t)(phase);
-                cs.sendI2cRaw(opc_ip, name, gbtx_data, gbtx_size);
-                // readback
-                rbph_data[0] = 11; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(phase);
-                auto readback_phase = cs.readI2cAtAddress(opc_ip, name, rbph_data, 2, 1);
-                if (readback_phase.size()==0)
-                    throw std::runtime_error("Unable to readback phase in change_phase");
-                // announce
-                auto msg1 = opc_ip + "/" + name;
-                auto msg2 = " set phase = " + std::to_string(phase) + " -> readback = " + std::to_string(readback_phase[0]);
-                std::cout << msg1 << msg2 << std::endl;
-                usleep(20000);
-                phase = phase + 1;
-            }
-        }
-    }
+    // uint phase_end = (uint)(bcr_phase);
+    // size_t gbtx_size = 3;
+    // uint8_t gbtx_data[] = {0x0,0x0,0x0};
+    // uint8_t rbph_data[] = {0x0,0x0,0x0};
+    // for (auto & addc: addc_configs) {
+    //     for (auto art: addc.getARTs()) {
+    //         auto opc_ip = addc.getOpcServerIp();
+    //         auto name   = addc.getAddress() + "." + art.getNameGbtx();
+    //         uint phase = 0;
+    //         while (phase <= phase_end) {
+    //             // coarse phase
+    //             gbtx_data[0] = 11;
+    //             gbtx_data[1] = 0;
+    //             gbtx_data[2] = (uint8_t)(phase);
+    //             cs.sendI2cRaw(opc_ip, name, gbtx_data, gbtx_size);
+    //             // readback
+    //             rbph_data[0] = 11; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(phase);
+    //             auto readback_phase = cs.readI2cAtAddress(opc_ip, name, rbph_data, 2, 1);
+    //             if (readback_phase.size()==0)
+    //                 throw std::runtime_error("Unable to readback phase in change_phase");
+    //             // announce
+    //             auto msg1 = opc_ip + "/" + name;
+    //             auto msg2 = " set phase = " + std::to_string(phase) + " -> readback = " + std::to_string(readback_phase[0]);
+    //             std::cout << msg1 << msg2 << std::endl;
+    //             usleep(20000);
+    //             phase = phase + 1;
+    //         }
+    //     }
+    // }
 
     // smart alignment
     if (!dont_align) {
