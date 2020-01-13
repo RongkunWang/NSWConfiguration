@@ -15,7 +15,7 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 64;  // 10; // 64;
+int NCH_PER_VMM = 64;  //10//64;  //10;//64;
 int RMS_CUTOFF = 30;  // in mV
 int BASELINE_CUTOFF = 30;  // in mV
 int TRIM_HI = 31;
@@ -40,15 +40,15 @@ float take_median(std::vector<short unsigned int> &v) {
 }
 
 float sample_to_mV(float sample) {
-  return sample * 1000. * 1.5 / 4095.0;  // 1.5 is due to a resistor
+  return sample * 1000. * 1.5 / 4095.0;  //1.5 is due to a resistor
 }
 
 float sample_to_mV(short unsigned int sample) {
-  return sample * 1000. * 1.5 / 4095.0;  // 1.5 is due to a resistor
+  return sample * 1000. * 1.5 / 4095.0;  //1.5 is due to a resistor
 }
 
 float mV_to_sample(float mV_read) {
-  return mV_read / 1000. / 1.5 * 4095.0;  // 1.5 is due to a resistor
+  return mV_read / 1000. / 1.5 * 4095.0;  //1.5 is due to a resistor
 }
 
 float take_rms(std::vector<float> &v, float mean) {
@@ -79,7 +79,7 @@ std::pair<float, float> get_slopes(float ch_lo,
                                   int trim_lo  = TRIM_LO) {
   float m1 = (ch_hi - ch_mid)/(trim_hi-trim_mid);
   float m2 = (ch_mid - ch_lo)/(trim_mid-trim_lo);
-  return std::make_pair(m1, m2);
+  return std::make_pair(m1,m2);
 }
 
 bool check_slopes(float m1, float m2) {
@@ -99,13 +99,11 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
 
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++) {
     if (thdac_guess_variations[i] > 1023) {
-      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " <<
-        thdac_guess_variations[i] << std::endl;
+      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 1023;
       return 1023;
-    } else if (thdac_guess_variations[i] < 0) {
-      if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " <<
-        thdac_guess_variations[i] << std::endl;
+    } else if (thdac_guess_variations[i]<0) {
+      if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 0;
       return 1023;
     }
