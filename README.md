@@ -106,7 +106,7 @@ git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfig
 
 ```bash
 source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 # replace nightly with any other release
-export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-v1.1.1
+export OPC_OPEN62541_PATH=/afs/cern.ch/work/n/nswdaq/public/tdaq-08-03-01/sw/external/open62541-compat
 ```
 
 * Checkout the branch or tag you need. Latest developments are in `dev` branch.
