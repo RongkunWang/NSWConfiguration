@@ -284,6 +284,7 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
     uint8_t art_data[] = {0x0,0x0};
     size_t gbtx_size = 3;
     uint8_t gbtx_data[] = {0x0,0x0,0x0}; // 2 for address (i), 1 for data
+    uint8_t rbph_data[] = {0x0,0x0,0x0};
 
     auto opc_ip                      = addc.getOpcServerIp();
     auto sca_addr                    = addc.getAddress();
@@ -319,21 +320,26 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
     }
     ERS_DEBUG(1, " -> done");
 
-    // Set GBTx0 and GBTx1 configuration
+    //
+    // SCA supports up to 16-byte payloads
+    //
     ERS_DEBUG(1, "GBT configuration");
+    size_t chunklen = 16;
     for (auto art: addc.getARTs()) {
         if (i_art != -1 && i_art != art.index())
             continue;
         auto gbtx = sca_addr + "." + art.getNameGbtx();
-        for (uint i = 0; i < ADDC_GBTx_ConfigurationData.size(); i++) {
-            gbtx_data[1] = ((uint8_t) ((i) >> 8));
-            gbtx_data[0] = ((uint8_t) ((i) & 0xff));
-            gbtx_data[2] = ADDC_GBTx_ConfigurationData[i];
-            if (i % 50 == 0)
-                ERS_DEBUG(1, "GBT configuration of "
-                          << gbtx << " " << i << " / "
-                          << ADDC_GBTx_ConfigurationData.size());
-            sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size); usleep(10000);
+        std::vector<uint8_t> datas = {};
+        for (size_t i = 0; i < ADDC_GBTx_ConfigurationData.size(); i++) {
+            if (datas.size() == 0) {
+                datas.push_back( ((uint8_t) ((i) & 0xff)) );
+                datas.push_back( ((uint8_t) ((i) >> 8)) );
+            }
+            datas.push_back(ADDC_GBTx_ConfigurationData[i]);
+            if (datas.size() == chunklen || i+1 == ADDC_GBTx_ConfigurationData.size()) {
+                sendI2c(opc_ip, gbtx, datas);
+                datas.clear();
+            }
         }
         // To fix 6/2 bit split from GBTx bug, try moving the 40 MHz TTC clock as suggested by DM.
         gbtx_data[1] = ((uint8_t) (0) );
@@ -504,7 +510,6 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
     // Adjust ART BCRCLK
     ERS_DEBUG(1, "ART BCRCLK phase");
     uint phase_end = 4;
-    uint8_t rbph_data[] = {0x0,0x0,0x0};
     for (auto art: addc.getARTs()) {
         if (i_art != -1 && i_art != art.index())
             continue;
