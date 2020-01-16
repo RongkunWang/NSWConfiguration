@@ -26,12 +26,17 @@ int main(int ac, const char *av[]) {
 
     std::string config_filename;
     std::string fe_name;
+    int registerAddress;
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
+        ("registerAddress,a", po::value<int>(&registerAddress)->
+        default_value(0),
+        "The register address of the ROC to read .\n"
+        "If this option is left empty, the default adress 0 will be read (ROC ID).")
         ("name,n", po::value<std::string>(&fe_name)->
         default_value(""),
         "The name of frontend to read SCA ID.\n"
@@ -84,6 +89,9 @@ int main(int ac, const char *av[]) {
     nsw::ConfigSender cs;
     uint8_t roc_address_value;
 
+    std::cout << "***** Reading ROC register address: "<<registerAddress<< std::endl;
+    std::cout << "\n";
+
     for (auto & feb : frontend_configs) {
     auto opc_ip = feb.getOpcServerIp();
 
@@ -96,9 +104,9 @@ int main(int ac, const char *av[]) {
     cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
 
 
-	roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,0,2);
-	
-    std::cout << feb.getAddress() << "\t"<< unsigned(roc_address_value)<<"(dec)" << " | "<< std::hex << unsigned(roc_address_value) << "(hex)" <<std::endl;
+	roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)registerAddress,2);
+
+    std::cout << feb.getAddress() << "\t"<< unsigned(roc_address_value)<<"(dec)" << " | 0x"<< std::hex << unsigned(roc_address_value) << "(hex)" <<" | "<<std::bitset<8>(unsigned(roc_address_value)).to_string()<<"(bin)"<<std::endl;
 
     }
 
