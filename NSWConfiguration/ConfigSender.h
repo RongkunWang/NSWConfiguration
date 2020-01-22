@@ -163,7 +163,9 @@ class ConfigSender {
     // Read SCA Online Status 
     bool readSCAOnline(FEBConfig& feb);
 
-
+    /// Program FPGA from bitfile
+    /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
+    void sendFPGA(std::string opcserver_ipport, std::string node, std::string bitfile_path);
 };
 
 }  // namespace nsw
