@@ -7,6 +7,12 @@
   * [NSWConfiguration](#nswconfiguration)
 * [Creating Config File](#creating-config-file)
 * [Running](#Running)
+* [Software Design](#software-design)
+  * [ConfigReader](#configreader)
+    * [How to implement a new ConfigReaderApi](#how-to-implement-a-new-configreaderapi)
+  * [Configuration Classes](#configuration-classes)
+  * [ConfigSender](#configsender)
+  * [How to Implement a New FE](#how-to-implement-a-new-fe)
 
 ## Configuration DB
 
@@ -35,7 +41,7 @@ release you are using. (Each tdaq release is compiled against a certain LCG rele
 
 ```bash
 ssh lxplus7.cern.ch
-source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 x86_64-centos7-gcc8-opt
+source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 x86_64-centos7-gcc8-opt
 echo $TDAQ_LCG_RELEASE   # LCG release you should use
 echo $CMTCONFIG   # Tag that defines OS and gcc version. For this example, it's: ```x86_64-centos7-gcc8-opt```
 ```
@@ -43,7 +49,7 @@ echo $CMTCONFIG   # Tag that defines OS and gcc version. For this example, it's:
 ### External Software
 
 NSW Configuration requires external Opc related software to build and run.
-Note that you can skip this step and use installation from prebuilt /eos or /afs areas (see below)
+Note that you can skip this step and use installation from prebuilt /afs areas (see below)
 
 * Go to any lxplus node with centos7: ```ssh lxplus7.cern.ch```
 
@@ -102,7 +108,7 @@ If you will use another tdaq release, replace 8.3.1 with the release number (for
 git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfiguration.git
 ```
 * Setup tdaq and OpcUA environment for production release.
-  For latter, you can your build from previous step, or a build from eos area
+  For latter, you can your build from previous step, or a build from nswdaq afs area
 
 ```bash
 source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 # replace nightly with any other release
@@ -217,6 +223,74 @@ cd NSWConfiguration
 ```bash
 ./configure_frontend -c my_config.json -r -v -t # Configure ROC, all VMMs and TDSs on all front ends in config file
 ```
+
+# Software Design
+
+This section aims to help future developers about the design of NSWConfiguration. The software has few components and
+the main idea is the following:
+
+- ConfigReader reads configuration database, and returns ptree objects. It doesn't depend on anything
+- Frontend specific configuration classes take the ptree objects, manipulate them if needed and create the bits that can
+  be sent to frontends. They don't depend on anything.
+- ConfigSender uses frontend specific configuration classes and write/read configuration to/from frontends using an
+  OpcClient. It depends on Frontend specific configuration classes and OpcClient.
+
+## ConfigReader
+
+ConfigReader is the entry point to reading a configuration database and dumping it in ptree objects.  It doesn't depend
+on any other component.
+
+**ConfigReader**: ConfigReader class is the only class exposed to the user and it doesn't know the details of the
+database. Depending on the connection string, it selects which API to use. It has only few methods, details of which
+should be implemented in the ConfigReaderApi
+
+**ConfigReaderApi**: This is the base class for any reader API.
+- For instance if it's a json file, `JsonApi` is used and `read()` method creates a ptree from the json string.
+- The more specific methods such as `readFEB()` then combine common configuration and frontend specific configurations
+  to create the final ptree for the frontend.
+- The `read(std::string element)` method figures out the front end type from the name, and choses the correct method to
+  use.
+
+### How to implement a new ConfigReaderApi
+To implement reading configuration from another source(for instance OKS, oracle database etc.), one has to derive a new
+class from `ConfigReaderApi` class, similar to `JsonApi`. There are 2 ways to implement the new reader API:
+1. Only implement the `read()` method to create a ptree identical to one from `JsonApi::read()` (It has to have
+   `common_config` and subdetector  specific configuration elements in the same ptree). All the other methods in
+   ConfigReaderApi has default implementations
+1. If one doesn't the new API to read the whole configuration, but only read configuration of a certain elements with
+   `read(std::string element` method, then one may need to implement several methods. Note that in this case
+   ConfigReaderApi may require a reconsideration, and some methods may need to be converted to virtual.
+
+## Configuration Classes
+Configuration classes are simply container to for configuration registers. They are used to initialize and modify
+configuration for a certain front end. Each configuration class is initialized by a ptree that is returned from
+`ConfigReader::read(std::string element)` method. For instance the most commonly used `FEBConfig` is a generic class
+that can represent MMFE8, sFEB and pFEB, depending on the number of `vmm` and `tds` in the input ptree.
+
+## ConfigSender
+ConfigSender is the main component that communicates with the frontends. The details of this communication is hidden in
+`OpcClient` class.
+
+- `OpcClient`: Uses the classes and methods from `UaoClientForOpcUaSca` to read/write frontends. Note that not all
+  classes from `UaoClientForOpcUaSca` are used, but only the relevant ones.
+- `ConfigSender`: Uses both `OpcClient` and classes like `FEBConfig`.
+
+## How to Implement a New FE
+If there is a new configuration component/front end element that need to be implemented in the NSWConfiguration, there
+are several things to do:
+- Create a new class for the front end element. Lets call this `NewFEConfig`. If the frontend contains a SCA, use
+  `FEConfig` class as base class. Ideally this class should contain some containers that have bitstreams that will be
+  sent to the front end, and methods to modify the configuration. Take a look at the current configuration classes to
+  have an idea.
+- Implement the way to read the configuration from database/json. One needs to decide what kind of ptree should be
+  accepted by the `NewFEConfig`. The constructor should take the ptree and fill the containers that hold configuration
+  registers.
+- Modify `getElementType()` if needed (See `Utility.h`)
+- Implement relevant reader method in `ConfigReaderApi`. These method should create the ptree that will be used in
+  constructor of `NewFEConfig`.
+- If needed, implement a new OpcClient method using the relevant class from `UaoClientForOpcUaSca`
+- Implement the relevant ConfigSender method using the OpcClient method and `NewFEConfig` class.
+- Modify `NSWConfigRc` and if needed create a new program to read/send configuration of this front end.
 
 ## Issue Tracker:
 * [ATLNSWDAQ: ATLAS NSW DAQ Software JIRA](https://its.cern.ch/jira/projects/ATLNSWDAQ)
