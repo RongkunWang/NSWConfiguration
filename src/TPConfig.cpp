@@ -65,7 +65,7 @@ void nsw::TPConfig::restructureConfig() {
         std::string value;
         // loop over registers in master
         for (ptree::iterator pos = master_tree.begin(); pos != master_tree.end(); pos++) {
-            if (master_tree.empty()){
+            if (master_tree.empty()) {
                 ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i]);
             } else {
                 registerName = pos->first;
@@ -78,6 +78,18 @@ void nsw::TPConfig::restructureConfig() {
     m_config = m_config_copy;
     boost::property_tree::write_json(std::cout, m_config);
 }
+
+
+int nsw::TPConfig::ARTWindowCenter() {
+    return m_config.get<int>("ARTWindowCenter");
+}
+int nsw::TPConfig::ARTWindowLeft() {
+    return m_config.get<int>("ARTWindowLeft");
+}
+int nsw::TPConfig::ARTWindowRight() {
+    return m_config.get<int>("ARTWindowRight");
+}
+
 
 nsw::TPConfig::~TPConfig() {
     // deallocate all memory taken in the constructor

@@ -99,15 +99,15 @@ tdaq_add_executable(nsw_align_addc_and_tp app/align_addc_and_tp.cpp
 )
 
 tdaq_add_executable(tp_comm_test app/tp_comm_test.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options 
+  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
-tdaq_add_executable(mmtp_skeleton app/mmtp_skeleton.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options 
+tdaq_add_executable(mmtp_loopback_test app/mmtp_loopback_test.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
 tdaq_add_executable(configure_tp app/configure_tp.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options 
+  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp

@@ -19,16 +19,20 @@ namespace po = boost::program_options;
 namespace pt = boost::property_tree;
 using boost::property_tree::ptree;
 
-int main(int ac, const char *av[]){
+int main(int ac, const char *av[]) {
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string config_filename;
+    std::string tp_name;
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
-        default_value("/afs/cern.ch/user/b/bbullard/public/nsw/conf/NSWConfiguration/test/TP_testRegisterConfig.json"),
-        "Configuration file path");
+        default_value("~nswdaq/public/sw1/config-ttc/config-files/full_small_sector_14_internalPulser_ADDC.json"),
+        "Configuration file path")
+        ("tp,t", po::value<std::string>(&tp_name)->
+        default_value("MMTP_A14"),
+        "Name of trigger processor");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -39,7 +43,7 @@ int main(int ac, const char *av[]){
     reader_tp.readConfig();
     auto tp_config_tree = pt::ptree();
     try {
-      tp_config_tree = reader_tp.readConfig("STGCTP-0001");
+      tp_config_tree = reader_tp.readConfig(tp_name);
     }
     catch (std::exception &e) {
       std::cout << "Make sure the json is formed correctly. "
@@ -48,10 +52,10 @@ int main(int ac, const char *av[]){
       exit(0);
     }
 
-    std::ofstream ptree_out;
-    ptree_out.open("ptree_testParsingOutput.json");
-    pt::write_json(ptree_out, tp_config_tree);
-    ptree_out.close();
+    // std::ofstream ptree_out;
+    // ptree_out.open("ptree_testParsingOutput.json");
+    // pt::write_json(ptree_out, tp_config_tree);
+    // ptree_out.close();
 
     std::cout << "Parsed ptree, about to build TPConfig" << std::endl;
 

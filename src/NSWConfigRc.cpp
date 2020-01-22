@@ -225,7 +225,12 @@ void nsw::NSWConfigRc::configurePadTriggers() {
 }
 
 void nsw::NSWConfigRc::configureTPs() {
-    ERS_LOG("This function needs to be implemented!");
+    ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
+    for (const auto& kv: m_tps) {
+        auto configuration = m_tps.at(kv.first);
+        m_sender->sendTpConfig(configuration);
+        ERS_LOG("Finished config to: " << kv.first);
+    }
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
