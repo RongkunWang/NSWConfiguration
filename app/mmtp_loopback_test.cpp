@@ -15,7 +15,7 @@ namespace po = boost::program_options;
 int main(int argc, const char *argv[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
-    std::string description = "This program is for initializing the MM Trigger Processor.";
+    std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string opc_ip;
     std::string slaveAddr;
@@ -28,10 +28,10 @@ int main(int argc, const char *argv[]) {
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
-        ("iterations,n", po::value <std::string>(&niter)->default_value("0"),
-            "number of iterations to write the payload (Default: 0)")
-        ("windowCenter, bc_c", po::value <std::string>(&bc_center)->default_value("22"),
-            "L1a data packet builder BC window center in hex (Default: 22)")
+        ("iterations,n", po::value <std::string>(&niter)->default_value("1"),
+            "number of iterations to write the payload (Default: 1)")
+        ("windowCenter, bc_c", po::value <std::string>(&bc_center)->default_value("20"),
+            "L1a data packet builder BC window center in hex (Default: 20)")
         ("windowLeft, bc_l" , po::value <std::string>(&bc_left)->default_value("08"),
             "left extent of the window in hex (Default: 08)")
         ("windowRight, bc_r" , po::value <std::string>(&bc_right)->default_value("08"),
@@ -40,9 +40,9 @@ int main(int argc, const char *argv[]) {
             "resetBCID in hex (Default: 100)")
         ("artBCID" , po::value <std::string>(&artBCID)->default_value("10a"),
              "artBCID in hex (Default: 10A)")
-        ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_MM.I2C_0.bus0"),
+        ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
             "slave bus to write to (Default: NSW_TrigProc_STGC.I2C_0.bus0)")
-        ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix03.cern.ch:48020"),
+        ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
             "hostname for OPC server (Default: pcatlnswfelix01.cern.ch:48020)");
 
 
@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
     int n_iter = std::stoi(niter);
 
     // todo: fix this section to actually use the functions we already have...
-    // hex string to int
+    //hex string to int
     int artBCID_int;
     std::stringstream ss;
     ss << std::hex << artBCID;
@@ -62,13 +62,13 @@ int main(int argc, const char *argv[]) {
     sss << std::hex << bc_center;
     sss >> bc_center_int;
     int sum = artBCID_int + bc_center_int;
-    // turn the sum into a hex string
+    //turn the sum into a hex string
     std::stringstream stream;
     stream << std::hex << sum;
-    std::string l1aBCID(stream.str() );
+    std::string l1aBCID( stream.str() );
 
 
-    // PRINTING COMMAND LINE INPUT FLAGS
+    //PRINTING COMMAND LINE INPUT FLAGS
     std::cout << "... reset BCID : " << resetBCID << std::endl;
     std::cout << "... art BCID  : " << artBCID_int << std::endl;
     std::cout << "... l1a BCID : " << l1aBCID << std::endl;
@@ -98,7 +98,7 @@ int main(int argc, const char *argv[]) {
 
     // Clean up strings
     auto buildEntireMessage = [](std::string & tmp_addr, std::string & tmp_message) {
-        std::vector<uint8_t> tmp_data = nsw::hexStringToByteVector(tmp_message, 4, true);
+        std::vector<uint8_t> tmp_data = nsw::hexStringToByteVector(tmp_message,4,true);
         std::vector<uint8_t> tmp_addrVec = nsw::hexStringToByteVector(tmp_addr, 4, true);
         std::vector<uint8_t> tmp_entirePayload(tmp_addrVec);
         tmp_entirePayload.insert(tmp_entirePayload.end(), tmp_data.begin(), tmp_data.end() );
@@ -116,15 +116,11 @@ int main(int argc, const char *argv[]) {
 
     std::vector<std::pair<std::string, std::string> > messageList = {
         // This is the setup of the test including the size of the BC window to consider
-
         {"01", "01"},  // disables the ADDC emulator output
 
         // Represents the event counter reset (ECR) for the two fibers
 
-        // 20 is an offset for the fiber location.
-        // loading GBT data for fiber 0. 0008 represents the ECR
-
-        {"20", "0008A"+resetBCID},
+        {"20", "0008A"+resetBCID},  // 20 is an offset for the fiber location. loading GBT data for fiber 0. 0008 represents the ECR
         {"20", "00000000"},
         {"20", "00000000"},
         {"20", "00000000"},
@@ -161,11 +157,11 @@ int main(int argc, const char *argv[]) {
         {"21", "00000000"},
         {"21", "00000000"},
 
-        {"01", "03" }  // turns on ADDC emulator enable bit
+        {"01", "03" } // turns on ADDC emulator enable bit
     };
 
     std::vector<uint8_t> entirePayload;
-    for (auto header_ele : header) {
+    for (auto header_ele : header){
         std::cout << "... writing initialization of L1a packet builder options" << std::endl;
         cleanup(header_ele.first);
         cleanup(header_ele.second);
@@ -181,12 +177,13 @@ int main(int argc, const char *argv[]) {
             entirePayload = buildEntireMessage(packet.first, packet.second);
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
         }
+
     }
 
     std::vector<uint8_t> regAddrVec = nsw::hexStringToByteVector("01", 4, true);
     cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
 
-    std::cout << "... Done with MMTP skeleton test" << std::endl;
+    std::cout << "... Done with MMTP Loopback test" << std::endl;
 
     return 0;
 }
