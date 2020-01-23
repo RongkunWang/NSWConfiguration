@@ -11,6 +11,8 @@
 #include <memory>
 #include <vector>
 
+#include "ers/ers.h"
+
 // From UaoForQuasar
 #include "UaoClientForOpcUaSca/include/ClientSessionFactory.h"
 
@@ -26,6 +28,24 @@
 // #include "uaplatformlayer.h"
 
 #include "NSWConfiguration/OpcClient.h"
+
+// Throw this if constructor fails
+ERS_DECLARE_ISSUE(nsw,
+                  OpcConnectionIssue,
+                  "Can't create OpcClient instance for: " << opcserver_ipport
+                  << ", error: " << message,
+                  ((std::string) opcserver_ipport)
+                  ((std::string) message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  OpcReadWriteIssue,
+                  "Read or write failed for OpcServer: " << opcserver_ipport
+                  << ", node: " << opcnode << ", message: " << message,
+                  ((std::string) opcserver_ipport)
+                  ((std::string) opcnode)
+                  ((std::string) message)  // Describe the problem or forward the message that comes from downstream
+                  )
 
 namespace nsw {
 

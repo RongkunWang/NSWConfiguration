@@ -29,10 +29,10 @@ nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip
             m_security,
             new MyCallBack ());
 
-    if (status.isBad()) {
-        std::cout << "Bad status for : " << m_server_ipport
-                  << " due to : " << status.toString().toUtf8() << std::endl;
-        exit(0);
+    if (status.isBad()) { // Can't establish initial connection with Opc Server
+        nsw::OpcConnectionIssue issue(ERS_HERE, m_server_ipport, status.toString().toUtf8());
+        ers::error(issue);
+        throw issue;
     }
 }
 
@@ -57,8 +57,9 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
     try {
         ss.writeSlave(bs);
     } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't write SpiSlave: " <<  e.what() << std::endl;
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+        ers::warning(issue);
+        throw issue;
     }
 }
 
@@ -75,8 +76,9 @@ std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t numbe
         result.assign(array, array + length);
         return result;
     } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't read SpiSlave: " <<  e.what() << std::endl;
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+        ers::warning(issue);
+        throw issue;
     }
 }
 
@@ -107,6 +109,11 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t number_
             sleep(1);
         }
     }
+    if (!SUCCESS) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "writeI2c failed");
+        ers::warning(issue);
+        throw issue;
+    }
 }
 
 void nsw::OpcClient::writeGPIO(std::string node, bool data) {
@@ -118,6 +125,9 @@ void nsw::OpcClient::writeGPIO(std::string node, bool data) {
     } catch (const std::exception& e) {
         // TODO(cyildiz) handle exception properly
         std::cout << "Can't write GPIO: " <<  e.what() << std::endl;
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+        ers::warning(issue);
+        throw issue;
     }
 }
 
@@ -128,8 +138,9 @@ bool nsw::OpcClient::readGPIO(std::string node) {
     try {
         value = gpio.readValue();
     } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't read GPIO: " <<  e.what() << std::endl;
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+        ers::warning(issue);
+        throw issue;
     }
     return value;
 }
@@ -145,8 +156,9 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node, size_t number_of_
         // copy array contents in a vector
         result.assign(output.data(), output.data() + number_of_bytes);
     } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't read I2c: " <<  e.what() << std::endl;
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+        ers::warning(issue);
+        throw issue;
     }
 
     return result;
@@ -176,6 +188,11 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
             THIS_RETRY++;
             sleep(1);
         }
+    }
+    if (!SUCCESS) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "readAnalogInputConsecutiveSamples failed");
+        ers::warning(issue);
+        throw issue;
     }
     return values;
 }

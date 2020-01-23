@@ -86,9 +86,9 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  tdaq-common::ers
 )
 
-tdaq_add_executable(nsw_align_addc_and_tp app/align_addc_and_tp.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+# tdaq_add_executable(nsw_align_addc_and_tp app/align_addc_and_tp.cpp
+#  LINK_LIBRARIES nswconfig Boost::program_options
+#)
 
 tdaq_add_executable(nsw_tp_comm_test app/tp_comm_test.cpp
   LINK_LIBRARIES nswconfig Boost::program_options 
@@ -146,6 +146,7 @@ endif()
 
 include_directories(${OPC_OPEN62541_PATH}/include)
 include_directories(${OPC_OPEN62541_PATH}/build/open62541/)
+include_directories(${OPC_OPEN62541_PATH}/build/LogIt/include)
 
 file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*.cpp)
 
