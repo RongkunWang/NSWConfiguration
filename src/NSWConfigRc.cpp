@@ -30,7 +30,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     } catch(std::exception& ex) {
         std::stringstream ss;
         ss << "Problem reading OKS configuration of NSWConfigRc: " << ex.what();
-        nsw::NSWConfigIssue issue(ERS_HERE, ss.str().c_str());
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
         ers::fatal(issue);
     }
 
@@ -60,7 +60,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
         std::stringstream ss;
         ss << " Skipping FE: " << name
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
-        nsw::NSWConfigIssue issue(ERS_HERE, ss.str().c_str());
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
         ers::warning(issue);
         ERS_LOG(ss.str());
       }
@@ -131,8 +131,14 @@ void nsw::NSWConfigRc::configureFEBs() {
                                         kv.first));
     }
     // wait
-    for (auto& thread: *m_threads)
-        thread.get();
+    for (auto& thread: *m_threads) {
+        try {  // If configureFEB throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
+            ers::warning(issue);
+        }
+    }
 }
 
 void nsw::NSWConfigRc::configureFEB(std::string name) {
@@ -143,7 +149,7 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
     ERS_INFO("Configuring front end " + name);
     if (m_frontends.count(name) == 0) {
         std::string err = "FEB has bad name: " + name;
-        nsw::NSWConfigIssue issue(ERS_HERE, err.c_str());
+        nsw::NSWConfigIssue issue(ERS_HERE, err);
         ers::error(issue);
     }
 
@@ -185,15 +191,22 @@ void nsw::NSWConfigRc::configureADDCs() {
                                         this,
                                         kv.first));
     }
-    for (auto& thread: *m_threads)
-        thread.get();
+    for (auto& thread: *m_threads) {
+        try {  // If configureADDC throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            std::string message = "Skipping ADDC due to : " + std::string(ex.what());
+            nsw::NSWConfigIssue issue(ERS_HERE, message);
+            ers::warning(issue);
+        }
+    }
 }
 
 void nsw::NSWConfigRc::configureADDC(std::string name) {
     ERS_LOG("Configuring ADDC: " + name);
     if (m_addcs.count(name) == 0) {
         std::string err = "ADDC has bad name: " + name;
-        nsw::NSWConfigIssue issue(ERS_HERE, err.c_str());
+        nsw::NSWConfigIssue issue(ERS_HERE, err);
         ers::error(issue);
     }
     auto local_sender = std::make_unique<nsw::ConfigSender>();

@@ -20,8 +20,8 @@ using boost::property_tree::ptree;
 
 ERS_DECLARE_ISSUE(nsw,
                   NSWConfigIssue,
-                  "Problem: " << message,
-                  ((const char *)message)
+                  message,
+                  ((std::string)message)
                   )
 
 namespace nsw {
