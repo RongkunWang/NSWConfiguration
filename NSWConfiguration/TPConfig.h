@@ -46,6 +46,7 @@ class TPConfig: public FEConfig {
     int ARTWindowCenter();
     int ARTWindowLeft();
     int ARTWindowRight();
+    uint32_t FiberBCOffset();
 };
 
 }  // namespace nsw

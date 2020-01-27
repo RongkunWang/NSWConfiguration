@@ -89,6 +89,9 @@ int nsw::TPConfig::ARTWindowLeft() {
 int nsw::TPConfig::ARTWindowRight() {
     return m_config.get<int>("ARTWindowRight");
 }
+uint32_t nsw::TPConfig::FiberBCOffset() {
+    return m_config.get<uint32_t>("FiberBCOffset");
+}
 
 
 nsw::TPConfig::~TPConfig() {
