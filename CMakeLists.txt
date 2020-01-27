@@ -86,10 +86,6 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  tdaq-common::ers
 )
 
-# tdaq_add_executable(nsw_align_addc_and_tp app/align_addc_and_tp.cpp
-#  LINK_LIBRARIES nswconfig Boost::program_options
-#)
-
 tdaq_add_executable(nsw_tp_comm_test app/tp_comm_test.cpp
   LINK_LIBRARIES nswconfig Boost::program_options 
 )
