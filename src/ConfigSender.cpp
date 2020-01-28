@@ -731,6 +731,10 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
                   << " Observed = " << obs
                   << " -> " << (yay ? "Good" : "Bad")
                   << std::endl;
+        if (!obj.CrashOnConfigFailure())
+            yay = 1;
+        if (kv.first.find("ClkReady") != std::string::npos && !obj.CrashOnClkReadyFailure())
+            yay = 1;
         if (!yay)
             all_ok = 0;
     }

@@ -1,4 +1,4 @@
-/// ADDC Configuration class
+/// Router Configuration class
 
 #ifndef NSWCONFIGURATION_ROUTER_H_
 #define NSWCONFIGURATION_ROUTER_H_
@@ -23,6 +23,8 @@ class RouterConfig: public FEConfig {
     explicit RouterConfig(ptree config);
     ~RouterConfig() {}
 
+    bool CrashOnClkReadyFailure() const;
+    bool CrashOnConfigFailure() const;
     void dump();
 
 };
