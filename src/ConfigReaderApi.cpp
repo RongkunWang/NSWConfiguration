@@ -37,7 +37,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
       read();
     }
 
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|MMTP.*|STGCTP.*", m_config);
 }
 
 std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
