@@ -7,7 +7,15 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "ers/ers.h"
+
 using boost::property_tree::ptree;
+
+ERS_DECLARE_ISSUE(nsw,
+                  FEConfigIssue,
+                  message,
+                  ((const char*)message)
+                  )
 
 namespace nsw {
 
@@ -17,7 +25,7 @@ class FEConfig {
  protected:
     std::string m_opcserver_ip;  /// address and port of Opc Server
     std::string m_address;   /// SCA address of FE item in Opc address space
-    ptree m_config;  /// Configuration ptree that contains at least OpcServerIp and OpcNodeId:w
+    ptree m_config;  /// Configuration ptree that contains at least OpcServerIp and OpcNodeId
 
  public:
     explicit FEConfig(ptree config);

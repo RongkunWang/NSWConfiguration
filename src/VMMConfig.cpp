@@ -12,7 +12,7 @@
 
 using boost::property_tree::ptree;
 
-nsw::VMMConfig::VMMConfig(ptree vmmconfig): FEConfig(vmmconfig) {
+nsw::VMMConfig::VMMConfig(ptree vmmconfig): m_config(vmmconfig) {
     m_bitstring = codec.buildConfig(m_config);
     ERS_DEBUG(5, "VMM Bitstream: " << m_bitstring);
     ERS_DEBUG(3, "VMM Bytestream(hex): " << nsw::bitstringToHexString(m_bitstring));
@@ -69,7 +69,9 @@ void nsw::VMMConfig::setGlobalRegister(std::string register_name, unsigned value
     try {
         m_bitstring = codec.buildConfig(m_config);
     } catch(std::exception & e) {
-        throw e;
+        nsw::VmmConfigIssue issue(ERS_HERE, e.what());
+        ers::error(issue);
+        throw issue;
     }
 }
 

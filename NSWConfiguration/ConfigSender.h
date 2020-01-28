@@ -11,9 +11,7 @@
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
-#include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
-#include "NSWConfiguration/TDSConfig.h"
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
@@ -39,12 +37,6 @@ class ConfigSender {
     ConfigSender();
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
 
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendVmmConfig(const nsw::VMMConfig& vmm);
-
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendRocConfig(const nsw::ROCConfig& roc);
-
     /// Send configuration to roc
     void sendRocConfig(std::string opc_ip, std::string sca_address,
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
@@ -66,9 +58,6 @@ class ConfigSender {
 
     /// Send configuration to all tds in the feb
     void sendTdsConfig(const nsw::FEBConfig& feb);
-
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendTdsConfig(const nsw::TDSConfig& tds);
 
     /// Send configuration to ADDC and its ARTs
     /// By default (i_art == -1), configure both ARTs

@@ -10,6 +10,8 @@
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 
+
+#include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/Types.h"
 
@@ -128,7 +130,7 @@ BOOST_AUTO_TEST_CASE(overflow_test) {
     ptree config;
     boost::property_tree::read_json(json, config);
 
-    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config, "master_address", CUSTOM_REGISTER_SIZE_1), std::runtime_error);
+    BOOST_CHECK_THROW(nsw::I2cMasterConfig(config, "master_address", CUSTOM_REGISTER_SIZE_1), nsw::RegisterOverflow);
 
     std::stringstream json2;
     json2 << "{ \"i2caddress0\": { \"reg0\":1, \"reg1\":1, \"reg2\":1, \"reg3\":1, \"reg4\":1 },";
@@ -140,7 +142,7 @@ BOOST_AUTO_TEST_CASE(overflow_test) {
     boost::property_tree::read_json(json2, config2);
 
     nsw::I2cMasterConfig master(config2, "master_address", CUSTOM_REGISTER_SIZE_1);
-    BOOST_CHECK_THROW(master.setRegisterValue("i2caddress0", "reg4", 2), std::runtime_error);
+    BOOST_CHECK_THROW(master.setRegisterValue("i2caddress0", "reg4", 2), nsw::RegisterOverflow);
 }
 
 BOOST_AUTO_TEST_CASE(MissingI2c_test) {

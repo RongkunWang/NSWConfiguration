@@ -8,8 +8,6 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/TPConfig.h"
-// #include "NSWConfiguration/ROCConfig.h"
-#include "NSWConfiguration/OpcClient.h"
 
 #include "boost/program_options.hpp"
 #include "boost/property_tree/ptree.hpp"

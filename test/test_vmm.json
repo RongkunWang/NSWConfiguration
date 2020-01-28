@@ -1,7 +1,5 @@
 {
     "vmm0":{
-        "OpcServerIp": "dummyfelix.cern.ch:4841",
-        "OpcNodeId": "SCAaddress.vmm0",
         "sp":0,
         "sdp":0,
         "sbmx":0,
@@ -56,6 +54,9 @@
         "slvsena":0,
         "slvs6b":0,
         "sL0enaV":1,
+        "slh": 0,
+        "slxh": 0,
+        "stgc": 0,
         "reset":0,
 
         "nskipm":0,
