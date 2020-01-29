@@ -237,7 +237,6 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
     uint8_t art_data[] = {0x0, 0x0};
     size_t gbtx_size = 3;
     uint8_t gbtx_data[] = {0x0, 0x0, 0x0};  // 2 for address (i), 1 for data
-    uint8_t rbph_data[] = {0x0, 0x0, 0x0};
 
     auto opc_ip                      = addc.getOpcServerIp();
     auto sca_addr                    = addc.getAddress();
@@ -474,16 +473,6 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
             gbtx_data[1] = 0;
             gbtx_data[2] = (uint8_t)(phase);
             sendI2cRaw(opc_ip, name, gbtx_data, gbtx_size);
-            // readback
-            rbph_data[0] = 11; rbph_data[1] = 0; rbph_data[2] = (uint8_t)(phase);
-            auto readback_phase = readI2cAtAddress(opc_ip, name, rbph_data, 2, 1);
-            if (readback_phase.size()==0)
-                throw std::runtime_error("Unable to readback phase in change_phase");
-            // announce
-            auto msg1 = opc_ip + "/" + name;
-            auto msg2 = " set phase = " + std::to_string(phase) + " -> readback = " + std::to_string(readback_phase[0]);
-            ERS_DEBUG(1, msg1 + msg2);
-            usleep(20000);
             phase = phase + 1;
         }
     }
@@ -742,6 +731,10 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
                   << " Observed = " << obs
                   << " -> " << (yay ? "Good" : "Bad")
                   << std::endl;
+        if (!obj.CrashOnConfigFailure())
+            yay = 1;
+        if (kv.first.find("ClkReady") != std::string::npos && !obj.CrashOnClkReadyFailure())
+            yay = 1;
         if (!yay)
             all_ok = 0;
     }
