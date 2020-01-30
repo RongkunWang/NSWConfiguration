@@ -27,6 +27,9 @@ int main(int ac, const char *av[]) {
     std::string config_filename;
     std::string fe_name;
     int registerAddress;
+    uint32_t start_value;
+    uint32_t increment;
+
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -40,7 +43,12 @@ int main(int ac, const char *av[]) {
         ("name,n", po::value<std::string>(&fe_name)->
         default_value(""),
         "The name of frontend to read SCA ID.\n"
-        "If this option is left empty, all front end elements in the config file will be scanned.");
+        "If this option is left empty, all front end elements in the config file will be scanned.")
+        ("start_value,s", po::value<uint32_t>(&start_value)->
+        default_value(0), "The start value of phase scan (0-128)")
+        ("increment,i", po::value<uint32_t>(&increment)->
+        default_value(4),
+        "Step size to increment the value at each step(0-128)");
 
 
     po::variables_map vm;
@@ -87,27 +95,19 @@ int main(int ac, const char *av[]) {
     std::cout << "\n";
 
     nsw::ConfigSender cs;
-    uint8_t roc_address_value;
 
     std::cout << "***** Reading ROC register address: "<<registerAddress<< std::endl;
     std::cout << "\n";
 
     for (auto & feb : frontend_configs) {
+
     auto opc_ip = feb.getOpcServerIp();
 
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocPllResetN", 0);
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocSResetN", 0);
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
-    usleep(1);
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocPllResetN", 1);
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocSResetN", 1);
-    cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
-
-
-	roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)registerAddress,2);
+	auto roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)registerAddress,2);
 
     std::cout << feb.getAddress() << "\t"<< unsigned(roc_address_value)<<"(dec)" << " | 0x"<< std::hex << unsigned(roc_address_value) << "(hex)" <<" | "<<std::bitset<8>(unsigned(roc_address_value)).to_string()<<"(bin)"<<std::endl;
 
+   // usleep(50000);
     }
 
 
