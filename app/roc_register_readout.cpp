@@ -1,4 +1,4 @@
-// Sample program to read multiple ADC values from a channel of VMM
+// Sample program to read ROC register values throught GPIO BitBanger 
 
 #include <iostream>
 #include <string>
@@ -22,14 +22,12 @@ int main(int ac, const char *av[]) {
 
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
-    std::string description = "This program reads SCA Info of any frontend board";
+    std::string description = "This program reads ROC registers of any frontend board";
 
     std::string config_filename;
     std::string fe_name;
     int registerAddress;
-    uint32_t start_value;
-    uint32_t increment;
-
+ 
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -42,13 +40,8 @@ int main(int ac, const char *av[]) {
         "If this option is left empty, the default adress 0 will be read (ROC ID).")
         ("name,n", po::value<std::string>(&fe_name)->
         default_value(""),
-        "The name of frontend to read SCA ID.\n"
-        "If this option is left empty, all front end elements in the config file will be scanned.")
-        ("start_value,s", po::value<uint32_t>(&start_value)->
-        default_value(0), "The start value of phase scan (0-128)")
-        ("increment,i", po::value<uint32_t>(&increment)->
-        default_value(4),
-        "Step size to increment the value at each step(0-128)");
+        "The name of frontend to read ROC register.\n"
+        "If this option is left empty, all front end elements in the config file will be scanned.");
 
 
     po::variables_map vm;
@@ -96,7 +89,6 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-/*
     std::cout << "***** Reading ROC register address: "<<registerAddress<< std::endl;
     std::cout << "\n";
 
@@ -110,7 +102,7 @@ int main(int ac, const char *av[]) {
 
    // usleep(50000);
     }
-*/
+
 
 
 }

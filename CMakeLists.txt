@@ -25,6 +25,10 @@ tdaq_add_executable(read_sca_info app/read_sca_info.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(roc_register_readout app/roc_register_readout.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(roc_phase_align app/roc_phase_align.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
