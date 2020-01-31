@@ -1,6 +1,14 @@
 # See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
 
-image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
+variables:
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SSL_NO_VERIFY: "true"
+
+
 #
 # Run before each job
 #
@@ -21,10 +29,64 @@ stages:
     - test
     - deploy
 
+
+#
+# Job: Build test
+#
+build:
+    image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+    tags:
+        - cvmfs
+    stage: build
+    script:
+        - echo 'Running Build Test'
+        - pwd; ls
+        - export WD=$PWD
+        - cd /
+        - pwd; ls
+        - echo "Grabbing open62541-compat and compiling. A little wasteful, but works until it's installed in the tdaq release..."
+        - export LCG_VERSION=LCG_96
+        - export HW_TAG=x86_64-centos7-gcc8-opt
+        - source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
+        - git clone https://github.com/quasar-team/open62541-compat.git
+        # - cd open62541-compat
+        # - git checkout v1.1.3-rc0
+        # - mkdir build
+        # - cd build
+        # - cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+        # - make -j
+        # - export OPC_OPEN62541_PATH=$PWD
+        # - cd $WD/../
+        # - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 8.3.1)\n" > CMakeLists.txt
+        # - echo "n.b. Build stage of CI is deprecated until open62541-compat is part of release or available to CI runners."
+        # - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 # replace nightly with any other release
+        # # - export OPC_OPEN62541_PATH=/afs/cern.ch/work/n/nswdaq/public/tdaq-08-03-01/sw/external/open62541-compat
+        # - pwd;ls
+        # - cmake_config
+        # - cd $CMTCONFIG
+        # - pwd;ls
+        # - make -j 4
+        # - pwd;ls
+    allow_failure: false
+
 #
 # Job: run CppLint
 #
-run_cpplint:
+# run_cpplint:
+#     image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+#     stage: build
+#     script:
+#         - cpplint --linelength=120 --filter=-legal ./src/* ./NSWConfiguration/* ./app/* ./test/*
+#     allow_failure: true
+
+code_quality:
+    image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
     stage: test
     script:
-        - cpplint --linelength=120 --filter=-legal ./src/* ./NSWConfiguration/* ./app/* ./test/*
+        - python ./test/runcpplint.py --files ./src/* ./NSWConfiguration/* ./app/* ./test/*
+    allow_failure: true        
+    artifacts:
+        reports:
+            codequality: gl-code-quality-report.json
+        paths: [gl-code-quality-report.json]
+        expire_in: 1 month
