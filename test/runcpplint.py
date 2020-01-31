@@ -7,6 +7,7 @@ import sys
 import json
 import re
 import argparse
+import math
 
 ECLIPSE_REGEX = re.compile(r'^(.*):([0-9]+):\s+(.*?)\s+\[([^\]]+)\]\s+\[([0-9]+)\]')
 
