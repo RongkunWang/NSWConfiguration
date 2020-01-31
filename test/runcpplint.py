@@ -22,7 +22,7 @@ def get_issue(line):
         return
     (file, line, message, check, level) = matches.group(1, 2, 3, 4, 5)
     issue = {
-        "fingerprint": "%x"%(abs(hash(check+message+file+line))),
+        "fingerprint": "%x"%(abs(hash(check+message+file+level))+math.floor(int(line)/10) ),
         "type": "issue",
         "check_name": check,
         "description": message,
