@@ -71,7 +71,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // announce
-    std::cout << "System command 0: " << system_cmd0 << std::endl; 
+    std::cout << "System command 0: " << system_cmd0 << std::endl;
     std::cout << "System command 1: " << system_cmd1 << std::endl;
     std::cout << "System command 2: " << system_cmd2 << std::endl;
 
@@ -92,22 +92,22 @@ int main(int argc, const char *argv[]) {
     // limit 1 sender per board
     std::cout << "Creating map of ConfigSender*..." << std::endl;
     auto senders = new std::map< std::string, nsw::ConfigSender* >();
-    for (auto & feb: febs)
+    for (auto & feb : febs)
         senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
-    for (auto & addc: addcs)
+    for (auto & addc : addcs)
         senders->insert( {addc.getAddress(), new nsw::ConfigSender()} );
 
     // mask everything
     if (mask_all) {
-        for (auto & feb: febs) {
+        for (auto & feb : febs) {
             for (int vmm_id = 0; vmm_id < (int)(feb.getVmms().size()); vmm_id++) {
                 feb.getVmm(vmm_id).setTestPulseDAC(400);
                 feb.getVmm(vmm_id).setChannelRegisterAllChannels("channel_st", 0);
                 feb.getVmm(vmm_id).setChannelRegisterAllChannels("channel_sm", 1);
             }
             wait_until_fewer(threads, max_threads);
-            if(!dry_run)
-                threads->push_back( std::async(std::launch::async, 
+            if (!dry_run)
+                threads->push_back(std::async(std::launch::async,
                                                configure_frontend, senders->at(feb.getAddress()), feb, 1, 1, 1) );
         }
         wait_until_done(threads);
@@ -118,8 +118,7 @@ int main(int argc, const char *argv[]) {
     int vmmid, chan;
     int ipatt = 0;
     auto patts = patterns();
-    for (auto pattern: patts) {
-
+    for (auto pattern : patts) {
         ipatt++;
         // std::cout << "\r > " << ipatt << " / " << patts.size() << " :: ";
         std::cout << "> " << ipatt << " / " << patts.size() << " :: ";
@@ -127,15 +126,15 @@ int main(int argc, const char *argv[]) {
         // enable test pulse
         // dont limit threads - only 8 layers
         std::cout << "Enable";
-        for (auto feb_vmm_chan: pattern) {
+        for (auto feb_vmm_chan : pattern) {
             std::tie(fename, vmmid, chan) = feb_vmm_chan;
-            for (auto & feb: febs) {
+            for (auto & feb : febs) {
                 if (fename != feb.getAddress())
                     continue;
                 std::cout << " " << feb.getAddress() << ", VMM" << vmmid << ", CH" << chan;
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", 1, chan);
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", 0, chan);
-                if(!dry_run)
+                if (!dry_run)
                     threads->push_back( std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
             }
         }
