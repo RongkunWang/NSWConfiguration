@@ -21,13 +21,12 @@ int wait_until_fewer(std::vector< std::future<int> >* threads, int max_threads);
 int configure_frontend(nsw::ConfigSender* cs, nsw::FEBConfig feb, bool do_roc, bool do_reset, bool do_vmm);
 int configure_vmm(nsw::ConfigSender* cs, nsw::FEBConfig feb, int vmm_id);
 int configure_art_input_phase(nsw::ConfigSender* cs, nsw::ADDCConfig addc, uint phase);
-std::vector<nsw::FEBConfig>  parse_feb_name (std::string name, std::string cfg);
+std::vector<nsw::FEBConfig>  parse_feb_name(std::string name, std::string cfg);
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg);
 std::vector< std::vector< std::tuple<std::string, int, int> > > patterns();
 std::string strf_time();
 
-int main(int argc, const char *argv[]) 
-{
+int main(int argc, const char *argv[]) {
     std::string config_filename;
     std::string addc_filename;
     std::string board_name;
@@ -60,8 +59,7 @@ int main(int argc, const char *argv[])
         ("ttc1", po::value<std::string>(&system_cmd1)->
          default_value("echo 'I could be test pulse.' >> /dev/null"), "Path to TTC command 1 (e.g. pulse1000)")
         ("ttc2", po::value<std::string>(&system_cmd2)->
-         default_value("echo 'I could be reset/stop.' >> /dev/null"), "Path to TTC command 2 (e.g. reset)")
-        ;
+         default_value("echo 'I could be reset/stop.' >> /dev/null"), "Path to TTC command 2 (e.g. reset)");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -70,10 +68,10 @@ int main(int argc, const char *argv[])
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
-    }    
+    }
 
     // announce
-    std::cout << "System command 0: " << system_cmd0 << std::endl;
+    std::cout << "System command 0: " << system_cmd0 << std::endl; 
     std::cout << "System command 1: " << system_cmd1 << std::endl;
     std::cout << "System command 2: " << system_cmd2 << std::endl;
 
