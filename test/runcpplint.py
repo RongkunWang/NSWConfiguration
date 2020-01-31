@@ -7,6 +7,7 @@ import sys
 import json
 import re
 import argparse
+import math
 
 ECLIPSE_REGEX = re.compile(r'^(.*):([0-9]+):\s+(.*?)\s+\[([^\]]+)\]\s+\[([0-9]+)\]')
 
@@ -22,7 +23,7 @@ def get_issue(line):
         return
     (file, line, message, check, level) = matches.group(1, 2, 3, 4, 5)
     issue = {
-        "fingerprint": "%x"%(abs(hash(check+message+file+line))),
+        "fingerprint": "%x"%(abs(hash(check+message+file+level))+math.floor(int(line)/10) ),
         "type": "issue",
         "check_name": check,
         "description": message,
