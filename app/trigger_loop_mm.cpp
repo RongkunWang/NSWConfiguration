@@ -456,10 +456,10 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
 
     // parse input names
     std::set<std::string> names;
-    if (name != ""){
-        if (std::count(name.begin(), name.end(), ',')){
+    if (name != "") {
+        if (std::count(name.begin(), name.end(), ',')) {
             std::istringstream ss(name);
-            while(!ss.eof()){
+            while (!ss.eof()) {
                 std::string buf;
                 std::getline(ss, buf, ',');
                 if (buf != "")
