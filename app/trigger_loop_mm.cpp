@@ -135,7 +135,7 @@ int main(int argc, const char *argv[]) {
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", 1, chan);
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", 0, chan);
                 if (!dry_run)
-                    threads->push_back( std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
+                    threads->push_back(std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
             }
         }
         std::cout << ". ";
@@ -143,7 +143,7 @@ int main(int argc, const char *argv[]) {
 
         // run the TTC system commands
         if (addcs.size() == 0) {
-            if(!dry_run) {
+            if (!dry_run) {
                 std::cout << "System commands running...";
                 system(system_cmd0.c_str()); usleep(100000);
                 system(system_cmd1.c_str()); usleep(100000);
@@ -155,8 +155,8 @@ int main(int argc, const char *argv[]) {
         else {
             uint nphase = 16;
             for (uint phase = 0; phase < nphase; phase++) {
-                for (auto & addc: addcs)
-                    if(!dry_run)
+                for (auto & addc : addcs)
+                    if (!dry_run)
                         threads->push_back( std::async(std::launch::async, 
                                                        configure_art_input_phase, senders->at(addc.getAddress()), addc, phase) );
                 wait_until_done(threads);
@@ -509,10 +509,10 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
 
     // parse input names
     std::set<std::string> names;
-    if (name != ""){
-        if (std::count(name.begin(), name.end(), ',')){
+    if (name != "") {
+        if (std::count(name.begin(), name.end(), ',')) {
             std::istringstream ss(name);
-            while(!ss.eof()){
+            while (!ss.eof()) {
                 std::string buf;
                 std::getline(ss, buf, ',');
                 if (buf != "")
