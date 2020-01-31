@@ -1,7 +1,7 @@
 /// FE Base Configuration class
 
-#ifndef NSWCONFIGURATION_FECONFIG_H_
-#define NSWCONFIGURATION_FECONFIG_H_
+#ifndef NSWCONFIGURATION_SCACONFIG_H_
+#define NSWCONFIGURATION_SCACONFIG_H_
 
 #include <string>
 
@@ -12,7 +12,7 @@
 using boost::property_tree::ptree;
 
 ERS_DECLARE_ISSUE(nsw,
-                  FEConfigIssue,
+                  SCAConfigIssue,
                   message,
                   ((const char*)message)
                   )
@@ -21,15 +21,15 @@ namespace nsw {
 
 //! Base class for front ends that can be communicated via Opc path
 
-class FEConfig {
+class SCAConfig {
  protected:
     std::string m_opcserver_ip;  /// address and port of Opc Server
     std::string m_address;   /// SCA address of FE item in Opc address space
     ptree m_config;  /// Configuration ptree that contains at least OpcServerIp and OpcNodeId
 
  public:
-    explicit FEConfig(ptree config);
-    virtual ~FEConfig() {}
+    explicit SCAConfig(ptree config);
+    virtual ~SCAConfig() {}
 
     std::string getOpcServerIp() const {return m_opcserver_ip;}
     std::string getAddress() const {return m_address;}
@@ -39,4 +39,4 @@ class FEConfig {
 
 }  // namespace nsw
 
-#endif  // NSWCONFIGURATION_FECONFIG_H_
+#endif  // NSWCONFIGURATION_SCACONFIG_H_

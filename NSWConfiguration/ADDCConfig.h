@@ -8,7 +8,7 @@
 
 #include "boost/property_tree/ptree.hpp"
 
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 
 using boost::property_tree::ptree;

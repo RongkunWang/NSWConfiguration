@@ -10,7 +10,7 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
