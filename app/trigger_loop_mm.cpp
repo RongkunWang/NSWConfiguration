@@ -196,14 +196,14 @@ int main(int argc, const char *argv[]) {
 
 int active_threads(std::vector< std::future<int> >* threads){
     int nfinished = 0;
-    for (auto& thread: *threads)
+    for (auto& thread : *threads)
         if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             nfinished++;
     return (int)(threads->size()) - nfinished;
 }
 
 int wait_until_done(std::vector< std::future<int> >* threads) {
-    for (auto& thread: *threads)
+    for (auto& thread : *threads)
         thread.get();
     threads->clear();
     return 0;
@@ -212,7 +212,7 @@ int wait_until_done(std::vector< std::future<int> >* threads) {
 int wait_until_fewer(std::vector< std::future<int> >* threads, int max_threads) {
     if (max_threads > 0) {
         int n_active = active_threads(threads);
-        while(n_active >= max_threads) {
+        while (n_active >= max_threads) {
             std::cout << "Too many active threads (" << n_active << "), waiting for fewer than " << max_threads << std::endl;
             sleep(2);
             n_active = active_threads(threads);
@@ -415,7 +415,7 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
                 pcb  = pos / 2 + 1;
                 auto pcbstr = std::to_string(pcb);
                 this_vmm  = even ? nvmm-1-vmmid : vmmid;
-                this_chan = 7; // even ? nchan-1-chan : chan;
+                this_chan = 7;  // even ? nchan-1-chan : chan;
                 std::vector< std::tuple<std::string, int, int> > patt = {};
                 patt.push_back(std::make_tuple("MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"), this_vmm, this_chan));
                 patt.push_back(std::make_tuple("MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"), this_vmm, this_chan));
@@ -426,7 +426,7 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
                 patt.push_back(std::make_tuple("MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"), this_vmm, this_chan));
                 patt.push_back(std::make_tuple("MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R"), this_vmm, this_chan));
                 patts.push_back(patt);
-                break; // only one channel for now!
+                break;  // only one channel for now!
             }
             // break; // only one VMM for now!
         }
@@ -441,7 +441,6 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
 }
 
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
-
     // create a json reader
     nsw::ConfigReader reader1("json://" + cfg);
     try {
@@ -465,11 +464,8 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
                 if (buf != "")
                     names.emplace(buf);
             }
-        }
-        else
-            names.emplace(name);
-    }
-    else
+        } else names.emplace(name);
+    } else
         names = reader1.getAllElementNames();
 
     // make FEB objects
@@ -479,8 +475,7 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
             if (nsw::getElementType(nm) == "MMFE8") {
                 feb_configs.emplace_back(reader1.readConfig(nm));
                 std::cout << "Adding: " << nm << std::endl;
-            }
-            else
+            } else
                 std::cout << std::endl << "Skipping: " << nm
                           << " because its a " << nsw::getElementType(nm)
                           << std::endl;
@@ -494,7 +489,6 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
 }
 
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) {
-
     // create a json reader
     nsw::ConfigReader reader1("json://" + cfg);
     try {

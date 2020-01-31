@@ -23,7 +23,7 @@ def get_issue(line):
         return
     (file, line, message, check, level) = matches.group(1, 2, 3, 4, 5)
     issue = {
-        "fingerprint": "%x"%(abs(hash(check+message+file+level))+math.floor(int(line)/10) ),
+        #"fingerprint": "%x"%(abs(hash(check+message+file+level))),
         "type": "issue",
         "check_name": check,
         "description": message,
@@ -39,7 +39,7 @@ def get_issue(line):
     return issue
 
 def run_cpplint(files):
-    cmd = ["cpplint", "--linelength=120", "--filter=-legal", "--quiet", "--recursive"]
+    cmd = ["cpplint", "--linelength=120", "--filter=-legal", "--recursive"]
     cmd.extend(files)
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -51,7 +51,24 @@ def run_cpplint(files):
         output = output.decode('utf-8')
         issues = []
         for line in output.splitlines():
-            issues.append(get_issue(line))
+            result = get_issue(line)
+            if result:
+                issues.append(result)
+
+        issues.append({
+                "fingerprint": "%x"%(len(issues)),
+                "type": "issue",
+                "description": "Total number of issues: %d"%len(issues),
+                "categories": ["Style"],
+                "location": {
+                    "path": ".",
+                    "lines": {
+                        "begin": 1,
+                        "end": 1
+                    }
+                }
+            }
+        )
 
         print(">>> Writing JSON report to gl-code-quality-report.json")
         with open('gl-code-quality-report.json', 'w') as f:
