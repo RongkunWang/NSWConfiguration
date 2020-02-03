@@ -1,4 +1,4 @@
-// Sample program to read multiple ADC values from a channel of VMM
+// Sample program to read VMM capture status through GPIO BitBanger 
 
 #include <iostream>
 #include <string>
@@ -22,33 +22,21 @@ int main(int ac, const char *av[]) {
 
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
-    std::string description = "This program reads SCA Info of any frontend board";
+    std::string description = "This program reads VMM capture status of any VMM-frontend board";
 
     std::string config_filename;
     std::string fe_name;
-    int registerAddress;
-    uint32_t start_value;
-    uint32_t increment;
-
+ 
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
-        ("registerAddress,a", po::value<int>(&registerAddress)->
-        default_value(0),
-        "The register address of the ROC to read .\n"
-        "If this option is left empty, the default adress 0 will be read (ROC ID).")
         ("name,n", po::value<std::string>(&fe_name)->
         default_value(""),
-        "The name of frontend to read SCA ID.\n"
-        "If this option is left empty, all front end elements in the config file will be scanned.")
-        ("start_value,s", po::value<uint32_t>(&start_value)->
-        default_value(0), "The start value of phase scan (0-128)")
-        ("increment,i", po::value<uint32_t>(&increment)->
-        default_value(4),
-        "Step size to increment the value at each step(0-128)");
+        "The name of frontend to read ROC register.\n"
+        "If this option is left empty, all front end elements in the config file will be scanned.");
 
 
     po::variables_map vm;
@@ -96,21 +84,27 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-/*
-    std::cout << "***** Reading ROC register address: "<<registerAddress<< std::endl;
     std::cout << "\n";
 
-    for (auto & feb : frontend_configs) {
+    uint8_t vmmCaptureAddressInitial;
 
+    for (auto & feb : frontend_configs) {
     auto opc_ip = feb.getOpcServerIp();
 
-	auto roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)registerAddress,2);
+    std::cout << feb.getAddress() <<std::endl;
 
-    std::cout << feb.getAddress() << "\t"<< unsigned(roc_address_value)<<"(dec)" << " | 0x"<< std::hex << unsigned(roc_address_value) << "(hex)" <<" | "<<std::bitset<8>(unsigned(roc_address_value)).to_string()<<"(bin)"<<std::endl;
+    vmmCaptureAddressInitial=32;
+    	for(int vmm_id=0; vmm_id<=7; vmm_id++)
+    	{
+	      auto vmm_capture_status=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,vmmCaptureAddressInitial++,2);
+   		  std::cout <<"VMM "<<+vmm_id<<": " <<std::bitset<8>(unsigned(vmm_capture_status)).to_string() <<std::endl;
+    	}
+    std::cout << "\n";
 
-   // usleep(50000);
+
+   
     }
-*/
+
 
 
 }

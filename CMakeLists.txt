@@ -29,7 +29,7 @@ tdaq_add_executable(roc_register_readout app/roc_register_readout.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
-tdaq_add_executable(roc_phase_align app/roc_phase_align.cpp
+tdaq_add_executable(vmm_capture_status app/vmm_capture_status.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 

@@ -1,4 +1,4 @@
-// Sample program to read ROC register values throught GPIO BitBanger 
+// Sample program to read ROC register values through GPIO BitBanger 
 
 #include <iostream>
 #include <string>
@@ -100,7 +100,6 @@ int main(int ac, const char *av[]) {
 
     std::cout << feb.getAddress() << "\t"<< unsigned(roc_address_value)<<"(dec)" << " | 0x"<< std::hex << unsigned(roc_address_value) << "(hex)" <<" | "<<std::bitset<8>(unsigned(roc_address_value)).to_string()<<"(bin)"<<std::endl;
 
-   // usleep(50000);
     }
 
 
