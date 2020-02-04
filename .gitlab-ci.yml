@@ -1,6 +1,12 @@
-# See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
+# .gitlab-ci.yml
+# Configuration for CI/CD for NSWConfiguration
 
-image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+variables:
+    GIT_STRATEGY: fetch
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SSL_NO_VERIFY: "true"
+    TDAQ_RELEASE: tdaq-08-03-01
+
 #
 # Run before each job
 #
@@ -17,14 +23,100 @@ after_script:
 # Job stages
 #
 stages:
-    - build
     - test
+    # - build
     - deploy
 
 #
-# Job: run CppLint
+# Job: Build test
 #
-run_cpplint:
+build-test:
+    image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+    tags:
+        - cvmfs
     stage: test
     script:
-        - cpplint --linelength=120 --filter=-legal ./src/* ./NSWConfiguration/* ./app/* ./test/*
+        - echo 'Running Build Test'
+        - pwd; ls
+        - export WD=$PWD
+        - echo $WD
+        - cd /
+        - pwd; ls
+        - echo "Grabbing open62541-compat and compiling. A little wasteful, but works until it's installed in the tdaq release..."
+        - export LCG_VERSION=LCG_96
+        - export HW_TAG=x86_64-centos7-gcc8-opt
+        - source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
+        - git clone https://github.com/quasar-team/open62541-compat.git
+        - cd open62541-compat
+        - git checkout v1.1.3-rc0
+        - mkdir build
+        - cd build
+        - cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+        - make -j
+        - export OPC_OPEN62541_PATH=$PWD/../
+        - echo $OPC_OPEN62541_PATH
+        - cd $WD/../
+        - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh $TDAQ_RELEASE # replace nightly with any other release
+        - grep "set(TDAQ_VERSION" $TDAQ_INST_PATH/../CMakeLists.txt > CMakeLists.txt
+        - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq \${TDAQ_VERSION})\n" >> CMakeLists.txt
+        - pwd;ls
+        - cmake_config
+        - cd $CMTCONFIG
+        - pwd;ls
+        - make -j 4
+        - pwd;ls
+    allow_failure: false
+
+#
+# Job: Build test - nightly
+#
+build-test-nightly:
+    image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+    tags:
+        - cvmfs
+    stage: test
+    script:
+        - echo 'Running Build Test'
+        - pwd; ls
+        - export WD=$PWD
+        - echo $WD
+        - cd /
+        - pwd; ls
+        - echo "Grabbing open62541-compat and compiling. A little wasteful, but works until it's installed in the tdaq release..."
+        - export LCG_VERSION=LCG_96
+        - export HW_TAG=x86_64-centos7-gcc8-opt
+        - source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
+        - git clone https://github.com/quasar-team/open62541-compat.git
+        - cd open62541-compat
+        - git checkout v1.1.3-rc0
+        - mkdir build
+        - cd build
+        - cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
+        - make -j
+        - export OPC_OPEN62541_PATH=$PWD/../
+        - echo $OPC_OPEN62541_PATH
+        - cd $WD/../
+        - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh tdaq-99-00-00 # replace nightly with any other release
+        - grep "set(TDAQ_VERSION" $TDAQ_INST_PATH/../CMakeLists.txt > CMakeLists.txt
+        - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq \${TDAQ_VERSION})\n" >> CMakeLists.txt
+        - pwd;ls
+        - cmake_config
+        - cd $CMTCONFIG
+        - pwd;ls
+        - make -j 4
+        - pwd;ls
+    allow_failure: false
+
+# See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
+
+code_quality:
+    image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+    stage: test
+    script:
+        - python ./test/runcpplint.py --files ./src/* ./NSWConfiguration/* ./app/* ./test/*
+    allow_failure: true        
+    artifacts:
+        reports:
+            codequality: gl-code-quality-report.json
+        paths: [gl-code-quality-report.json]
+        expire_in: 1 month

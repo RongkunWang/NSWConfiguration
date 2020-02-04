@@ -42,6 +42,11 @@ class TPConfig: public FEConfig {
 
     std::map<std::string, I2cMasterConfig*> getI2cMastersMap() { return m_registerFiles; }
     const uint8_t getNumMasters() { return m_numMasters; }
+
+    int ARTWindowCenter();
+    int ARTWindowLeft();
+    int ARTWindowRight();
+    uint32_t FiberBCOffset();
 };
 
 }  // namespace nsw

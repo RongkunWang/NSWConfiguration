@@ -9,7 +9,6 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/VMMCodec.h"
-#include "NSWConfiguration/FEConfig.h"
 
 using boost::property_tree::ptree;
 
@@ -25,13 +24,20 @@ ERS_DECLARE_ISSUE(nsw,
                   ((size_t)channel)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  VmmConfigIssue,
+                  "Unexpected problem: " << message,
+                  ((const char*)message)
+                  )
+
 namespace nsw {
 
-class VMMConfig: public FEConfig {
+class VMMConfig {
  private:
     VMMCodec& codec = VMMCodec::Instance();
     std::string m_bitstring;  // Config information as a string of 0/1s
     std::string name;         // Name of the element (vmm0,vmm1,vmm2 ...)
+    ptree m_config;
 
  public:
     explicit VMMConfig(ptree vmmconfig);

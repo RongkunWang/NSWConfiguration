@@ -96,11 +96,6 @@ class ConfigReaderApi {
   virtual ptree readADDC(std::string element, size_t nart);
   virtual ptree readPadTriggerSCA(std::string element);
   virtual ptree readRouter(std::string element);
-
-  // TODO(cyildiz): Following read functions should be deprecated!
-  virtual ptree readVMM(std::string element_name);
-  virtual ptree readROC(std::string element_name);
-  virtual ptree readTDS(std::string element_name);
   virtual ptree readTP(std::string element_name);
   
   virtual ~ConfigReaderApi() {}

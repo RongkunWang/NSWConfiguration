@@ -11,6 +11,8 @@
 #include <memory>
 #include <vector>
 
+#include "ers/ers.h"
+
 // From UaoForQuasar
 #include "UaoClientForOpcUaSca/include/ClientSessionFactory.h"
 
@@ -21,11 +23,31 @@
 #include "UaoClientForOpcUaSca/include/AnalogInput.h"
 #include "UaoClientForOpcUaSca/include/SCA.h"
 #include "UaoClientForOpcUaSca/include/IoBatch.h"
+#include "UaoClientForOpcUaSca/include/XilinxFpga.h"
+
 
 // From: open62541-compat, seems not necessary at the moment
 // #include "uaplatformlayer.h"
 
 #include "NSWConfiguration/OpcClient.h"
+
+// Throw this if constructor fails
+ERS_DECLARE_ISSUE(nsw,
+                  OpcConnectionIssue,
+                  "Can't create OpcClient instance for: " << opcserver_ipport
+                  << ", error: " << message,
+                  ((std::string) opcserver_ipport)
+                  ((std::string) message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  OpcReadWriteIssue,
+                  "Read or write failed for OpcServer: " << opcserver_ipport
+                  << ", node: " << opcnode << ", message: " << message,
+                  ((std::string) opcserver_ipport)
+                  ((std::string) opcnode)
+                  ((std::string) message)  // Describe the problem or forward the message that comes from downstream
+                  )
 
 namespace nsw {
 
@@ -96,6 +118,10 @@ class OpcClient {
     /// \param i2cDelay I2c delay value, 2 corresponds to 100kHz
     /// \return result 8 bit register value
     uint8_t readRocRaw(std::string node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay);
+
+    /// Program FPGA
+    /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
+    void writeXilinxFpga(std::string node, std::string bitfile_path);
 };
 }  // namespace nsw
 

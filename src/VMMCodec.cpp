@@ -181,12 +181,9 @@ std::string nsw::VMMCodec::buildGlobalConfig(ptree config, nsw::GlobalRegisters 
             try {
                 value = config.get<unsigned>(name);
             } catch (const boost::property_tree::ptree_bad_path& e) {
-                std::string temp = e.what();
-                // nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
-                // ers::error(issue);
-                // throw issue;
-                // TODO(cyildiz): Throw an exception that should be propagated by caller
-                std::cout << "Problem: " << temp << std::endl;
+                nsw::MissingVmmRegister issue(ERS_HERE, name.c_str());
+                ers::error(issue);
+                throw issue;
             }
             nsw::checkOverflow(size, value, name);
 
@@ -276,8 +273,11 @@ std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegister
                 i++;
             }
             if (vtemp.size() != Nch) {
-                throw std::runtime_error("Unexpected number of channels!");
-                // TODO(cyildiz): Throw ERS exception
+                std::stringstream ss;
+                ss << "Unexpected number of VMM channels: " << vtemp.size();
+                nsw::VmmCodecIssue issue(ERS_HERE, ss.str().c_str());
+                ers::error(issue);
+                throw issue;
             }
             ERS_DEBUG(5, register_name << ": " << tmpstr);
         }

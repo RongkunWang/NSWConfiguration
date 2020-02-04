@@ -21,13 +21,12 @@ int wait_until_fewer(std::vector< std::future<int> >* threads, int max_threads);
 int configure_frontend(nsw::ConfigSender* cs, nsw::FEBConfig feb, bool do_roc, bool do_reset, bool do_vmm);
 int configure_vmm(nsw::ConfigSender* cs, nsw::FEBConfig feb, int vmm_id);
 int configure_art_input_phase(nsw::ConfigSender* cs, nsw::ADDCConfig addc, uint phase);
-std::vector<nsw::FEBConfig>  parse_feb_name (std::string name, std::string cfg);
+std::vector<nsw::FEBConfig>  parse_feb_name(std::string name, std::string cfg);
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg);
 std::vector< std::vector< std::tuple<std::string, int, int> > > patterns();
 std::string strf_time();
 
-int main(int argc, const char *argv[]) 
-{
+int main(int argc, const char *argv[]) {
     std::string config_filename;
     std::string addc_filename;
     std::string board_name;
@@ -60,8 +59,7 @@ int main(int argc, const char *argv[])
         ("ttc1", po::value<std::string>(&system_cmd1)->
          default_value("echo 'I could be test pulse.' >> /dev/null"), "Path to TTC command 1 (e.g. pulse1000)")
         ("ttc2", po::value<std::string>(&system_cmd2)->
-         default_value("echo 'I could be reset/stop.' >> /dev/null"), "Path to TTC command 2 (e.g. reset)")
-        ;
+         default_value("echo 'I could be reset/stop.' >> /dev/null"), "Path to TTC command 2 (e.g. reset)");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -70,7 +68,7 @@ int main(int argc, const char *argv[])
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
-    }    
+    }
 
     // announce
     std::cout << "System command 0: " << system_cmd0 << std::endl;
@@ -94,22 +92,22 @@ int main(int argc, const char *argv[])
     // limit 1 sender per board
     std::cout << "Creating map of ConfigSender*..." << std::endl;
     auto senders = new std::map< std::string, nsw::ConfigSender* >();
-    for (auto & feb: febs)
+    for (auto & feb : febs)
         senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
-    for (auto & addc: addcs)
+    for (auto & addc : addcs)
         senders->insert( {addc.getAddress(), new nsw::ConfigSender()} );
 
     // mask everything
     if (mask_all) {
-        for (auto & feb: febs) {
+        for (auto & feb : febs) {
             for (int vmm_id = 0; vmm_id < (int)(feb.getVmms().size()); vmm_id++) {
                 feb.getVmm(vmm_id).setTestPulseDAC(400);
                 feb.getVmm(vmm_id).setChannelRegisterAllChannels("channel_st", 0);
                 feb.getVmm(vmm_id).setChannelRegisterAllChannels("channel_sm", 1);
             }
             wait_until_fewer(threads, max_threads);
-            if(!dry_run)
-                threads->push_back( std::async(std::launch::async, 
+            if (!dry_run)
+                threads->push_back(std::async(std::launch::async,
                                                configure_frontend, senders->at(feb.getAddress()), feb, 1, 1, 1) );
         }
         wait_until_done(threads);
@@ -120,8 +118,7 @@ int main(int argc, const char *argv[])
     int vmmid, chan;
     int ipatt = 0;
     auto patts = patterns();
-    for (auto pattern: patts) {
-
+    for (auto pattern : patts) {
         ipatt++;
         // std::cout << "\r > " << ipatt << " / " << patts.size() << " :: ";
         std::cout << "> " << ipatt << " / " << patts.size() << " :: ";
@@ -129,16 +126,17 @@ int main(int argc, const char *argv[])
         // enable test pulse
         // dont limit threads - only 8 layers
         std::cout << "Enable";
-        for (auto feb_vmm_chan: pattern) {
+        for (auto feb_vmm_chan : pattern) {
             std::tie(fename, vmmid, chan) = feb_vmm_chan;
-            for (auto & feb: febs) {
+            for (auto & feb : febs) {
                 if (fename != feb.getAddress())
                     continue;
                 std::cout << " " << feb.getAddress() << ", VMM" << vmmid << ", CH" << chan;
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", 1, chan);
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", 0, chan);
-                if(!dry_run)
-                    threads->push_back( std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
+                if (!dry_run)
+                    threads->push_back(
+                        std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
             }
         }
         std::cout << ". ";
@@ -146,24 +144,23 @@ int main(int argc, const char *argv[])
 
         // run the TTC system commands
         if (addcs.size() == 0) {
-            if(!dry_run) {
+            if (!dry_run) {
                 std::cout << "System commands running...";
                 system(system_cmd0.c_str()); usleep(100000);
                 system(system_cmd1.c_str()); usleep(100000);
                 system(system_cmd2.c_str()); usleep(100000);
                 std::cout << " finished. ";
             }
-        }
-        // or, loop through ADDC input phases and run TTC
-        else {
+        } else {
+            // or, loop through ADDC input phases and run TTC
             uint nphase = 16;
             for (uint phase = 0; phase < nphase; phase++) {
-                for (auto & addc: addcs)
-                    if(!dry_run)
-                        threads->push_back( std::async(std::launch::async, 
-                                                       configure_art_input_phase, senders->at(addc.getAddress()), addc, phase) );
+                for (auto & addc : addcs)
+                    if (!dry_run)
+                        threads->push_back(std::async(std::launch::async,
+                            configure_art_input_phase, senders->at(addc.getAddress()), addc, phase) );
                 wait_until_done(threads);
-                if(!dry_run) {
+                if (!dry_run) {
                     std::cout << "System commands running...";
                     system(system_cmd0.c_str()); usleep(100000);
                     system(system_cmd1.c_str()); usleep(100000);
@@ -175,16 +172,17 @@ int main(int argc, const char *argv[])
 
         // disable test pulse
         std::cout << "Disabled";
-        for (auto feb_vmm_chan: pattern) {
+        for (auto feb_vmm_chan : pattern) {
             std::tie(fename, vmmid, chan) = feb_vmm_chan;
-            for (auto & feb: febs) {
+            for (auto & feb : febs) {
                 if (fename != feb.getAddress())
                     continue;
                 std::cout << " " << feb.getAddress() << ", VMM" << vmmid << ", CH" << chan;
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", 0, chan);
                 feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", 1, chan);
-                if(!dry_run)
-                    threads->push_back( std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
+                if (!dry_run)
+                    threads->push_back(
+                        std::async(std::launch::async, configure_vmm, senders->at(feb.getAddress()), feb, vmmid) );
             }
         }
         std::cout << ". ";
@@ -197,16 +195,16 @@ int main(int argc, const char *argv[])
     return 0;
 }
 
-int active_threads(std::vector< std::future<int> >* threads){
+int active_threads(std::vector< std::future<int> >* threads) {
     int nfinished = 0;
-    for (auto& thread: *threads)
+    for (auto& thread : *threads)
         if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             nfinished++;
     return (int)(threads->size()) - nfinished;
 }
 
 int wait_until_done(std::vector< std::future<int> >* threads) {
-    for (auto& thread: *threads)
+    for (auto& thread : *threads)
         thread.get();
     threads->clear();
     return 0;
@@ -215,8 +213,9 @@ int wait_until_done(std::vector< std::future<int> >* threads) {
 int wait_until_fewer(std::vector< std::future<int> >* threads, int max_threads) {
     if (max_threads > 0) {
         int n_active = active_threads(threads);
-        while(n_active >= max_threads) {
-            std::cout << "Too many active threads (" << n_active << "), waiting for fewer than " << max_threads << std::endl;
+        while (n_active >= max_threads) {
+            std::cout << "Too many active threads (" << n_active << "), waiting for fewer than "
+                << max_threads << std::endl;
             sleep(2);
             n_active = active_threads(threads);
         }
@@ -418,7 +417,7 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
                 pcb  = pos / 2 + 1;
                 auto pcbstr = std::to_string(pcb);
                 this_vmm  = even ? nvmm-1-vmmid : vmmid;
-                this_chan = 7; // even ? nchan-1-chan : chan;
+                this_chan = 7;  // even ? nchan-1-chan : chan;
                 std::vector< std::tuple<std::string, int, int> > patt = {};
                 patt.push_back(std::make_tuple("MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"), this_vmm, this_chan));
                 patt.push_back(std::make_tuple("MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"), this_vmm, this_chan));
@@ -429,7 +428,7 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
                 patt.push_back(std::make_tuple("MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"), this_vmm, this_chan));
                 patt.push_back(std::make_tuple("MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R"), this_vmm, this_chan));
                 patts.push_back(patt);
-                break; // only one channel for now!
+                break;  // only one channel for now!
             }
             // break; // only one VMM for now!
         }
@@ -444,7 +443,6 @@ std::vector< std::vector< std::tuple<std::string, int, int> > > patterns() {
 }
 
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
-
     // create a json reader
     nsw::ConfigReader reader1("json://" + cfg);
     try {
@@ -459,21 +457,17 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
 
     // parse input names
     std::set<std::string> names;
-    if (name != ""){
-        if (std::count(name.begin(), name.end(), ',')){
+    if (name != "") {
+        if (std::count(name.begin(), name.end(), ',')) {
             std::istringstream ss(name);
-            while(!ss.eof()){
+            while (!ss.eof()) {
                 std::string buf;
                 std::getline(ss, buf, ',');
                 if (buf != "")
                     names.emplace(buf);
             }
-        }
-        else
-            names.emplace(name);
-    }
-    else
-        names = reader1.getAllElementNames();
+        } else { names.emplace(name); }
+    } else { names = reader1.getAllElementNames(); }
 
     // make FEB objects
     std::vector<nsw::FEBConfig> feb_configs;
@@ -482,11 +476,11 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
             if (nsw::getElementType(nm) == "MMFE8") {
                 feb_configs.emplace_back(reader1.readConfig(nm));
                 std::cout << "Adding: " << nm << std::endl;
-            }
-            else
+            } else {
                 std::cout << std::endl << "Skipping: " << nm
                           << " because its a " << nsw::getElementType(nm)
                           << std::endl;
+            }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
@@ -497,7 +491,6 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
 }
 
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) {
-
     // create a json reader
     nsw::ConfigReader reader1("json://" + cfg);
     try {
@@ -512,22 +505,21 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
 
     // parse input names
     std::set<std::string> names;
-    if (name != ""){
-        if (std::count(name.begin(), name.end(), ',')){
+    if (name != "") {
+        if (std::count(name.begin(), name.end(), ',')) {
             std::istringstream ss(name);
-            while(!ss.eof()){
+            while (!ss.eof()) {
                 std::string buf;
                 std::getline(ss, buf, ',');
                 if (buf != "")
                     names.emplace(buf);
             }
-        }
-        else
+        } else {
             names.emplace(name);
-    }
-    else
+        }
+    } else {
         names = reader1.getAllElementNames();
-
+    }
     // make ADDC objects
     std::vector<nsw::ADDCConfig> addc_configs;
     for (auto & nm : names) {
@@ -535,11 +527,11 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
             if (nsw::getElementType(nm) == "ADDC") {
                 addc_configs.emplace_back(reader1.readConfig(nm));
                 std::cout << "Adding: " << nm << std::endl;
-            }
-            else
+            } else {
                 std::cout << std::endl << "Skipping: " << nm
                           << " because its a " << nsw::getElementType(nm)
                           << std::endl;
+            }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
@@ -566,7 +558,7 @@ int configure_frontend(nsw::ConfigSender* cs, nsw::FEBConfig feb, bool do_roc, b
         // Set reset bits to original
         size_t i = 0;
         for (auto & vmm : vmms)
-            vmm.setGlobalRegister("reset", reset_ori[i++]);  
+            vmm.setGlobalRegister("reset", reset_ori[i++]);
     }
     if (do_vmm)
         cs->sendVmmConfig(feb);
@@ -582,15 +574,15 @@ int configure_art_input_phase(nsw::ConfigSender* cs, nsw::ADDCConfig addc, uint 
     if (phase > std::pow(2, 4))
         throw std::runtime_error("Gave bad phase to configure_art_input_phase: " + std::to_string(phase));
     size_t art_size = 2;
-    uint8_t art_data[] = {0x0,0x0};
+    uint8_t art_data[] = {0x0, 0x0};
     auto opc_ip   = addc.getOpcServerIp();
     auto sca_addr = addc.getAddress();
     uint8_t this_phase = phase + (phase << 4);
     std::cout << "Setting input phase of " << sca_addr << " to be 0x"
               << std::hex << (uint)(this_phase) << std::dec << std::endl;
-    for (auto art: addc.getARTs()) {
+    for (auto art : addc.getARTs()) {
         auto name = sca_addr + "." + art.getName() + "Ps" + "." + art.getName() + "Ps";
-        for (auto reg: { 6,  7,  8,  9,
+        for (auto reg : { 6,  7,  8,  9,
                         21, 22, 23, 24,
                         36, 37, 38, 39,
                         51, 52, 53, 54,
