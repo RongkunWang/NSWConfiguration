@@ -1,5 +1,7 @@
 # NSW Configuration prototype
 
+[![pipeline status](https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration/badges/dev/pipeline.svg)](https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration/commits/dev)
+
 * [Configuration DB](#configuration-db)
 * [Communication with Front End](#communication-with-front-end)
 * [Installation](#Installation)

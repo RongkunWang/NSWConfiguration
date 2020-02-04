@@ -214,7 +214,8 @@ int wait_until_fewer(std::vector< std::future<int> >* threads, int max_threads) 
     if (max_threads > 0) {
         int n_active = active_threads(threads);
         while (n_active >= max_threads) {
-            std::cout << "Too many active threads (" << n_active << "), waiting for fewer than " << max_threads << std::endl;
+            std::cout << "Too many active threads (" << n_active << "), waiting for fewer than "
+                << max_threads << std::endl;
             sleep(2);
             n_active = active_threads(threads);
         }
@@ -475,10 +476,11 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
             if (nsw::getElementType(nm) == "MMFE8") {
                 feb_configs.emplace_back(reader1.readConfig(nm));
                 std::cout << "Adding: " << nm << std::endl;
-            } else
+            } else {
                 std::cout << std::endl << "Skipping: " << nm
                           << " because its a " << nsw::getElementType(nm)
                           << std::endl;
+            }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
@@ -525,11 +527,11 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
             if (nsw::getElementType(nm) == "ADDC") {
                 addc_configs.emplace_back(reader1.readConfig(nm));
                 std::cout << "Adding: " << nm << std::endl;
-            }
-            else
+            } else {
                 std::cout << std::endl << "Skipping: " << nm
                           << " because its a " << nsw::getElementType(nm)
                           << std::endl;
+            }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
