@@ -15,7 +15,7 @@ using boost::property_tree::ptree;
 
 namespace nsw {
 
-class ADDCConfig: public FEConfig {
+class ADDCConfig: public SCAConfig {
  private:
     std::vector<ARTConfig> m_arts;
     std::vector<uint8_t> m_ARTCoreregisters;

@@ -6,13 +6,13 @@
 #include <vector>
 #include <iostream>
 #include "boost/property_tree/ptree.hpp"
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 
 using boost::property_tree::ptree;
 
 namespace nsw {
 
-class PadTriggerSCAConfig: public FEConfig {
+class PadTriggerSCAConfig: public SCAConfig {
  private:
     bool dummy;
 

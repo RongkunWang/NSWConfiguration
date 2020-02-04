@@ -8,7 +8,7 @@
 
 
 nsw::TPConfig::TPConfig(ptree config) :
-FEConfig(config),
+SCAConfig(config),
 m_numMasters(NUM_REGISTER_FILES) {
     // restructureConfig();
 
