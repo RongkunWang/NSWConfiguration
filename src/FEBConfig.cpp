@@ -2,7 +2,7 @@
 
 #include "boost/optional.hpp"
 
-#include "NSWConfiguration/SCAConfig.h"
+#include "NSWConfiguration/FEBConfig.h"
 
 
 nsw::FEBConfig::FEBConfig(ptree config):
