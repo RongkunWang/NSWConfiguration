@@ -86,7 +86,7 @@ int main(int ac, const char *av[]) {
 
     std::cout << "\n";
 
-    uint8_t vmmCaptureAddressInitial;
+    int vmmCaptureAddressInitial;
 
     for (auto & feb : frontend_configs) {
     auto opc_ip = feb.getOpcServerIp();
@@ -96,7 +96,7 @@ int main(int ac, const char *av[]) {
     vmmCaptureAddressInitial=32;
     	for(int vmm_id=0; vmm_id<=7; vmm_id++)
     	{
-	      auto vmm_capture_status=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,vmmCaptureAddressInitial++,2);
+	      auto vmm_capture_status=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)vmmCaptureAddressInitial++,2);
    		  std::cout <<"VMM "<<+vmm_id<<": " <<std::bitset<8>(unsigned(vmm_capture_status)).to_string() <<std::endl;
     	}
     std::cout << "\n";
