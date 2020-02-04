@@ -169,8 +169,15 @@ int main(int ac, const char *av[]) {
     }
 
     // wait
-    for (auto& thread: *threads)
-      thread.get();
+    for (auto& thread: *threads) {
+        try {
+            thread.get();
+        } catch (ers::Issue & ex) {
+            ERS_LOG("Configuration failed due to ers::Issue: " << ex.what());
+        } catch (std::exception & ex) {
+            ERS_LOG("Configuration failed due to std::exception: " << ex.what());
+        }
+    }
 
     return 0;
 

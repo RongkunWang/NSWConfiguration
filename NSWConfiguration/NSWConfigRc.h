@@ -8,6 +8,8 @@
 #include <map>
 #include <future>
 
+#include "ers/ers.h"
+
 #include "RunControl/RunControl.h"
 #include "RunControl/Common/RunControlCommands.h"
 
@@ -15,6 +17,12 @@
 #include "NSWConfiguration/ConfigReader.h"
 
 using boost::property_tree::ptree;
+
+ERS_DECLARE_ISSUE(nsw,
+                  NSWConfigIssue,
+                  message,
+                  ((std::string)message)
+                  )
 
 namespace nsw {
 class FEBConfig;

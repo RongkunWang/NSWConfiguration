@@ -29,12 +29,12 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       m_max_threads = nswConfigApp->get_maxThreads();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
-        // TODO(cyildiz): catch and throw correct exceptions
-        ERS_LOG("Configuration issue: " << ex.what());
+        std::stringstream ss;
+        ss << "Problem reading OKS configuration of NSWConfigRc: " << ex.what();
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
+        ers::fatal(issue);
     }
 
-    // std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
-    // m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
     m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
     m_sender  = std::make_unique<nsw::ConfigSender>();
     m_threads = std::make_unique<std::vector< std::future<void> > >();
@@ -58,9 +58,12 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
           m_frontends.emplace(this_pair);
         std::cout << name << std::endl;
       } catch (std::exception & e) {
-        // TODO(cyildiz): turn into exception
-        std::cout << name << " - ERROR: Skipping this FE!"
+        std::stringstream ss;
+        ss << " Skipping FE: " << name
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
+        ers::warning(issue);
+        ERS_LOG(ss.str());
       }
     }
 
@@ -129,8 +132,14 @@ void nsw::NSWConfigRc::configureFEBs() {
                                         kv.first));
     }
     // wait
-    for (auto& thread: *m_threads)
-        thread.get();
+    for (auto& thread: *m_threads) {
+        try {  // If configureFEB throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
+            ers::warning(issue);
+        }
+    }
 }
 
 void nsw::NSWConfigRc::configureFEB(std::string name) {
@@ -139,8 +148,12 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
     auto local_sender = std::make_unique<nsw::ConfigSender>();
 
     ERS_INFO("Configuring front end " + name);
-    if (m_frontends.count(name) == 0)
-        throw std::runtime_error("NSWConfigRc::configureFEB has bad name: " + name);
+    if (m_frontends.count(name) == 0) {
+        std::string err = "FEB has bad name: " + name;
+        nsw::NSWConfigIssue issue(ERS_HERE, err);
+        ers::error(issue);
+    }
+
 
     auto configuration = m_frontends.at(name);
     if (!m_simulation) {
@@ -179,14 +192,24 @@ void nsw::NSWConfigRc::configureADDCs() {
                                         this,
                                         kv.first));
     }
-    for (auto& thread: *m_threads)
-        thread.get();
+    for (auto& thread: *m_threads) {
+        try {  // If configureADDC throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            std::string message = "Skipping ADDC due to : " + std::string(ex.what());
+            nsw::NSWConfigIssue issue(ERS_HERE, message);
+            ers::warning(issue);
+        }
+    }
 }
 
 void nsw::NSWConfigRc::configureADDC(std::string name) {
     ERS_LOG("Configuring ADDC: " + name);
-    if (m_addcs.count(name) == 0)
-        throw std::runtime_error("NSWConfigRc::configureADDC has bad name: " + name);
+    if (m_addcs.count(name) == 0) {
+        std::string err = "ADDC has bad name: " + name;
+        nsw::NSWConfigIssue issue(ERS_HERE, err);
+        ers::error(issue);
+    }
     auto local_sender = std::make_unique<nsw::ConfigSender>();
     auto configuration = m_addcs.at(name);
     if (!m_simulation)
@@ -196,20 +219,9 @@ void nsw::NSWConfigRc::configureADDC(std::string name) {
 }
 
 void nsw::NSWConfigRc::alignADDCsToTP() {
-    //
-    // Keep an eye on this. It might be slow.
-    // But be cautious if trying to parallelize:
-    //    its not a good idea for 16 ADDC threads
-    //    to be querying a TP reg simultaneously
-    //
-    ERS_LOG("Aligning ADDCs to TP");
-    for (auto obj: m_addcs) {
-        auto name   = obj.first;
-        auto config = obj.second;
-        ERS_LOG("Aligning " << name);
-        m_sender->alignAddcGbtxTp(config);
-    }
-    ERS_LOG("Finished aligning ADDCs to TP");
+    ERS_LOG("Checking alignment of ADDCs to TP");
+    m_sender->alignAddcGbtxTp(m_addcs);
+    ERS_LOG("Finished checking alignment of ADDCs to TP");
 }
 
 void nsw::NSWConfigRc::configureRouters() {
@@ -237,7 +249,12 @@ void nsw::NSWConfigRc::configurePadTriggers() {
 }
 
 void nsw::NSWConfigRc::configureTPs() {
-    ERS_LOG("This function needs to be implemented!");
+    ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
+    for (const auto& kv: m_tps) {
+        auto configuration = m_tps.at(kv.first);
+        m_sender->sendTpConfig(configuration);
+        ERS_LOG("Finished config to: " << kv.first);
+    }
 }
 
 void nsw::NSWConfigRc::configureVMMs() {
@@ -248,7 +265,6 @@ void nsw::NSWConfigRc::configureVMMs() {
         if (!m_simulation) {
             m_sender->sendVmmConfig(configuration);
         }
-        sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending VMM config to: " << name);
     }
 }
@@ -261,7 +277,6 @@ void nsw::NSWConfigRc::configureROCs() {
         if (!m_simulation) {
             m_sender->sendRocConfig(configuration);
         }
-        sleep(1);  // TODO(cyildiz) remove this
         ERS_LOG("Sending ROC config to: " << name);
     }
 }

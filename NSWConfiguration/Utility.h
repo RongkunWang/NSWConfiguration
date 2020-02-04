@@ -15,7 +15,15 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "ers/ers.h"
+
 using boost::property_tree::ptree;
+
+ERS_DECLARE_ISSUE(nsw,
+                  RegisterOverflow,
+                  message,
+                  ((const char *)message)
+                  )
 
 namespace nsw {
 
