@@ -298,7 +298,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       // tdss.buildConfig(config);
       sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
 
-      ERS_LOG("TDS " << tdss.getName()  << " readback register 14:");
+      ERS_LOG("SCA " << sca_address << " TDS " << tdss.getName()  << " readback register 14:");
 
       std::string address_to_read( "register14" );
       std::string tds_i2c_address( "register14_READONLY" );
