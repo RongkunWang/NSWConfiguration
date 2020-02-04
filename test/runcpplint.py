@@ -8,6 +8,8 @@ import json
 import re
 import argparse
 import math
+import linecache
+
 
 ECLIPSE_REGEX = re.compile(r'^(.*):([0-9]+):\s+(.*?)\s+\[([^\]]+)\]\s+\[([0-9]+)\]')
 
@@ -22,8 +24,9 @@ def get_issue(line):
     if matches is None:
         return
     (file, line, message, check, level) = matches.group(1, 2, 3, 4, 5)
+    codeline = linecache.getline(file,line)
     issue = {
-        #"fingerprint": "%x"%(abs(hash(check+message+file+level))),
+        "fingerprint": "%x"%(abs(hash(check+message+file+codeline))),
         "type": "issue",
         "check_name": check,
         "description": message,
