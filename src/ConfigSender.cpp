@@ -119,6 +119,7 @@ void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
     }
 }
 
+// TODO(rongkun): consider remove this function ?
 void nsw::ConfigSender::sendConfig(const nsw::FEBConfig& feb) {
     sendRocConfig(feb);
     sendTdsConfig(feb);
@@ -187,6 +188,8 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds)
     for (auto tds : feb.getTdss()) {
         sendTdsConfig(opc_ip, feb_address, tds, ntds, reset_tds);
     }
+
+    // Read back to verify something? (TODO)
 }
 
 void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
@@ -216,18 +219,18 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
     sendI2cMasterConfig(opc_ip, sca_address, digital);
 }
 
-void nsw::ConfigSender::sendTdsConfig(const nsw::TDSConfig& tds) {
-  // unused yet
-    auto opc_ip = tds.getOpcServerIp();
-    auto tds_address = tds.getAddress();
+// TODO(rongkun): consider remove this function ?
+// void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& tds, bool reset_tds) {
+  // // unused yet
+    // auto opc_ip = tds.getOpcServerIp();
+    // auto tds_address = tds.getAddress();
 
-    sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
+    // sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
 
-    sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
+    // sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
 
 
-    // Read back to verify something? (TODO)
-}
+// }
 
 void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, 
     const I2cMasterConfig & tds, int ntds, bool reset_tds) 
@@ -235,6 +238,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
   // internal call
   // sca_address is feb.getAddress()
   if (ntds <= 3)
+  {
     // old boards
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
   } else {
