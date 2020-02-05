@@ -232,13 +232,11 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
 
 // }
 
-void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address, 
-    const I2cMasterConfig & tds, int ntds, bool reset_tds) 
-{
+void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address,
+    const I2cMasterConfig & tds, int ntds, bool reset_tds) {
   // internal call
   // sca_address is feb.getAddress()
-  if (ntds <= 3)
-  {
+  if (ntds <= 3) {
     // old boards
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
   } else {
@@ -251,8 +249,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 
 
     sendI2cMasterConfig(opc_ip, sca_address, tds);
-    if (reset_tds)
-    {
+    if (reset_tds) {
       // copy out the configuration, etc
       I2cMasterConfig tdss(tds);
       ptree config = tdss.getConfig();
@@ -300,17 +297,16 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
 
       ERS_LOG("SCA " << sca_address << " TDS " << tdss.getName()  << " readback register 14:");
 
-      std::string address_to_read( "register14" );
-      std::string tds_i2c_address( "register14_READONLY" );
+      std::string address_to_read("register14");
+      std::string tds_i2c_address("register14_READONLY");
 
       auto size_in_bytes = tdss.getTotalSize(tds_i2c_address) / 8;
       std::string full_node_name = sca_address + "." + tdss.getName()  + "." + address_to_read;
       auto dataread = readI2c(opc_ip, full_node_name , size_in_bytes);
       tdss.decodeVector(tds_i2c_address, dataread);
       ERS_LOG("Readback as bytes: "); 
-      for (auto val : dataread) 
-      {
-          ERS_LOG("0x" << std::hex << static_cast<uint32_t>(val) );
+      for (auto val : dataread) {
+          ERS_LOG("0x" << std::hex << static_cast<uint32_t>(val));
       }
     }
 

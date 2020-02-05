@@ -109,7 +109,7 @@ class I2cMasterConfig {
 
     ~I2cMasterConfig() {}
 
-    void buildConfig(ptree config){
+    void buildConfig(ptree config) {
       m_address_bitstream = m_codec.buildConfig(config);
     }
 
