@@ -8,6 +8,10 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
 
+#include "boost/property_tree/ptree.hpp"
+using boost::property_tree::ptree;
+
+
 nsw::ConfigSender::ConfigSender() {
 }
 
@@ -89,7 +93,7 @@ void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
 
 void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
                                             const nsw::I2cMasterConfig& cfg, std::string reg_address) {
-    ERS_LOG("Sending I2c configuration to " << topnode << "." << reg_address);
+    ERS_LOG("Sending I2c configuration to " << topnode << "." + cfg.getName() + "." << reg_address);
     auto addr_bitstr = cfg.getBitstreamMap();
     auto address = topnode + "." + cfg.getName() + "." + reg_address;  // Full I2C address
     auto bitstr = addr_bitstr[reg_address];
@@ -115,6 +119,7 @@ void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
     }
 }
 
+// TODO(rongkun): consider remove this function ?
 void nsw::ConfigSender::sendConfig(const nsw::FEBConfig& feb) {
     sendRocConfig(feb);
     sendTdsConfig(feb);
@@ -174,15 +179,17 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 }
 
-void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb) {
+void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds) {
   // this is used for outside
     auto opc_ip = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
     // HACK!
     int ntds = feb.getTdss().size();
     for (auto tds : feb.getTdss()) {
-        sendTdsConfig(opc_ip, feb_address, tds, ntds);
+        sendTdsConfig(opc_ip, feb_address, tds, ntds, reset_tds);
     }
+
+    // Read back to verify something? (TODO)
 }
 
 void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
@@ -212,9 +219,23 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
     sendI2cMasterConfig(opc_ip, sca_address, digital);
 }
 
+// TODO(rongkun): consider remove this function ?
+// void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& tds, bool reset_tds) {
+  // // unused yet
+    // auto opc_ip = tds.getOpcServerIp();
+    // auto tds_address = tds.getAddress();
+
+    // sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
+
+    // sendI2cMasterConfig(opc_ip, tds_address, tds.i2c);
+
+
+// }
+
 void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address,
-    const I2cMasterConfig & tds, int ntds) {
-  // internal
+    const I2cMasterConfig & tds, int ntds, bool reset_tds) {
+  // internal call
+  // sca_address is feb.getAddress()
   if (ntds <= 3) {
     // old boards
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
@@ -226,7 +247,68 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
   }
 
+
     sendI2cMasterConfig(opc_ip, sca_address, tds);
+    if (reset_tds) {
+      // copy out the configuration, etc
+      I2cMasterConfig tdss(tds);
+      ptree config = tdss.getConfig();
+      // TDS resets
+
+      // ePLL
+      // config.put("register12.resets", 0x20);
+      // tdss.buildConfig(config);
+
+      // Debug
+      // unsigned int reset_byte = config.get<unsigned int>("register12.resets");
+      // std::cout << "=======" << std::endl;
+      // std::cout  << "tds reset byte: " << reset_byte << std::endl;
+      // std::cout << "=======" << std::endl;
+
+      tdss.setRegisterValue("register12", "resets", 0x20);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      tdss.setRegisterValue("register12", "resets", 0x0);
+      // config.put("register12.resets", 0x0);
+      // tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      // logic
+      tdss.setRegisterValue("register12", "resets", 0x06);
+      // config.put("register12.resets", 0x06);
+      // tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      tdss.setRegisterValue("register12", "resets", 0x0);
+      // config.put("register12.resets", 0x0);
+      // tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      // SER
+      tdss.setRegisterValue("register12", "resets", 0x14);
+      // config.put("register12.resets", 0x14);
+      // tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      tdss.setRegisterValue("register12", "resets", 0x0);
+      // config.put("register12.resets", 0x0);
+      // tdss.buildConfig(config);
+      sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
+
+      ERS_LOG("SCA " << sca_address << " TDS " << tdss.getName()  << " readback register 14:");
+
+      std::string address_to_read("register14");
+      std::string tds_i2c_address("register14_READONLY");
+
+      auto size_in_bytes = tdss.getTotalSize(tds_i2c_address) / 8;
+      std::string full_node_name = sca_address + "." + tdss.getName()  + "." + address_to_read;
+      auto dataread = readI2c(opc_ip, full_node_name , size_in_bytes);
+      tdss.decodeVector(tds_i2c_address, dataread);
+      ERS_LOG("Readback as bytes: ");
+      for (auto val : dataread) {
+          ERS_LOG("0x" << std::hex << static_cast<uint32_t>(val));
+      }
+    }
 
     // Read back to verify something? (TODO)
 }

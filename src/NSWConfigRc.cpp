@@ -25,6 +25,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
       const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
       m_dbcon = nswConfigApp->get_dbConnection();
       m_resetvmm = nswConfigApp->get_resetVMM();
+      m_resettds = nswConfigApp->get_resetTDS();
       m_max_threads = nswConfigApp->get_maxThreads();
       ERS_INFO("DB Connection: " << m_dbcon);
     } catch(std::exception& ex) {
@@ -174,7 +175,7 @@ void nsw::NSWConfigRc::configureFEB(std::string name) {
         }
         local_sender->sendVmmConfig(configuration);
 
-        local_sender->sendTdsConfig(configuration);
+        local_sender->sendTdsConfig(configuration, m_resettds);
     }
     usleep(100000);
     ERS_LOG("Sending config to: " << name);
