@@ -258,7 +258,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       // ePLL
       // config.put("register12.resets", 0x20);
       // tdss.buildConfig(config);
-      
+
       // Debug
       // unsigned int reset_byte = config.get<unsigned int>("register12.resets");
       // std::cout << "=======" << std::endl;
@@ -283,7 +283,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       // config.put("register12.resets", 0x0);
       // tdss.buildConfig(config);
       sendI2cMasterSingle(opc_ip, sca_address, tdss, "register12");
-      
+
       // SER
       tdss.setRegisterValue("register12", "resets", 0x14);
       // config.put("register12.resets", 0x14);
@@ -304,7 +304,7 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
       std::string full_node_name = sca_address + "." + tdss.getName()  + "." + address_to_read;
       auto dataread = readI2c(opc_ip, full_node_name , size_in_bytes);
       tdss.decodeVector(tds_i2c_address, dataread);
-      ERS_LOG("Readback as bytes: "); 
+      ERS_LOG("Readback as bytes: ");
       for (auto val : dataread) {
           ERS_LOG("0x" << std::hex << static_cast<uint32_t>(val));
       }
