@@ -6,7 +6,7 @@
 
 
 nsw::FEBConfig::FEBConfig(ptree config):
-        FEConfig(config),
+        SCAConfig(config),
         m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
         m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {
     /// A FE can have up to 8 vmms, the config ptree should be constructed with correct number vmms

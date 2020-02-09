@@ -5,7 +5,7 @@
 #include "boost/property_tree/json_parser.hpp"
 
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(ptree config):
-    FEConfig(config)
+    SCAConfig(config)
 {
     // std::cout << std::endl;
 }

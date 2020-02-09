@@ -14,7 +14,7 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/TP_I2cRegisterMappings.h"
 
@@ -22,7 +22,7 @@ using boost::property_tree::ptree;
 
 namespace nsw {
 
-class TPConfig: public FEConfig {
+class TPConfig: public SCAConfig {
  private:
     const uint8_t m_numMasters;
     std::map<std::string, I2cMasterConfig*> m_registerFiles;

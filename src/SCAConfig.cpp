@@ -5,18 +5,18 @@
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 
 using boost::property_tree::ptree;
 
-nsw::FEConfig::FEConfig(ptree config): m_config(config) {
+nsw::SCAConfig::SCAConfig(ptree config): m_config(config) {
     try {
         m_opcserver_ip = m_config.get<std::string>("OpcServerIp");
         m_address = m_config.get<std::string>("OpcNodeId");
     } catch (const boost::property_tree::ptree_bad_path& e) {
         std::stringstream ss;
         ss << "OpcServerIp or OpcNodeId missing in configuration! " << e.what();
-        nsw::FEConfigIssue issue(ERS_HERE, ss.str().c_str());
+        nsw::SCAConfigIssue issue(ERS_HERE, ss.str().c_str());
         ers::error(issue);
 
         ss << " - Problematic FE ptree: \n";

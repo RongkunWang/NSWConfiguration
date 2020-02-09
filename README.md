@@ -284,19 +284,19 @@ ConfigSender is the main component that communicates with the frontends. The det
 ## How to Implement a New FE
 If there is a new configuration component/front end element that need to be implemented in the NSWConfiguration, there
 are several things to do:
-- Create a new class for the front end element. Lets call this `NewFEConfig`. If the frontend contains a SCA, use
-  `FEConfig` class as base class. Ideally this class should contain some containers that have bitstreams that will be
+- Create a new class for the front end element. Lets call this `NewSCAConfig`. If the frontend contains a SCA, use
+  `SCAConfig` class as base class. Ideally this class should contain some containers that have bitstreams that will be
   sent to the front end, and methods to modify the configuration. Take a look at the current configuration classes to
   have an idea.
 - Implement the way to read the configuration from database/json. One needs to decide what kind of ptree should be
-  accepted by the `NewFEConfig`. The constructor should take the ptree and fill the containers that hold configuration
+  accepted by the `NewSCAConfig`. The constructor should take the ptree and fill the containers that hold configuration
   registers.
 - Modify `getElementType()` if needed (See `Utility.h`)
 - Implement relevant reader method in `ConfigReaderApi`. These method should create the ptree that will be used in
-  constructor of `NewFEConfig`.
+  constructor of `NewSCAConfig`.
 - If needed, implement a new OpcClient method using the relevant class from `UaoClientForOpcUaSca`. (It's also possible
   that a new version of `UaoClientForOpcUaSca` need to be used, in this case checkout the new version)
-- Implement the relevant ConfigSender method using the OpcClient method and `NewFEConfig` class.
+- Implement the relevant ConfigSender method using the OpcClient method and `NewSCAConfig` class.
 - If needed, modify programs `NSWConfigRc`, `configure_frontend` and if needed create a new example program to read/send
   configuration of this front end.
 

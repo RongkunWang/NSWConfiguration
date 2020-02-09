@@ -13,7 +13,7 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/FEConfig.h"
+#include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
@@ -29,7 +29,7 @@ namespace nsw {
 //!
 //! Used as base class for MMFE8, PFEB and SBEF Configurations
 
-class FEBConfig: public FEConfig {
+class FEBConfig: public SCAConfig {
  private:
     std::vector<VMMConfig> m_vmms;
     I2cMasterConfig m_roc_analog;
