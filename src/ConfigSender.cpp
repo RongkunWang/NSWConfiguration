@@ -584,7 +584,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     // maximum number of attempts to configure,
     // including the configuration which must have
     // occurred before running this function
-    size_t max_attempts = 5;
+    size_t max_attempts = 15;
 
     // the TP-ADDC alignment register
     auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
@@ -603,6 +603,15 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
         // check alignment
         auto outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
         ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata));
+
+        // announce
+        for (auto & addc : addcs)
+            for (auto art : addc.getARTs())
+                if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
+                    if (!art.IsAlignedWithTP(outdata))
+                        ERS_LOG(addc.getAddress() << "." << art.getName() << " not aligned, bit = " << art.TP_GBTxAlignmentBit());
+
+        // reconfig where needed
         for (auto & addc: addcs) {
             for (auto art: addc.getARTs()) {
                 if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip()) {
@@ -734,14 +743,14 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     // 1.0 Repeater I2C
     std::cout << "Repeater I2C. Writing " << std::hex << unsigned(data_data_repeater[1]) << std::dec << std::endl;
     for (auto rep: repeaters) {
-        std::string node = sca_addr + ".repeaterChip" + rep + ".chip" + rep;
+        std::string node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
         sendI2cRaw(opc_ip, node, data_data_repeater, data_size_repeater);
         usleep(100000);
     }
 
     // 1.1 Read them
     for (auto rep: repeaters) {
-        std::string node = sca_addr + ".repeaterChip" + rep + ".chip" + rep;
+        std::string node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
         auto val = readI2cAtAddress(opc_ip, node, address_repeater, address_size_repeater);
         std::cout << " Readback " << rep << ": " << unsigned(val[0]) << std::endl;
         usleep(100000);
@@ -757,14 +766,14 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     // 2.0 VTTX
     std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1]) << std::dec << std::endl;
     for (auto vttx: vttxs) {
-        std::string node = sca_addr + ".vttx" + vttx + ".chipVTT" + vttx;
+        std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
         sendI2cRaw(opc_ip, node, data_data, data_size);
         usleep(100000);
     }
 
     // 2.1 Read them
     for (auto vttx: vttxs) {
-        std::string node = sca_addr + ".vttx" + vttx + ".chipVTT" + vttx;
+        std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
         auto val = readI2cAtAddress(opc_ip, node, address, address_size);
         std::cout << " Readback " << vttx << ": " << std::hex << unsigned(val[0]) << std::dec << std::endl;
         usleep(100000);
