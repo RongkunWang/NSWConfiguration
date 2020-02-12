@@ -106,7 +106,7 @@ int main(int argc, const char *argv[]) {
             for (uint i=0; i < outdata.size(); i++) {
                 std::cout << std::hex << unsigned(outdata[i]) << std::endl;
             }
-            std::cout << " in bit string: " << nsw::vectorToBitString(outdata,true);
+            std::cout << " in bit string: " << nsw::vectorToBitString(outdata, true);
         }
     }
 
@@ -118,7 +118,7 @@ int main(int argc, const char *argv[]) {
         //             [4,5,6,7] last..first bytes of message
         // Already have the first four bytes of vector stored as regAddrVec.
         // Just need to encode the message.
-        data = nsw::hexStringToByteVector(message,4,true);
+        data = nsw::hexStringToByteVector(message, 4, true);
         std::cout << "... Message to write: " << message << std::endl;
         std::cout << "... ... in a byte vector: ";
         for (uint i=0; i < data.size(); i++) {
