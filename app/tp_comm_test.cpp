@@ -106,6 +106,7 @@ int main(int argc, const char *argv[]) {
             for (uint i=0; i < outdata.size(); i++) {
                 std::cout << std::hex << unsigned(outdata[i]) << std::endl;
             }
+            std::cout << " in bit string: " << nsw::vectorToBitString(outdata,true);
         }
     }
 

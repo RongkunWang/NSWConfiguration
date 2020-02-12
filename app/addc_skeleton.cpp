@@ -201,8 +201,9 @@ int main(int argc, const char *argv[])
                         if (art.IsMyTP(tp.first, tp.second)) {
                             auto aligned = art.IsAlignedWithTP(outdata);
                             std::stringstream result;
-                            result << addc.getAddress() << " "
-                                   << art.getName()     << " "
+                            result << addc.getAddress()         << " "
+                                   << art.getName()             << " "
+                                   << art.TP_GBTxAlignmentBit() << " "
                                    << aligned << std::endl;
                             myfile << result.str();
                             std::cout << result.str();
