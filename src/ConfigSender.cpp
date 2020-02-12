@@ -602,7 +602,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
 
         // check alignment
         auto outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
-        ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata,true));
+        ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata, true));
 
         // announce
         for (auto & addc : addcs)
@@ -623,7 +623,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
                         sendAddcConfig(addc, art.index());
                         usleep(art.TP_GBTxAlignmentSleepTime());
                         outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
-                        ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata,true));
+                        ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata, true));
                         attempt++;
                     }
                     if (!art.IsAlignedWithTP(outdata))
