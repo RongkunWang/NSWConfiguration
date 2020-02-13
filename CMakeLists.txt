@@ -25,6 +25,14 @@ tdaq_add_executable(read_sca_info app/read_sca_info.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(roc_register_readout app/roc_register_readout.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(vmm_capture_status app/vmm_capture_status.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(read_tds_continous app/read_tds_continous.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
