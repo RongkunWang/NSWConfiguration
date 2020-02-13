@@ -93,8 +93,8 @@ int main(int ac, const char *av[]) {
     auto opc_ip = feb.getOpcServerIp();
 
     auto roc_address_value = cs.readBackRoc(opc_ip, 
-    										feb.getAddress()+".gpio.bitBanger", 
-    										17, 18, (uint8_t)registerAddress, 2);
+                                                  feb.getAddress()+".gpio.bitBanger",
+                                                  17, 18, (uint8_t)registerAddress, 2);
 
     std::cout << feb.getAddress() << "\t" << unsigned(roc_address_value) << "(dec)" << " | 0x"
     << std::hex << unsigned(roc_address_value) << "(hex)"

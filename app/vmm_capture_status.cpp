@@ -93,8 +93,8 @@ int main(int ac, const char *av[]) {
     vmmCaptureAddressInitial = 32;
     for (int vmm_id = 0; vmm_id <= 7; vmm_id++) {
         auto vmm_capture_status = cs.readBackRoc(opc_ip, feb.getAddress()+".gpio.bitBanger",
-	   	                                         17 , 18,
-	                                            (uint8_t)vmmCaptureAddressInitial++, 2);
+                                                17 , 18,
+                                                (uint8_t)vmmCaptureAddressInitial++, 2);
 
     std::cout << "VMM " << vmm_id<< ": " << std::bitset<8>(unsigned(vmm_capture_status)).to_string() << std::endl;
     }
