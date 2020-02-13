@@ -87,7 +87,7 @@ tdaq_add_executable(nsw_router app/router.cpp
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
-                 src/FEConfig.cpp
+                 src/SCAConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp

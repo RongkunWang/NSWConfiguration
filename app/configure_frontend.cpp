@@ -24,6 +24,7 @@ struct ThreadConfig {
   bool readback_tds;
   bool reset_roc;
   bool reset_vmm;
+  bool reset_tds;
   int vmm_to_unmask;
   int channel_to_unmask;
 };
@@ -45,6 +46,7 @@ int main(int ac, const char *av[]) {
     bool readback_tds;
     bool reset_roc;
     bool reset_vmm;
+    bool reset_tds;
     int vmm_to_unmask;
     int channel_to_unmask;
     int max_threads;
@@ -79,7 +81,9 @@ int main(int ac, const char *av[]) {
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v")
         ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
-        "Hard reset vmm before configuration. Need to be used with -v");
+        "Hard reset vmm before configuration. Need to be used with -v")
+        ("resettds", po::bool_switch(&reset_tds)->default_value(false),
+        "Reset TDS SER, logic, ePLL after configuring tds. Need to be used with -t");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -158,6 +162,7 @@ int main(int ac, const char *av[]) {
       cfg.readback_tds      = readback_tds;
       cfg.reset_roc         = reset_roc;
       cfg.reset_vmm         = reset_vmm;
+      cfg.reset_tds         = reset_tds;
       cfg.vmm_to_unmask     = vmm_to_unmask;
       cfg.channel_to_unmask = channel_to_unmask;
       threads->push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
@@ -239,7 +244,7 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
     }
 
     if (cfg.configure_tds) {
-        cs.sendTdsConfig(feb);  // Sends configuration to all tds
+        cs.sendTdsConfig(feb, cfg.reset_tds);  // Sends configuration to all tds
     }
 
     if (cfg.readback_tds) {
