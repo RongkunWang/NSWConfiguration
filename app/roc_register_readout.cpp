@@ -92,7 +92,7 @@ int main(int ac, const char *av[]) {
     for (auto & feb : frontend_configs) {
     auto opc_ip = feb.getOpcServerIp();
 
-    auto roc_address_value = cs.readBackRoc(opc_ip, 
+    auto roc_address_value = cs.readBackRoc(opc_ip,
                                                   feb.getAddress()+".gpio.bitBanger",
                                                   17, 18, (uint8_t)registerAddress, 2);
 
