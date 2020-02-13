@@ -17,7 +17,6 @@
 namespace po = boost::program_options;
 
 int main(int ac, const char *av[]) {
-
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
     std::string description = "This program reads VMM capture status of any VMM-frontend board";
@@ -92,14 +91,14 @@ int main(int ac, const char *av[]) {
     std::cout << feb.getAddress() <<std::endl;
 
     vmmCaptureAddressInitial = 32;
-    for(int vmm_id = 0; vmm_id <= 7; vmm_id++)
-    {
-	   auto vmm_capture_status = cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)vmmCaptureAddressInitial++,2);
+    for (int vmm_id = 0; vmm_id <= 7; vmm_id++) {
+	   auto vmm_capture_status = cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",
+	   											17 , 18,
+	   											(uint8_t)vmmCaptureAddressInitial++, 2);
+
    	   std::cout << "VMM " << vmm_id<< ": " << std::bitset<8>(unsigned(vmm_capture_status)).to_string() << std::endl;
     }
     std::cout << "\n";
- 
     }
-    
 }
 

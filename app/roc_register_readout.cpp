@@ -17,7 +17,6 @@
 namespace po = boost::program_options;
 
 int main(int ac, const char *av[]) {
-
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
     std::string description = "This program reads ROC registers of any frontend board";
@@ -95,8 +94,9 @@ int main(int ac, const char *av[]) {
 
     auto roc_address_value = cs.readBackRoc(opc_ip, feb.getAddress()+".gpio.bitBanger", 17, 18, (uint8_t)registerAddress, 2);
 
-    std::cout << feb.getAddress() << "\t" << unsigned(roc_address_value) << "(dec)" << " | 0x" 
-    << std::hex << unsigned(roc_address_value) << "(hex)" << " | " << std::bitset<8>(unsigned(roc_address_value)).to_string() << "(bin)" << std::endl;
+    std::cout << feb.getAddress() << "\t" << unsigned(roc_address_value) << "(dec)" << " | 0x"
+    << std::hex << unsigned(roc_address_value) << "(hex)"
+     << " | " << std::bitset<8>(unsigned(roc_address_value)).to_string() << "(bin)" << std::endl;
     }
 }
 
