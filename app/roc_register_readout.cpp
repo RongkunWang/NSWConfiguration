@@ -1,4 +1,4 @@
-// Sample program to read ROC register values through GPIO BitBanger 
+// Sample program to read ROC register values through GPIO BitBanger
 
 #include <iostream>
 #include <string>
@@ -19,7 +19,6 @@ namespace po = boost::program_options;
 int main(int ac, const char *av[]) {
 
 
-
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
     std::string description = "This program reads ROC registers of any frontend board";
@@ -27,7 +26,7 @@ int main(int ac, const char *av[]) {
     std::string config_filename;
     std::string fe_name;
     int registerAddress;
- 
+
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -89,11 +88,10 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-    std::cout << "***** Reading ROC register address: "<<registerAddress<< std::endl;
+    std::cout << "***** Reading ROC register address: " << registerAddress << std::endl;
     std::cout << "\n";
 
     for (auto & feb : frontend_configs) {
-
     auto opc_ip = feb.getOpcServerIp();
 
 	auto roc_address_value=cs.readBackRoc(opc_ip,feb.getAddress()+".gpio.bitBanger",17,18,(uint8_t)registerAddress,2);
