@@ -723,8 +723,8 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     // I2C
     size_t address_size_repeater = 1;
     size_t data_size_repeater    = 2;
-    uint8_t address_repeater[]   = {0x0};
-    uint8_t data_data_repeater[] = {0x00, 0x2F};
+    uint8_t address_repeater[]   = {0x18};
+    uint8_t data_data_repeater[] = {0x18, 0b00000011};
 
     // 0.0: Repeater GPIO
     std::cout << "Repeater GPIO. Writing 1" << std::endl;
@@ -741,7 +741,8 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     std::cout << std::endl;
 
     // 1.0 Repeater I2C
-    std::cout << "Repeater I2C. Writing " << std::hex << unsigned(data_data_repeater[1]) << std::dec << std::endl;
+    std::cout << "Repeater I2C. Writing " << std::hex << unsigned(data_data_repeater[1])
+              << " to address 0x" << unsigned(data_data_repeater[0]) << std::dec << std::endl;
     for (auto rep: repeaters) {
         std::string node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
         sendI2cRaw(opc_ip, node, data_data_repeater, data_size_repeater);
@@ -764,7 +765,8 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     uint8_t data_data[] = {0x0, 0xC7};
 
     // 2.0 VTTX
-    std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1]) << std::dec << std::endl;
+    std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1])
+              << " to address 0x" << unsigned(data_data[0])<< std::dec << std::endl;
     for (auto vttx: vttxs) {
         std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
         sendI2cRaw(opc_ip, node, data_data, data_size);
