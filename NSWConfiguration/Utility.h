@@ -70,10 +70,10 @@ std::vector<uint8_t> hexStringToByteVector(std::string hexstr, int length, bool 
 std::string bitstringToHexString(std::string bitstr);
 
 /// Converts vector of values to string of hex
-std::string vectorToHexString(std::vector<uint8_t> vec);
+std::string vectorToHexString(std::vector<uint8_t> vec, bool littleEndian = false);
 
 /// Converts vector of values to string of bits
-std::string vectorToBitString(std::vector<uint8_t> vec);
+std::string vectorToBitString(std::vector<uint8_t> vec, bool littleEndian = false);
 
 
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values

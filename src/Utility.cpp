@@ -98,9 +98,10 @@ std::vector<uint8_t> nsw::hexStringToByteVector(std::string hexstr, int length =
     return vecFront;
 }
 
-std::string nsw::vectorToHexString(std::vector<uint8_t> vec) {
+std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
+    if (littleEndian) std::reverse(vec.begin(), vec.end());
     // Go 8 bit at a time and convert it to hex
     for (auto byte : vec) {
         hexstream << std::setw(2) << static_cast<uint32_t>(byte);
@@ -108,8 +109,9 @@ std::string nsw::vectorToHexString(std::vector<uint8_t> vec) {
     return hexstream.str();
 }
 
-std::string nsw::vectorToBitString(std::vector<uint8_t> vec) {
+std::string nsw::vectorToBitString(std::vector<uint8_t> vec, bool littleEndian) {
     std::string bitstring;
+    if (littleEndian) std::reverse(vec.begin(), vec.end());
     // Go 8 bit at a time and convert it to binary
     for (auto byte : vec) {
         std::bitset<8> bs(byte);
