@@ -13,29 +13,94 @@
 
 namespace po = boost::program_options;
 
+std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg);
+
 int main(int argc, const char *argv[]) 
 {
     std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
     std::string config_filename;
     std::string board_name;
+    std::string gpio_name;
+    std::string adc_name;
+    bool do_config;
+    int samples;
+    int val;
 
+    // options
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file", po::value<std::string>(&config_filename)->default_value(config_files+"padTrigger.json"), "Configuration file path")
-        ("name,n",      po::value<std::string>(&board_name)     ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
+        ("config_file", po::value<std::string>(&config_filename)
+         ->default_value(config_files+"padTrigger.json"), "Configuration file path")
+        ("name,n", po::value<std::string>(&board_name)
+         ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
+        ("gpio", po::value<std::string>(&gpio_name)
+         ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
+        ("adc", po::value<std::string>(&adc_name)
+         ->default_value(""), "ADC name to read (check the xml for valid names).")
+        ("do_config", po::bool_switch()->
+         default_value(false), "Option to send predefined configuration")
+        ("val", po::value<int>(&val)
+         ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
+        ("samples", po::value<int>(&samples)
+         ->default_value(100), "Number of samples when reading SCA ADC.")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-
+    do_config = vm["do_config"].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
     }    
 
+    // make objects from json
+    auto board_configs = parse_name(board_name, config_filename);
+    for (auto & board: board_configs)
+        std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << std::endl;
+
+    // the sender
+    nsw::ConfigSender cs;
+
+    // GPIO read/write
+    if (gpio_name != "") {
+        for (auto & board: board_configs) {
+            auto ip   = board.getOpcServerIp();
+            auto addr = board.getAddress() + ".gpio." + gpio_name;
+            auto name = ip + "::" + addr;
+            if (val != -1) {
+                std::cout << name << " -> write " << val << std::endl;
+                cs.sendGPIO(ip, addr, val);
+            }
+            std::cout << name << " -> read  " << cs.readGPIO(ip, addr) << std::endl;
+        }
+    }
+
+    // SCA ADC
+    if (adc_name != "") {
+        for (auto & board: board_configs) {
+            auto ip   = board.getOpcServerIp();
+            auto addr = board.getAddress() + ".ai." + adc_name;
+            auto name = ip + "::" + addr;
+            std::cout << name << " -> read ADC" << std::endl;
+            auto datas = cs.readAnalogInputConsecutiveSamples(ip, addr, samples);
+            for (auto data : datas)
+                std::cout << " " << adc_name << " " << data << std::endl;
+        }
+    }
+
+    // config
+    if (do_config)
+        for (auto & board: board_configs)
+            cs.sendPadTriggerSCAConfig(board);
+
+    return 0;
+}
+
+std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg) {
+
     // create a json reader
-    nsw::ConfigReader reader1("json://" + config_filename);
+    nsw::ConfigReader reader1("json://" + cfg);
     try {
         auto config1 = reader1.readConfig();
     }
@@ -47,55 +112,41 @@ int main(int argc, const char *argv[])
     }
 
     // parse input names
-    std::set<std::string> board_names;
-    if (board_name != ""){
-        if (std::count(board_name.begin(), board_name.end(), ',')){
-            std::istringstream ss(board_name);
-            while(!ss.eof()){
+    std::set<std::string> names;
+    if (name != "") {
+        if (std::count(name.begin(), name.end(), ',')) {
+            std::istringstream ss(name);
+            while (!ss.eof()) {
                 std::string buf;
                 std::getline(ss, buf, ',');
                 if (buf != "")
-                    board_names.emplace(buf);
+                    names.emplace(buf);
             }
+        } else {
+            names.emplace(name);
         }
-        else
-            board_names.emplace(board_name);
+    } else {
+        names = reader1.getAllElementNames();
     }
-    else
-        board_names = reader1.getAllElementNames();
 
-    // make ADDC objects
+    // make board objects
     std::vector<nsw::PadTriggerSCAConfig> board_configs;
-    for (auto & name : board_names) {
+    for (auto & this_name : names) {
         try {
-            if (nsw::getElementType(name) == "PadTriggerSCA") {
-                board_configs.emplace_back(reader1.readConfig(name));
-                std::cout << "Adding: " << name << std::endl;
+            if (nsw::getElementType(this_name) == "PadTriggerSCA") {
+                board_configs.emplace_back(reader1.readConfig(this_name));
+                std::cout << "Adding: " << this_name << std::endl;
             }
             else
-                std::cout << "Skipping: " << name
-                          << " because its a " << nsw::getElementType(name)
+                std::cout << "Skipping: " << this_name
+                          << " because its a " << nsw::getElementType(this_name)
                           << std::endl;
         }
         catch (std::exception & e) {
-            std::cout << name << " - ERROR: Skipping this FE!"
+            std::cout << this_name << " - ERROR: Skipping this!"
                       << " - Problem constructing configuration due to : " << e.what() << std::endl;
         }
     }
 
-    // the sender
-    nsw::ConfigSender cs;
-
-    // announce
-    for (auto & board: board_configs){
-        std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
-        cs.sendPadTriggerSCAConfig(board);
-        std::cout << std::endl;
-        std::cout << std::endl;
-    }
-
-    return 0;
+    return board_configs;
 }
-
