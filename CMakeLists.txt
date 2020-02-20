@@ -45,6 +45,10 @@ tdaq_add_executable(calibrate_trimmers_multirms app/calibrate_trimmers_multirms.
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(calibrate_trimmers_multirms_stgc app/calibrate_trimmers_multirms_stgc.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(read_channel_trimmers app/read_channel_trimmers.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )

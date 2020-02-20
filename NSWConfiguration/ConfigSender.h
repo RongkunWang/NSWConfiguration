@@ -113,6 +113,22 @@ class ConfigSender {
     /// \param channel_id The vmm channel (0-63)
     /// \param n_samples Number of samples to read
     /// \return vector of values that were read
+
+    //-------------------------------------------------------------------//
+    //              added to add separate configuration
+    //                       S.Sun 31.Jan.2020
+    //-------------------------------------------------------------------//
+    void configVmmForPdoConsecutiveSamples(FEBConfig& feb,
+                                           size_t vmm_id);
+
+    std::vector<short unsigned int> queryVmmPdoConsecutiveSamples(FEBConfig& feb,
+                                                                  size_t vmm_id,
+                                                                  size_t n_samples);
+
+    //------------------------------------------------------------------//
+    //          Changed to only sample and return SCA ADC values
+    //                         S.Sun 31.Jan.2020
+    //------------------------------------------------------------------//
     std::vector<short unsigned int> readVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                  size_t vmm_id,
                                                                  size_t n_samples);

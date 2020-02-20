@@ -31,6 +31,34 @@ struct ThreadConfig {
 };
 
 int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg);
+int active_threads(std::vector< std::future<int> >* threads);
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads);
+
+float take_median(std::vector<float> &v) {
+    size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin()+n, v.end());
+    float median = v[n];
+    return median;
+}
+
+float take_median(std::vector<short unsigned int> &v) {
+    size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin()+n, v.end());
+    float median = v[n];
+    return median;
+}
+
+float take_rms(std::vector<float> &v, float mean) {
+    float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+    float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+    return stdev;
+}
+
+float take_rms(std::vector<short unsigned int> &v, float mean) {
+    float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+    float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+    return stdev;
+}
 
 int main(int ac, const char *av[]) {
 
@@ -40,6 +68,7 @@ int main(int ac, const char *av[]) {
     bool dump;
     bool baseline;
     bool threshold;
+    int max_threads;
     int n_samples;
     int thdac;
     int channel_trim;
@@ -76,6 +105,8 @@ int main(int ac, const char *av[]) {
         default_value(false), "Dump information to the screen")
         ("outdir,o", po::value<std::string>(&outdir)->
         default_value("./"), "Output directory for dumping text files")
+        ("threads", po::value<int>(&max_threads)->
+        default_value(16), "Maximum number of threads to run in parallel")
       ;
 
     po::variables_map vm;
@@ -144,8 +175,10 @@ int main(int ac, const char *av[]) {
     }
 
     // launch
-    std::vector< std::future<int> > threads = {};
+    auto threads = new std::vector< std::future<int> >();
     for (auto & feb : frontend_configs){
+      while(too_many_threads(threads, max_threads))
+        sleep(5);
       ThreadConfig cfg;
       cfg.targeted_vmm_id     = targeted_vmm_id;
       cfg.targeted_channel_id = targeted_channel_id;
@@ -156,11 +189,11 @@ int main(int ac, const char *av[]) {
       cfg.baseline            = baseline;
       cfg.dump                = dump;
       cfg.outdir              = outdir;
-      threads.push_back( std::async(std::launch::async, read_channel_monitor, feb, cfg) );
+      threads->push_back( std::async(std::launch::async, read_channel_monitor, feb, cfg) );
     }
 
     // wait
-    for (auto& thread: threads)
+    for (auto& thread: *threads)
       thread.get();
 
     return 0;
@@ -169,13 +202,18 @@ int main(int ac, const char *av[]) {
 int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
 
     nsw::ConfigSender cs;
-    int VMMS  = 8;
+    // Rongkun: let's not hard-code this
+    int VMMS  = feb.getVmms().size();
+    std::cout << "VMM no. " << VMMS <<std::endl;
     int CHS   = 64;
     int tpdac = -1;
 
     std::ofstream myfile;
-    if (cfg.dump)
-      myfile.open( cfg.outdir + "/" + (cfg.baseline ? "baselines_" : "thresholds_") + feb.getAddress() + ".txt");
+    std::ofstream myfile_summary;
+    if (cfg.dump){
+        myfile.open( cfg.outdir + "/" + (cfg.baseline ? "baselines_" : "thresholds_") + feb.getAddress() + ".txt");
+        myfile_summary.open(cfg.outdir + "/" + (cfg.baseline ? "summary_baselines_" : "summary_thresholds_") + feb.getAddress() + ".txt");
+    }
 
     auto & vmms = feb.getVmms();
 
@@ -205,6 +243,11 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
 
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, cfg.n_samples);
 
+        float sum = std::accumulate(results.begin(), results.end(), 0.0);
+        float mean = sum / results.size();
+        float stdev = take_rms(results,mean);
+        float median = take_median(results);
+
         if (cfg.dump)
           for (auto result: results)
             myfile << "DATA "
@@ -216,6 +259,16 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
                       << cfg.channel_trim  << " "
                       << result << std::endl;
 
+        if (cfg.dump)
+            myfile_summary << "SUMMARY"
+                           << " " << feb.getAddress()
+                           << " vmm " << vmm_id
+                           << " channel " << channel_id
+                           << " mean " << mean
+                           << " stdev " << stdev
+                           << " median " << median
+                           << std::endl;
+
       }
     }
 
@@ -223,8 +276,30 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
     for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
       vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
 
-    if (cfg.dump)
-      myfile.close();
+    if (cfg.dump){
+        myfile.close();
+        myfile_summary.close();
+    }
 
     return 0;
+}
+
+int active_threads(std::vector< std::future<int> >* threads) {
+    int nfinished = 0;
+    for (auto& thread: *threads)
+        if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            nfinished++;
+    return (int)(threads->size()) - nfinished;
+}
+
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads) {
+    int nthreads = active_threads(threads);
+    bool decision = (nthreads >= max_threads);
+    if(decision){
+        std::cout << "Too many active threads ("
+                  << nthreads
+                  << "), waiting for fewer than "
+                  << max_threads << std::endl;
+    }
+    return decision;
 }
