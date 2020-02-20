@@ -8,6 +8,8 @@ def options():
     parser.add_argument("-o", help="Output ROOT file of TCanvases", default="out.root")
     parser.add_argument("-y", help="y-axis range maximum for profile plots", default="5")
     parser.add_argument("-n", help="Comma-separated list of MMFE8s")
+    parser.add_argument("-g", help="Grouping parameter for output plots", default="layer")
+    parser.add_argument("-u", help="Units of measurements (mV or ENC)", default="ENC")
     return parser.parse_args()
 
 def main():
@@ -15,6 +17,12 @@ def main():
     ops = options()
     if not ops.i:
         fatal("Please give an input txt file with -i")
+    if not ops.g in ["l", "L", "layer", "Layer", "p", "P", "pcb", "PCB"]:
+        fatal("Please give a grouping parameter -g like `pcb` or `layer`")
+    if not ops.u in ["mV", "ENC"]:
+        fatal("Please give a unit -u as mV or ENC")
+    if ops.u == "ENC" and ops.y == "5":
+        ops.y = "4000"
 
     rootlogon()
     out = ROOT.TFile(ops.o, "recreate")
@@ -30,11 +38,13 @@ def main():
         print("Found %s" % (feb))
 
     # txt -> root
+    print "Loading data..."
     tr = ROOT.TTree("DATA", "")
     tr.ReadFile(ops.i, "data/C:MMFE8:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
+    print "Data loaded."
 
     # debugging
-    rms_of_interest = 5.0 # mV
+    rms_of_interest = 50000.0 # mV
 
     # plot each feb
     for feb in febs:
@@ -42,7 +52,17 @@ def main():
             continue
 
         name = "baseline_%s" % (feb)
-        outdir = out.mkdir(feb)
+
+        # output TDirectory
+        layer, pcb, quad = layer_pcb_quad(feb)
+        if   ops.g in ["l", "L", "layer", "Layer"]: outdirname = "Layer_%s_%s" % (layer, quad)
+        elif ops.g in ["p", "P", "pcb", "PCB"]:     outdirname = "PCB_%s" % (pcb)
+        else:
+            fatal("Please provide a --group which is `layer` or `pcb`")
+        outdir = out.GetDirectory(outdirname)
+        if not outdir:
+            outdir = out.mkdir(outdirname)
+        febdir = outdir.mkdir(feb)
 
         # channel baseline
         hist = ROOT.TH2D(name, ";VMM*64 + Channel;Baseline [mV]; Samples", 512, -0.5, 511.5, 290, 10, 300)
@@ -51,8 +71,8 @@ def main():
         canv = ROOT.TCanvas(name+"_canv", name+"_canv", 800, 800)
         canv.Draw()
         hist.Draw("colzsame")
-        # canv.SaveAs(canv.GetName() + ".pdf")
         outdir.cd()
+        febdir.cd()
         canv.Write()
         canv.Close()
 
@@ -66,13 +86,17 @@ def main():
 
         # channel RMS (profile)
         tmpx = hist.ProfileX("_tmpX", 1, hist.GetNbinsY(), "s")
-        prof = ROOT.TH1D(name+"_prof", ";VMM*64 + Channel;Baseline RMS [mV]", 512, -0.5, 511.5)
+        prof = ROOT.TH1D(name+"_prof", ";VMM*64 + Channel;Baseline RMS [%s]" % (ops.u), 512, -0.5, 511.5)
         for bin in range(0, tmpx.GetNbinsX()+1):
-            prof.SetBinContent(bin, tmpx.GetBinError(bin))
+            multiplier = 1.0 if ops.u=="mV" else 6241.50975/9.0
+            prof.SetBinContent(bin, tmpx.GetBinError(bin) * multiplier)
             prof.SetBinError  (bin, 0)
             if prof.GetBinContent(bin) > rms_of_interest:
                 # bin 1 is channel 0
-                print "%s Bin %03i has RMS %4.1f => VMM/CH = %i/%02i" % (feb, (bin-1), prof.GetBinContent(bin), (bin-1)/64, (bin-1)%64)
+                print_me = "%s Bin %03i has RMS %4.1f => VMM/CH = %i/%02i"
+                print print_me % (feb, (bin-1), prof.GetBinContent(bin), (bin-1)/64, (bin-1)%64)
+                # print "%s Bin %03i has RMS %4.1f => VMM/CH = %i/%02i" 
+                # % (feb, (bin-1), prof.GetBinContent(bin), (bin-1)/64, (bin-1)%64)
             #if prof.GetBinContent(bin) > float(ops.y):
             #    prof.SetBinContent(bin, float(ops.y)-0.1)
         style(prof)
@@ -81,6 +105,24 @@ def main():
         prof.SetLineWidth(0)
         prof.SetMarkerStyle(ROOT.kFullCircle)
         prof.SetMarkerSize(0.7)
+        prof.SetMarkerColor(ROOT.kBlack)
+
+        # VMM mean/median
+        latexs = []
+        for vmm in range(0, 8):
+            x = vmm*64
+            mean   = prof.Integral(x+1, x+64) / 64.0
+            median = sorted([prof.GetBinContent(bin) for bin in xrange(x+1, x+64+1)]) [64/2]
+            val    = median # change me at your desire
+            string = ("%.2f" % (val)) if ops.u=="mV" else str(int(val))
+            latexs.append( ROOT.TLatex(x+64/2, float(ops.y)*1.02, string) )
+            latexs[-1].SetTextSize(0.025)
+            latexs[-1].SetTextFont(42)
+            latexs[-1].SetTextAlign(21)
+            lines.append( ROOT.TLine(x, val, x+64, val) )
+            lines[-1].SetLineColor(ROOT.kBlack)
+            lines[-1].SetLineStyle(1)
+            lines[-1].SetLineWidth(1)
 
         # clone for overflow
         p_up = prof.Clone(prof.GetName()+"_clone_up")
@@ -116,9 +158,11 @@ def main():
         p_dn.Draw("psame")
         for line in lines:
             line.Draw()
+        for latex in latexs:
+            latex.Draw()
         prof.Draw("psame")
-        # canv.SaveAs(canv.GetName() + ".pdf")
         outdir.cd()
+        febdir.cd()
         canv.Write()
         canv.Close()
 
@@ -166,6 +210,18 @@ def style(hist):
     hist.GetXaxis().SetTitleOffset(1.1)
     hist.GetYaxis().SetTitleOffset(1.8)
     hist.GetZaxis().SetTitleOffset(1.6)
+
+def layer_pcb_quad(feb):
+    # LxPy_zz e.g. L1P6_IPR
+    import re
+    result = re.findall("L\dP\d_\w\w", feb)
+    if not result:
+        fatal("Couldnt find the LxPy pattern in %s" % (feb))
+    if len(result) > 1:
+        fatal("Tried to find the LxPy pattern, but got confused: %s" % (feb))
+    first = result[0]
+    _, layer, _, pcb, _, q0, q1 = first
+    return (layer, pcb, q0+q1)
 
 def fatal(msg):
     import sys

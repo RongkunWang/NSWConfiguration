@@ -295,6 +295,8 @@ struct ThreadConfig {
 };
 
 int calibrate_trimmers(nsw::FEBConfig feb, ThreadConfig cfg);
+int active_threads(std::vector< std::future<int> >* threads);
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads);
 
 int main(int ac, const char *av[]) {
   std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
@@ -304,6 +306,7 @@ int main(int ac, const char *av[]) {
   int vmm_id;
   int n_samples;
   int rms_factor;
+  int max_threads;
   std::string config_filename;
   std::string fe_name;
   std::string outdir;
@@ -319,6 +322,7 @@ int main(int ac, const char *av[]) {
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
       ("rms_factor", po::value<int>(&rms_factor)->default_value(-1), "RMS Factor")
       ("outdir,o", po::value<std::string>(&outdir)->default_value("./"), "Output directory for dumping text files")
+      ("threads", po::value<int>(&max_threads)->default_value(16), "Maximum number of threads to run in parallel")
     ;
 
   po::variables_map vm;
@@ -381,18 +385,20 @@ int main(int ac, const char *av[]) {
   std::cout << "Dumping info to " << outdir << std::endl;
 
   // launch threads
-  std::vector< std::future<int> > threads = {};
+  auto threads = new std::vector< std::future<int> >();
   for (auto & feb : frontend_configs) {
+    while(too_many_threads(threads, max_threads))
+      sleep(5);
     ThreadConfig cfg;
     cfg.targeted_vmm_id = vmm_id;
     cfg.n_samples       = n_samples;
     cfg.rms_factor      = rms_factor;
     cfg.outdir          = outdir;
-    threads.push_back( std::async(std::launch::async, calibrate_trimmers, feb, cfg) );
+    threads->push_back( std::async(std::launch::async, calibrate_trimmers, feb, cfg) );
   }
 
   // wait
-  for (auto& thread: threads)
+  for (auto& thread: *threads)
     thread.get();
 
 
@@ -810,3 +816,22 @@ int calibrate_trimmers(nsw::FEBConfig feb, ThreadConfig cfg) {
   return 0;
 }
 
+int active_threads(std::vector< std::future<int> >* threads) {
+    int nfinished = 0;
+    for (auto& thread: *threads)
+        if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            nfinished++;
+    return (int)(threads->size()) - nfinished;
+}
+
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads) {
+    int nthreads = active_threads(threads);
+    bool decision = (nthreads >= max_threads);
+    if(decision){
+        std::cout << "Too many active threads ("
+                  << nthreads
+                  << "), waiting for fewer than "
+                  << max_threads << std::endl;
+    }
+    return decision;
+}

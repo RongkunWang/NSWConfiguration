@@ -90,6 +90,9 @@ int main(int ac, const char *av[]) {
     for (auto & feb : frontend_configs) {
         // Read pdo of the certain channel n_samples times.
         // This function will also configure VMM with correct parameters
+
+        
+
         feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
         feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
@@ -102,6 +105,8 @@ int main(int ac, const char *av[]) {
 
         std::cout << feb.getAddress() << " vmm" << vmm_id << ", channel " << channel_id
                   << " - mean: " << mean << " , stdev: " << stdev << std::endl;
+
+        
 
         // Print first 10
         for (unsigned i = 0; i < 10; i++) {

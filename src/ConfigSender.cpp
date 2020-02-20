@@ -138,6 +138,8 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
     std::vector<uint8_t> data = {0xff};
     auto opc_ip = feb.getOpcServerIp();
 
+    std::cout << "Sending VMM config to all VMMs on " << feb.getAddress() << std::endl;
+
     // TODO(cyildiz): Make new methods: EnableVmmAcquisition() - DisableVmmAcquisition()
 
     // Set Vmm Acquisition Disable
@@ -174,6 +176,8 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
     ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
 
+    std::cout << "Sending VMM config to " << feb.getAddress() << " vmm " << vmm.getName() << std::endl;
+
     // Set Vmm Acquisition Enable
     data = {0x0};
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
@@ -185,6 +189,9 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds)
     auto feb_address = feb.getAddress();
     // HACK!
     int ntds = feb.getTdss().size();
+
+    std::cout << "Sending TDS config to all TDS " << feb.getAddress() << std::endl;
+
     for (auto tds : feb.getTdss()) {
         sendTdsConfig(opc_ip, feb_address, tds, ntds, reset_tds);
     }
@@ -214,6 +221,8 @@ void nsw::ConfigSender::sendRocConfig(const std::string& opc_ip, const std::stri
         ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
     }
 
+    std::cout << "Sending VMM config Raw " << std::endl;
+
     sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 1);
 
     sendI2cMasterConfig(opc_ip, sca_address, digital);
@@ -224,6 +233,8 @@ void nsw::ConfigSender::sendRocConfig(const std::string& opc_ip, const std::stri
   // // unused yet
     // auto opc_ip = tds.getOpcServerIp();
     // auto tds_address = tds.getAddress();
+
+    // std::cout << "Sending TDS config Raw " << std::endl;
 
     // sendGPIO(opc_ip, tds_address + ".gpio.tdsReset", 1);
 
@@ -236,6 +247,8 @@ void nsw::ConfigSender::sendTdsConfig(const std::string& opc_ip, const std::stri
     const I2cMasterConfig & tds, int ntds, bool reset_tds) {
   // internal call
   // sca_address is feb.getAddress()
+  std::cout << "Sending TDS config Raw " << std::endl;
+
   if (ntds < 3) {
     // old boards, and PFEB
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
@@ -1030,9 +1043,52 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
     const std::string& node, size_t n_samples) {
     addOpcClientIfNew(opcserver_ipport);
     ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
+
+    std::cout << "reading " <<  n_samples << " from " << node << std::endl;
+
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
 }
 
+//-------------------------------------------------------------------//
+//              added to add separate configuration
+//                       S.Sun 31.Jan.2020
+//-------------------------------------------------------------------//
+void nsw::ConfigSender::configVmmForPdoConsecutiveSamples(FEBConfig& feb,
+                                                          size_t vmm_id) {
+
+    auto opc_ip      = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+    auto& vmms       = feb.getVmms();
+
+    vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
+    vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+
+    sendVmmConfigSingle(feb, vmm_id);
+
+    return;
+
+}
+
+//------------------------------------------------------------------//
+//          Changed to only sample and return SCA ADC values
+//                         S.Sun 31.Jan.2020
+//------------------------------------------------------------------//
+std::vector<short unsigned int> nsw::ConfigSender::queryVmmPdoConsecutiveSamples(FEBConfig& feb,
+                                                                                 size_t vmm_id,
+                                                                                 size_t n_samples) {
+
+    auto opc_ip      = feb.getOpcServerIp();
+    auto feb_address = feb.getAddress();
+    auto& vmms       = feb.getVmms();
+
+    return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
+
+}
+
+//------------------------------------------------------------------//
+//            Still query and sample and return SCA ADC values
+//                         S.Sun 31.Jan.2020
+//------------------------------------------------------------------//
 std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
     size_t vmm_id, size_t n_samples) {
     auto opc_ip      = feb.getOpcServerIp();

@@ -1,0 +1,879 @@
+{
+    "vmm_common_config":{
+        "sp":0,
+        "sdp":0,
+        "sbmx":0,
+        "sbft":0,
+        "sbfp":0,
+        "sbfm":1,
+        "slg":1,
+        "sm":10,
+        "scmx":1,
+        "sfa":0,
+        "sfam":0,
+        "st":3,
+        "sfm":0,
+        "sg":2,
+        "sng":0,
+        "stot":0,
+        "sttt":0,
+        "ssh":0,
+        "stc":0,
+        "sdt_dac":120,
+
+        "sdp_dac":600,
+        "sc10b":0,
+        "sc8b":0,
+        "sc6b":0,
+        "s8b":0,
+        "s6b":0,
+        "s10b":1,
+        "sdcks":1,
+        "sdcka":0,
+        "sdck6b":1,
+        "sdrv":0,
+        "stpp":0,
+        "res00":0,
+
+        "res":0,
+        "slvs":1,
+        "s32":0,
+        "stcr":0,
+        "ssart":0,
+        "srec":0,
+        "stlc":0,
+        "sbip":1,
+        "srat":0,
+        "sfrst":0,
+        "slvsbc":1,
+        "slvstp":1,
+        "slvstk":1,
+        "slvsdt":1,
+        "slvsart":0,
+        "slvstki":1,
+        "slvsena":1,
+        "slvs6b":1,
+        "sL0enaV":1,
+        "reset":0,
+
+        "nskipm":0,
+
+        "sL0cktest":0,
+        "sL0dckinv":0,
+        "sL0ckinv":0,
+        "sL0ena":1,
+        "truncate":20,
+        "nskip":0,
+        "window":7,
+        "rollover":3500,
+
+        "l0offset":3468,
+        "offset":0,
+
+        "channel_sc":0,
+        "channel_sl":0,
+        "channel_st":1,
+        "channel_sth":0,
+        "channel_sm":0,
+        "channel_smx":0,
+        "channel_sd":0,
+        "channel_sz10b":0,
+        "channel_sz8b":0,
+        "channel_sz6b":0
+    },
+    "roc_common_config":{
+        "rocPllCoreAnalog":{
+            "reg064ePllVmm0": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 0
+            },
+            "reg065ePllVmm0": {
+                "ePllPhase160MHz_1[4]": 0,
+                "ePllPhase40MHz_1": 0
+            },
+            "reg066ePllVmm0": {
+                "ePllPhase160MHz_2[4]": 0,
+                "ePllPhase40MHz_2": 0
+            },
+            "reg067ePllVmm0": {
+                "ePllPhase160MHz_3[4]": 0,
+                "ePllPhase40MHz_3": 0
+            },
+            "reg068ePllVmm0": {
+                "ePllPhase160MHz_1[3:0]": 0,
+                "ePllPhase160MHz_0[3:0]": 0
+            },
+            "reg069ePllVmm0": {
+                "ePllPhase160MHz_3[3:0]": 0,
+                "ePllPhase160MHz_2[3:0]": 0
+            },
+            "reg070ePllVmm0": {
+                "ePllInstantLock": 1,
+                "ePllReset": 0,
+                "bypassPLL": 0,
+                "ePllLockEn": 1,
+                "ePllReferenceFrequency": 2,
+                "ePllCap": 1
+            },
+            "reg071ePllVmm0": {
+                "ePllRes": 8,
+                "ePllIcp": 8
+            },
+            "reg072ePllVmm0": {
+                "ePllEnablePhase": 255
+            },
+            "reg073ePllVmm0": {
+                "tp_bypass_1": 0,
+                "tp_phase_1": 0,
+                "tp_bypass_0": 0,
+                "tp_phase_0": 0
+            },
+            "reg074ePllVmm0": {
+                "tp_bypass_3": 0,
+                "tp_phase_3": 0,
+                "tp_bypass_2": 0,
+                "tp_phase_2": 0
+            },
+            "reg075ePllVmm0": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg076ePllVmm0": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg077ePllVmm0": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg078ePllVmm0": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg079ePllVmm0": {
+                "tx_enable": 15,
+                "tx_csel": 4
+            },
+            "reg080ePllVmm1": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 0
+            },
+            "reg081ePllVmm1": {
+                "ePllPhase160MHz_1[4]": 0,
+                "ePllPhase40MHz_1": 0
+            },
+            "reg082ePllVmm1": {
+                "ePllPhase160MHz_2[4]": 0,
+                "ePllPhase40MHz_2": 0
+            },
+            "reg083ePllVmm1": {
+                "ePllPhase160MHz_3[4]": 0,
+                "ePllPhase40MHz_3": 0
+            },
+            "reg084ePllVmm1": {
+                "ePllPhase160MHz_1[3:0]": 0,
+                "ePllPhase160MHz_0[3:0]": 0
+            },
+            "reg085ePllVmm1": {
+                "ePllPhase160MHz_3[3:0]": 0,
+                "ePllPhase160MHz_2[3:0]": 0
+            },
+            "reg086ePllVmm1": {
+                "ePllInstantLock": 1,
+                "ePllReset": 0,
+                "bypassPLL": 0,
+                "ePllLockEn": 1,
+                "ePllReferenceFrequency": 2,
+                "ePllCap": 1
+            },
+            "reg087ePllVmm1": {
+                "ePllRes": 8,
+                "ePllIcp": 8
+            },
+            "reg088ePllVmm1": {
+                "ePllEnablePhase": 255
+            },
+            "reg089ePllVmm1": {
+                "tp_bypass_1": 0,
+                "tp_phase_1": 0,
+                "tp_bypass_0": 0,
+                "tp_phase_0": 0
+            },
+            "reg090ePllVmm1": {
+                "tp_bypass_3": 0,
+                "tp_phase_3": 0,
+                "tp_bypass_2": 0,
+                "tp_phase_2": 0
+            },
+            "reg091ePllVmm1": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg092ePllVmm1": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg093ePllVmm1": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg094ePllVmm1": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg095ePllVmm1": {
+                "tx_enable": 15,
+                "tx_csel": 4
+            },
+            "reg096ePllTdc": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 0
+            },
+            "reg097ePllTdc": {
+                "ePllPhase160MHz_1[4]": 0,
+                "ePllPhase40MHz_1": 0
+            },
+            "reg098ePllTdc": {
+                "ePllPhase160MHz_2[4]": 0,
+                "ePllPhase40MHz_2": 0
+            },
+            "reg099ePllTdc": {
+                "ePllPhase160MHz_3[4]": 0,
+                "ePllPhase40MHz_3": 0
+            },
+            "reg100ePllTdc": {
+                "ePllPhase160MHz_1[3:0]": 0,
+                "ePllPhase160MHz_0[3:0]": 0
+            },
+            "reg101ePllTdc": {
+                "ePllPhase160MHz_3[3:0]": 0,
+                "ePllPhase160MHz_2[3:0]": 0
+            },
+            "reg102ePllTdc": {
+                "ePllInstantLock": 1,
+                "ePllReset": 0,
+                "bypassPLL": 0,
+                "ePllLockEn": 1,
+                "ePllReferenceFrequency": 2,
+                "ePllCap": 1
+            },
+            "reg103ePllTdc": {
+                "ePllRes": 8,
+                "ePllIcp": 8
+            },
+            "reg104ePllTdc": {
+                "ePllEnablePhase": 255
+            },
+            "reg105ePllTdc": {
+                "enable160MHzOnBCR": 0,
+                "enable160MHzOn40MHz": 0
+            },
+            "reg106ePllTdc": {
+                "tx_enable_bcr": 15,
+                "tx_csel_bcr": 4
+            },
+            "reg107ePllTdc": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg108ePllTdc": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg109ePllTdc": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg110ePllTdc": {
+                "ctrl_05delay_0": 0,
+                "ctrl_delay_0": 0,
+                "ctrl_bypass_0": 0,
+                "ctrl_phase_0": 0
+            },
+            "reg111ePllTdc": {
+                "tx_enable": 15,
+                "tx_csel": 4
+            },
+            "reg112": {
+                "ePllInstantLock": 1,
+                "ePllReset": 0,
+                "bypassPLL": 0,
+                "ePllLockEn": 1,
+                "ePllReferenceFrequency": 2,
+                "ePllCap": 1
+            },
+            "reg113": {
+                "ePllRes": 8,
+                "ePllIcp": 8
+            },
+            "reg114": {
+                "ePllEnablePhase": 255
+            },
+            "reg115": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 102
+            },
+            "reg116": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 102
+            },
+            "reg117": {
+                "ePllPhase160MHz_0[4]": 0,
+                "ePllPhase40MHz_0": 102
+            },
+            "reg118": {
+                "ePllPhase160MHz_0[0:3]": 6,
+                "ePllPhase160MHz_1[0:3]": 6
+            },
+            "reg119": {
+                "tp_bypass_global": 1,
+                "tp_phase_global": 0,
+                "ePllPhase160MHz_0[3:0]": 6
+            },
+            "reg120": {
+                "TDS_BCR_INV": 0,
+                "LockOutInv": 0,
+                "testOutEn": 0,
+                "testOutMux": 0
+            },
+            "reg121vmmBcrInv": {
+                "vmmBcrInv": 0
+            },
+            "reg122vmmEnaInv": {
+                "vmmEnaInv": 0
+            },
+            "reg123vmmL0Inv": {
+                "vmmL0Inv": 0
+            },
+            "reg124vmmTpInv": {
+                "vmmTpInv": 0
+            }
+        },
+        "rocCoreDigital":{
+            "reg000rocId": {
+                "l1_first": 0,
+                "even_parity": 1,
+                "roc_id": 4
+            },
+            "reg001elinkSpeed": {
+                "sroc3": 1,
+                "sroc2": 1,
+                "sroc1": 1,
+                "sroc0": 1
+            },
+            "reg002sRoc0VmmConnections":
+            {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 0,
+                "vmm1": 0,
+                "vmm0": 1
+            },
+            "reg003sRoc1VmmConnections":
+            {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 0,
+                "vmm1": 1,
+                "vmm0": 0
+            },
+            "reg004sRoc2VmmConnections":
+            {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 1,
+                "vmm1": 0,
+                "vmm0": 0
+            },
+            "reg005sRoc3VmmConnections":
+            {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 1,
+                "vmm2": 0,
+                "vmm1": 0,
+                "vmm0": 0
+            },
+            "reg006eopAndNullEventEnable":
+            {
+                "sroc3_eop_enable": 1,
+                "sroc1_eop_enable": 1,
+                "sroc1_eop_enable": 1,
+                "sroc0_eop_enable": 1,
+                "sroc3_nullevt_enable": 1,
+                "sroc2_nullevt_enable": 1,
+                "sroc1_nullevt_enable": 1,
+                "sroc0_nullevt_enable": 1
+            },
+            "reg007sRocEnable": {
+                "bypass": 1,
+                "timeoutEnable": 0,
+                "TTCStartBits": 0,
+                "enableSROC3": 1,
+                "enableSROC2": 1,
+                "enableSROC1": 1,
+                "enableSROC0": 1
+            },
+            "reg008vmmEnable": {
+                "vmm7": 1,
+                "vmm6": 1,
+                "vmm5": 1,
+                "vmm4": 1,
+                "vmm3": 1,
+                "vmm2": 1,
+                "vmm1": 1,
+                "vmm0": 1
+            },
+            "reg009timeout": {
+                "timeout": 255
+            },
+            "reg010bcOffset0_txcSel": {
+                "tx_csel": 8,
+                "bc_offset11_8": 11
+            },
+            "reg011bcOffset1": {
+                "bc_offset7_0": 244
+            },
+            "reg012bcRollover0": {
+                "bc_rollover11_8": 12
+            },
+            "reg013bcRollover1": {
+                "bc_rollover7_0": 23
+            },
+            "reg014eportEnable": {
+                "sroc3": 3,
+                "sroc2": 3,
+                "sroc1": 3,
+                "sroc0": 3
+            },
+            "reg019fakeVmmFailure": {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 0,
+                "vmm1": 0,
+                "vmm0": 0
+            },
+            "reg020busyAndTdcEnable": {
+                "tdc_enable_sroc3": 1,
+                "tdc_enable_sroc2": 1,
+                "tdc_enable_sroc1": 1,
+                "tdc_enable_sroc0": 1,
+                "busy_enable_sroc3": 1,
+                "busy_enable_sroc2": 1,
+                "busy_enable_sroc1": 1,
+                "busy_enable_sroc0": 1
+            },
+            "reg021busyOnLimit0": {
+                "busy_on_limit10_7": 7
+            },
+            "reg022busyOnLimit1": {
+                "busy_on_limit8_0": 108
+            },
+            "reg023busyOffLimit0": {
+                "busy_off_limit10_7": 7
+            },
+            "reg024busyOffLimit1": {
+                "busy_off_limit8_0": 8
+            },
+
+            "reg031l1EventsWithoutComma": {
+                "l1_events_no_comma": 255
+            },
+            "reg063timeoutStatus": {
+                "vmm7": 0,
+                "vmm6": 0,
+                "vmm5": 0,
+                "vmm4": 0,
+                "vmm3": 0,
+                "vmm2": 0,
+                "vmm1": 0,
+                "vmm0": 0
+            }
+        }
+    },
+    "tds_common_config": {
+        "register0": {
+            "BCID_Offset": 0,
+            "BCID_Rollover_Value": 2808,
+            "CKBC_Clock_Phase": 9,
+            "Strip_Match_Window": 15
+        },
+        "register1": {
+            "Ck160_1_Phase": 0,
+            "Ck160_0_Phase": 0,
+            "SER_PLL_I": 0,
+            "SER_PLL_R": 0
+        },
+        "register2": {
+            "Chan127": 0,
+            "Chan126": 0,
+            "Chan125": 0,
+            "Chan124": 0,
+            "Chan123": 0,
+            "Chan122": 0,
+            "Chan121": 0,
+            "Chan120": 0,
+            "Chan119": 0,
+            "Chan118": 0,
+            "Chan117": 0,
+            "Chan116": 0,
+            "Chan115": 0,
+            "Chan114": 0,
+            "Chan113": 0,
+            "Chan112": 0,
+            "Chan111": 0,
+            "Chan110": 0,
+            "Chan109": 0,
+            "Chan108": 0,
+            "Chan107": 0,
+            "Chan106": 0,
+            "Chan105": 0,
+            "Chan104": 0,
+            "Chan103": 0,
+            "Chan102": 0,
+            "Chan101": 0,
+            "Chan100": 0,
+            "Chan099": 0,
+            "Chan098": 0,
+            "Chan097": 0,
+            "Chan096": 0,
+            "Chan095": 0,
+            "Chan094": 0,
+            "Chan093": 0,
+            "Chan092": 0,
+            "Chan091": 0,
+            "Chan090": 0,
+            "Chan089": 0,
+            "Chan088": 0,
+            "Chan087": 0,
+            "Chan086": 0,
+            "Chan085": 0,
+            "Chan084": 0,
+            "Chan083": 0,
+            "Chan082": 0,
+            "Chan081": 0,
+            "Chan080": 0,
+            "Chan079": 0,
+            "Chan078": 0,
+            "Chan077": 0,
+            "Chan076": 0,
+            "Chan075": 0,
+            "Chan074": 0,
+            "Chan073": 0,
+            "Chan072": 0,
+            "Chan071": 0,
+            "Chan070": 0,
+            "Chan069": 0,
+            "Chan068": 0,
+            "Chan067": 0,
+            "Chan066": 0,
+            "Chan065": 0,
+            "Chan064": 0,
+            "Chan063": 0,
+            "Chan062": 0,
+            "Chan061": 0,
+            "Chan060": 0,
+            "Chan059": 0,
+            "Chan058": 0,
+            "Chan057": 0,
+            "Chan056": 0,
+            "Chan055": 0,
+            "Chan054": 0,
+            "Chan053": 0,
+            "Chan052": 0,
+            "Chan051": 0,
+            "Chan050": 0,
+            "Chan049": 0,
+            "Chan048": 0,
+            "Chan047": 0,
+            "Chan046": 0,
+            "Chan045": 0,
+            "Chan044": 0,
+            "Chan043": 0,
+            "Chan042": 0,
+            "Chan041": 0,
+            "Chan040": 0,
+            "Chan039": 0,
+            "Chan038": 0,
+            "Chan037": 0,
+            "Chan036": 0,
+            "Chan035": 0,
+            "Chan034": 0,
+            "Chan033": 0,
+            "Chan032": 0,
+            "Chan031": 0,
+            "Chan030": 0,
+            "Chan029": 0,
+            "Chan028": 0,
+            "Chan027": 0,
+            "Chan026": 0,
+            "Chan025": 0,
+            "Chan024": 0,
+            "Chan023": 0,
+            "Chan022": 0,
+            "Chan021": 0,
+            "Chan020": 0,
+            "Chan019": 0,
+            "Chan018": 0,
+            "Chan017": 0,
+            "Chan016": 0,
+            "Chan015": 0,
+            "Chan014": 0,
+            "Chan013": 0,
+            "Chan012": 0,
+            "Chan011": 0,
+            "Chan010": 0,
+            "Chan009": 0,
+            "Chan008": 0,
+            "Chan007": 0,
+            "Chan006": 0,
+            "Chan005": 0,
+            "Chan004": 0,
+            "Chan003": 0,
+            "Chan002": 0,
+            "Chan001": 0,
+            "Chan000": 0
+        },
+        "register3": {
+            "trig_lut7": 0,
+            "trig_lut6": 0,
+            "trig_lut5": 0,
+            "trig_lut4": 0,
+            "trig_lut3": 0,
+            "trig_lut2": 0,
+            "trig_lut1": 0,
+            "trig_lut0": 0
+        },
+        "register4": {
+            "trig_lutf": 0,
+            "trig_lute": 0,
+            "trig_lutd": 0,
+            "trig_lutc": 0,
+            "trig_lutb": 0,
+            "trig_luta": 0,
+            "trig_lut9": 0,
+            "trig_lut8": 0
+        },
+        "register5": {
+            "Chan000": 19,
+            "Chan001": 19,
+            "Chan002": 19,
+            "Chan003": 19,
+            "Chan004": 19,
+            "Chan005": 19,
+            "Chan006": 19,
+            "Chan007": 19,
+            "Chan008": 19,
+            "Chan009": 19,
+            "Chan010": 19,
+            "Chan011": 19,
+            "Chan012": 19,
+            "Chan013": 19,
+            "Chan014": 19,
+            "Chan015": 19
+        },
+        "register6": {
+            "Chan016": 19,
+            "Chan017": 19,
+            "Chan018": 19,
+            "Chan019": 19,
+            "Chan020": 19,
+            "Chan021": 19,
+            "Chan022": 19,
+            "Chan023": 19,
+            "Chan024": 19,
+            "Chan025": 19,
+            "Chan026": 19,
+            "Chan027": 19,
+            "Chan028": 19,
+            "Chan029": 19,
+            "Chan030": 19,
+            "Chan031": 19
+        },
+        "register7": {
+            "Chan032": 19,
+            "Chan033": 19,
+            "Chan034": 19,
+            "Chan035": 19,
+            "Chan036": 19,
+            "Chan037": 19,
+            "Chan038": 19,
+            "Chan039": 19,
+            "Chan040": 19,
+            "Chan041": 19,
+            "Chan042": 19,
+            "Chan043": 19,
+            "Chan044": 19,
+            "Chan045": 19,
+            "Chan046": 19,
+            "Chan047": 19
+        },
+        "register8": {
+            "Chan048": 19,
+            "Chan049": 19,
+            "Chan050": 19,
+            "Chan051": 19,
+            "Chan052": 19,
+            "Chan053": 19,
+            "Chan054": 19,
+            "Chan055": 19,
+            "Chan056": 19,
+            "Chan057": 19,
+            "Chan058": 19,
+            "Chan059": 19,
+            "Chan060": 19,
+            "Chan061": 19,
+            "Chan062": 19,
+            "Chan063": 19
+        },
+        "register9": {
+            "Chan064": 19,
+            "Chan065": 19,
+            "Chan066": 19,
+            "Chan067": 19,
+            "Chan068": 19,
+            "Chan069": 19,
+            "Chan070": 19,
+            "Chan071": 19,
+            "Chan072": 19,
+            "Chan073": 19,
+            "Chan074": 19,
+            "Chan075": 19,
+            "Chan076": 19,
+            "Chan077": 19,
+            "Chan078": 19,
+            "Chan079": 19
+        },
+        "register10": {
+            "Chan080": 19,
+            "Chan081": 19,
+            "Chan082": 19,
+            "Chan083": 19,
+            "Chan084": 19,
+            "Chan085": 19,
+            "Chan086": 19,
+            "Chan087": 19,
+            "Chan088": 19,
+            "Chan089": 19,
+            "Chan090": 19,
+            "Chan091": 19,
+            "Chan092": 19,
+            "Chan093": 19,
+            "Chan094": 19,
+            "Chan095": 19
+        },
+        "register11": {
+            "Chan096": 19,
+            "Chan097": 19,
+            "Chan098": 19,
+            "Chan099": 19,
+            "Chan100": 19,
+            "Chan101": 19,
+            "Chan102": 19,
+            "Chan103": 19
+        },
+        "register12": {
+            "timer": 255,
+            "bypass": 15,
+            "prompt_circuit": 0,
+            "bypass_trigger": 0,
+            "bypass_scrambler": 0,
+            "test_frame2Router_enable": 0,
+            "stripTDS_globaltest": 0,
+            "PRBS_e": 0,
+            "resets": 0
+        }
+    },
+    "MMFE8-0001":{
+        "OpcServerIp": "pcatlnswfelix01.cern.ch:4841",
+        "OpcNodeId": "SCA on MMFE8 0319-0"
+    },
+    "PFEB-0001":{
+        "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+        "OpcNodeId": "SCA on pFEBv2.3",
+        "rocPllCoreAnalog":{},
+        "rocCoreDigital": {
+            "reg014eportEnable": {
+                "sroc3": 1
+            }
+        },
+        "vmm0": {"sdp_dac":1000}
+    },
+    "SFEB-0001":{
+        "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+        "OpcNodeId": "SCA on sFEBv2.3",
+        "tds2": {
+            "register2" : {
+                "Chan100" : 0
+            }
+        }
+    },
+    "A01" : { 
+        "SFEB-0001":{
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on sFEBv2.3"
+        },
+        "SFEB-0002":{
+            "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+            "OpcNodeId": "SCA on sFEBv2.4"
+        }
+    },
+    "A02" : { 
+        "Layer0": {
+            "MMFE8-0001":{
+                "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+                "OpcNodeId": "SCA on MMFE8 2.3"
+            },
+            "badPFEB-0001":{
+                "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+                "OpcNodeId": "SCA on pFEBv2.4"
+            }
+        },
+        "Layer1": {
+            "MMFE8-0001":{
+                "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+                "OpcNodeId": "SCA on MMFE8 2.3 1"
+            },
+            "PFEB-0001":{
+                "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+                "OpcNodeId": "SCA on pFEBv2.4 2"
+            }
+        }
+    }
+}

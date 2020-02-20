@@ -23,6 +23,7 @@ int TRIM_LO = 0;
 int TRIM_MID = 14;
 float SLOPE_CHECK = 1/1.5/1000. * 4095.0;
 int NCH_ABOVE_THRESH_CUTOFF = 63;
+bool isMM = false; //patmasid
 bool debug = true;
 
 float take_median(std::vector<float> &v) {
@@ -40,15 +41,29 @@ float take_median(std::vector<short unsigned int> &v) {
 }
 
 float sample_to_mV(float sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return sample * 1000. * factor / 4095.0;
+    // return sample * 1000. * 1.0 / 4095.0;
+    // return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
 }
 
 float sample_to_mV(short unsigned int sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return sample * 1000. * factor / 4095.0;
+    // return sample * 1000. * 1.0 / 4095.0;
+    // return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
 }
 
 float mV_to_sample(float mV_read){
-  return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
+    float factor = (isMM) ? 1.5 : 1.0;
+    return mV_read / 1000. / factor * 4095.0;
+    // return mV_read / 1000. / 1.0 * 4095.0;
+    // return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
+}
+
+int mV_to_sample_int(float mV_read){
+    float factor = (isMM) ? 1.5 : 1.0;
+    return mV_read / 1000. / factor * 4095.0;
 }
 
 float take_rms(std::vector<float> &v, float mean) {
@@ -88,51 +103,75 @@ bool check_slopes(float m1, float m2){
   return true;
 }
 
-
 int calculate_thdac_value(nsw::ConfigSender & cs,
-                          nsw::FEBConfig & feb,
-                          int vmm_id,
-                          int n_samples,
-                          int thdac_central_guess,
-                          std::vector<int> & thdac_guess_variations){
+                                                  nsw::FEBConfig & feb,
+                                                  int vmm_id,
+                                                  int n_samples,
+                                                  int thdac_central_guess,
+                                                  std::vector<int> & thdac_guess_variations,
+                                                  float & slope,
+                                                  float & intercept){
+  std::vector<float> thdac_guesses_vars_okay;
   std::vector<float> thdac_guesses_sample;
-
+  
   for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
-    if (thdac_guess_variations[i]>1023){
-      if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
-      thdac_guess_variations[i] = 1023;
-      return 1023;
-    } else if (thdac_guess_variations[i]<0){
-      if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
-      thdac_guess_variations[i] = 0;
-      return 1023;
-    }
 
+      if(debug) std::cout << "thdac_guess_variations[i]: " << thdac_guess_variations[i] <<std::endl;
+
+      if (thdac_guess_variations[i]>1023){
+          if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
+          thdac_guess_variations[i] = 1023;
+          slope = -1.0;
+          intercept = -1.0;
+          return 1023;
+      } else if (thdac_guess_variations[i]<0){
+          if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
+          thdac_guess_variations[i] = 0;
+          slope= -1.0;
+          intercept = -1.0;
+          return 1023;
+      }
+      
     feb.getVmm(vmm_id).setMonitorOutput(nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor);
     feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac_guess_variations[i]));
     auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
-    float sum = std::accumulate(results.begin(), results.end(), 0.0);
-    float mean = sum / results.size();
-    thdac_guesses_sample.push_back(mean);
+    // use the median, and
+    // avoid suspicious threshold measurements
+    float median = take_median(results);
+    bool measurement_ok = (median > 10);
+    if (measurement_ok) {
+        thdac_guesses_vars_okay.push_back((float)(thdac_guess_variations[i]));
+        thdac_guesses_sample.push_back(median);
+    }
     if (debug)
       std::cout << "INFO "
           << feb.getAddress()
           << " vmm" << vmm_id
           << ", thdac " << thdac_guess_variations[i]
-          << ", thdac (mV) " << sample_to_mV(mean)
+          << ", thdac (mV) " << sample_to_mV(median)
+          << (measurement_ok ? "" : "       <- Skipping suspicious measurement")
           << std::endl;
   }
 
+  for(unsigned int iSample=0; iSample < thdac_guesses_vars_okay.size(); iSample++){
+      
+      if(debug){
+          std::cout<<"Guess DAC: " << thdac_guesses_vars_okay[iSample]
+                   <<" ADC value: " << thdac_guesses_sample[iSample] <<std::endl;
+      }
+
+  }
+
   // do fit to a line
-  float thdac_guess_mean = std::accumulate(thdac_guess_variations.begin(), thdac_guess_variations.end(), 0.0)/thdac_guess_variations.size();
+  float thdac_guess_mean = std::accumulate(thdac_guesses_vars_okay.begin(), thdac_guesses_vars_okay.end(), 0.0)/thdac_guesses_vars_okay.size();
   float thdac_guess_sample_mean = std::accumulate(thdac_guesses_sample.begin(), thdac_guesses_sample.end(), 0.0)/thdac_guesses_sample.size();
 
   float num = 0.;
   float denom = 0.;
-  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
-    num += (thdac_guess_variations[i]-thdac_guess_mean) * (thdac_guesses_sample[i]-thdac_guess_sample_mean);
-    denom += pow((thdac_guess_variations[i]-thdac_guess_mean),2);
+  for (unsigned int i = 0; i < thdac_guesses_vars_okay.size(); i++){
+    num += (thdac_guesses_vars_okay[i]-thdac_guess_mean) * (thdac_guesses_sample[i]-thdac_guess_sample_mean);
+    denom += pow((thdac_guesses_vars_okay[i]-thdac_guess_mean),2);
   }
 
   float thdac_slope = num/denom;
@@ -141,9 +180,13 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
   // (y-b) / m = x
   int thdac = (mV_to_sample(thdac_central_guess) - thdac_intercept)/thdac_slope;
 
+  std::cout << "THRESHOLD VALUE!!!!! THDAC: " << thdac << " SLOPE: "<< thdac_slope << " INTERCEPT: " << thdac_intercept <<std::endl;
+
+  slope = thdac_slope;
+  intercept = thdac_intercept;
+
   return thdac;
 }
-
 
 std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                             nsw::FEBConfig & feb,
@@ -295,6 +338,7 @@ int main(int ac, const char *av[]) {
   int vmm_id;
   int n_samples;
   int tpdac = -1;
+  bool isSTGC = 0;
   std::string config_filename;
   std::string fe_name;
   std::string rms_str;
@@ -309,11 +353,17 @@ int main(int ac, const char *av[]) {
       ("vmm,V", po::value<int>(&vmm_id)->default_value(0), "VMM id (0-7)")
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
+      ("isSTGC", po::bool_switch()->default_value(false), "Use the sTGC configuration")
     ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
   po::notify(vm);
+  isSTGC = vm["isSTGC"].as<bool>();
+  isMM = !isSTGC;
+  std::cout << std::endl;
+  std::cout << "The detector under test is " << ((isMM) ? "MM" : "sTGC") << std::endl;
+  std::cout << std::endl;
 
   if (vm.count("help")) {
       std::cout << desc << "\n";
@@ -371,6 +421,10 @@ int main(int ac, const char *av[]) {
 
   // calculate thdac
   std::map<std::string,int> thdacs;
+  std::map<std::string,int> thdacs_new;
+  std::map<std::string,int> thdacs_goal;
+  std::map<std::string,float> thdac_slopes;
+  std::map<std::string,float> thdac_intercepts;
   std::map<std::string,float> thdacs_sample;
 
   // then, take trimmer values
@@ -385,6 +439,7 @@ int main(int ac, const char *av[]) {
   std::map< std::pair< std::string,int>, float> channel_mid_eff_thresh_err;
 
   std::map< std::string,float > vmm_mid_eff_thresh;
+  std::map< std::string,float > vmm_mid_eff_thresh_new;
   std::map< std::pair< std::string,int>, float> channel_eff_thresh_slope;
   std::map< std::pair< std::string,int>, float> channel_trimmer_max;
 
@@ -414,6 +469,14 @@ int main(int ac, const char *av[]) {
     // write baseline
     std::ofstream myfile;
     myfile.open("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+
+    // write Summary (@patmasid - Prachi)
+    std::ofstream myfile_summary;
+    myfile_summary.open("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+
+    // write channels for which baseline is not between 150-200 mV (@patmasid - Prachi)
+    std::ofstream myfile_baseline_outside_150_200mV;
+    myfile_baseline_outside_150_200mV.open("baseline_outside_150_200mV_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
 
     fe_samples_tmp.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
@@ -453,6 +516,42 @@ int main(int ac, const char *av[]) {
                   << " , stdev: " << sample_to_mV(stdev)
                   << std::endl;
 
+      //@patmasid - Prachi
+      myfile_summary << "SUMMARY"
+                     << " " << feb.getAddress()
+                     << " vmm " << vmm_id
+                     << " channel " << channel_id
+                     << " mean " << mean
+                     << " stdev " << stdev
+                     << " median " << median
+                     << std::endl;
+      
+      float mean_mV = mean*1000.0/4095.0;
+      float stdev_mV = stdev*1000.0/4095.0;
+      float median_mV = median*1000.0/4095.0;
+      
+      //@patmasid - Prachi
+      if(mean_mV < 150 || mean_mV > 200){          
+          
+          std::cout << "Warning!!: Baseline Not in range:  "
+                    << " " << feb.getAddress()
+                    << " vmm " << vmm_id
+                    << " channel " << channel_id
+                    << " mean " << mean_mV
+                    << " stdev " << stdev_mV
+                    << " median " << median_mV
+                    << std::endl;
+
+          myfile_baseline_outside_150_200mV << "BASELINE_OUTSIDE_150_200_MV"
+                                            << " " << feb.getAddress()
+                                            << " vmm " << vmm_id
+                                            << " channel " << channel_id
+                                            << " mean " << mean_mV
+                                            << " stdev " << stdev_mV
+                                            << " median " << median_mV
+                                            << std::endl;
+      }
+
       // if RMS of channel is too large, it's probably crap, ignore it
       // potentially output a list of channels to mask?
       if ( sample_to_mV(stdev) > RMS_CUTOFF )
@@ -462,10 +561,14 @@ int main(int ac, const char *av[]) {
       for (unsigned int i = 0; i < results.size(); i++) {
         fe_samples_tmp.push_back(results[i]);
       }
+
     }
 
     myfile.close();
 
+    myfile_summary.close();
+    
+    myfile_baseline_outside_150_200mV.close();
 
     // remove samples which are highly suspicious
     // this can happen when a channel has a very high or low baseline, but with small RMS
@@ -512,12 +615,17 @@ int main(int ac, const char *av[]) {
     int tot_chs = NCH_PER_VMM;
     int nch_base_above_thresh = 0;
     std::map< std::pair< std::string,int>, int> best_channel_trim;
+    std::map< std::pair< std::string,int>, int> best_channel_trim_new;
 
     for (auto rms_factor: rms_factors){
 
       std::cout << "INFO - rms_factor = " << rms_factor << std::endl;
 
-      int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
+      //int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
+      // int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + (int)(offset_center * 50.0/32.0);
+
+      // @patmasid
+      int thdac_central_guess = 30 + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
 
       if (debug)
         std::cout << "INFO - baseline_mean, baseline_med, baseline_rms, rms_factor: "
@@ -533,15 +641,16 @@ int main(int ac, const char *av[]) {
         std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac_central_guess << " in mV, desired" << std::endl;
 
       std::vector<int> thdac_guess_variations;
-      // thdac_guess_variations.push_back(thdac_central_guess - 20);
-      // thdac_guess_variations.push_back(thdac_central_guess - 10);
+      thdac_guess_variations.push_back(thdac_central_guess - 20);
+      thdac_guess_variations.push_back(thdac_central_guess - 10);
+      thdac_guess_variations.push_back(thdac_central_guess + 10);
       thdac_guess_variations.push_back(thdac_central_guess + 20);
       thdac_guess_variations.push_back(thdac_central_guess + 30);
       thdac_guess_variations.push_back(thdac_central_guess + 40);
       thdac_guess_variations.push_back(thdac_central_guess + 50);
       thdac_guess_variations.push_back(thdac_central_guess + 60);
-      int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
-
+      //int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
+      int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations, thdac_slopes[feb.getAddress()], thdac_intercepts[feb.getAddress()]);
       thdacs[feb.getAddress()] = thdac;
 
       if (debug)
@@ -565,7 +674,6 @@ int main(int ac, const char *av[]) {
       fe_samples_tmp.clear();
       for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
 
-        thdac = thdacs[feb.getAddress()];
         feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
         feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
         feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
@@ -585,13 +693,28 @@ int main(int ac, const char *av[]) {
       vmm_mid_eff_thresh[feb.getAddress()] = vmm_eff_thresh;
 
       if (debug)
-        std::cout << "INFO - VMM, vmm_median_trim_mid, vmm_median, vmm_eff_thresh, rms_factor = "
+        std::cout << "INFO - VMM, vmm_median_trim_mid(mV), vmm_median_trim_mid(ADC), vmm_median, vmm_eff_thresh, rms_factor = "
                   << vmm_id << ", "
                   << sample_to_mV(vmm_median_trim_mid) << ", "
+                  << vmm_median_trim_mid               << ", "
                   << sample_to_mV(vmm_median)          << ", "
                   << sample_to_mV(vmm_eff_thresh)      << ", "
                   << rms_factor                        << ", "
                   << std::endl;
+
+      float expectDACThres = mV_to_sample(30)/thdac_slopes[feb.getAddress()]; 
+      float sampleDACThres = vmm_eff_thresh/thdac_slopes[feb.getAddress()];
+      int previous_thdac = thdacs[feb.getAddress()];
+
+      //================== Correcting the threshold @patmasid ==================//
+      
+      if(debug) std::cout << "Slope " << thdac_slopes[feb.getAddress()] << " Intercept " << thdac_intercepts[feb.getAddress()] << std::endl;
+
+      if(debug) std::cout << "expected " << expectDACThres << "sampled " << sampleDACThres << "previous_thdac " << previous_thdac << std::endl;
+      
+      thdacs_new[feb.getAddress()] = previous_thdac + expectDACThres - sampleDACThres;
+
+      if(debug) std::cout << "NEW THRESHOLD!: " << thdacs_new[feb.getAddress()] << std::endl;
 
       //
       //////////////////////////////////
@@ -734,6 +857,9 @@ int main(int ac, const char *av[]) {
       }
 
       if (flag_trim_in_range){ // trimmed thresholds are equalizable!
+
+        std::vector<float> vmm_eff_threshold;
+
         for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){ // channel loop
           std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
 
@@ -748,14 +874,18 @@ int main(int ac, const char *av[]) {
             continue;
           }
 
+          int trim_guess_copy, trim_guess_copy_new;
+
           if (first) {
             // guess at a trim value
             float delta = channel_mid_eff_thresh[feb_ch] - vmm_mid_eff_thresh[feb.getAddress()];
             int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
+            trim_guess_copy = trim_guess;
 
             // cap off the guess for trimmer value to avoid non-linear region.
             best_channel_trim[feb_ch] = trim_guess > channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
             best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
+
           }
 
           int thdac = thdacs[feb.getAddress()];
@@ -777,12 +907,72 @@ int main(int ac, const char *av[]) {
                     << " " << vmm_id
                     << " " << channel_id
                     << " " << tpdac
-                    << " " << thdac
+                    << " " << thdacs_new[feb.getAddress()]
                     << " " << TRIM_MID
                     << " " << channel_mid_eff_thresh[feb_ch]
                     << " " << best_channel_trim[feb_ch]
                     << " " << eff_thresh << std::endl;
+          
+          std::cout << "TrimValues_1_" << rms_factor
+                    << " feb.getAddress() " << feb.getAddress()
+                    << " vmm_id " << vmm_id
+                    << " channel_id " << channel_id
+                    << " tpdac " << tpdac
+                    << " thdac previous " << thdacs[feb.getAddress()]
+                    << " TRIM_MID " << TRIM_MID
+                    << " channel_mid_eff_thresh[feb_ch] " << channel_mid_eff_thresh[feb_ch]
+                    << " vmm_mid_eff_thresh[feb.getAddress()] " <<  vmm_mid_eff_thresh[feb.getAddress()]
+                    << " trim_guess " << trim_guess_copy
+                    << " best_channel_trim[feb_ch] " << best_channel_trim[feb_ch]
+                    << " eff_thresh " << eff_thresh << std::endl;
+         
+          vmm_eff_threshold.push_back(eff_thresh);
+ 
         }
+
+        /*float median_vmm_eff_threshold = take_median(vmm_eff_threshold);
+
+        int goal_thdac = thdac + (mV_to_sample(30) - median_vmm_eff_threshold)/thdac_slopes[feb.getAddress()];
+
+        thdacs_goal[feb.getAddress()] = goal_thdac;
+        
+        for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){ // channel loop 
+            std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
+
+            feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+            feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+            feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
+            feb.getVmm(vmm_id).setGlobalThreshold((size_t)(goal_thdac));
+            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
+
+            float median = take_median(results);
+            float eff_thresh = median - channel_baseline_med[feb_ch];
+            std::cout << "DATA_x" << rms_factor
+                      << " " << feb.getAddress()
+                      << " " << vmm_id
+                      << " " << channel_id
+                      << " " << tpdac
+                      << " " << thdacs_goal[feb.getAddress()]
+                      << " " << TRIM_MID
+                      << " " << channel_mid_eff_thresh[feb_ch]
+                      << " " << best_channel_trim[feb_ch]
+                      << " " << eff_thresh << std::endl;
+
+            std::cout << "TrimValues_2_" << rms_factor
+                      << " feb.getAddress() " << feb.getAddress()
+                      << " vmm_id " << vmm_id
+                      << " channel_id " << channel_id
+                      << " tpdac " << tpdac
+                      << " thdac previous " << thdacs[feb.getAddress()]
+                      << " thdac corrected " << thdacs_goal[feb.getAddress()]
+                      << " TRIM_MID " << TRIM_MID
+                      << " channel_mid_eff_thresh[feb_ch] " << channel_mid_eff_thresh[feb_ch]
+                      << " vmm_mid_eff_thresh[feb.getAddress()] " <<  vmm_mid_eff_thresh[feb.getAddress()]
+                      << " best_channel_trim[feb_ch] " << best_channel_trim[feb_ch]
+                      << " eff_thresh " << eff_thresh << std::endl;
+
+                      }*/
+
       }
 
       else{
