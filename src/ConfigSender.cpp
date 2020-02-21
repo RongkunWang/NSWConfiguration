@@ -581,13 +581,9 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     if (!go)
         return;
 
-    // maximum number of attempts to configure,
-    // including the configuration which must have
-    // occurred before running this function
-    size_t max_attempts = 15;
-
     // the TP-ADDC alignment register
     auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
+    auto regAddrRst = nsw::hexStringToByteVector("0x03", 4, true);
 
     // collect all TPs from the ARTs
     std::set< std::pair<std::string, std::string> > tps;
@@ -604,34 +600,71 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
         auto outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
         ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata, true));
 
-        // announce
-        for (auto & addc : addcs)
-            for (auto art : addc.getARTs())
-                if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
-                    if (!art.IsAlignedWithTP(outdata))
-                        ERS_LOG(addc.getAddress() << "." << art.getName() << " not aligned, bit = " << art.TP_GBTxAlignmentBit());
+        // TP collect data from the ARTs
+        // to decide if stability is good
+        int n_resets = 0;
+        int n_resets_max = 10;
+        while (true) {
+            if (n_resets > n_resets_max)
+                throw std::runtime_error("Failed to stabilize input to " + tp.second + ". Crashing");
 
-        // reconfig where needed
-        for (auto & addc: addcs) {
-            for (auto art: addc.getARTs()) {
-                if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip()) {
-                    // We dont understand why this sometimes needs to be re-configured
-                    //    to send good data to the TP. Under investigation.
-                    size_t attempt = 1;
-                    while(!art.IsAlignedWithTP(outdata) && attempt < max_attempts) {
-                        ERS_LOG(addc.getAddress() << "." << art.getName() << " failed to align on attempt " << attempt);
-                        sendAddcConfig(addc, art.index());
-                        usleep(art.TP_GBTxAlignmentSleepTime());
-                        outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
-                        ERS_LOG(tp.first << "/" << tp.second << " Found " << nsw::vectorToBitString(outdata, true));
-                        attempt++;
-                    }
-                    if (!art.IsAlignedWithTP(outdata))
-                        throw std::runtime_error("Failed to align " + addc.getAddress() + "." + art.getName());
-                    else if (attempt > 1)
-                        ERS_LOG(addc.getAddress() << "." << art.getName() << " aligned on attempt " << attempt-1);
-                }
+            // should sleep before trying the first time
+            // in case the fiber communication hasn't settled
+            // TODO: make this configurable
+            usleep(5e6);
+
+            // read for glitches
+            // TODO: make n_reads configurable
+            int n_reads = 1e3;
+            auto glitches = std::vector<int>(32);
+            for (int i_read = 0; i_read < n_reads; i_read++) {
+                outdata = readI2cAtAddress(tp.first, tp.second, regAddrVec.data(), regAddrVec.size(), 4);
+                for (auto & addc : addcs)
+                    for (auto art : addc.getARTs())
+                        if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
+                            glitches[art.TP_GBTxAlignmentBit()] += (art.IsAlignedWithTP(outdata) ? 0 : 1);
             }
+
+            // announce
+            std::cout << std::endl;
+            for (auto & addc : addcs)
+                for (auto art : addc.getARTs())
+                    if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
+                        std::cout << addc.getAddress() << "." << art.getName() << " "
+                                  << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
+                                  << " (" << art.TP_GBTxAlignmentBit() << ")" << std::endl;
+
+            // build the reset
+            uint32_t reset = 0;
+            size_t fiber_per_pll = 4;
+            for (size_t ipll = 0; ipll < 32/fiber_per_pll; ipll++) {
+                int total_glitches = 0;
+                for (size_t fib = 0; fib < fiber_per_pll; fib++)
+                    total_glitches += glitches[ipll*fiber_per_pll + fib];
+                if (total_glitches > 0)
+                    reset += 1 << (uint32_t)(ipll);
+            }
+            std::cout << "Reset word = " << reset << std::endl;
+
+            // the moment of truth
+            if (reset == 0) {
+                std::cout << "Yay! ^.^" << std::endl;
+                break;
+            }
+
+            // or, send the reset
+            std::vector<uint8_t> entirePayload(regAddrRst);
+            auto data = nsw::intToByteVector(reset, 4, true); // true==little endian. is that correct?
+            entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
+            sendI2cRaw(tp.first, tp.second, entirePayload.data(), entirePayload.size());
+            usleep(1e6);
+            data = nsw::intToByteVector(0, 4, true);
+            entirePayload = regAddrRst;
+            entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
+            sendI2cRaw(tp.first, tp.second, entirePayload.data(), entirePayload.size());
+
+            // protecc
+            n_resets++;
         }
     }
 }
