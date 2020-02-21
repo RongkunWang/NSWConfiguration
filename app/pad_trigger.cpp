@@ -13,6 +13,7 @@
 
 namespace po = boost::program_options;
 
+double adc2temp(int adc);
 std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg);
 
 int main(int argc, const char *argv[]) 
@@ -22,6 +23,8 @@ int main(int argc, const char *argv[])
     std::string board_name;
     std::string gpio_name;
     std::string adc_name;
+    std::string i2c_reg;
+    std::string i2c_val;
     bool do_config;
     int samples;
     int val;
@@ -42,6 +45,10 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to send predefined configuration")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
+        ("i2c_reg", po::value<std::string>(&i2c_reg)
+         ->default_value(""), "i2c register for SCA communication (0xHEX).")
+        ("i2c_val", po::value<std::string>(&i2c_val)
+         ->default_value(""), "i2c value to write (0xHEX)")
         ("samples", po::value<int>(&samples)
          ->default_value(100), "Number of samples when reading SCA ADC.")
         ;
@@ -85,7 +92,50 @@ int main(int argc, const char *argv[])
             std::cout << name << " -> read ADC" << std::endl;
             auto datas = cs.readAnalogInputConsecutiveSamples(ip, addr, samples);
             for (auto data : datas)
-                std::cout << " " << adc_name << " " << data << std::endl;
+                if (adc_name == "internalTemperature")
+                    std::cout << " " << adc_name << " " << data << " -> " << adc2temp(data) << "C" << std::endl;
+                else
+                    std::cout << " " << adc_name << " " << data << std::endl;
+        }
+    }
+
+    // pad i2c
+    if (i2c_reg != "") {
+        for (auto & board: board_configs) {
+            auto ip   = board.getOpcServerIp();
+            auto addr = board.getAddress() + ".fpga.fpga";
+            uint8_t address[]    = {(uint8_t)(std::stol(i2c_reg, 0, 16) & 0xff)};
+            size_t  address_size = 1;
+            size_t  data_size    = 4;
+            if (i2c_val != "") {
+                uint32_t i2c_val_32 = (uint32_t)(std::stol(i2c_val, 0, 16));
+                uint8_t data_data[]  = {address[0],
+                                        (uint8_t)((i2c_val_32 >> 24) & 0xff),
+                                        (uint8_t)((i2c_val_32 >> 16) & 0xff),
+                                        (uint8_t)((i2c_val_32 >>  8) & 0xff),
+                                        (uint8_t)((i2c_val_32 >>  0) & 0xff)};
+                std::cout << " Writing  " << addr
+                          << " reg "      << i2c_reg
+                          << " val "      << i2c_val
+                          << " -> msg = ";
+                for (auto val : data_data)
+                    std::cout << std::hex << unsigned(val) << " " << std::dec;
+                std::cout << std::endl;
+                cs.sendI2cRaw(ip, addr, data_data, address_size + data_size);
+            }
+            std::cout << " Readback " << addr << ": ";
+            auto vals = cs.readI2cAtAddress(ip, addr, address, address_size, data_size);
+            for (auto val : vals)
+                std::cout << std::hex << unsigned(val) << " " << std::dec;
+            if (address[0] == 1) {
+                uint32_t temp = 0;
+                temp += (uint32_t)(vals[0] << 24);
+                temp += (uint32_t)(vals[1] << 16);
+                temp += (uint32_t)(vals[2] <<  8);
+                temp += (uint32_t)(vals[3] <<  0);
+                std::cout << " -> " << (temp*503.975/4096)-273.15 << "C" << std::endl;
+            }
+            std::cout << std::endl;
         }
     }
 
@@ -95,6 +145,10 @@ int main(int argc, const char *argv[])
             cs.sendPadTriggerSCAConfig(board);
 
     return 0;
+}
+
+double adc2temp(int adc) {
+    return (0.79-adc/4095.0)*545.454545455 - 40;
 }
 
 std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg) {
