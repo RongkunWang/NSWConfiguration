@@ -5,6 +5,7 @@ variables:
     GIT_STRATEGY: fetch
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_SSL_NO_VERIFY: "true"
+    NCORES: 3
     TDAQ_RELEASE: tdaq-08-03-01
 
 #
@@ -61,13 +62,15 @@ stages:
         - cmake_config
         - cd $CMTCONFIG
         - pwd;ls
-        - make -j 4
+        - make -j $NCORES
         - pwd;ls
 
 #
 # Job: Build test
 #
 build-test:
+    except:
+        - dev
     <<: *build_job
     allow_failure: false
 
@@ -75,8 +78,33 @@ build-test:
 # Job: Build test - nightly
 #
 build-test-nightly:
+    except:
+        - dev
     variables:
         TDAQ_RELEASE: tdaq-99-00-00
+    <<: *build_job
+    allow_failure: true
+
+#
+# Job: Build test - dev
+#
+build-test-dev:
+    only:
+        - dev
+    variables:
+        NCORES: 1
+    <<: *build_job
+    allow_failure: false
+
+#
+# Job: Build test - nightly
+#
+build-test-nightly-dev:
+    only:
+        - dev
+    variables:
+        TDAQ_RELEASE: tdaq-99-00-00
+        NCORES: 1
     <<: *build_job
     allow_failure: true
 
