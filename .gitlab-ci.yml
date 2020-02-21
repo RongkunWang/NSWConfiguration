@@ -88,7 +88,7 @@ build-test-nightly:
 #
 # Job: Build test - dev
 #
-build-test:
+build-test-dev:
     only:
         - dev
     variables:
@@ -99,8 +99,8 @@ build-test:
 #
 # Job: Build test - nightly
 #
-build-test-nightly:
-    except:
+build-test-nightly-dev:
+    only:
         - dev
     variables:
         TDAQ_RELEASE: tdaq-99-00-00
