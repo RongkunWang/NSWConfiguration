@@ -300,6 +300,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
+        h1_bl_stdev_strip.Write()
         canv.Write()
         
     elif(ispFEB):
@@ -355,6 +356,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
+        h1_bl_stdev_wire.Write()
         canv.Write()
 
         # legend for stdev of baseline versus channel for pads
@@ -410,6 +412,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
+        h1_bl_stdev_pad.Write()
         canv.Write()
 
         #h2_bl_stdev_pad=ROOT.TH2D("h2_bl_stdev",title, 64, -0.5, 63.5, 100000,   0, 1000)
