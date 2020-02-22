@@ -610,11 +610,11 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
 
             // should sleep before trying the first time
             // in case the fiber communication hasn't settled
-            // TODO: make this configurable
+            // TODO(LL/AT): make this configurable
             usleep(5e6);
 
             // read for glitches
-            // TODO: make n_reads configurable
+            // TODO(LL/AT): make n_reads configurable
             int n_reads = 1e3;
             auto glitches = std::vector<int>(32);
             for (int i_read = 0; i_read < n_reads; i_read++) {
@@ -654,13 +654,13 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
 
             // or, send the reset
             std::vector<uint8_t> entirePayload(regAddrRst);
-            auto data = nsw::intToByteVector(reset, 4, true); // true==little endian. is that correct?
-            entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
+            auto data = nsw::intToByteVector(reset, 4, true);
+            entirePayload.insert(entirePayload.end(), data.begin(), data.end());
             sendI2cRaw(tp.first, tp.second, entirePayload.data(), entirePayload.size());
             usleep(1e6);
             data = nsw::intToByteVector(0, 4, true);
             entirePayload = regAddrRst;
-            entirePayload.insert(entirePayload.end(), data.begin(), data.end() );
+            entirePayload.insert(entirePayload.end(), data.begin(), data.end());
             sendI2cRaw(tp.first, tp.second, entirePayload.data(), entirePayload.size());
 
             // protecc
