@@ -19,10 +19,10 @@
 namespace po = boost::program_options;
 
 class FEBPattern {
-public:
+ public:
     std::string name;
     std::vector< std::pair<int, int> > vmmchs;
-    FEBPattern(std::string nm): name(nm) { vmmchs.clear(); }
+    explicit FEBPattern(std::string nm): name(nm) { vmmchs.clear(); }
 };
 
 LVL1::AltiModule* prepare_alti(unsigned int slot, bool do_config, bool dry_run);
@@ -128,7 +128,7 @@ int main(int argc, const char *argv[]) {
         // dont limit threads - only 8 MMFE8s, typically
         bool anything = 0;
         std::cout << "Enabling " << pattern.size() << " MMFE8s...";
-        for (auto febpatt: pattern) {
+        for (auto febpatt : pattern) {
             for (auto & feb : febs) {
                 if (febpatt.name != feb.getAddress())
                     continue;
@@ -171,7 +171,7 @@ int main(int argc, const char *argv[]) {
 
         // disable test pulse
         std::cout << "Disabling " << pattern.size() << " MMFE8s...";
-        for (auto febpatt: pattern) {
+        for (auto febpatt : pattern) {
             for (auto & feb : febs) {
                 if (febpatt.name != feb.getAddress())
                     continue;
@@ -250,15 +250,15 @@ std::vector< std::vector< FEBPattern > > patterns() {
             if (chan % 10 != 0)
                 continue;
             std::vector< FEBPattern > patt = {};
-            for (auto name: {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
-                             "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
+            for (auto name : {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                              "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
                              "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
-                             "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
-                             "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
-                             "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
-                             "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
-                             "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
-                patt.push_back( FEBPattern(name) );
+                              "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
+                              "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                              "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
+                              "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                              "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
+                patt.push_back(FEBPattern(name));
                 for (int vmmid = 0; vmmid < nvmm; vmmid++)
                     patt.back().vmmchs.push_back(std::make_pair(vmmid, chan));
             }
@@ -375,7 +375,7 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
 int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, FEBPattern febpatt, bool unmask, bool reset, bool dry_run) {
     int vmmid, ch;
     std::set<int> vmmids = {};
-    for (auto kv: febpatt.vmmchs) {
+    for (auto kv : febpatt.vmmchs) {
         std::tie(vmmid, ch) = kv;
         feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", unmask ? 1 : 0, ch);
         feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", unmask ? 0 : 1, ch);
