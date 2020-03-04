@@ -626,13 +626,12 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
             }
 
             // announce
-            std::cout << std::endl;
             for (auto & addc : addcs)
                 for (auto art : addc.getARTs())
                     if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
-                        std::cout << addc.getAddress() << "." << art.getName() << " "
-                                  << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
-                                  << " (" << art.TP_GBTxAlignmentBit() << ")" << std::endl;
+                        ERS_LOG(addc.getAddress() << "." << art.getName() << " "
+                                << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
+                                << " (" << art.TP_GBTxAlignmentBit() << ")");
 
             // build the reset
             uint32_t reset = 0;
@@ -644,11 +643,11 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
                 if (total_glitches > 0)
                     reset += 1 << (uint32_t)(ipll);
             }
-            std::cout << "Reset word = " << reset << std::endl;
+            ERS_INFO("alignAddcGbtxTp Reset word = " << reset);
 
             // the moment of truth
             if (reset == 0) {
-                std::cout << "Yay! ^.^" << std::endl;
+                ERS_INFO("alignAddcGbtxTp success!");
                 break;
             }
 
