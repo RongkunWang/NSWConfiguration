@@ -36,12 +36,14 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg);
 std::vector< std::vector< FEBPattern > > patterns();
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
+int write_to_disk(std::ofstream & outfile, int i, std::vector<FEBPattern> pattern, int art_phase);
 
 int main(int argc, const char *argv[]) {
     std::string config_filename;
     std::string addc_filename;
     std::string board_name_mmfe8;
     std::string board_name_addc;
+    std::string fname = "trigger_loop_mm_" + strf_time() + ".txt";
     int max_threads;
     unsigned int alti_slot;
     bool dry_run;
@@ -79,15 +81,20 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    // alti
-    auto alti = prepare_alti(alti_slot, false, dry_run);
-    if (!dry_run)
-        fifo_status(alti);
-
     // announce
     std::cout << "Dry run:          " << dry_run     << std::endl;
     std::cout << "VMM hard resets:  " << reset_vmm   << std::endl;
     std::cout << "ALTI slot:        " << alti_slot   << std::endl;
+    std::cout << "Output log:       " << fname       << std::endl;
+
+    // logs
+    std::ofstream outfile;
+    outfile.open(fname);
+
+    // alti
+    auto alti = prepare_alti(alti_slot, false, dry_run);
+    if (!dry_run)
+        fifo_status(alti);
 
     // the febs
     auto febs = parse_feb_name(board_name_mmfe8, config_filename);
@@ -118,6 +125,7 @@ int main(int argc, const char *argv[]) {
 
     // loop over patterns
     int ipatt = 0;
+    int ishot = 0;
     auto patts = patterns();
     for (auto pattern : patts) {
 
@@ -151,6 +159,8 @@ int main(int argc, const char *argv[]) {
         if (addcs.size() == 0) {
             if (!dry_run)
                 oneshot(alti);
+            write_to_disk(outfile, ishot, pattern, 0);
+            ishot++;
         } else {
             // or, loop through ADDC input phases and run TTC
             std::cout << "Setting input phase of " << addcs.size() << " ADDCs to be: ";
@@ -165,6 +175,8 @@ int main(int argc, const char *argv[]) {
                 wait_until_done(threads);
                 if (!dry_run)
                     oneshot(alti);
+                write_to_disk(outfile, ishot, pattern, (int)(phase));
+                ishot++;
             }
             std::cout << " done. ";
         }
@@ -193,6 +205,7 @@ int main(int argc, const char *argv[]) {
 
     // wrap up
     std::cout << std::endl;
+    outfile.close();
     if (!dry_run)
         fifo_status(alti);
     elapsed_seconds = (std::chrono::system_clock::now() - time_start);
@@ -220,6 +233,19 @@ std::string strf_time() {
 int minutes_remaining(double time_diff, int nprocessed, int ntotal) {
     double rate = (double)(nprocessed+1)/time_diff;
     return std::lround((double)(ntotal-nprocessed)/(rate*60));
+}
+
+int write_to_disk(std::ofstream & outfile, int i, std::vector<FEBPattern> pattern, int art_phase) {
+    outfile << i << "\n";
+    for (auto febpatt : pattern) {
+        outfile << febpatt.name;
+        for (auto kv: febpatt.vmmchs)
+            outfile << " " << kv.first << "/" << kv.second;
+        outfile << "\n";
+    }
+    outfile << art_phase << "\n";
+    outfile << "\n";
+    return 0;
 }
 
 std::vector< std::vector< FEBPattern > > patterns() {
