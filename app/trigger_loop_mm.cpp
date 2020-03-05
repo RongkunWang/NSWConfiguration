@@ -12,38 +12,33 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
 #include "boost/program_options.hpp"
+#include "boost/property_tree/ptree.hpp"
 #include "ALTI/AltiModule.h"
 #include "ALTI/AltiConfiguration.h"
 #include "RCDVme/RCDCmemSegment.h"
 
 namespace po = boost::program_options;
-
-class FEBPattern {
- public:
-    std::string name;
-    std::vector< std::pair<int, int> > vmmchs;
-    explicit FEBPattern(std::string nm): name(nm) { vmmchs.clear(); }
-};
+namespace pt = boost::property_tree;
 
 LVL1::AltiModule* prepare_alti(unsigned int slot, bool do_config, bool dry_run);
 int fifo_status(LVL1::AltiModule* alti);
 int oneshot(LVL1::AltiModule* alti);
 int wait_until_done(std::vector< std::future<int> >* threads);
-int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, FEBPattern febpatt, bool unmask, bool reset, bool dry_run);
+int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, pt::ptree febpatt, bool unmask, bool reset, bool dry_run);
 int configure_art_input_phase(nsw::ConfigSender* cs, nsw::ADDCConfig addc, uint phase);
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg);
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg);
-std::vector< std::vector< FEBPattern > > patterns();
+pt::ptree patterns();
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
-int write_to_disk(std::ofstream & outfile, int i, std::vector<FEBPattern> pattern, int art_phase);
+int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::ptree pattern, int art_phase);
 
 int main(int argc, const char *argv[]) {
     std::string config_filename;
     std::string addc_filename;
     std::string board_name_mmfe8;
     std::string board_name_addc;
-    std::string fname = "trigger_loop_mm_" + strf_time() + ".txt";
+    std::string fname = "trigger_loop_mm_" + strf_time() + ".json";
     int max_threads;
     unsigned int alti_slot;
     bool dry_run;
@@ -85,11 +80,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "Dry run:          " << dry_run     << std::endl;
     std::cout << "VMM hard resets:  " << reset_vmm   << std::endl;
     std::cout << "ALTI slot:        " << alti_slot   << std::endl;
-    std::cout << "Output log:       " << fname       << std::endl;
-
-    // logs
-    std::ofstream outfile;
-    outfile.open(fname);
+    std::cout << "Output json:      " << fname       << std::endl;
 
     // alti
     auto alti = prepare_alti(alti_slot, false, dry_run);
@@ -123,32 +114,46 @@ int main(int argc, const char *argv[]) {
     std::chrono::duration<double> elapsed_seconds;
     time_start = std::chrono::system_clock::now();
 
+    // bookkeeping
+    pt::ptree outpattern;
+
     // loop over patterns
     int ipatt = 0;
     int ishot = 0;
     auto patts = patterns();
-    for (auto pattern : patts) {
+    for (auto pattkv : patts) {
 
-        ipatt++;
-        std::cout << "> " << ipatt << " / " << patts.size() << " :: ";
+        std::cout << "> " << ipatt+1 << " / " << patts.size() << std::endl;
+
+        // announce
+        std::cout << " Pattern:" << std::endl;
+        for (auto febkv : pattkv.second) {
+            std::cout << "  " << febkv.first;
+            for (auto vmmkv : febkv.second) {
+                std::cout << " " << vmmkv.first;
+                for (auto chkv : vmmkv.second)
+                    std::cout << "/" << chkv.second.get<unsigned>("");
+            }
+            std::cout << std::endl;
+        }
 
         // enable test pulse
         // dont limit threads - only 8 MMFE8s, typically
         bool anything = 0;
-        std::cout << "Enabling " << pattern.size() << " MMFE8s...";
-        for (auto febpatt : pattern) {
+        std::cout << " Configure MMFE8s (enable)..." << std::flush;
+        for (auto febkv : pattkv.second) {
             for (auto & feb : febs) {
-                if (febpatt.name != feb.getAddress())
+                if (febkv.first != feb.getAddress())
                     continue;
                 anything = 1;
                 threads->push_back(std::async(std::launch::async, configure_vmms,
                                               senders->at(feb.getAddress()), feb,
-                                              febpatt, true, reset_vmm, dry_run));
+                                              febkv.second, true, reset_vmm, dry_run));
                 break;
             }
         }
-        std::cout << " done. ";
         wait_until_done(threads);
+        std::cout << " done. " << std::endl;
         if (!anything) {
             std::cout << " Skipping.";
             std::cout << std::flush << std::endl;
@@ -157,16 +162,18 @@ int main(int argc, const char *argv[]) {
 
         // run the TTC commands
         if (addcs.size() == 0) {
+            std::cout << " Run TTC..." << std::flush;
             if (!dry_run)
                 oneshot(alti);
-            write_to_disk(outfile, ishot, pattern, 0);
+            write_to_ptree(outpattern, ishot, pattkv.first, pattkv.second, -1);
             ishot++;
+            std::cout << " done. " << std::endl;
         } else {
             // or, loop through ADDC input phases and run TTC
-            std::cout << "Setting input phase of " << addcs.size() << " ADDCs to be: ";
+            std::cout << " Setting input phase of " << addcs.size() << " ADDCs to be: ";
             uint nphase = 16;
             for (uint phase = 0; phase < nphase; phase++) {
-                std::cout << std::hex << phase << std::dec;
+                std::cout << std::hex << phase << std::dec << std::flush;
                 for (auto & addc : addcs)
                     if (!dry_run)
                         threads->push_back(std::async(std::launch::async,
@@ -175,37 +182,39 @@ int main(int argc, const char *argv[]) {
                 wait_until_done(threads);
                 if (!dry_run)
                     oneshot(alti);
-                write_to_disk(outfile, ishot, pattern, (int)(phase));
+                write_to_ptree(outpattern, ishot, pattkv.first, pattkv.second, (int)(phase));
                 ishot++;
             }
-            std::cout << " done. ";
+            std::cout << " ... done. " << std::endl;
         }
 
         // disable test pulse
-        std::cout << "Disabling " << pattern.size() << " MMFE8s...";
-        for (auto febpatt : pattern) {
+        std::cout << " Configure MMFE8s (disable)..." << std::flush;
+        for (auto febkv : pattkv.second) {
             for (auto & feb : febs) {
-                if (febpatt.name != feb.getAddress())
+                if (febkv.first != feb.getAddress())
                     continue;
+                anything = 1;
                 threads->push_back(std::async(std::launch::async, configure_vmms,
                                               senders->at(feb.getAddress()), feb,
-                                              febpatt, false, reset_vmm, dry_run));
+                                              febkv.second, false, reset_vmm, dry_run));
                 break;
             }
         }
-        std::cout << " done. ";
         wait_until_done(threads);
+        std::cout << " done. " << std::endl;
 
         // wrap up
+        ipatt++;
         elapsed_seconds = (std::chrono::system_clock::now() - time_start);
-        std::cout << "~" << minutes_remaining(elapsed_seconds.count(), ipatt, patts.size()) << " min left.";
+        std::cout << " ~" << minutes_remaining(elapsed_seconds.count(), ipatt, patts.size()) << " min left.";
         std::cout << std::flush;
         std::cout << std::endl;
     }
 
     // wrap up
     std::cout << std::endl;
-    outfile.close();
+    pt::write_json(fname, outpattern);
     if (!dry_run)
         fifo_status(alti);
     elapsed_seconds = (std::chrono::system_clock::now() - time_start);
@@ -235,31 +244,29 @@ int minutes_remaining(double time_diff, int nprocessed, int ntotal) {
     return std::lround((double)(ntotal-nprocessed)/(rate*60));
 }
 
-int write_to_disk(std::ofstream & outfile, int i, std::vector<FEBPattern> pattern, int art_phase) {
-    outfile << i << "\n";
-    for (auto febpatt : pattern) {
-        outfile << febpatt.name;
-        for (auto kv: febpatt.vmmchs)
-            outfile << " " << kv.first << "/" << kv.second;
-        outfile << "\n";
-    }
-    outfile << art_phase << "\n";
-    outfile << "\n";
+int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::ptree pattern, int art_phase) {
+    pt::ptree patt;
+    patt.put("art_input_phase", art_phase);
+    patt.add_child(febpattname, pattern);
+    outpattern.add_child("pattern_" + std::to_string(i), patt);
     return 0;
 }
 
-std::vector< std::vector< FEBPattern > > patterns() {
+pt::ptree patterns() {
     //
-    // patterns = [ [ (MMFE8_L1P1_HOR, ((0, 0), (4, 0))), (MMFE8_L2P1_HOL, ((0, 0), (4, 0))), ... ], # pattern 0
-    //              [ (MMFE8_L1P1_HOR, ((0, 1), (4, 1))), (MMFE8_L2P1_HOL, ((0, 1), (4, 1))), ... ], # pattern 1
-    //              [ (MMFE8_L1P1_HOR, ((0, 2), (4, 2))), (MMFE8_L2P1_HOL, ((0, 2), (4, 2))), ... ], # pattern 2
+    // Format of one pattern:
+    // "febpattern_0": {
+    //     "MMFE8_L1P1_HOR": {
+    //         0: [0],
+    //         1: [0],
+    //         2: [0, 10, 20, 30, 40, 50, 60]},
+    //     "MMFE8_L2P1_HOL": {
+    //         0: [0],
+    //         1: [0],
+    //         2: [0, 10, 20, 30, 40, 50, 60]},
     //
-    // In words:
-    //   Return a vector of patterns.
-    //   Each pattern contains a vector of FEBPattern objects,
-    //   and each FEBPattern has a vector of (VMM, CH) pairs.
-    //
-    std::vector< std::vector< FEBPattern > > patts = {};
+    pt::ptree patts;
+    int ipatt = 0;
 
     //
     // connectivity max-parallel loop
@@ -275,22 +282,32 @@ std::vector< std::vector< FEBPattern > > patterns() {
         for (int chan = 0; chan < nchan; chan++) {
             if (chan % 10 != 0)
                 continue;
-            std::vector< FEBPattern > patt = {};
+            pt::ptree patt;
             for (auto name : {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
                               "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
-                             "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                              "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
                               "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
                               "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
                               "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
                               "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
                               "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
-                patt.push_back(FEBPattern(name));
-                for (int vmmid = 0; vmmid < nvmm; vmmid++)
-                    patt.back().vmmchs.push_back(std::make_pair(vmmid, chan));
+                ptree febtree;
+                for (int vmmid = 0; vmmid < nvmm; vmmid++) {
+                    // this might seem stupid, and it is, but
+                    //   it allows to write a vector of channels per VMM
+                    ptree vmmtree;
+                    ptree chantree;
+                    chantree.put("", chan);
+                    vmmtree.push_back(std::make_pair("", chantree));
+                    febtree.add_child(std::to_string(vmmid), vmmtree);
+                }
+                patt.add_child(name, febtree);
             }
-            patts.push_back(patt);
+            patts.add_child("febpattern_" + std::to_string(ipatt), patt);
+            ipatt++;
         }
     }
+    // pt::write_json("test.json", patts);
     return patts;
 }
 
@@ -327,22 +344,27 @@ std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
 
     // make FEB objects
     std::vector<nsw::FEBConfig> feb_configs;
+    std::cout << "Adding FEBs:" << std::endl;
     for (auto & nm : names) {
         try {
             if (nsw::getElementType(nm) == "MMFE8") {
                 feb_configs.emplace_back(reader1.readConfig(nm));
-                std::cout << "Adding: " << nm << std::endl;
-            } else {
-                std::cout << "Skipping: " << nm
-                          << " because its a " << nsw::getElementType(nm)
-                          << std::endl;
+                std::cout << " " << nm;
+                if (feb_configs.size() % 4 == 0)
+                    std::cout << std::endl;
             }
+            // } else {
+            //     std::cout << "Skipping: " << nm
+            //               << " because its a " << nsw::getElementType(nm)
+            //               << std::endl;
+            // }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
                       << " - Problem constructing configuration due to : " << e.what() << std::endl;
         }
     }
+    std::cout << std::endl;
     return feb_configs;
 }
 
@@ -379,16 +401,20 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
 
     // make ADDC objects
     std::vector<nsw::ADDCConfig> addc_configs;
+    std::cout << "Adding ADDCs:" << std::endl;
     for (auto & nm : names) {
         try {
             if (nsw::getElementType(nm) == "ADDC") {
                 addc_configs.emplace_back(reader1.readConfig(nm));
-                std::cout << "Adding: " << nm << std::endl;
-            } else {
-                std::cout << "Skipping: " << nm
-                          << " because its a " << nsw::getElementType(nm)
-                          << std::endl;
+                std::cout << " " << nm;
+                if (addc_configs.size() % 4 == 0)
+                    std::cout << std::endl;
             }
+            // } else {
+            //     std::cout << "Skipping: " << nm
+            //               << " because its a " << nsw::getElementType(nm)
+            //               << std::endl;
+            // }
         }
         catch (std::exception & e) {
             std::cout << nm << " - ERROR: Skipping this FE!"
@@ -398,14 +424,25 @@ std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg) 
     return addc_configs;
 }
 
-int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, FEBPattern febpatt, bool unmask, bool reset, bool dry_run) {
-    int vmmid, ch;
+int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, pt::ptree febpatt, bool unmask, bool reset, bool dry_run) {
+    //
+    // Example febpatt ptree:
+    // {
+    //   "0": ["0", "1", "2"],
+    //   "1": ["0"],
+    //   "2": ["0"]
+    // }
+    //
+    int vmmid, chan;
     std::set<int> vmmids = {};
-    for (auto kv : febpatt.vmmchs) {
-        std::tie(vmmid, ch) = kv;
-        feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", unmask ? 1 : 0, ch);
-        feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", unmask ? 0 : 1, ch);
-        vmmids.emplace(vmmid);
+    for (auto vmmkv : febpatt) {
+        for (auto chkv : vmmkv.second) {
+            vmmid = std::stoi(vmmkv.first);
+            chan  = chkv.second.get<int>("");
+            feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_st", unmask ? 1 : 0, chan);
+            feb.getVmm(vmmid).setChannelRegisterOneChannel("channel_sm", unmask ? 0 : 1, chan);
+            vmmids.emplace(vmmid);
+        }
     }
     if (!dry_run) {
         if (reset) {
