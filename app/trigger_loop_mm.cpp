@@ -444,20 +444,22 @@ int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, pt::ptree febpatt,
             vmmids.emplace(vmmid);
         }
     }
-    if (!dry_run) {
-        if (reset) {
-            for (auto vmmid : vmmids) {
-                auto & vmm = feb.getVmm(vmmid);
-                auto orig = vmm.getGlobalRegister("reset");
-                vmm.setGlobalRegister("reset", 3);
+    if (reset) {
+        for (auto vmmid : vmmids) {
+            auto & vmm = feb.getVmm(vmmid);
+            auto orig = vmm.getGlobalRegister("reset");
+            vmm.setGlobalRegister("reset", 3);
+            if (!dry_run)
                 cs->sendVmmConfigSingle(feb, vmmid);
-                vmm.setGlobalRegister("reset", orig);
-            }
+            vmm.setGlobalRegister("reset", orig);
         }
-        if (vmmids.size() == 8)
+    }
+    if (vmmids.size() == 8) {
+        if (!dry_run)
             cs->sendVmmConfig(feb);
-        else
-            for (auto vmmid : vmmids)
+    } else {
+        for (auto vmmid : vmmids)
+            if (!dry_run)
                 cs->sendVmmConfigSingle(feb, vmmid);
     }
     return 0;
