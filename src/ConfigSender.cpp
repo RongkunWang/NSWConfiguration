@@ -236,14 +236,18 @@ void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_addres
     const I2cMasterConfig & tds, int ntds, bool reset_tds) {
   // internal call
   // sca_address is feb.getAddress()
-  if (ntds <= 3) {
-    // old boards
+  if (ntds < 3) {
+    // old boards, and PFEB
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
   } else {
     // new boards
+    if (tds.getName() == "tds0")
       sendGPIO(opc_ip, sca_address + ".gpio.tdsaReset", 1);
+    else if (tds.getName() == "tds1")
       sendGPIO(opc_ip, sca_address + ".gpio.tdsbReset", 1);
+    else if (tds.getName() == "tds2")
       sendGPIO(opc_ip, sca_address + ".gpio.tdscReset", 1);
+    else if (tds.getName() == "tds3")
       sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
   }
 

@@ -39,7 +39,8 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 }
 
 std::string nsw::getElementType(std::string element_name) {
-    for (auto name : std::vector<std::string>({"MMFE8", "PFEB", "SFEB_old", "SFEB",
+    // do not easily change the order
+    for (auto name : std::vector<std::string>({"MMFE8", "PFEB", "SFEB_old", "SFEB8", "SFEB6", "SFEB",
                                                "TP", "ADDC", "PadTriggerSCA", "Router"})) {
         if (element_name.find(name) != std::string::npos) {
             ERS_DEBUG(2, "Found instance of " << name << " configuration: " << element_name);
