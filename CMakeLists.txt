@@ -75,6 +75,7 @@ tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
 
 tdaq_add_executable(nsw_trigger_loop_mm app/trigger_loop_mm.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
+  tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
 )
 
 tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
