@@ -32,10 +32,11 @@ pt::ptree patterns();
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
 int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::ptree pattern, int art_phase);
+int addc_tp_watchdog(std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run);
+std::atomic<bool> watch;
 
 int main(int argc, const char *argv[]) {
     std::string config_filename;
-    std::string addc_filename;
     std::string board_name_mmfe8;
     std::string board_name_addc;
     std::string fname = "trigger_loop_mm_" + strf_time() + ".json";
@@ -43,6 +44,7 @@ int main(int argc, const char *argv[]) {
     unsigned int alti_slot;
     bool dry_run;
     bool reset_vmm;
+    bool phase_scan;
 
     // CL options
     po::options_description desc(std::string("ADDC configuration script"));
@@ -51,12 +53,12 @@ int main(int argc, const char *argv[]) {
         ("config_file,c", po::value<std::string>(&config_filename)->
          default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/full_small_sector_12.json"),
          "Configuration file path")
-        ("addc_file,a", po::value<std::string>(&addc_filename)->
-         default_value(""), "ADDC config file path")
         ("dry_run", po::bool_switch()->
          default_value(false), "Option to NOT send configurations")
         ("reset_vmm", po::bool_switch()->
          default_value(false), "Option to reset VMM at every configuration")
+        ("phase_scan,p", po::bool_switch()->
+         default_value(false), "Option to scan ART input phases")
         ("max_threads,m", po::value<int>(&max_threads)->
          default_value(-1), "Maximum number of threads to run")
         ("alti", po::value<unsigned int>(&alti_slot)->
@@ -69,8 +71,9 @@ int main(int argc, const char *argv[]) {
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    dry_run   = vm["dry_run"  ].as<bool>();
-    reset_vmm = vm["reset_vmm"].as<bool>();
+    dry_run    = vm["dry_run"   ].as<bool>();
+    reset_vmm  = vm["reset_vmm" ].as<bool>();
+    phase_scan = vm["phase_scan"].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
@@ -79,6 +82,7 @@ int main(int argc, const char *argv[]) {
     // announce
     std::cout << "Dry run:          " << dry_run     << std::endl;
     std::cout << "VMM hard resets:  " << reset_vmm   << std::endl;
+    std::cout << "ART phase scan:   " << phase_scan  << std::endl;
     std::cout << "ALTI slot:        " << alti_slot   << std::endl;
     std::cout << "Output json:      " << fname       << std::endl;
 
@@ -92,9 +96,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "Number of FEBs found: " << febs.size() << std::endl;
 
     // the addcs
-    std::vector<nsw::ADDCConfig> addcs = {};
-    if (addc_filename.length() > 0)
-        addcs = parse_addc_name(board_name_addc, addc_filename);
+    auto addcs = parse_addc_name(board_name_addc, config_filename);
     std::cout << "Number of ADDCs found: " << addcs.size() << std::endl;
 
     // the configuration threads
@@ -108,6 +110,10 @@ int main(int argc, const char *argv[]) {
         senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
     for (auto & addc : addcs)
         senders->insert( {addc.getAddress(), new nsw::ConfigSender()} );
+
+    // start ADDC/TP watchdog
+    watch = 1;
+    auto watchdog = std::async(std::launch::async, addc_tp_watchdog, std::ref(addcs), dry_run);
 
     // keep time
     std::chrono::time_point<std::chrono::system_clock> time_start;
@@ -161,7 +167,7 @@ int main(int argc, const char *argv[]) {
         }
 
         // run the TTC commands
-        if (addcs.size() == 0) {
+        if (addcs.size() == 0 || !phase_scan) {
             std::cout << " Run TTC..." << std::flush;
             if (!dry_run)
                 oneshot(alti);
@@ -212,8 +218,12 @@ int main(int argc, const char *argv[]) {
         std::cout << std::endl;
     }
 
+    // end ADDC/TP watchdog
+    watch = 0;
+
     // wrap up
     std::cout << std::endl;
+    std::cout << "Closing " << fname << std::endl;
     pt::write_json(fname, outpattern);
     if (!dry_run)
         fifo_status(alti);
@@ -643,5 +653,66 @@ int oneshot(LVL1::AltiModule* alti) {
     if (alti->PATGenerationEnableWrite(true) != 0)
         throw std::runtime_error("Failed to PATGenerationEnableWrite(true)");
 
+    return 0;
+}
+
+int addc_tp_watchdog(std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run) {
+    //
+    // Be forewarned: this function reads TP SCAX registers.
+    // Dont race elsewhere.
+    //
+
+    if (addc_configs.size() == 0)
+        return 0;
+
+    nsw::ConfigSender cs;
+
+    // sleep time
+    size_t slp = 1;
+
+    // collect all TPs from the ARTs
+    std::set< std::pair<std::string, std::string> > tps;
+    for (auto & addc : addc_configs)
+        for (auto art : addc.getARTs())
+            tps.emplace(std::make_pair(art.getOpcServerIp_TP(), art.getOpcNodeId_TP()));
+    for (auto tp : tps)
+        std::cout << "Found TP for alignment: " << tp.first << "/" << tp.second << std::endl;
+    auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
+
+    // output file and announce
+    std::string fname = "addc_alignment_" + strf_time() + ".txt";
+    std::ofstream myfile;
+    myfile.open(fname);
+    std::cout << "Watching ADDC-TP alignment."              << std::endl;
+    std::cout << "Sleep time: " + std::to_string(slp) + "s" << std::endl;
+    std::cout << "Output file: " << fname                   << std::endl;
+    std::cout << "Press Ctrl+C to exit"                     << std::endl;
+
+    // monitor
+    while (watch) {
+        myfile << "Time " << strf_time() << std::endl;
+        for (auto tp : tps) {
+            auto outdata = dry_run ? std::vector<uint8_t>(4) : cs.readI2cAtAddress(tp.first, tp.second,
+                                                                                   regAddrVec.data(), regAddrVec.size(), 4);
+            for (auto & addc : addc_configs) {
+                for (auto art : addc.getARTs()) {
+                    if (art.IsMyTP(tp.first, tp.second)) {
+                        auto aligned = art.IsAlignedWithTP(outdata);
+                        std::stringstream result;
+                        result << addc.getAddress()         << " "
+                               << art.getName()             << " "
+                               << art.TP_GBTxAlignmentBit() << " "
+                               << aligned << std::endl;
+                        myfile << result.str();
+                    }
+                }
+            }
+        }
+        sleep(slp);
+    }
+
+    // close
+    std::cout << "Closing " << fname << std::endl;
+    myfile.close();
     return 0;
 }
