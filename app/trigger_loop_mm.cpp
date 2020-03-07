@@ -32,7 +32,7 @@ pt::ptree patterns();
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
 int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::ptree pattern, int art_phase);
-int addc_tp_watchdog(std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run);
+int addc_tp_watchdog(const std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run);
 std::atomic<bool> watch;
 
 int main(int argc, const char *argv[]) {
@@ -656,7 +656,7 @@ int oneshot(LVL1::AltiModule* alti) {
     return 0;
 }
 
-int addc_tp_watchdog(std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run) {
+int addc_tp_watchdog(const std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run) {
     //
     // Be forewarned: this function reads TP SCAX registers.
     // Dont race elsewhere.
