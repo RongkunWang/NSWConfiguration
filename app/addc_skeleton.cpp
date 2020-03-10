@@ -34,7 +34,7 @@ int main(int argc, const char *argv[])
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file,C", po::value<std::string>(&config_filename)->
+        ("config_file,c", po::value<std::string>(&config_filename)->
          default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/addc_test_art_common_config.json"),
          "Configuration file path")
         ("dont_config", po::bool_switch()->
