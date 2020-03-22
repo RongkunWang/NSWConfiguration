@@ -55,10 +55,21 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
-    try {
-        ss.writeSlave(bs);
-    } catch (const std::exception& e) {
-        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+    SUCCESS    = 0;
+    THIS_RETRY = 0;
+    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+        try {
+            ss.writeSlave(bs);
+            SUCCESS = 1;
+        } catch (const std::exception& e) {
+            ERS_LOG("writeSpiSlaveRaw " << THIS_RETRY << " failed. " << e.what()
+                    << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+            THIS_RETRY++;
+            sleep(1);
+        }
+    }
+    if (!SUCCESS) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "writeSpiSlaveRaw failed");
         ers::warning(issue);
         throw issue;
     }
