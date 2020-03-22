@@ -28,11 +28,12 @@ int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, pt::ptree febpatt,
 int configure_art_input_phase(nsw::ConfigSender* cs, nsw::ADDCConfig addc, uint phase);
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg);
 std::vector<nsw::ADDCConfig> parse_addc_name(std::string name, std::string cfg);
-pt::ptree patterns();
+pt::ptree patterns(bool tracks, int vmm_of_interest);
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
 int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::ptree pattern, int art_phase);
 int addc_tp_watchdog(const std::vector<nsw::ADDCConfig> & addc_configs, bool dry_run);
+int tp_l1a_ecr(nsw::ConfigSender* cs, std::string opc_ip, std::string tp_address, bool dry_run);
 std::atomic<bool> watch;
 
 int main(int argc, const char *argv[]) {
@@ -41,10 +42,13 @@ int main(int argc, const char *argv[]) {
     std::string board_name_addc;
     std::string fname = "trigger_loop_mm_" + strf_time() + ".json";
     int max_threads;
+    int pulsevmm;
     unsigned int alti_slot;
     bool dry_run;
     bool reset_vmm;
     bool phase_scan;
+    bool tp_ecr;
+    bool tracks;
 
     // CL options
     po::options_description desc(std::string("ADDC configuration script"));
@@ -59,8 +63,14 @@ int main(int argc, const char *argv[]) {
          default_value(false), "Option to reset VMM at every configuration")
         ("phase_scan,p", po::bool_switch()->
          default_value(false), "Option to scan ART input phases")
+        ("tracks", po::bool_switch()->
+         default_value(false), "Option to make 8 test pulses per pattern, for tracks")
+        ("tp_ecr", po::bool_switch()->
+         default_value(false), "Option to disable TP ECR")
         ("max_threads,m", po::value<int>(&max_threads)->
          default_value(-1), "Maximum number of threads to run")
+        ("pulsevmm", po::value<int>(&pulsevmm)->
+         default_value(-1), "Pulse a particular VMM only (good for pulsing tracks)")
         ("alti", po::value<unsigned int>(&alti_slot)->
          default_value(11), "ALTI slot")
         ("mmfe8", po::value<std::string>(&board_name_mmfe8)->
@@ -74,6 +84,8 @@ int main(int argc, const char *argv[]) {
     dry_run    = vm["dry_run"   ].as<bool>();
     reset_vmm  = vm["reset_vmm" ].as<bool>();
     phase_scan = vm["phase_scan"].as<bool>();
+    tracks     = vm["tracks"    ].as<bool>();
+    tp_ecr     = vm["tp_ecr"    ].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
@@ -84,6 +96,9 @@ int main(int argc, const char *argv[]) {
     std::cout << "VMM hard resets:  " << reset_vmm   << std::endl;
     std::cout << "ART phase scan:   " << phase_scan  << std::endl;
     std::cout << "ALTI slot:        " << alti_slot   << std::endl;
+    std::cout << "Pulse tracks:     " << tracks      << std::endl;
+    std::cout << "Pulse VMM:        " << pulsevmm    << std::endl;
+    std::cout << "TP ECR:           " << tp_ecr      << std::endl;
     std::cout << "Output json:      " << fname       << std::endl;
 
     // alti
@@ -99,6 +114,13 @@ int main(int argc, const char *argv[]) {
     auto addcs = parse_addc_name(board_name_addc, config_filename);
     std::cout << "Number of ADDCs found: " << addcs.size() << std::endl;
 
+    // the TP(s)
+    std::set< std::pair<std::string, std::string> > tps;
+    for (auto & addc : addcs)
+        for (auto art : addc.getARTs())
+            tps.emplace(std::make_pair(art.getOpcServerIp_TP(), art.getOpcNodeId_TP()));
+    std::cout << "Number of TPs found: " << tps.size() << std::endl;
+
     // the configuration threads
     std::cout << "Creating vector of threads..." << std::endl;
     auto threads = new std::vector< std::future<int> >();
@@ -110,6 +132,8 @@ int main(int argc, const char *argv[]) {
         senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
     for (auto & addc : addcs)
         senders->insert( {addc.getAddress(), new nsw::ConfigSender()} );
+    for (auto & tp : tps)
+        senders->insert( {tp.second, new nsw::ConfigSender()} );
 
     // start ADDC/TP watchdog
     watch = 1;
@@ -126,7 +150,7 @@ int main(int argc, const char *argv[]) {
     // loop over patterns
     int ipatt = 0;
     int ishot = 0;
-    auto patts = patterns();
+    auto patts = patterns(tracks, pulsevmm);
     for (auto pattkv : patts) {
 
         std::cout << "> " << ipatt+1 << " / " << patts.size() << std::endl;
@@ -169,6 +193,9 @@ int main(int argc, const char *argv[]) {
         // run the TTC commands
         if (addcs.size() == 0 || !phase_scan) {
             std::cout << " Run TTC..." << std::flush;
+            for (auto tp: tps)
+                if (tp_ecr)
+                    tp_l1a_ecr(senders->at(tp.second), tp.first, tp.second, dry_run);
             if (!dry_run)
                 oneshot(alti);
             write_to_ptree(outpattern, ishot, pattkv.first, pattkv.second, -1);
@@ -186,6 +213,9 @@ int main(int argc, const char *argv[]) {
                                                       configure_art_input_phase,
                                                       senders->at(addc.getAddress()), addc, phase));
                 wait_until_done(threads);
+                for (auto tp: tps)
+                    if (tp_ecr)
+                        tp_l1a_ecr(senders->at(tp.second), tp.first, tp.second, dry_run);
                 if (!dry_run)
                     oneshot(alti);
                 write_to_ptree(outpattern, ishot, pattkv.first, pattkv.second, (int)(phase));
@@ -262,7 +292,7 @@ int write_to_ptree(pt::ptree & outpattern, int i, std::string febpattname, pt::p
     return 0;
 }
 
-pt::ptree patterns() {
+pt::ptree patterns(bool tracks, int vmm_of_interest) {
     //
     // Format of one pattern:
     // "febpattern_0": {
@@ -278,45 +308,92 @@ pt::ptree patterns() {
     pt::ptree patts;
     int ipatt = 0;
 
-    //
-    // connectivity max-parallel loop
-    //
-    bool even;
-    int nvmm = 8;
-    int nchan = 64;
-    int pcb = 0;
-    for (int pos = 0; pos < 16; pos++) {
-        even = pos % 2 == 0;
-        pcb  = pos / 2 + 1;
-        auto pcbstr = std::to_string(pcb);
-        for (int chan = 0; chan < nchan; chan++) {
-            if (chan % 10 != 0)
-                continue;
-            pt::ptree patt;
-            for (auto name : {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
-                              "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
-                              "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
-                              "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
-                              "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
-                              "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
-                              "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
-                              "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
-                ptree febtree;
-                for (int vmmid = 0; vmmid < nvmm; vmmid++) {
-                    // this might seem stupid, and it is, but
-                    //   it allows to write a vector of channels per VMM
-                    ptree vmmtree;
-                    ptree chantree;
-                    chantree.put("", chan);
-                    vmmtree.push_back(std::make_pair("", chantree));
-                    febtree.add_child(std::to_string(vmmid), vmmtree);
+    if (!tracks) {
+        //
+        // connectivity max-parallel loop
+        //
+        bool even;
+        int nvmm = 8;
+        int nchan = 64;
+        int pcb = 0;
+        for (int pos = 0; pos < 16; pos++) {
+            even = pos % 2 == 0;
+            pcb  = pos / 2 + 1;
+            auto pcbstr = std::to_string(pcb);
+            for (int chan = 0; chan < nchan; chan++) {
+                if (chan % 10 != 0)
+                    continue;
+                pt::ptree patt;
+                for (auto name : {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                            "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
+                            "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                            "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
+                            "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                            "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
+                            "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                            "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
+                    ptree febtree;
+                    for (int vmmid = 0; vmmid < nvmm; vmmid++) {
+                        if (vmm_of_interest >= 0 && vmmid != vmm_of_interest)
+                            continue;
+                        // this might seem stupid, and it is, but
+                        //   it allows to write a vector of channels per VMM
+                        ptree vmmtree;
+                        ptree chantree;
+                        chantree.put("", chan);
+                        vmmtree.push_back(std::make_pair("", chantree));
+                        febtree.add_child(std::to_string(vmmid), vmmtree);
+                    }
+                    patt.add_child(name, febtree);
                 }
-                patt.add_child(name, febtree);
+                patts.add_child("febpattern_" + std::to_string(ipatt), patt);
+                ipatt++;
             }
-            patts.add_child("febpattern_" + std::to_string(ipatt), patt);
-            ipatt++;
+        }
+    } else {
+        //
+        // track-like loop
+        //
+        bool even;
+        int nvmm = 8;
+        int nchan = 64;
+        int pcb = 0;
+        for (int pos = 0; pos < 16; pos++) {
+            even = pos % 2 == 0;
+            pcb  = pos / 2 + 1;
+            auto pcbstr = std::to_string(pcb);
+            for (int chan = 0; chan < nchan; chan++) {
+                if (chan % 10 != 0)
+                    continue;
+                for (int vmmid = 0; vmmid < nvmm; vmmid++) {
+                    if (vmm_of_interest >= 0 && vmmid != vmm_of_interest)
+                        continue;
+                    pt::ptree patt;
+                    for (auto name : {"MMFE8_L1P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                                "MMFE8_L2P" + pcbstr + "_HO" + (even ? "L" : "R"),
+                                "MMFE8_L3P" + pcbstr + "_HO" + (even ? "R" : "L"),
+                                "MMFE8_L4P" + pcbstr + "_HO" + (even ? "L" : "R"),
+                                "MMFE8_L4P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                                "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
+                                "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
+                                "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
+                        ptree febtree;
+                        // this might seem stupid, and it is, but
+                        //   it allows to write a vector of channels per VMM
+                        ptree vmmtree;
+                        ptree chantree;
+                        chantree.put("", chan);
+                        vmmtree.push_back(std::make_pair("", chantree));
+                        febtree.add_child(std::to_string(vmmid), vmmtree);
+                        patt.add_child(name, febtree);
+                    }
+                    patts.add_child("febpattern_" + std::to_string(ipatt), patt);
+                    ipatt++;
+                }
+            }
         }
     }
+
     // pt::write_json("test.json", patts);
     return patts;
 }
@@ -714,5 +791,35 @@ int addc_tp_watchdog(const std::vector<nsw::ADDCConfig> & addc_configs, bool dry
     // close
     std::cout << "Closing " << fname << std::endl;
     myfile.close();
+    return 0;
+}
+
+int tp_l1a_ecr(nsw::ConfigSender* cs, std::string opc_ip, std::string tp_address, bool dry_run) {
+
+    // on-the-fly message building
+    auto buildEntireMessage = [](std::string & tmp_addr, std::string & tmp_message) {
+        std::vector<uint8_t> tmp_data = nsw::hexStringToByteVector(tmp_message, 4, true);
+        std::vector<uint8_t> tmp_addrVec = nsw::hexStringToByteVector(tmp_addr, 4, true);
+        std::vector<uint8_t> tmp_entirePayload(tmp_addrVec);
+        tmp_entirePayload.insert(tmp_entirePayload.end(), tmp_data.begin(), tmp_data.end() );
+        return tmp_entirePayload;
+    };
+
+    // the L1A ECR commands
+    std::vector<std::pair<std::string, std::string> > header = {
+        {"10", "000000FF"},
+        {"10", "00000000"},
+    };
+
+    // send them
+    std::vector<uint8_t> entirePayload;
+    for (auto header_ele : header) {
+        // ERS_LOG("... writing initialization of L1a packet builder options, "
+        //         << header_ele.first << ", " << header_ele.second);
+        entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
+        if (!dry_run)
+            cs->sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
+    }
+
     return 0;
 }
