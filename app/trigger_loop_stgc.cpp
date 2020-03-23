@@ -1,5 +1,5 @@
 //
-// Program to test pulse triggerable patterns, MM edition
+// Program to test pulse triggerable patterns, sTGC edition
 //
 
 #include <sstream>
