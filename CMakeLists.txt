@@ -78,6 +78,11 @@ tdaq_add_executable(nsw_trigger_loop_mm app/trigger_loop_mm.cpp
   tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
 )
 
+tdaq_add_executable(nsw_trigger_loop_stgc app/trigger_loop_stgc.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+  tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
+)
+
 tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
