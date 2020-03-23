@@ -1,6 +1,6 @@
 //
 // Program to test pulse triggerable patterns, sTGC edition
-//
+// :)
 
 #include <sstream>
 #include <iostream>
