@@ -16,6 +16,7 @@
 #include "ALTI/AltiModule.h"
 #include "ALTI/AltiConfiguration.h"
 #include "RCDVme/RCDCmemSegment.h"
+#include <glob.h>
 
 namespace po = boost::program_options;
 namespace pt = boost::property_tree;
@@ -97,6 +98,7 @@ int main(int argc, const char *argv[]) {
     for (auto & feb : febs)
         senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
    
+   
     // keep time
     std::chrono::time_point<std::chrono::system_clock> time_start;
     std::chrono::duration<double> elapsed_seconds;
@@ -105,7 +107,9 @@ int main(int argc, const char *argv[]) {
     // loop over patterns
     int ipatt = 0;
     int ishot = 0;
+    std::cout << "about to get patterns" << std::endl;
     auto patts = patterns();
+    std::cout << "finished..." << std::endl;
     for (auto pattkv : patts) {
 
         std::cout << "> " << ipatt+1 << " / " << patts.size() << std::endl;
@@ -206,10 +210,48 @@ int minutes_remaining(double time_diff, int nprocessed, int ntotal) {
     double rate = (double)(nprocessed+1)/time_diff;
     return std::lround((double)(ntotal-nprocessed)/(rate*60));
 }
+
+std::vector<std::string> glob_nice(std::string glob_path) {
+  auto result = std::vector<std::string>();
+  glob_t glob_result;
+  glob(glob_path.c_str(), GLOB_TILDE, NULL, &glob_result);
+  for(unsigned int i = 0; i < glob_result.gl_pathc; ++i)
+    result.push_back( glob_result.gl_pathv[i] );
+  globfree(&glob_result);
+  return result;
+}
+
 pt::ptree patterns(){
-    pt:: ptree patts;
-    pt::read_json("",patts);
-    return patts;
+
+  unsigned int ipatt = 0;
+  std::cout << std::endl;
+  std::string json_files = "/afs/cern.ch/user/r/rbrener/public/Trigger_pad_patterns_json_files_old_format/*.json";
+  auto filenames = glob_nice(json_files);
+  pt::ptree all_patterns;
+  for (auto filename: filenames) {
+
+    if (ipatt > 0)
+      break;
+    std::cout << filename << std::endl;
+    pt::ptree patt;
+    pt::read_json(filename,patt);
+    all_patterns.add_child("pattern_"+std::to_string(ipatt),patt);
+
+    for (auto febkv: patt) {
+      std::cout << febkv.first << std::endl;
+      for (auto vmmkv: febkv.second) {
+	std::cout << " VMM " << vmmkv.first << std::endl;
+        for (auto chkv: vmmkv.second) {
+          unsigned int ch = chkv.second.get<unsigned>("");
+	  std::cout << "  CH " << ch << std::endl;
+        }
+      }
+    }
+
+    ipatt++;
+  }
+  std::cout << std::endl;
+  return all_patterns;
 }
 
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg) {
