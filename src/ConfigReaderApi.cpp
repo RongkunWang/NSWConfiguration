@@ -257,16 +257,46 @@ ptree ConfigReaderApi::readRouter(std::string element) {
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
-
     ERS_LOG(s);
+
+    // temporary objects for reading in JSON file for cleaning
+    std::stringstream jsonStringStream;
+    std::ifstream inputJSONFile( m_file_path.c_str() ) ;
+    std::string line;
+    int found;
+
+    // Clean input JSON file
+    while(std::getline(inputJSONFile, line) ) {
+        // Skip whitespace starting a line
+        found = line.find_first_not_of(" \t");
+        // Remove lines that start with a "/" or "#"
+        if( found != std::string::npos && line[found] == '/' ) continue;
+        if( found != std::string::npos && line[found] == '#' ) continue;
+        jsonStringStream << line << "\r\n" ;
+    }
+
+    // Converting to string for trans-line cleaning
+    std::string jsonString(jsonStringStream.str());
+
+    // Removing comments that come after a comma and whitespace
+    jsonString = std::regex_replace(jsonString, std::regex(",\\s*\\/\\/.*"), ",");
+    jsonString = std::regex_replace(jsonString, std::regex(",\\s*#.*"), ",");
+
+    // Removing any commas that are followed by white space and then either a } or ]
+    jsonString = std::regex_replace(jsonString, std::regex(",(?=\\s*[}\\]])"), "");
+
+    // Converting back to a stringstream to make read_json() happy
+    jsonStringStream.str(jsonString);
+
     try {
-        boost::property_tree::read_json(m_file_path, m_config);
+        boost::property_tree::read_json(jsonStringStream, m_config);
     } catch(std::exception & e) {
         nsw::ConfigIssue issue(ERS_HERE, e.what());
         ers::fatal(issue);
         throw issue;
     }
-  return m_config;
+
+    return m_config;
 }
 
 ptree & XmlApi::read() {
