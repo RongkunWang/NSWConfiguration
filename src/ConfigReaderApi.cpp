@@ -197,7 +197,6 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
-
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
@@ -206,7 +205,6 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
     ptree feb = m_config.get_child(element);
 
     for ( size_t i = 0; i < nart; i++ ) {
-
         std::string name = "art" + std::to_string(i);
 
         // check for ART-specific configuration
@@ -217,7 +215,7 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
         // top-level registers
         // i.e. not art_core and art_ps, which are i2c master trees
-        for (auto iter: specific) {
+        for (auto iter : specific) {
             std::string address = iter.first;
             if (address != "art_core" && address != "art_ps")
                 common.put_child(address, iter.second);
