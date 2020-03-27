@@ -264,7 +264,7 @@ ptree & JsonApi::read() {
     int found;
 
     // Clean input JSON file
-    while (std::getline(inputJSONFile, line) ) {
+    while (std::getline(inputJSONFile, line)) {
         // Skip whitespace starting a line
         found = line.find_first_not_of(" \t");
         // Remove lines that start with a "/" or "#"
