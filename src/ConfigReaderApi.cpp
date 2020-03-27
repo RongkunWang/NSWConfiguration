@@ -261,18 +261,18 @@ ptree & JsonApi::read() {
 
     // temporary objects for reading in JSON file for cleaning
     std::stringstream jsonStringStream;
-    std::ifstream inputJSONFile( m_file_path.c_str() ) ;
+    std::ifstream inputJSONFile(m_file_path.c_str() );
     std::string line;
     int found;
 
     // Clean input JSON file
-    while(std::getline(inputJSONFile, line) ) {
+    while (std::getline(inputJSONFile, line) ) {
         // Skip whitespace starting a line
         found = line.find_first_not_of(" \t");
         // Remove lines that start with a "/" or "#"
-        if( found != std::string::npos && line[found] == '/' ) continue;
-        if( found != std::string::npos && line[found] == '#' ) continue;
-        jsonStringStream << line << "\r\n" ;
+        if (found != std::string::npos && line[found] == '/' ) continue;
+        if (found != std::string::npos && line[found] == '#' ) continue;
+        jsonStringStream << line << "\r\n";
     }
 
     // Converting to string for trans-line cleaning
