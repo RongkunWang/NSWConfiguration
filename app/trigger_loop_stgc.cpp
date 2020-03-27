@@ -97,9 +97,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "Creating map of ConfigSender*..." << std::endl;
     auto senders = new std::map< std::string, nsw::ConfigSender* >();
     for (auto & feb : febs)
-        senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );
-   
-   
+        senders->insert( {feb.getAddress(), new nsw::ConfigSender()} );   
     // keep time
     std::chrono::time_point<std::chrono::system_clock> time_start;
     std::chrono::duration<double> elapsed_seconds;
@@ -118,7 +116,9 @@ int main(int argc, const char *argv[]) {
         // announce
         std::cout << " Pattern:" << std::endl;
         for (auto febkv : pattkv.second) {
-            std::cout << "  " << febkv.first;
+	  auto febkv_rename =  rename (febkv.first);
+	  std::cout << febkv_rename << std::endl;
+      	  //std::cout << "  " << febkv.first;
             for (auto vmmkv : febkv.second) {
                 std::cout << " " << vmmkv.first;
                 for (auto chkv : vmmkv.second)
@@ -131,10 +131,11 @@ int main(int argc, const char *argv[]) {
         bool anything = 0;
         std::cout << " Configure PFEBs (enable)..." << std::flush;
         for (auto febkv : pattkv.second) {
-            for (auto & feb : febs) {
-	      std::cout << "feb.get     " << feb.getAddress() << std::endl;
-	      std::cout << "febkv.first " << febkv.first << std::endl;
-                if (febkv.first != feb.getAddress())
+	  auto febkv_rename =  rename (febkv.first);
+	  for (auto & feb : febs) {
+	      std::cout << "feb.get      " << feb.getAddress() << std::endl;
+	      std::cout << "febkv_rename " << febkv_rename << std::endl;
+                if (febkv_rename != feb.getAddress())
                     continue;
                 anything = 1;
                 threads->push_back(std::async(std::launch::async, configure_vmms,
@@ -225,34 +226,36 @@ std::vector<std::string> glob_nice(std::string glob_path) {
 }
 
 std::string rename(std::string name) {
+  std::cout << "Entering..." << std::endl;
   std::string new_name = "";
-  if (name == "STGC_QS1P1")
+  if (name == "sTGC-QS1P1")
     new_name = "PFEB_L1Q1_IPL";
-  else if (name == "STGC_QS1P2") 
+  else if (name == "sTGC-QS1P2") 
     new_name = "PFEB_L2Q1_IPR";
-  else if (name == "STGC_QS1P3")
+  else if (name == "sTGC-QS1P3")
     new_name = "PFEB_L3Q1_IPL";
-  else if (name == "STGC_QS1P4")
+  else if (name == "sTGC-QS1P4")
     new_name = "PFEB_L4Q1_IPR";
-  else if (name == "STGC_QS2P1")
+  else if (name == "sTGC-QS2P1")
     new_name = "PFEB_L1Q2_IPL";
-  else if (name == "STGC_QS2P2")
+  else if (name == "sTGC-QS2P2")
     new_name = "PFEB_L2Q2_IPR";
-  else if (name == "STGC_QS2P3")
+  else if (name == "sTGC-QS2P3")
     new_name = "PFEB_L3Q2_IPL";
-  else if (name == "STGC_QS2P4")
+  else if (name == "sTGC-QS2P4")
     new_name = "PFEB_L4Q2_IPR";
-  else if (name == "STGC_QS3P1")
+  else if (name == "sTGC-QS3P1")
     new_name = "PFEB_L1Q3_IPL";
-  else if (name == "STGC_QS3P2")
+  else if (name == "sTGC-QS3P2")
     new_name = "PFEB_L2Q3_IPR";
-  else if (name == "STGC_QS3P3")
+  else if (name == "sTGC-QS3P3")
     new_name = "PFEB_L3Q3_IPL";
-  else if (name == "STGC_QS4P4")
+  else if (name == "sTGC-QS4P4")
     new_name = "PFEB_L4Q3_IPR";
   else 
     std::cout << "Confirm pFEBs, Abort!" << std::endl;
   return new_name;
+  std::cout << "new_name " << new_name << std:: endl;
 }
 
 pt::ptree patterns(){
@@ -263,17 +266,20 @@ pt::ptree patterns(){
   auto filenames = glob_nice(json_files);
   pt::ptree all_patterns;
   for (auto filename: filenames) {
-
+    std::cout << "Testing..." << std::endl;
     if (ipatt > 0)
       break;
     std::cout << filename << std::endl;
     pt::ptree patt;
     pt::read_json(filename,patt);
     all_patterns.add_child("pattern_"+std::to_string(ipatt),patt);
-   
+    std::cout << "before the rename" << std::endl;
+
     for (auto febkv: patt) {
-      std::string rename (febkv.first);
-      std::cout << febkv.first << std::endl;
+      std::cout << "in the for loop before rename..." << std::endl;
+      auto febkv_rename =  rename (febkv.first);
+      std::cout << febkv_rename << std::endl;
+      //std::cout << febkv.first << std::endl;
       for (auto vmmkv: febkv.second) {
 	std::cout << " VMM " << vmmkv.first << std::endl;
         for (auto chkv: vmmkv.second) {
@@ -282,7 +288,6 @@ pt::ptree patterns(){
         }
       }
     }
-
     ipatt++;
   }
   std::cout << std::endl;
