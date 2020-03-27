@@ -27,6 +27,7 @@ int oneshot(LVL1::AltiModule* alti);
 int wait_until_done(std::vector< std::future<int> >* threads);
 int configure_vmms(nsw::ConfigSender* cs, nsw::FEBConfig feb, pt::ptree febpatt, bool unmask, bool reset, bool dry_run);
 std::vector<nsw::FEBConfig> parse_feb_name(std::string name, std::string cfg);
+std::string rename(std::string name);
 pt::ptree patterns();
 std::string strf_time();
 int minutes_remaining(double time_diff, int nprocessed, int ntotal);
@@ -131,6 +132,8 @@ int main(int argc, const char *argv[]) {
         std::cout << " Configure PFEBs (enable)..." << std::flush;
         for (auto febkv : pattkv.second) {
             for (auto & feb : febs) {
+	      std::cout << "feb.get     " << feb.getAddress() << std::endl;
+	      std::cout << "febkv.first " << febkv.first << std::endl;
                 if (febkv.first != feb.getAddress())
                     continue;
                 anything = 1;
@@ -160,7 +163,7 @@ int main(int argc, const char *argv[]) {
         for (auto febkv : pattkv.second) {
             for (auto & feb : febs) {
                 if (febkv.first != feb.getAddress())
-                    continue;
+		 continue;
                 anything = 1;
                 threads->push_back(std::async(std::launch::async, configure_vmms,
                                               senders->at(feb.getAddress()), feb,
@@ -221,6 +224,37 @@ std::vector<std::string> glob_nice(std::string glob_path) {
   return result;
 }
 
+std::string rename(std::string name) {
+  std::string new_name = "";
+  if (name == "STGC_QS1P1")
+    new_name = "PFEB_L1Q1_IPL";
+  else if (name == "STGC_QS1P2") 
+    new_name = "PFEB_L2Q1_IPR";
+  else if (name == "STGC_QS1P3")
+    new_name = "PFEB_L3Q1_IPL";
+  else if (name == "STGC_QS1P4")
+    new_name = "PFEB_L4Q1_IPR";
+  else if (name == "STGC_QS2P1")
+    new_name = "PFEB_L1Q2_IPL";
+  else if (name == "STGC_QS2P2")
+    new_name = "PFEB_L2Q2_IPR";
+  else if (name == "STGC_QS2P3")
+    new_name = "PFEB_L3Q2_IPL";
+  else if (name == "STGC_QS2P4")
+    new_name = "PFEB_L4Q2_IPR";
+  else if (name == "STGC_QS3P1")
+    new_name = "PFEB_L1Q3_IPL";
+  else if (name == "STGC_QS3P2")
+    new_name = "PFEB_L2Q3_IPR";
+  else if (name == "STGC_QS3P3")
+    new_name = "PFEB_L3Q3_IPL";
+  else if (name == "STGC_QS4P4")
+    new_name = "PFEB_L4Q3_IPR";
+  else 
+    std::cout << "Confirm pFEBs, Abort!" << std::endl;
+  return new_name;
+}
+
 pt::ptree patterns(){
 
   unsigned int ipatt = 0;
@@ -236,8 +270,9 @@ pt::ptree patterns(){
     pt::ptree patt;
     pt::read_json(filename,patt);
     all_patterns.add_child("pattern_"+std::to_string(ipatt),patt);
-
+   
     for (auto febkv: patt) {
+      std::string rename (febkv.first);
       std::cout << febkv.first << std::endl;
       for (auto vmmkv: febkv.second) {
 	std::cout << " VMM " << vmmkv.first << std::endl;
