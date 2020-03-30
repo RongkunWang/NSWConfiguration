@@ -75,6 +75,17 @@ build-test:
     allow_failure: false
 
 #
+# Job: Build test - next
+#
+build-test-next:
+    except:
+        - dev
+    variables:
+        TDAQ_RELEASE: tdaq-09-00-00
+    <<: *build_job
+    allow_failure: true
+
+#
 # Job: Build test - nightly
 #
 build-test-nightly:
@@ -96,8 +107,20 @@ build-test-dev:
     <<: *build_job
     allow_failure: false
 
+
+# Job: Build test - dev - next
 #
-# Job: Build test - nightly
+build-test-next-dev:
+    only:
+        - dev
+    variables:
+        TDAQ_RELEASE: tdaq-09-00-00
+        NCORES: 1
+    <<: *build_job
+    allow_failure: true
+
+#
+# Job: Build test - dev - nightly
 #
 build-test-nightly-dev:
     only:
