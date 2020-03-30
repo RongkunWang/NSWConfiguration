@@ -88,6 +88,7 @@ build-test-next:
 # Job: Build test - nightly
 #
 build-test-nightly:
+    when: manual
     except:
         - dev
     variables:
@@ -122,6 +123,7 @@ build-test-next-dev:
 # Job: Build test - dev - nightly
 #
 build-test-nightly-dev:
+    when: manual
     only:
         - dev
     variables:
