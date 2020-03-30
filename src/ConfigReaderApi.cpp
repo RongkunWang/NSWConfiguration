@@ -197,7 +197,6 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
 }
 
 ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
-
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
@@ -206,7 +205,6 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
     ptree feb = m_config.get_child(element);
 
     for ( size_t i = 0; i < nart; i++ ) {
-
         std::string name = "art" + std::to_string(i);
 
         // check for ART-specific configuration
@@ -217,7 +215,7 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
 
         // top-level registers
         // i.e. not art_core and art_ps, which are i2c master trees
-        for (auto iter: specific) {
+        for (auto iter : specific) {
             std::string address = iter.first;
             if (address != "art_core" && address != "art_ps")
                 common.put_child(address, iter.second);
@@ -257,16 +255,46 @@ ptree ConfigReaderApi::readRouter(std::string element) {
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
-
     ERS_LOG(s);
+
+    // temporary objects for reading in JSON file for cleaning
+    std::stringstream jsonStringStream;
+    std::ifstream inputJSONFile(m_file_path.c_str() );
+    std::string line;
+    int found;
+
+    // Clean input JSON file
+    while (std::getline(inputJSONFile, line)) {
+        // Skip whitespace starting a line
+        found = line.find_first_not_of(" \t");
+        // Remove lines that start with a "/" or "#"
+        if (found != std::string::npos && line[found] == '/' ) continue;
+        if (found != std::string::npos && line[found] == '#' ) continue;
+        jsonStringStream << line << "\r\n";
+    }
+
+    // Converting to string for trans-line cleaning
+    std::string jsonString(jsonStringStream.str());
+
+    // Removing comments that come after a comma and whitespace
+    jsonString = std::regex_replace(jsonString, std::regex(",\\s*\\/\\/.*"), ",");
+    jsonString = std::regex_replace(jsonString, std::regex(",\\s*#.*"), ",");
+
+    // Removing any commas that are followed by white space and then either a } or ]
+    jsonString = std::regex_replace(jsonString, std::regex(",(?=\\s*[}\\]])"), "");
+
+    // Converting back to a stringstream to make read_json() happy
+    jsonStringStream.str(jsonString);
+
     try {
-        boost::property_tree::read_json(m_file_path, m_config);
+        boost::property_tree::read_json(jsonStringStream, m_config);
     } catch(std::exception & e) {
         nsw::ConfigIssue issue(ERS_HERE, e.what());
         ers::fatal(issue);
         throw issue;
     }
-  return m_config;
+
+    return m_config;
 }
 
 ptree & XmlApi::read() {
