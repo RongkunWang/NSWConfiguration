@@ -36,6 +36,7 @@ These instructions are for centos7, for SLC6, check older versions of the README
 First you need to decide which tdaq release you will use. Possible options:
 - ```nightly```: latest changes, not be ideal for long term stability
 - ```tdaq-08-03-01```: August 2019 release with new implementation of Software ROD and ALTI
+- ```tdaq-09-00-00```: March 2020 release
 - other: Keep following Detector/DAQ meetings for newer releases.
 
 Lets say you chose tdaq release tdaq-08-03-01. Set the environment and find out which LCG
@@ -99,10 +100,8 @@ cp build/libopen62541-compat.so  installed/$HW_TAG/lib/
 ```bash
 mkdir work
 cd work
-printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 8.3.1)\n" > CMakeLists.txt
+printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_work_area()\n" > CMakeLists.txt
 ```
-
-If you will use another tdaq release, replace 8.3.1 with the release number (for nightly use 99.0.0)
 
 * Clone this package using with `--recursive` option to get submodules
 
