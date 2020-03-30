@@ -56,9 +56,7 @@ stages:
         - echo $OPC_OPEN62541_PATH
         - cd $WD/../
         - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh $TDAQ_RELEASE # replace nightly with any other release
-        # - grep "set(TDAQ_VERSION" $TDAQ_INST_PATH/../CMakeLists.txt > CMakeLists.txt
-        # - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq \${TDAQ_VERSION})\n" >> CMakeLists.txt
-        - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_work_area()\n" >> CMakeLists.txt
+        - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_work_area()\n" > CMakeLists.txt
         - pwd;ls
         - cmake_config
         - cd $CMTCONFIG
