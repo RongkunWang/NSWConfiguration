@@ -277,8 +277,8 @@ ptree & JsonApi::read() {
     std::string jsonString(jsonStringStream.str());
 
     // Removing comments that come after a comma and whitespace
-    jsonString = std::regex_replace(jsonString, std::regex(",\\s*\\/\\/.*"), ",");
-    jsonString = std::regex_replace(jsonString, std::regex(",\\s*#.*"), ",");
+    jsonString = std::regex_replace(jsonString, std::regex("(\\S)\\s*\\/\\/.*"), "$1");
+    jsonString = std::regex_replace(jsonString, std::regex("(\\S)\\s*#.*"), "$1");
 
     // Removing any commas that are followed by white space and then either a } or ]
     jsonString = std::regex_replace(jsonString, std::regex(",(?=\\s*[}\\]])"), "");
