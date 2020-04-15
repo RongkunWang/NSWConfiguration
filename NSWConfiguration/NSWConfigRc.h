@@ -12,27 +12,15 @@
 
 #include "RunControl/RunControl.h"
 #include "RunControl/Common/RunControlCommands.h"
-
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/NSWConfig.h"
 
 using boost::property_tree::ptree;
-
-ERS_DECLARE_ISSUE(nsw,
-                  NSWConfigIssue,
-                  message,
-                  ((std::string)message)
-                  )
-
-namespace nsw {
-class FEBConfig;
-}
 
 namespace nsw {
 class NSWConfigRc: public daq::rc::Controllable {
  public:
     // override only the needed methods
-    explicit NSWConfigRc(bool simulation = false);
+    explicit NSWConfigRc(bool simulation=false);
     virtual ~NSWConfigRc() noexcept {}
 
     //! Connects to configuration database/ or reads file based config database
@@ -54,53 +42,8 @@ class NSWConfigRc: public daq::rc::Controllable {
     void subTransition(const daq::rc::SubTransitionCmd&) override;
 
  private:
-    //! Configure ROCs in all FEBs in m_frontends
-    void configureROCs();
-
-    //! Configure VMMs in all FEBs in m_frontends
-    void configureVMMs();
-
-    //! Configure all front ends in m_frontends
-    void configureFEBs();
-    void configureFEB(std::string name);
-
-    //! Count how many threads are running
-    size_t active_threads();
-    bool too_many_threads();
-
-    //! Configure all ADDCs in m_addcs
-    void configureADDCs();
-    void configureADDC(std::string name);
-    void alignADDCsToTP();
-
-    //! Configure all Routers, Pad Triggers, and Trigger Processors
-    void configureRouters();
-    void configurePadTriggers();
-    void configureTPs();
-
-    std::unique_ptr<nsw::ConfigReader> m_reader;
-    std::unique_ptr<nsw::ConfigSender> m_sender;
-
-    std::map<std::string, FEBConfig>           m_frontends;   //! Each element is [frontend_name, frontend_config]
-    std::map<std::string, ADDCConfig>          m_addcs;       //!
-    std::map<std::string, RouterConfig>        m_routers;     //!
-    std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
-    std::map<std::string, TPConfig>            m_tps;         //!
-
-    // Run the program in simulation mode, don't send any configuration
+    std::unique_ptr<NSWConfig> m_NSWConfig;
     bool m_simulation;
-
-    // Database connection string
-    std::string m_dbcon;
-
-    // reset the vmms before config
-    bool m_resetvmm;
-    // reset the tds SER, logic, ePLL after configuration
-    bool m_resettds;
-
-    // thread management
-    size_t m_max_threads;
-    std::unique_ptr< std::vector< std::future<void> > > m_threads;
 
 };
 }  // namespace nsw

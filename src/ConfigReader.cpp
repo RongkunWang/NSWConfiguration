@@ -39,6 +39,11 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string):
     }
 }
 
+nsw::ConfigReader::ConfigReader(const ptree tree)
+{
+  m_api = std::make_unique<PtreeApi> (tree);
+}
+
 nsw::ConfigReader::~ConfigReader() {
   // Cleanup, disconnect from db...
 }
