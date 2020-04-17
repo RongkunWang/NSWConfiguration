@@ -19,16 +19,14 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
     m_NSWConfig->readConf();
-    m_NSWConfig->configureRc();
     ERS_LOG("End");
 }
 
-void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
-    m_NSWConfig->unconfigureRc();
-    ERS_INFO("End");
+    m_NSWConfig->configureRc();
+    ERS_LOG("End");
 }
-
 
 void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
@@ -38,6 +36,17 @@ void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
 void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
     ERS_LOG("End");
+}
+
+void nsw::NSWConfigRc::disconnect(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    m_NSWConfig->unconfigureRc();
+    ERS_INFO("End");
+}
+
+void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    ERS_INFO("End");
 }
 
 void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
