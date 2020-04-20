@@ -128,8 +128,7 @@ int main(int argc, const char *argv[]) {
     std::vector<std::string> strs;
     std::pair<std::string,std::string> tmpPair;
 
-    while (std::getline(inputData, line))
-    {
+    while (std::getline(inputData, line)) {
         std::cout << line << std::endl;
         boost::split(strs,line,boost::is_any_of("\t "),boost::token_compress_on);
         tmpPair.first  = strs.at(0);
