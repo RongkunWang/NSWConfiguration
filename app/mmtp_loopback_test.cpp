@@ -3,12 +3,16 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <streambuf>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/OpcClient.h"
 
 #include "boost/program_options.hpp"
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
 namespace po = boost::program_options;
 
 
@@ -25,6 +29,7 @@ int main(int argc, const char *argv[]) {
     std::string bc_right;
     std::string resetBCID;
     std::string artBCID;
+    std::string data_source;
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -43,13 +48,14 @@ int main(int argc, const char *argv[]) {
         ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
             "slave bus to write to (Default: NSW_TrigProc_STGC.I2C_0.bus0)")
         ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
-            "hostname for OPC server (Default: pcatlnswfelix01.cern.ch:48020)");
-
+            "hostname for OPC server (Default: pcatlnswfelix01.cern.ch:48020)")
+        ("data_source,d", po::value<std::string>(&data_source),
+            "playback data");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    int n_iter = std::stoi(niter);
+    size_t n_iter = std::stoi(niter);
 
     // todo: fix this section to actually use the functions we already have...
     //hex string to int
@@ -114,55 +120,26 @@ int main(int argc, const char *argv[]) {
         {"10", "00000000"},
     };
 
-    std::vector<std::pair<std::string, std::string> > messageList = {
-        // This is the setup of the test including the size of the BC window to consider
-        {"01", "01"},  // disables the ADDC emulator output
+    std::ifstream inputData(data_source);
 
-        // Represents the event counter reset (ECR) for the two fibers
+    std::vector<std::pair<std::string, std::string> > messageList;
 
-        {"20", "0008A"+resetBCID},  // 20 is an offset for the fiber location. loading GBT data for fiber 0. 0008 represents the ECR
-        {"20", "00000000"},
-        {"20", "00000000"},
-        {"20", "00000000"},
-        {"21", "0008A"+resetBCID},  // same for fiber 1
-        {"21", "00000000"},
-        {"21", "00000000"},
-        {"21", "00000000"},
+    std::string line;
+    std::vector<std::string> strs;
+    std::pair<std::string,std::string> tmpPair;
 
-        // Actual simulated ADDC data to push out of the Tx
-
-        // The data is...
-        // Header: 0b1010 = A
-        // BCID:   12 bits
-        // Error Flags: 8 bits
-        // Hit List: 32 bits
-        // ART Data Parity: 8 bits
-        // 8xART Data: 6 bits each
-
-        {"20", "0000A"+artBCID},  // Actual data. 0, header, BCID
-        {"20", "00010101"},  // 00 flags, hit list 01
-        {"20", "01F00000"},  // 01 hit list continued, F0 is data parity
-        {"20", "00104104"},  // actual data is 0000 0010 4104
-        {"21", "0000A"+artBCID},
-        {"21", "00010101"},
-        {"21", "01F00000"},
-        {"21", "00104104"},
-
-        {"20", "0004A"+l1aBCID},  // 0004 says L1a and the next two bytes are the BCID
-        {"20", "00000000"},
-        {"20", "00000000"},
-        {"20", "00000000"},
-        {"21", "0004A"+l1aBCID},  // same here
-        {"21", "00000000"},
-        {"21", "00000000"},
-        {"21", "00000000"},
-
-        {"01", "03" } // turns on ADDC emulator enable bit
-    };
+    while (std::getline(inputData, line))
+    {
+        std::cout << line << std::endl;
+        boost::split(strs,line,boost::is_any_of("\t "),boost::token_compress_on);
+        tmpPair.first  = strs.at(0);
+        tmpPair.second = strs.at(1);
+        messageList.push_back(tmpPair);
+    }
 
     std::vector<uint8_t> entirePayload;
+    std::cout << "... writing initialization of L1a packet builder options" << std::endl;
     for (auto header_ele : header){
-        std::cout << "... writing initialization of L1a packet builder options" << std::endl;
         cleanup(header_ele.first);
         cleanup(header_ele.second);
         entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
@@ -170,20 +147,16 @@ int main(int argc, const char *argv[]) {
     }
 
     for (size_t iter =0 ; iter < n_iter; iter++) {
+        std::cout << "... sending loopback data iteration: " << iter << std::endl;
         for (auto packet : messageList) {
-            std::cout << "... sending loopback data iteration: " << iter << std::endl;
             cleanup(packet.first);
             cleanup(packet.second);
+            std::cout << "... ... Addr: " << packet.first << ", Data: " << packet.second << std::endl;
             entirePayload = buildEntireMessage(packet.first, packet.second);
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
         }
 
     }
-
-    std::vector<uint8_t> regAddrVec = nsw::hexStringToByteVector("01", 4, true);
-    cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
-
-    std::cout << "... Done with MMTP Loopback test" << std::endl;
 
     return 0;
 }
