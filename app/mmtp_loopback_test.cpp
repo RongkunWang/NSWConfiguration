@@ -22,7 +22,8 @@ int main(int argc, const char *argv[]) {
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string opc_ip;
-    std::string slaveAddr;
+    std::string slaveAddr0;
+    std::string slaveAddr1;
     std::string niter;
     std::string bc_center;
     std::string bc_left;
@@ -45,8 +46,10 @@ int main(int argc, const char *argv[]) {
             "resetBCID in hex (Default: 100)")
         ("artBCID" , po::value <std::string>(&artBCID)->default_value("10a"),
              "artBCID in hex (Default: 10A)")
-        ("slaveAddr,s", po::value<std::string>(&slaveAddr)->default_value("NSW_TrigProc_STGC.I2C_0.bus0"),
-            "slave bus to write to (Default: NSW_TrigProc_STGC.I2C_0.bus0)")
+        ("slaveAddr0,s", po::value<std::string>(&slaveAddr0)->default_value("NSW_TrigProc_MM.I2C_0.bus0"),
+            "slave bus to write to (Default: NSW_TrigProc_MM.I2C_0.bus0)")
+        ("slaveAddr1,t", po::value<std::string>(&slaveAddr1)->default_value("NSW_TrigProc_MM_ADDC_EMU.I2C_0.bus0"),
+            "slave bus to write to (Default: NSW_TrigProc_MM_ADDC_EMU.I2C_0.bus0)")
         ("opc_ip,o", po::value<std::string>(&opc_ip)->default_value("pcatlnswfelix01.cern.ch:48020"),
             "hostname for OPC server (Default: pcatlnswfelix01.cern.ch:48020)")
         ("data_source,d", po::value<std::string>(&data_source),
@@ -111,6 +114,15 @@ int main(int argc, const char *argv[]) {
         return tmp_entirePayload;
     };
 
+    auto sendRegData = [&](std::string & tmp_addr, std::string & tmp_message, int targetSCA = 0) {
+        cleanup(tmp_addr);
+        cleanup(tmp_message);
+        std::vector<uint8_t> entirePayload;
+        entirePayload = buildEntireMessage(tmp_addr, tmp_message);
+        if (targetSCA == 0) cs.sendI2cRaw(opc_ip, slaveAddr0, entirePayload.data(), entirePayload.size() );
+        else if (targetSCA == 1) cs.sendI2cRaw(opc_ip, slaveAddr1, entirePayload.data(), entirePayload.size() );
+    };
+
     std::vector<std::pair<std::string, std::string> > header = {
         {"01", "01"},  // disables the ADDC emulator output
         {"11", "000000"+ bc_center},  // L1a data packet builder options. only do this once. // sets center of BC window
@@ -120,39 +132,42 @@ int main(int argc, const char *argv[]) {
         {"10", "00000000"},
     };
 
+    // Read in input data file
+
     std::ifstream inputData(data_source);
 
-    std::vector<std::pair<std::string, std::string> > messageList;
 
     std::string line;
     std::vector<std::string> strs;
-    std::pair<std::string,std::string> tmpPair;
 
+    // Process input data file into vector object
+
+    std::vector<std::vector<std::string> > messageList;
+    std::vector<std::string> tmpVec;
     while (std::getline(inputData, line)) {
         std::cout << line << std::endl;
         boost::split(strs,line,boost::is_any_of("\t "),boost::token_compress_on);
-        tmpPair.first  = strs.at(0);
-        tmpPair.second = strs.at(1);
-        messageList.push_back(tmpPair);
+        tmpVec.push_back(strs.at(0));
+        tmpVec.push_back(strs.at(1));
+        tmpVec.push_back(strs.at(2));
+        messageList.push_back(tmpVec);
     }
+
+    // Sending header messages -- Initialization
 
     std::vector<uint8_t> entirePayload;
     std::cout << "... writing initialization of L1a packet builder options" << std::endl;
     for (auto header_ele : header){
-        cleanup(header_ele.first);
-        cleanup(header_ele.second);
-        entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
-        cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
+        sendRegData(header_ele.first, header_ele.second);
     }
+
+    // Sending messages from input data file
 
     for (size_t iter =0 ; iter < n_iter; iter++) {
         std::cout << "... sending loopback data iteration: " << iter << std::endl;
         for (auto packet : messageList) {
-            cleanup(packet.first);
-            cleanup(packet.second);
-            std::cout << "... ... Addr: " << packet.first << ", Data: " << packet.second << std::endl;
-            entirePayload = buildEntireMessage(packet.first, packet.second);
-            cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
+            std::cout << "... ... Addr: " << packet.at(1) << ", Data: " << packet.at(2) << std::endl;
+            sendRegData(packet.at(1), packet.at(2), std::stoi(packet.at(0)) );
         }
 
     }
