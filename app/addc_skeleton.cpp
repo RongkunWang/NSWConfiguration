@@ -17,7 +17,7 @@
 namespace po = boost::program_options;
 
 int active_threads(std::vector< std::future<int> >* threads);
-int configure_addc(nsw::ADDCConfig feb);
+int configure_addc(nsw::ADDCConfig feb, int iart);
 int change_phase(nsw::ADDCConfig addc, uint phase, uint fine, std::vector<bool> aligned);
 std::string strf_time();
 
@@ -30,6 +30,7 @@ int main(int argc, const char *argv[])
     bool dont_watch;
     int manual_phase;
     int bcr_phase;
+    int iart;
 
     po::options_description desc(std::string("ADDC configuration script"));
     desc.add_options()
@@ -47,6 +48,8 @@ int main(int argc, const char *argv[])
          default_value(-1), "Manual phase of ART alignment")
         ("bcr_phase", po::value<int>(&bcr_phase)->
          default_value(0), "Manual phase of ART BCRCLK")
+        ("iart,i", po::value<int>(&iart)->
+         default_value(-1), "Configure a specific ART (0 or 1)")
         ("name,n", po::value<std::string>(&board_name)->
          default_value(""), "The name of frontend to configure (should start with ADDC_).");
 
@@ -131,7 +134,7 @@ int main(int argc, const char *argv[])
     if (!dont_config) {
         for (auto & addc : addc_configs) {
             std::cout << "Sending ADDC configuration... " << std::endl;
-            threads->push_back(std::async(std::launch::async, configure_addc, addc));
+            threads->push_back(std::async(std::launch::async, configure_addc, addc, iart));
         }
         for (auto& thread : *threads)
             thread.get();
@@ -238,10 +241,10 @@ std::string strf_time() {
     return out;
 }
 
-int configure_addc(nsw::ADDCConfig addc) {
+int configure_addc(nsw::ADDCConfig addc, int iart) {
     std::cout << "New thread in configure_frontend for " << addc.getAddress() << std::endl;
     nsw::ConfigSender cs;
-    cs.sendAddcConfig(addc);
+    cs.sendAddcConfig(addc, iart);
     return 0;
 }
 
