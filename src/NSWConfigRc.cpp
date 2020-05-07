@@ -41,7 +41,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
         std::stringstream ss;
         ss << "Problem initializing ConfigReader.";
         nsw::NSWConfigIssue issue(ERS_HERE, ss.str(), ex);
-        ers::fatal(ex);
+        ers::fatal(issue);
     }
 
     m_sender  = std::make_unique<nsw::ConfigSender>();
