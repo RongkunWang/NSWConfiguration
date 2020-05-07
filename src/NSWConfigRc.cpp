@@ -35,10 +35,17 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
         ers::fatal(issue);
     }
 
-    m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
+    try {
+      m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
+    } catch(nsw::ConfigIssue& ex){
+        std::stringstream ss;
+        ss << "Problem initializing ConfigReader.";
+        nsw::NSWConfigIssue issue(ERS_HERE, ss.str(), ex);
+        ers::fatal(issue);
+    }
+
     m_sender  = std::make_unique<nsw::ConfigSender>();
     m_threads = std::make_unique<std::vector< std::future<void> > >();
-
     auto config = m_reader->readConfig();
 
     // TODO(cyildiz): Instead of reading all front ends from the database,
