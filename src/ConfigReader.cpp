@@ -21,7 +21,10 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string, const std::
     } else if (m_connection_string.find("oracle:") == 0) {
         m_api = std::make_unique<OracleApi> (m_connection_string);
     } else {
-        nsw::ConfigIssue issue(ERS_HERE, "Problem accessing the configuration in any of the supported formats. The string has to be preceed by file type (e.g. json://).");
+        std::stringstream ss;
+        ss << "Problem accessing the configuration in any of the supported formats.";
+        ss << " The string has to be preceed by file type (e.g. json://).";
+        nsw::ConfigIssue issue(ERS_HERE, ss.str().c_str());
         throw issue;
     }
 }
@@ -40,7 +43,10 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string):
     } else if (m_connection_string.find("oracle:") == 0) {
         m_api = std::make_unique<OracleApi> (m_connection_string);
     } else {
-        nsw::ConfigIssue issue(ERS_HERE, "Problem accessing the configuration in any of the supported formats. The string has to be preceed by file type (e.g. json://).");
+        std::stringstream ss;
+        ss << "Problem accessing the configuration in any of the supported formats.";
+        ss << " The string has to be preceed by file type (e.g. json://).";
+        nsw::ConfigIssue issue(ERS_HERE, ss.str().c_str());
         throw issue;
     }
 }
