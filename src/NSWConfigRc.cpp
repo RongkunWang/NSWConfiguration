@@ -17,8 +17,13 @@ nsw::NSWConfigRc::NSWConfigRc(bool simulation):m_simulation {simulation} {
 
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
+    //Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
+
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
-    m_NSWConfig->readConf();
+    m_NSWConfig->readConf(nswConfigApp);
     ERS_LOG("End");
 }
 

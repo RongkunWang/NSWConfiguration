@@ -5,38 +5,12 @@
 // Header to the RC online services
 #include "RunControl/Common/OnlineServices.h"
 #include "NSWConfiguration/NSWConfig.h"
-#include "NSWConfigurationDal/NSWConfigApplication.h"
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation}{
     ERS_LOG("Constructing NSWConfig instance");
     if (m_simulation) {
         ERS_INFO("Running in simulation mode, no configuration will be sent");
     }
-}
-
-void nsw::NSWConfig::readConf() {
-
-    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-    try {
-      const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-      const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
-      m_dbcon = nswConfigApp->get_dbConnection();
-      m_resetvmm = nswConfigApp->get_resetVMM();
-      m_resettds = nswConfigApp->get_resetTDS();
-      m_max_threads = nswConfigApp->get_maxThreads();
-      ERS_INFO("DB Connection: " << m_dbcon);
-    } catch(std::exception& ex) {
-        std::stringstream ss;
-        ss << "Problem reading OKS configuration of NSWConfig: " << ex.what();
-        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
-        ers::fatal(issue);
-    }
-
-    m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
-    m_sender  = std::make_unique<nsw::ConfigSender>();
-    m_threads = std::make_unique<std::vector< std::future<void> > >();
-
-    auto config = m_reader->readConfig();
 }
 
 ptree nsw::NSWConfig::getConf(){

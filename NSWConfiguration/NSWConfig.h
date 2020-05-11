@@ -35,7 +35,28 @@ class NSWConfig {
     //! Connects to configuration database/ or reads file based config database
     //! Reads the names of front ends that should be configured and constructs
     //! FEBConfig objects in the map m_frontends
-    void readConf();
+    //! Template class to allow the reading of both the Config and Calib configurations
+    template <class U>
+    void readConf(const U* nswApp){
+      try {
+        m_dbcon = nswApp->get_dbConnection();
+        m_resetvmm = nswApp->get_resetVMM();
+        m_resettds = nswApp->get_resetTDS();
+        m_max_threads = nswApp->get_maxThreads();
+        ERS_INFO("DB Configuration: " << m_dbcon);
+      } catch(std::exception& ex) {
+          std::stringstream ss;
+          ss << "Problem reading OKS configuration of NSWConfig: " << ex.what();
+          nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
+          ers::fatal(issue);
+      }
+
+      m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
+      m_sender  = std::make_unique<nsw::ConfigSender>();
+      m_threads = std::make_unique<std::vector< std::future<void> > >();
+
+      auto config = m_reader->readConfig();
+    }
 
     //! Send the configuration to the boards
     void configureRc();
