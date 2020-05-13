@@ -21,7 +21,7 @@ std::string strf_time();
 
 int main(int ac, const char *av[]) {
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
-
+    std::string confdir = "/afs/cern.ch/user/n/nswdaq/public/sw1/config-ttc/config-files/";
     std::string config_filename;
     std::string tp_name;
     bool dry_run;
@@ -34,7 +34,7 @@ int main(int ac, const char *av[]) {
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
-        default_value("/afs/cern.ch/user/n/nswdaq/public/sw1/config-ttc/config-files/full_small_sector_14_internalPulser_ADDC.json"),
+        default_value(confdir + "full_small_sector_14_internalPulser_ADDC.json"),
         "Configuration file path")
         ("no_conf",   po::bool_switch()->default_value(false), "Option to not send config")
         ("dry_run",   po::bool_switch()->default_value(false), "Option to NOT send configurations")
@@ -106,14 +106,14 @@ int main(int ac, const char *av[]) {
     system(bcr.c_str());
 
     for (uint8_t ph = 0; ph < nphase; ph++) {
-
-        if (user_phase != -1 && int(ph) != user_phase)
+        if (user_phase != -1 && static_cast<int>(ph) != user_phase)
             continue;
 
         // set phase
         std::cout << "Set phase: " << int(ph) << std::endl;
         if (!dry_run) {
-            cs.sendI2cAtAddress(ip, addr, {0x00, 0x00,0x00, phreg}, nsw::intToByteVector(int(ph), 4, true));
+            cs.sendI2cAtAddress(ip, addr, {0x00, 0x00, 0x00, phreg}, 
+                                nsw::intToByteVector(static_cast<int>(ph), 4, true));
             usleep(500e3);
             system(bcr.c_str());
             usleep(999e3);
@@ -123,18 +123,18 @@ int main(int ac, const char *av[]) {
         std::cout << "Read alignment: ";
         if (!dry_run)
             data = cs.readI2cAtAddress(ip, addr, align.data(), align.size(), 4);
-        for (auto byte: data)
+        for (auto byte : data)
             std::cout << std::bitset<8>(byte);
         std::cout << std::endl;
 
         // read BC LSBs
         std::cout << "Read BC LSB: " << std::endl;;
-        for (auto reg: bxlsb) {
+        for (auto reg : bxlsb) {
             auto bxdata = nsw::hexStringToByteVector(reg, 4, true);
             if (!dry_run)
                 data = cs.readI2cAtAddress(ip, addr, bxdata.data(), bxdata.size(), 4);
             std::cout << reg << " ";
-            for (auto byte: data)
+            for (auto byte : data)
                 std::cout << std::hex << unsigned(byte) << std::dec;
             std::cout << std::endl;
         }
@@ -143,9 +143,8 @@ int main(int ac, const char *av[]) {
         if (phase_daq) {
             std::cout << "Read alignment and BC LSBs " << nreads << " times" << std::endl;
             std::ofstream myfile;
-            myfile.open("tpscax_" + now + "_phase" + std::to_string(int(ph)) + ".txt");
+            myfile.open("tpscax_" + now + "_phase" + std::to_string(static_cast<int>(ph)) + ".txt");
             for (int i = 0; i < nreads; i++) {
-
                 // BCR
                 if (!dry_run) {
                     system(bcr.c_str());
@@ -156,16 +155,16 @@ int main(int ac, const char *av[]) {
                 // alignment
                 if (!dry_run)
                     data = cs.readI2cAtAddress(ip, addr, align.data(), align.size(), 4);
-                for (auto byte: data)
+                for (auto byte : data)
                     myfile << std::bitset<8>(byte);
                 myfile << " ";
 
                 // BC LSBs
-                for (auto reg: bxlsb) {
+                for (auto reg : bxlsb) {
                     auto bxdata = nsw::hexStringToByteVector(reg, 4, true);
                     if (!dry_run)
                         data = cs.readI2cAtAddress(ip, addr, bxdata.data(), bxdata.size(), 4);
-                    for (auto byte: data)
+                    for (auto byte : data)
                         myfile << std::hex << std::setfill('0') << std::setw(2) << unsigned(byte) << std::dec;
                 }
                 myfile << std::endl;
