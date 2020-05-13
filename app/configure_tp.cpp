@@ -112,7 +112,7 @@ int main(int ac, const char *av[]) {
         // set phase
         std::cout << "Set phase: " << int(ph) << std::endl;
         if (!dry_run) {
-            cs.sendI2cAtAddress(ip, addr, {0x00, 0x00, 0x00, phreg}, 
+            cs.sendI2cAtAddress(ip, addr, {0x00, 0x00, 0x00, phreg},
                                 nsw::intToByteVector(static_cast<int>(ph), 4, true));
             usleep(500e3);
             system(bcr.c_str());
