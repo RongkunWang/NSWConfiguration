@@ -47,14 +47,13 @@ class ConfigReader {
   }
 
   //! Get names of all Front end elements that match with regular expression
-  std::set<std::string> getElementNames(std::string regexp){
+  std::set<std::string> getElementNames(std::string regexp) {
     return m_api->getElementNames(regexp);
   }
 
   //! Get vector of objects from config file and element type
   template <class T>
   static std::vector<T> makeObjects(std::string cfg, std::string element_type, std::string name = "") {
-
     // create config reader
     nsw::ConfigReader reader1(cfg);
     try {
@@ -106,7 +105,6 @@ class ConfigReader {
 
     return configs;
   }
-
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_CONFIGREADER_H_
