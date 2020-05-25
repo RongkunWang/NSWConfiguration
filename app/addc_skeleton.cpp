@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
     desc.add_options()
         ("help,h", "produce help message")
         ("config_file,c", po::value<std::string>(&config_filename)->
-         default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/addc_test_art_common_config.json"),
+         default_value("/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/config_json/BB5/A10/full_small_sector_a10_bb5_ADDC_TP.json"),
          "Configuration file path")
         ("dont_config", po::bool_switch()->
          default_value(false), "Option to NOT configure the ADDCs")
@@ -65,54 +65,9 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    // create a json reader
-    nsw::ConfigReader reader1("json://" + config_filename);
-    try {
-        auto config1 = reader1.readConfig();
-    }
-    catch (std::exception & e) {
-        std::cout << "Make sure the json is formed correctly. "
-                  << "Can't read config file due to : " << e.what() << std::endl;
-        std::cout << "Exiting..." << std::endl;
-        exit(0);
-    }
-
-    // parse input names
-    std::set<std::string> board_names;
-    if (board_name != "") {
-        if (std::count(board_name.begin(), board_name.end(), ',')) {
-            std::istringstream ss(board_name);
-            while (!ss.eof()) {
-                std::string buf;
-                std::getline(ss, buf, ',');
-                if (buf != "")
-                    board_names.emplace(buf);
-            }
-        } else {
-            board_names.emplace(board_name);
-        }
-    } else {
-        board_names = reader1.getAllElementNames();
-    }
-
-    // make ADDC objects
-    std::vector<nsw::ADDCConfig> addc_configs;
-    for (auto & name : board_names) {
-        try {
-            if (nsw::getElementType(name) == "ADDC") {
-                addc_configs.emplace_back(reader1.readConfig(name));
-                std::cout << "Adding: " << name << std::endl;
-            } else {
-                std::cout << "Skipping: " << name
-                          << " because its a " << nsw::getElementType(name)
-                          << std::endl;
-            }
-        }
-        catch (std::exception & e) {
-            std::cout << name << " - ERROR: Skipping this FE!"
-                      << " - Problem constructing configuration due to : " << e.what() << std::endl;
-        }
-    }
+    // addc objects
+    auto cfg = "json://" + config_filename;
+    auto addc_configs = nsw::ConfigReader::makeObjects<nsw::ADDCConfig>(cfg, "ADDC", board_name);
 
     // the sender
     nsw::ConfigSender cs;
