@@ -15,6 +15,7 @@
 #include "boost/property_tree/xml_parser.hpp"
 
 #include "NSWConfiguration/ConfigReaderApi.h"
+#include "NSWConfiguration/Utility.h"
 
 using boost::property_tree::ptree;
 
@@ -47,8 +48,63 @@ class ConfigReader {
   }
 
   //! Get names of all Front end elements that match with regular expression
-  std::set<std::string> getElementNames(std::string regexp){
+  std::set<std::string> getElementNames(std::string regexp) {
     return m_api->getElementNames(regexp);
+  }
+
+  //! Get vector of objects from config file and element type
+  template <class T>
+  static std::vector<T> makeObjects(std::string cfg, std::string element_type, std::string name = "") {
+    // create config reader
+    nsw::ConfigReader reader1(cfg);
+    try {
+      auto config1 = reader1.readConfig();
+    }
+    catch (std::exception & e) {
+      std::cout << "Make sure the json is formed correctly. "
+                << "Can't read config file due to : " << e.what() << std::endl;
+      std::cout << "Exiting..." << std::endl;
+      exit(0);
+    }
+
+    // parse input names
+    std::set<std::string> names;
+    if (name != "") {
+      if (std::count(name.begin(), name.end(), ',')) {
+        std::istringstream ss(name);
+        while (!ss.eof()) {
+          std::string buf;
+          std::getline(ss, buf, ',');
+          if (buf != "")
+            names.emplace(buf);
+        }
+      } else {
+        names.emplace(name);
+      }
+    } else {
+      names = reader1.getAllElementNames();
+    }
+
+    // make objects
+    std::vector<T> configs;
+    std::cout << "Adding:" << std::endl;
+    for (auto & nm : names) {
+      try {
+        if (nsw::getElementType(nm) == element_type) {
+          configs.emplace_back(reader1.readConfig(nm));
+          std::cout << " " << nm;
+          if (configs.size() % 4 == 0)
+            std::cout << std::endl;
+        }
+      }
+      catch (std::exception & e) {
+        std::cout << nm << " - ERROR: Skipping this FE!"
+                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
+      }
+    }
+    std::cout << std::endl;
+
+    return configs;
   }
 };
 }  // namespace nsw
