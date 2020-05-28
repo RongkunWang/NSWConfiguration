@@ -30,7 +30,7 @@ class NSWConfig {
  public:
     // override only the needed methods
     explicit NSWConfig(bool simulation);
-    ~NSWConfig(){}
+    ~NSWConfig() {}
 
     //! Connects to configuration database/ or reads file based config database
     //! Reads the names of front ends that should be configured and constructs
@@ -119,4 +119,4 @@ class NSWConfig {
     bool m_simulation;
 };
 }  // namespace nsw
-#endif // NSWCONFIGURATION_NSWCONFIG_H_
+#endif  // NSWCONFIGURATION_NSWCONFIG_H_
