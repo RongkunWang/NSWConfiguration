@@ -147,9 +147,9 @@ class OksApi: public ConfigReaderApi {
 
 class PtreeApi: public ConfigReaderApi {
   public:
-  explicit PtreeApi(ptree tree){
-    m_config=tree;
-  }
+    explicit PtreeApi(ptree tree) {
+      m_config=tree;
+    }
     ptree & read();
 };
 

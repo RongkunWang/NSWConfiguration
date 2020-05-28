@@ -29,15 +29,15 @@ namespace nsw {
 class NSWConfig {
  public:
     // override only the needed methods
-     NSWConfig(bool simulation);
-     ~NSWConfig(){};
+    explicit NSWConfig(bool simulation);
+    ~NSWConfig(){}
 
     //! Connects to configuration database/ or reads file based config database
     //! Reads the names of front ends that should be configured and constructs
     //! FEBConfig objects in the map m_frontends
     //! Template class to allow the reading of both the Config and Calib configurations
     template <class U>
-    void readConf(const U* nswApp){
+    void readConf(const U* nswApp) {
       try {
         m_dbcon = nswApp->get_dbConnection();
         m_resetvmm = nswApp->get_resetVMM();
@@ -117,7 +117,6 @@ class NSWConfig {
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;
-
 };
 }  // namespace nsw
-#endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
+#endif // NSWCONFIGURATION_NSWCONFIG_H_

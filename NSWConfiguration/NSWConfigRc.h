@@ -20,7 +20,7 @@ namespace nsw {
 class NSWConfigRc: public daq::rc::Controllable {
  public:
     // override only the needed methods
-    explicit NSWConfigRc(bool simulation=false);
+    explicit NSWConfigRc(bool simulation = false);
     virtual ~NSWConfigRc() noexcept {}
 
     //! Connects to configuration database/ or reads file based config database

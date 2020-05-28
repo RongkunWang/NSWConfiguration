@@ -6,23 +6,22 @@
 #include "RunControl/Common/OnlineServices.h"
 #include "NSWConfiguration/NSWConfig.h"
 
-nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation}{
+nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfig instance");
     if (m_simulation) {
         ERS_INFO("Running in simulation mode, no configuration will be sent");
     }
 }
 
-ptree nsw::NSWConfig::getConf(){
+ptree nsw::NSWConfig::getConf() {
   return m_reader->readConfig();
 }
 
-void nsw::NSWConfig::substituteConf(ptree tree){
+void nsw::NSWConfig::substituteConf(ptree tree) {
   m_reader  = std::make_unique<nsw::ConfigReader>(tree);
 }
 
 void nsw::NSWConfig::configureRc() {
-
     // TODO(cyildiz): Instead of reading all front ends from the database,
     // we should find the ones that are at the same links with the swROD
     auto frontend_names = m_reader->getAllElementNames();
@@ -49,11 +48,11 @@ void nsw::NSWConfig::configureRc() {
       }
     }
 
-    configureFEBs();        // Configure all front-ends
-    configureADDCs();       // Configure all ADDCs
-    configureRouters();     // Configure all Routers
-    configurePadTriggers(); // Configure all Pad Triggers
-    configureTPs();         // Configure all Trigger processors
+    configureFEBs();          // Configure all front-ends
+    configureADDCs();         // Configure all ADDCs
+    configureRouters();       // Configure all Routers
+    configurePadTriggers();   // Configure all Pad Triggers
+    configureTPs();           // Configure all Trigger processors
     alignADDCsToTP();
     ERS_LOG("End");
 }
@@ -72,8 +71,8 @@ void nsw::NSWConfig::unconfigureRc() {
 
 void nsw::NSWConfig::configureFEBs() {
     m_threads->clear();
-    for (const auto& kv: m_frontends) {
-        while(too_many_threads())
+    for (const auto& kv : m_frontends) {
+        while (too_many_threads())
             usleep(500000);
         m_threads->push_back(std::async(std::launch::async,
                                         &nsw::NSWConfig::configureFEB,
@@ -81,7 +80,7 @@ void nsw::NSWConfig::configureFEBs() {
                                         kv.first));
     }
     // wait
-    for (auto& thread: *m_threads) {
+    for (auto& thread : *m_threads) {
         try {  // If configureFEB throws exception, it will be caught here
             thread.get();
         } catch (std::exception & ex) {
@@ -92,7 +91,6 @@ void nsw::NSWConfig::configureFEBs() {
 }
 
 void nsw::NSWConfig::configureFEB(std::string name) {
-
     // how can we avoid this?
     auto local_sender = std::make_unique<nsw::ConfigSender>();
 
@@ -108,8 +106,7 @@ void nsw::NSWConfig::configureFEB(std::string name) {
     if (!m_simulation) {
         local_sender->sendRocConfig(configuration);
 
-        if (m_resetvmm)
-        {
+        if (m_resetvmm) {
             std::vector <unsigned> reset_ori;
             for (auto & vmm : configuration.getVmms()) {
                 reset_ori.push_back(vmm.getGlobalRegister("reset"));  // Set reset bits to 1
@@ -133,15 +130,15 @@ void nsw::NSWConfig::configureFEB(std::string name) {
 void nsw::NSWConfig::configureADDCs() {
     ERS_LOG("Configuring all ADDCs");
     m_threads->clear();
-    for (const auto& kv: m_addcs) {
-        while(too_many_threads())
+    for (const auto& kv : m_addcs) {
+        while (too_many_threads())
             usleep(500000);
         m_threads->push_back(std::async(std::launch::async,
                                         &nsw::NSWConfig::configureADDC,
                                         this,
                                         kv.first));
     }
-    for (auto& thread: *m_threads) {
+    for (auto& thread : *m_threads) {
         try {  // If configureADDC throws exception, it will be caught here
             thread.get();
         } catch (std::exception & ex) {
@@ -199,7 +196,7 @@ void nsw::NSWConfig::configurePadTriggers() {
 
 void nsw::NSWConfig::configureTPs() {
     ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
-    for (const auto& kv: m_tps) {
+    for (const auto& kv : m_tps) {
         auto configuration = m_tps.at(kv.first);
         m_sender->sendTpConfig(configuration);
         ERS_LOG("Finished config to: " << kv.first);
@@ -232,7 +229,7 @@ void nsw::NSWConfig::configureROCs() {
 
 size_t nsw::NSWConfig::active_threads() {
     size_t nfinished = 0;
-    for (auto& thread: *m_threads)
+    for (auto& thread : *m_threads)
         if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             nfinished++;
     return m_threads->size() - nfinished;
@@ -241,7 +238,7 @@ size_t nsw::NSWConfig::active_threads() {
 bool nsw::NSWConfig::too_many_threads() {
     size_t nthreads = active_threads();
     bool decision = (nthreads >= m_max_threads);
-    if(decision){
+    if (decision) {
         std::cout << "Too many active threads ("
                   << nthreads
                   << "), waiting for fewer than "

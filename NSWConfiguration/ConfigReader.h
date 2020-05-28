@@ -29,7 +29,7 @@ class ConfigReader {
  public:
   ConfigReader(const std::string connection_string, const std::vector<std::string> components);
   explicit ConfigReader(const std::string connection_string);
-  ConfigReader(const ptree tree);
+  explicit ConfigReader(const ptree tree);
   ~ConfigReader();
 
   ptree readConfig() {

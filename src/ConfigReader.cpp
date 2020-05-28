@@ -51,8 +51,7 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string):
     }
 }
 
-nsw::ConfigReader::ConfigReader(const ptree tree)
-{
+nsw::ConfigReader::ConfigReader(const ptree tree) {
   m_api = std::make_unique<PtreeApi> (tree);
 }
 
