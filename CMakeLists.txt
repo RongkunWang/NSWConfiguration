@@ -13,6 +13,11 @@ tdaq_add_library(nswconfigdal DAL
   ${dal_cpp_srcs}
   LINK_LIBRARIES tdaq::config tdaq::daq-core-dal tdaq::daq-df-dal)
 
+tdaq_add_library(NSWConfig src/NSWConfig.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal
+)
+
 tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
@@ -113,7 +118,7 @@ tdaq_add_executable(configure_tp app/configure_tp.cpp
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
 tdaq_add_schema(schema/NSWConfig.schema.xml)
