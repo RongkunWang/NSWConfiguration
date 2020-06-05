@@ -44,6 +44,9 @@ class NSWConfig {
         m_resettds = nswApp->get_resetTDS();
         m_max_threads = nswApp->get_maxThreads();
         ERS_INFO("DB Configuration: " << m_dbcon);
+        ERS_INFO("Reset VMM: "   << m_resetvmm);
+        ERS_INFO("Reset TDS: "   << m_resettds);
+        ERS_INFO("max threads: " << m_max_threads);
       } catch(std::exception& ex) {
           std::stringstream ss;
           ss << "Problem reading OKS configuration of NSWConfig: " << ex.what();
