@@ -630,12 +630,20 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
             }
 
             // announce
-            for (auto & addc : addcs)
-                for (auto art : addc.getARTs())
-                    if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip())
-                        ERS_LOG(addc.getAddress() << "." << art.getName() << " "
-                                << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
-                                << " (" << art.TP_GBTxAlignmentBit() << ")");
+            for (auto & addc : addcs) {
+                for (auto art : addc.getARTs()) {
+                    if (art.IsMyTP(tp.first, tp.second) && !art.TP_GBTxAlignmentSkip()) {
+                        std::stringstream msg;
+                        msg << addc.getAddress() << "." << art.getName() << " "
+                            << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
+                            << " (" << art.TP_GBTxAlignmentBit() << ")";
+                        if (glitches[art.TP_GBTxAlignmentBit()] > 0)
+                            ERS_INFO(msg.str());
+                        else
+                            ERS_LOG(msg.str());
+                    }
+                }
+            }
 
             // build the reset
             uint32_t reset = 0;
