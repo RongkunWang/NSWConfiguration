@@ -70,6 +70,9 @@ void nsw::NSWConfig::unconfigureRc() {
 
 
 void nsw::NSWConfig::configureFEBs() {
+    ERS_INFO("reset VMM: "   << m_resetvmm);
+    ERS_INFO("reset TDS: "   << m_resettds);
+    ERS_INFO("max threads: " << m_max_threads);
     m_threads->clear();
     for (const auto& kv : m_frontends) {
         while (too_many_threads())
