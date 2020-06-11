@@ -146,7 +146,8 @@ int main(int argc, const char *argv[]) {
     std::vector<std::string> tmpVec;
     while (std::getline(inputData, line)) {
         std::cout << line << std::endl;
-        boost::split(strs,line,boost::is_any_of("\t "),boost::token_compress_on);
+        boost::split(strs,line,boost::is_any_of("\t ,"),boost::token_compress_on);
+        if (strs.size()<3) continue;
         tmpVec.push_back(strs.at(0));
         tmpVec.push_back(strs.at(1));
         tmpVec.push_back(strs.at(2));
