@@ -70,6 +70,8 @@ class ConfigSender {
     void alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs);
 
     /// High level send function
+    void readPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj);
+    void sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj, bool write = true);
     void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
 
     /// High level send function

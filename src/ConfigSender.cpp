@@ -757,6 +757,60 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
 //     }
 }
 
+void nsw::ConfigSender::readPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig & obj) {
+    sendPadTriggerSCAControlRegister(obj, false);
+}
+
+void nsw::ConfigSender::sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig & obj, bool write) {
+    auto ip   = obj.getOpcServerIp();
+    auto addr = obj.getAddress() + ".fpga.fpga";
+    int i2c_reg_control = 0;
+
+    // address and data
+    uint8_t address[]    = {(uint8_t)(i2c_reg_control)};
+    size_t  address_size = 1;
+    size_t  data_size    = 4;
+
+    // write
+    if (write) {
+        uint32_t i2c_val_32 = (uint32_t)(obj.UserControlRegister());
+        uint8_t data_data[]  = {address[0],
+                                (uint8_t)((i2c_val_32 >> 24) & 0xff),
+                                (uint8_t)((i2c_val_32 >> 16) & 0xff),
+                                (uint8_t)((i2c_val_32 >>  8) & 0xff),
+                                (uint8_t)((i2c_val_32 >>  0) & 0xff)};
+        std::stringstream msg;
+        msg << " Writing  " << addr
+            << " reg "      << i2c_reg_control
+            << " val "      << obj.UserControlRegister()
+            << " -> msg = ";
+        for (auto val : data_data)
+            msg << std::hex << unsigned(val) << " " << std::dec;
+        ERS_INFO(msg.str());
+        // sendI2cRaw(ip, addr, data_data, address_size + data_size);
+    }
+
+    // readback
+    std::vector<uint8_t> vals = {0, 0, 0, 0};
+    // auto vals = readI2cAtAddress(ip, addr, address, address_size, data_size);
+    std::stringstream msg;
+    msg << " Readback " << addr << ": ";
+    for (auto val : vals)
+        msg << std::hex << unsigned(val) << " " << std::dec;
+    ERS_INFO(msg.str());
+
+    // format
+    uint32_t word = 0;
+    word += (uint32_t)(vals[0] << 24);
+    word += (uint32_t)(vals[1] << 16);
+    word += (uint32_t)(vals[2] <<  8);
+    word += (uint32_t)(vals[3] <<  0);
+
+    // update
+    obj.SetRealControlRegister(word);
+}
+
+
 void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj) {
     // basics
     auto opc_ip   = obj.getOpcServerIp();
