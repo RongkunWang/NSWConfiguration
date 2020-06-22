@@ -47,6 +47,7 @@ class TPConfig: public SCAConfig {
     int ARTWindowLeft();
     int ARTWindowRight();
     uint32_t FiberBCOffset();
+    int GlobalInputPhase();
 };
 
 }  // namespace nsw
