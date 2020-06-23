@@ -1,7 +1,7 @@
 /// ADDC Configuration class
 
-#ifndef NSWCONFIGURATION_ADDC_H_
-#define NSWCONFIGURATION_ADDC_H_
+#ifndef NSWCONFIGURATION_NSWCONFIGURATION_ADDCCONFIG_H_
+#define NSWCONFIGURATION_NSWCONFIGURATION_ADDCCONFIG_H_
 
 #include <vector>
 #include <iostream>
@@ -41,9 +41,8 @@ class ADDCConfig: public SCAConfig {
     std::vector<uint8_t> ARTregistervalues()      const {return m_ARTregistervalues;}
     std::vector<uint8_t> GBTx_eport_registers()   const {return m_GBTx_eport_registers;}
     std::vector<uint8_t> GBTx_ConfigurationData() const {return m_GBTx_ConfigurationData;}
-
 };
 
 }  // namespace nsw
 
-#endif  // NSWCONFIGURATION_ADDC_H_
+#endif  // NSWCONFIGURATION_NSWCONFIGURATION_ADDCCONFIG_H_
