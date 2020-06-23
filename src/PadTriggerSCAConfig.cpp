@@ -36,7 +36,12 @@ int nsw::PadTriggerSCAConfig::UserControlRegister() {
       UserL1AReadoutEnable()  == -1 ||
       UserpFEBBCIDOffset()    == -1)
       return -1;
-  return UserL1AReadoutLatency() + (UserL1AReadoutNBCMode() << 7) + (UserpFEBBCIDOffset() << 11) + (UserL1AReadoutEnable() << 15);
+  int reg = 0;
+  reg += (UserL1AReadoutLatency() <<  0);
+  reg += (UserL1AReadoutNBCMode() <<  7);
+  reg += (UserpFEBBCIDOffset()    << 11);
+  reg += (UserL1AReadoutEnable()  << 15);
+  return reg;
 }
 
 int nsw::PadTriggerSCAConfig::UserL1AReadoutLatency() {
@@ -70,10 +75,10 @@ int nsw::PadTriggerSCAConfig::UserpFEBBCIDOffset() {
 
 void nsw::PadTriggerSCAConfig::SetRealControlRegister(int val) {
   m_RealControlRegister = val;
-  SetRealL1AReadoutLatency((val >>  0) & 0x7f);
-  SetRealL1AReadoutNBCMode((val >>  7) & 0x0f);
-  SetRealpFEBBCIDOffset   ((val >> 11) & 0x0f);
-  SetRealL1AReadoutEnable ((val >> 15) & 0x01);
+  SetRealL1AReadoutLatency( (val >>  0) & 0x7f);
+  SetRealL1AReadoutNBCMode( (val >>  7) & 0x0f);
+  SetRealpFEBBCIDOffset(    (val >> 11) & 0x0f);
+  SetRealL1AReadoutEnable(  (val >> 15) & 0x01);
 }
 
 
