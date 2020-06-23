@@ -787,12 +787,12 @@ void nsw::ConfigSender::sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfi
         for (auto val : data_data)
             msg << std::hex << unsigned(val) << " " << std::dec;
         ERS_INFO(msg.str());
-        // sendI2cRaw(ip, addr, data_data, address_size + data_size);
+        sendI2cRaw(ip, addr, data_data, address_size + data_size);
     }
 
     // readback
-    std::vector<uint8_t> vals = {0, 0, 0, 0};
-    // auto vals = readI2cAtAddress(ip, addr, address, address_size, data_size);
+    // std::vector<uint8_t> vals = {0, 0, 0, 0};
+    auto vals = readI2cAtAddress(ip, addr, address, address_size, data_size);
     std::stringstream msg;
     msg << " Readback " << addr << ": ";
     for (auto val : vals)
