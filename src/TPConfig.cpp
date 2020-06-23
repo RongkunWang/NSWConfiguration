@@ -92,7 +92,9 @@ int nsw::TPConfig::ARTWindowRight() {
 uint32_t nsw::TPConfig::FiberBCOffset() {
     return m_config.get<uint32_t>("FiberBCOffset");
 }
-
+int nsw::TPConfig::GlobalInputPhase() {
+    return m_config.get<int>("GlobalInputPhase");
+}
 
 nsw::TPConfig::~TPConfig() {
     // deallocate all memory taken in the constructor
