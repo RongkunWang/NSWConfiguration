@@ -94,3 +94,7 @@ int nsw::PadTriggerSCAConfig::RealL1AReadoutNBC() {
   auto msg = "RealL1AReadoutNBCMode is confused by NBCMode = " + std::to_string(RealL1AReadoutNBCMode());
   throw std::runtime_error(msg);
 }
+
+bool nsw::PadTriggerSCAConfig::ConfigNonFpgaElements() const {
+  return m_config.get<bool>("ConfigNonFpgaElements");
+}

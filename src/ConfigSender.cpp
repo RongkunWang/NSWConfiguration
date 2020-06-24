@@ -826,6 +826,12 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     // basics
     auto opc_ip   = obj.getOpcServerIp();
     auto sca_addr = obj.getAddress();
+    if (!obj.ConfigNonFpgaElements()) {
+        ERS_INFO("Skipping configuration of non-FPGA elements of " << opc_ip << " " << sca_addr);
+        return;
+    }
+
+    // more basics
     std::vector<std::string> repeaters = {"1", "2", "3", "4", "5", "6"};
     std::vector<std::string> vttxs = {"1", "2"};
 
