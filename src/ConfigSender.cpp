@@ -826,76 +826,92 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     // basics
     auto opc_ip   = obj.getOpcServerIp();
     auto sca_addr = obj.getAddress();
-    if (!obj.ConfigNonFpgaElements()) {
-        ERS_INFO("Skipping configuration of non-FPGA elements of " << opc_ip << " " << sca_addr);
-        return;
+
+    // Repeaters
+    if (obj.ConfigRepeaters()) {
+        std::vector< std::tuple<std::string, uint8_t, uint8_t> > repeater_sequence_of_commands = {
+            // ENABLE SMBUS REGISTERS ON ALL REPEATER CHIPS
+            {"1", 0x07, 0x01}, {"1", 0x07, 0x11}, {"1", 0x07, 0x21}, {"1", 0x07, 0x31},
+            {"2", 0x07, 0x01}, {"2", 0x07, 0x11}, {"2", 0x07, 0x21}, {"2", 0x07, 0x31},
+            {"3", 0x07, 0x01}, {"3", 0x07, 0x11}, {"3", 0x07, 0x21}, {"3", 0x07, 0x31},
+            {"4", 0x07, 0x01}, {"4", 0x07, 0x11}, {"4", 0x07, 0x21}, {"4", 0x07, 0x31},
+            {"5", 0x07, 0x01}, {"5", 0x07, 0x11}, {"5", 0x07, 0x21}, {"5", 0x07, 0x31},
+            {"6", 0x07, 0x01}, {"6", 0x07, 0x11}, {"6", 0x07, 0x21}, {"6", 0x07, 0x31},
+            // SET REPEATER CHIPS EQUALISER SETTINGS
+            {"1", 0x14, 0x03}, {"1", 0x16, 0x03}, {"1", 0x18, 0x03}, {"1", 0x1A, 0x03},
+            {"2", 0x14, 0x03}, {"2", 0x16, 0x03}, {"2", 0x18, 0x03}, {"2", 0x1A, 0x03},
+            {"3", 0x14, 0x03}, {"3", 0x16, 0x03}, {"3", 0x18, 0x03}, {"3", 0x1A, 0x03},
+            {"4", 0x14, 0x03}, {"4", 0x16, 0x03}, {"4", 0x18, 0x03}, {"4", 0x1A, 0x03},
+            {"5", 0x14, 0x03}, {"5", 0x16, 0x03}, {"5", 0x18, 0x03}, {"5", 0x1A, 0x03},
+            {"6", 0x14, 0x03}, {"6", 0x16, 0x03}, {"6", 0x18, 0x03}, {"6", 0x1A, 0x03},
+            // DISABLE SMBUS REGISTERS ON ALL REPEATER CHIPS
+            // (not really necessary but it’s a protection against occasional commands sent by mistake)
+            {"1", 0x07, 0x00}, {"1", 0x07, 0x10}, {"1", 0x07, 0x20}, {"1", 0x07, 0x30},
+            {"2", 0x07, 0x00}, {"2", 0x07, 0x10}, {"2", 0x07, 0x20}, {"2", 0x07, 0x30},
+            {"3", 0x07, 0x00}, {"3", 0x07, 0x10}, {"3", 0x07, 0x20}, {"3", 0x07, 0x30},
+            {"4", 0x07, 0x00}, {"4", 0x07, 0x10}, {"4", 0x07, 0x20}, {"4", 0x07, 0x30},
+            {"5", 0x07, 0x00}, {"5", 0x07, 0x10}, {"5", 0x07, 0x20}, {"5", 0x07, 0x30},
+            {"6", 0x07, 0x00}, {"6", 0x07, 0x10}, {"6", 0x07, 0x20}, {"6", 0x07, 0x30},
+        };
+        for (auto command: repeater_sequence_of_commands) {
+            auto [rep, address, value] = command;
+
+            auto node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
+            size_t address_size_repeater = 1;
+            size_t data_size_repeater    = 2;
+            uint8_t address_repeater[]   = {address};
+            uint8_t data_data_repeater[] = {address, value};
+
+            // GPIO enable
+            sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 1);
+
+            // Repeater I2C: write
+            ERS_INFO(opc_ip << " " << sca_addr << ": Repeater I2C. "
+                     << "Writing 0x" << std::hex << unsigned(data_data_repeater[1])
+                     << " to address 0x" << unsigned(data_data_repeater[0]));
+            sendI2cRaw(opc_ip, node, data_data_repeater, data_size_repeater);
+            usleep(10000);
+
+            // Repeater I2C: readback
+            auto val = readI2cAtAddress(opc_ip, node, address_repeater, address_size_repeater);
+            ERS_INFO(opc_ip << " " << sca_addr << ": Repeater I2C. "
+                     << " Readback " << rep << ": 0x" << std::hex << unsigned(val[0]));
+            usleep(10000);
+
+            // GPIO disable
+            sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 0);
+        }
+    } else {
+        ERS_INFO("Skipping configuration of repeaters of " << opc_ip << " " << sca_addr);
     }
-
-    // more basics
-    std::vector<std::string> repeaters = {"1", "2", "3", "4", "5", "6"};
-    std::vector<std::string> vttxs = {"1", "2"};
-
-    // I2C
-    size_t address_size_repeater = 1;
-    size_t data_size_repeater    = 2;
-    uint8_t address_repeater[]   = {0x18};
-    uint8_t data_data_repeater[] = {0x18, 0b00000011};
-
-    // 0.0: Repeater GPIO
-    std::cout << "Repeater GPIO. Writing 1" << std::endl;
-    for (auto rep: repeaters) {
-        sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 1);
-        usleep(100000);
-    }
-
-    // 0.1: Read them
-    for (auto rep: repeaters) {
-        std::cout << " Readback " << rep << ": " << readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep) << std::endl;
-        usleep(100000);
-    }
-    std::cout << std::endl;
-
-    // 1.0 Repeater I2C
-    std::cout << "Repeater I2C. Writing " << std::hex << unsigned(data_data_repeater[1])
-              << " to address 0x" << unsigned(data_data_repeater[0]) << std::dec << std::endl;
-    for (auto rep: repeaters) {
-        std::string node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
-        sendI2cRaw(opc_ip, node, data_data_repeater, data_size_repeater);
-        usleep(100000);
-    }
-
-    // 1.1 Read them
-    for (auto rep: repeaters) {
-        std::string node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
-        auto val = readI2cAtAddress(opc_ip, node, address_repeater, address_size_repeater);
-        std::cout << " Readback " << rep << ": " << unsigned(val[0]) << std::endl;
-        usleep(100000);
-    }
-    std::cout << std::endl;
 
     // VTTX
-    size_t address_size = 1;
-    size_t data_size    = 2;
-    uint8_t address[]   = {0x0};
-    uint8_t data_data[] = {0x0, 0xC7};
+    if (obj.ConfigVTTx()) {
+        size_t address_size = 1;
+        size_t data_size    = 2;
+        uint8_t address[]   = {0x0};
+        uint8_t data_data[] = {0x0, 0xC7};
+        std::vector<std::string> vttxs = {"1", "2"};
 
-    // 2.0 VTTX
-    std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1])
-              << " to address 0x" << unsigned(data_data[0])<< std::dec << std::endl;
-    for (auto vttx: vttxs) {
-        std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
-        sendI2cRaw(opc_ip, node, data_data, data_size);
-        usleep(100000);
+        // 2.0 VTTX
+        std::cout << "VTTx I2C: Writing " << std::hex << unsigned(data_data[1])
+                  << " to address 0x" << unsigned(data_data[0])<< std::dec << std::endl;
+        for (auto vttx: vttxs) {
+            std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
+            sendI2cRaw(opc_ip, node, data_data, data_size);
+            usleep(100000);
+        }
+
+        // 2.1 Read them
+        for (auto vttx: vttxs) {
+            std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
+            auto val = readI2cAtAddress(opc_ip, node, address, address_size);
+            std::cout << " Readback " << vttx << ": " << std::hex << unsigned(val[0]) << std::dec << std::endl;
+            usleep(100000);
+        }
+    } else {
+        ERS_INFO("Skipping configuration of VTTx of " << opc_ip << " " << sca_addr);
     }
-
-    // 2.1 Read them
-    for (auto vttx: vttxs) {
-        std::string node = sca_addr + ".vttx" + vttx + ".vttx" + vttx;
-        auto val = readI2cAtAddress(opc_ip, node, address, address_size);
-        std::cout << " Readback " << vttx << ": " << std::hex << unsigned(val[0]) << std::dec << std::endl;
-        usleep(100000);
-    }
-
 }
 
 void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
