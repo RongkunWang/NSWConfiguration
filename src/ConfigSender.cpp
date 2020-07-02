@@ -856,6 +856,7 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
         for (auto command: repeater_sequence_of_commands) {
             auto [rep, address, value] = command;
 
+            // values
             auto node = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
             size_t address_size_repeater = 1;
             size_t data_size_repeater    = 2;

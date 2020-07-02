@@ -13,8 +13,7 @@
 
 namespace po = boost::program_options;
 
-int main(int argc, const char *argv[]) 
-{
+int main(int argc, const char *argv[]) {
     std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
     std::string config_filename;
     std::string board_name;
@@ -49,7 +48,7 @@ int main(int argc, const char *argv[])
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
-    }    
+    }
 
     // checks
     if (rep != "1" &&
@@ -65,12 +64,16 @@ int main(int argc, const char *argv[])
     size_t address_size_repeater = 1;
     size_t data_size_repeater    = 2;
     uint8_t address_repeater[]   = {(uint8_t)(std::stol(i2c_addr, 0, 16) & 0xff)};
-    uint8_t data_data_repeater[] = {(uint8_t)(std::stol(i2c_addr, 0, 16) & 0xff), (uint8_t)(std::stol(i2c_val, 0, 16) & 0xff)};
+    uint8_t data_data_repeater[] = {(uint8_t)(std::stol(i2c_addr, 0, 16) & 0xff),
+                                    (uint8_t)(std::stol(i2c_val,  0, 16) & 0xff)};
 
     // make objects from json
-    auto board_configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>("json://" + config_filename, "PadTriggerSCA");
-    for (auto & board: board_configs)
-        std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << ". Configuring Repeater " << rep << std::endl;
+    auto board_configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
+        ("json://" + config_filename, "PadTriggerSCA");
+    for (auto & board : board_configs)
+        std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp()
+                  << ". Configuring Repeater " << rep
+                  << std::endl;
     std::cout << std::endl;
     std::cout << "Configuring Repeater " << rep << std::endl;
     std::cout << std::endl;
@@ -79,8 +82,7 @@ int main(int argc, const char *argv[])
     nsw::ConfigSender cs;
 
     // loop over pad triggers
-    for (auto & board: board_configs) {
-
+    for (auto & board : board_configs) {
         auto opc_ip   = board.getOpcServerIp();
         auto sca_addr = board.getAddress();
         auto node     = sca_addr + ".repeaterChip" + rep + ".repeaterChip" + rep;
@@ -90,7 +92,9 @@ int main(int argc, const char *argv[])
         if (!dry_run)
             cs.sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 1);
         usleep(10000);
-        std::cout << " Readback " << rep << ": " << (dry_run ? -1 : cs.readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep)) << std::endl;
+        std::cout << " Readback " << rep << ": "
+                  << (dry_run ? -1 : cs.readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep))
+                  << std::endl;
         std::cout << std::endl;
 
         // Repeater I2C: write
@@ -109,13 +113,15 @@ int main(int argc, const char *argv[])
         std::cout << " Readback " << rep << ": 0x" << std::hex << unsigned(val[0]) << std::dec << std::endl;
         usleep(10000);
         std::cout << std::endl;
-    
+
         // GPIO disable
         std::cout << "Repeater GPIO. Writing 0" << std::endl;
         if (!dry_run)
             cs.sendGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep, 0);
         usleep(10000);
-        std::cout << " Readback " << rep << ": " << (dry_run ? -1 : cs.readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep)) << std::endl;
+        std::cout << " Readback " << rep << ": "
+                  << (dry_run ? -1 : cs.readGPIO(opc_ip, sca_addr + ".gpio.gpio-repeaterChip" + rep))
+                  << std::endl;
         std::cout << std::endl;
     }
 
