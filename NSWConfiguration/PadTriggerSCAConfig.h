@@ -24,7 +24,8 @@ class PadTriggerSCAConfig: public SCAConfig {
     ~PadTriggerSCAConfig() {}
 
     void dump();
-    bool ConfigNonFpgaElements() const;
+    bool ConfigRepeaters() const;
+    bool ConfigVTTx() const;
     int UserControlRegister();
     int UserL1AReadoutLatency();
     int UserL1AReadoutNBC();

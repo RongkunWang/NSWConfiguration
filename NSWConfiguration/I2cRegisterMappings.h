@@ -591,26 +591,26 @@ static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
     },
     {"10",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"11",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"12",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"13",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     // {"14",
@@ -686,26 +686,26 @@ static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
     },
     {"25",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"26",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"27",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"28",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     // {"29",
@@ -781,26 +781,26 @@ static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
     },
     {"40",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"41",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"42",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"43",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     // {"44",
@@ -876,26 +876,26 @@ static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
     },
     {"55",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"56",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"57",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     {"58",
      {
-         {"phaseSelectChannel1output",4},
-         {"phaseSelectChannel0output",4}
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
      }
     },
     // {"59",

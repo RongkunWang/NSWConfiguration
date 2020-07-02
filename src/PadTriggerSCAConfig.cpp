@@ -95,6 +95,10 @@ int nsw::PadTriggerSCAConfig::RealL1AReadoutNBC() {
   throw std::runtime_error(msg);
 }
 
-bool nsw::PadTriggerSCAConfig::ConfigNonFpgaElements() const {
-  return m_config.get<bool>("ConfigNonFpgaElements");
+bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
+  return m_config.get<bool>("ConfigRepeaters");
+}
+
+bool nsw::PadTriggerSCAConfig::ConfigVTTx() const {
+  return m_config.get<bool>("ConfigVTTx");
 }

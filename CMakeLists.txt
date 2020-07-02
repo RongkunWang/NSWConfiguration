@@ -87,6 +87,10 @@ tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(nsw_pad_repeaters app/pad_repeaters.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_executable(nsw_router app/router.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )

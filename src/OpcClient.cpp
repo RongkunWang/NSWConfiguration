@@ -30,7 +30,7 @@ nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip
             m_security,
             new MyCallBack ());
 
-    if (status.isBad()) { // Can't establish initial connection with Opc Server
+    if (status.isBad()) {  // Can't establish initial connection with Opc Server
         nsw::OpcConnectionIssue issue(ERS_HERE, m_server_ipport, status.toString().toUtf8());
         ers::error(issue);
         throw issue;
@@ -78,7 +78,6 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
 
 uint8_t nsw::OpcClient::readRocRaw(std::string node, unsigned int scl, unsigned int sda,
                                     uint8_t registerAddress, unsigned int i2cDelay) {
-
     UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
 
     ioBatch.addSetPins( { { scl, true }, { sda, true } } );
