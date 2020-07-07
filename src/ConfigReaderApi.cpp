@@ -20,7 +20,7 @@ ptree ConfigReaderApi::read(std::string element) {
     } else if (nsw::getElementType(element) == "SFEB_old") {
         return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8" << element);
+        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
         return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB8") {
         return readSFEB(element, 4);
