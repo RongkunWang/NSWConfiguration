@@ -146,11 +146,22 @@ int main(int argc, const char *argv[]) {
     std::vector<std::string> tmpVec;
     while (std::getline(inputData, line)) {
         std::cout << line << std::endl;
+        tmpVec.clear();
         boost::split(strs,line,boost::is_any_of("\t ,"),boost::token_compress_on);
-        if (strs.size()<3) continue;
-        tmpVec.push_back(strs.at(0));
-        tmpVec.push_back(strs.at(1));
-        tmpVec.push_back(strs.at(2));
+        if (strs.size()==2) {
+            tmpVec.push_back("0");
+            tmpVec.push_back(strs.at(0));
+            tmpVec.push_back(strs.at(1));
+        }
+        else if (strs.size()==3){
+            // tmpVec.push_back(strs.at(0));
+            std::string tmpString = "0";
+            tmpVec.push_back(tmpString);
+            tmpVec.push_back(strs.at(1));
+            tmpVec.push_back(strs.at(2));
+        } else {
+            continue;
+        }
         messageList.push_back(tmpVec);
     }
 
