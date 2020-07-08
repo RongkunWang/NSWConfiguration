@@ -145,5 +145,13 @@ class OksApi: public ConfigReaderApi {
   ptree & read();
 };
 
+class PtreeApi: public ConfigReaderApi {
+ public:
+  explicit PtreeApi(ptree tree) {
+    m_config = tree;
+  }
+  ptree & read();
+};
+
 #endif  // NSWCONFIGURATION_CONFIGREADERAPI_H_
 

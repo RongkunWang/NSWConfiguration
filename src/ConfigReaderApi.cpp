@@ -329,3 +329,7 @@ ptree & OksApi::read() {
     }
   return m_config;
 }
+
+ptree & PtreeApi::read() {
+  return m_config;
+}
