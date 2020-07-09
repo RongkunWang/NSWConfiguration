@@ -96,6 +96,22 @@ int nsw::TPConfig::GlobalInputPhase() {
     return m_config.get<int>("GlobalInputPhase");
 }
 
+void nsw::TPConfig::setARTWindowCenter(int val) {
+  m_config.put("ARTWindowCenter", val);
+}
+void nsw::TPConfig::setARTWindowLeft(int val) {
+  m_config.put("ARTWindowLeft", val);
+}
+void nsw::TPConfig::setARTWindowRight(int val) {
+  m_config.put("ARTWindowRight", val);
+}
+void nsw::TPConfig::setFiberBCOffset(uint32_t val) {
+  m_config.put("FiberBCOffset", val);
+}
+void nsw::TPConfig::setGlobalInputPhase(int val) {
+  m_config.put("GlobalInputPhase", val);
+}
+
 nsw::TPConfig::~TPConfig() {
     // deallocate all memory taken in the constructor
     for (int i = 0; i < m_numMasters; i++) {
