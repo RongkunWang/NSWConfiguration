@@ -20,10 +20,10 @@ ptree ConfigReaderApi::read(std::string element) {
     } else if (nsw::getElementType(element) == "SFEB_old") {
         return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-      ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
-      return readSFEB(element, 4);
+        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
+        return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB8") {
-      return readSFEB(element, 4);
+        return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB6") {
         return readSFEB6(element);
     } else if (nsw::getElementType(element) == "TP") {
@@ -183,6 +183,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
         feb.put_child(name, tds_common);
     }
 
+    // If the configuation has more than expected tds, remove them
     for (int i = ntds; i < 4; i++) {
         std::string tdsname = "tds" + std::to_string(i);
         ptree tds;
