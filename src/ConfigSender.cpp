@@ -1015,8 +1015,6 @@ void nsw::ConfigSender::configVmmForPdoConsecutiveSamples(FEBConfig& feb,
   std::string FEBName = feb.getAddress();
   if(nsw::getElementType(FEBName) == "SFEB6") vmm_start = 2;
 
-  std::cout << "Read VMM Pdo vmm_start: " << vmm_start << std::endl;
-
   auto opc_ip      = feb.getOpcServerIp();
   auto feb_address = feb.getAddress();
   auto& vmms       = feb.getVmms();
