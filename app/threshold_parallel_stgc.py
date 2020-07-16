@@ -80,11 +80,11 @@ def process_vmms(cfg, feb):
     
     #for i in range(VMM_NUM):
     # if i == 0: continue
-    i = 4
+    #i = 4
     this_cfg = copy.deepcopy(cfg)
     this_cfg["feb"] = feb
     this_cfg["vmm"] = i
-    this_cfg["out"] = "thresholds_%s_vmm_%i.txt" % (feb, i)
+    this_cfg["out"] = "baselines_%s_vmm_%i.txt" % (feb, i)
     process_baselines(this_cfg)
     return
 
@@ -95,8 +95,8 @@ def process_baselines(cfg):
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -s %(sample)s --baseline --dump | tee %(out)s" % (cfg)
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -V %(vmm)s --rms_factor %(rms)s | tee %(out)s" % (cfg)
     cmd = "%(script)s -c %(config)s -n        %(feb)s -V %(vmm)s --rms_factor %(rms)s " % (cfg) +\
-          (" --isSTGC " if isSTGC else "") +\
-          " | tee %(out)s" % (cfg)
+          (" --isSTGC " if isSTGC else "") 
+          #" | tee %(out)s" % (cfg)
     os.system(cmd)
 
 def fatal(message):

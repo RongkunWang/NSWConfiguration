@@ -24,8 +24,14 @@ ptree ConfigReaderApi::read(std::string element) {
     } else if (nsw::getElementType(element) == "PFEB") {
         return readPFEB(element);
     } else if (nsw::getElementType(element) == "SFEB") {
-        return readSFEB(element);
+        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8" << element);
+        return readSFEB(element, 4);
+    } else if (nsw::getElementType(element) == "SFEB8") {
+      return readSFEB(element, 4);
+    } else if (nsw::getElementType(element) == "SFEB6") {
+      return readSFEB6(element);
     }
+    
 }
 
 std::set<std::string> ConfigReaderApi::getAllElementNames() {
@@ -168,7 +174,7 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
     }
 }
 
-ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
+ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, size_t vmm_start, size_t tds_start) {
     ptree feb = m_config.get_child(element);
     ptree roc_common = m_config.get_child("roc_common_config");
 
@@ -184,7 +190,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
     }
 
     // VMM
-    for (size_t i = 0; i < nvmm; i++) {
+    for (size_t i = vmm_start; i < nvmm; i++) {
         ptree vmm_common = m_config.get_child("vmm_common_config");
         std::string vmmname = "vmm" + std::to_string(i);
         ptree specific;
@@ -209,7 +215,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
     }
 
     ptree tds_common = m_config.get_child("tds_common_config");
-    for ( int i = 0; i < ntds; i++ ) {
+    for ( int i = tds_start; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
         if (feb.get_child_optional(name)) {  // If node exists
@@ -219,7 +225,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds) {
         feb.put_child(name, tds_common);
     }
 
-    for (int i = ntds; i < 3; i++) {
+    for (int i = ntds; i < 4; i++) {
         std::string tdsname = "tds" + std::to_string(i);
         ptree tds;
         if (feb.get_child_optional(tdsname)) {  // If node exists

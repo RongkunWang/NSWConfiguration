@@ -1,0 +1,95 @@
+import os
+#import felix_config as felix
+
+from qrreader import qrread
+
+import sys
+#sys.path.append("/afs/cern.ch/work/r/rowang/public/FELIX/swROD_NTuple/")
+#from BoardReadoutTest import board_check_hit
+
+
+def readout(qrcode):
+
+# file_location = "/eos/atlas/atlascerngroupdisk/det-nsw-stgc/noisetest/wedge4/wedgeLayer1234.txt"
+	file_dir = "/eos/atlas/atlascerngroupdisk/det-nsw-stgc/benchreadouttest/sFEB/"
+	os.chdir(file_dir)
+        #while os.path.exists(f_name):
+	try:
+	   if not os.path.exists(qrcode):
+     	   	os.mkdir(qrcode)
+	except OSError as err:
+   		print(err)        
+
+#	os.mkdir(qrcode)
+	file_bin = file_dir + qrcode + "/" + qrcode +".bin"
+	file_root = file_dir + qrcode + "/" + qrcode +".root"
+        print "writing data to "+ file_bin
+	take_data_cmd = "timeout 5s netio_cat subscribe -e raw -p 12350 -H um-felix2 -t 8 -t 16 >" +file_bin
+	os.system(take_data_cmd)
+        print "writing data done"
+       # print take_data_cmd
+	sourcecmd = "source /afs/cern.ch/work/r/rowang/public/FELIX/setup_nsw_board_ttc.sh"
+	os.system(sourcecmd)
+	convertroot = "readNetio -i " +file_bin + " -o " + file_root
+ 	print "converting to root file"+ file_root
+	#print convertroot
+	os.system(convertroot)
+	#"readNetio -i /afs/cern.ch/user/x/xuwa/public/productionreadouttest/wedge4GBTx2layer1.txt -o ~/public/wedge4GBTx2layer1.root        
+ #       board_check_hit(
+  #          	file_root,
+   #     	l_board = [
+    #       			 ("L1Q1", [8, 16]),
+        	#        	 ("L1Q2", [24]),
+        	 #       	 ("L1Q3", [33]),
+     #      		  ],
+      #  	expected_count = -1,
+       # 	out_dir = file_dir + qrcode,
+        #	fout = qrcode
+        #	)
+
+
+fqrcode = open("qrcode.txt","w")
+#readout("sFEB0001")
+#for i in range(0,3,1):
+    #bdname="bd"+str(i)
+   # bdname,scaid=qrread()
+  #  print bdname
+ #   fqrcode.write(bdname + "\n")
+#fqrcode.close()
+testname = ""
+for i in range(0,3,1):
+    #bdname="bd"+str(i)
+    bdname,scaid=qrread()
+    print bdname
+    testname = testname + scaid + " "
+    fqrcode.write(bdname + "\n")
+fqrcode.close()
+print "testname:"+testname
+
+
+readout(testname)
+
+#readout("sFEB0001")
+
+
+
+#pad_noise_config_list = []
+
+#for i in range(50,1,-2):
+ #   pad_noise_config_list.append("totnoise:" + str(i))
+
+#print pad_noise_config_list
+
+#for items in pad_noise_config_list:
+ #   above_threshold = int(items.split(":")[1])
+  #  file_location = file_dir + "baseline+" + str(above_threshold) +".txt"
+   # print file_location
+    #print above_threshold
+
+
+    #felix.config(items)
+    #noise_cmd = take_data_raw_cmd + " > " + file_location
+    #print "Taking data ......"
+    #os.system(noise_cmd)
+
+

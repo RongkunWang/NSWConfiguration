@@ -78,7 +78,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
     h1_th_pre  = h2_th_pre .ProfileX("h1_th_pre",  1, -1, "s")
     h1_th_post = h2_th_post.ProfileX("h1_th_post", 1, -1, "s")
 
-    # diff
+    #vmm_start << std::endl    # diff
     # dont try to diff TProfile :(
     nbins = h1_th_pre.GetNbinsX()
     xlo   = h1_th_pre.GetBinLowEdge(1)

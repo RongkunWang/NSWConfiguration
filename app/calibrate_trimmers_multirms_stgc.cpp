@@ -255,6 +255,10 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                             int trim_lo=TRIM_LO
                             ){
 
+      int vmm_start = 0;
+      std::string FEBName = feb.getAddress();
+      if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+
       if (trim_hi <= trim_mid) return std::make_pair(0,0);
       if (trim_mid <= trim_lo) return std::make_pair(0,0);
 
@@ -270,10 +274,10 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       for (auto trim : trims) {
 
-        feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-        feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-        feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(trim));
-        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+        feb.getVmm(vmm_id-vmm_start).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+        feb.getVmm(vmm_id-vmm_start).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+        feb.getVmm(vmm_id-vmm_start).setChannelTrimmer (channel_id, (size_t)(trim));
+        feb.getVmm(vmm_id-vmm_start).setGlobalThreshold((size_t)(thdac));
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
 
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
@@ -385,6 +389,7 @@ int main(int ac, const char *av[]) {
   std::string description = "This program reads ADC values from a selected VMM in MMFE8/PFEB/SFEB";
 
   int vmm_id;
+  int vmm_start=0;
   int n_samples;
   int tpdac = -1;
   bool isSTGC = 0;
@@ -410,6 +415,7 @@ int main(int ac, const char *av[]) {
   po::notify(vm);
   isSTGC = vm["isSTGC"].as<bool>();
   isMM = !isSTGC;
+  isMM = false;
   std::cout << std::endl;
   std::cout << "The detector under test is " << ((isMM) ? "MM" : "sTGC") << std::endl;
   std::cout << std::endl;
@@ -448,9 +454,14 @@ int main(int ac, const char *av[]) {
         if (  name.find("PFEB") != std::string::npos ) {
             nvmm = 3;
         }
-        else {
-            nvmm = 8;
+        else if ( name.find("SFEB6") != std::string::npos ) {
+            nvmm = 6;
+	    vmm_start=2;
         }
+	else {
+	    nvmm = 8;
+	}
+	  
 
         nsw::FEBConfig config(reader1.readConfig(name));
 
@@ -512,6 +523,7 @@ int main(int ac, const char *av[]) {
 
   std::map< std::pair< std::string, int>, std::ofstream > myfile;
   std::map< std::pair< std::string, int>, std::ofstream > myfile_summary;
+  std::map< std::pair< std::string, int>, std::ofstream > myfile_baseline_ouside_150to200mV;
 
   //--------------------------------------------------------------------//
 
@@ -524,8 +536,13 @@ int main(int ac, const char *av[]) {
       
       uint n_vmms = feb_nvmms.second;
       nsw::FEBConfig feb = feb_nvmms.first;
+      
+      uint init_vmmid = 0;
 
-      for ( uint vmm_id=0; vmm_id < n_vmms; vmm_id++ ) {
+      if(n_vmms == 6) init_vmmid=2;
+      uint final_vmmid_plus1 = init_vmmid+n_vmms;
+
+      for ( uint vmm_id=init_vmmid; vmm_id < final_vmmid_plus1; vmm_id++ ) {
 
           std::pair<std::string,int> feb_vmm(feb.getAddress(), vmm_id);
 
@@ -547,6 +564,7 @@ int main(int ac, const char *av[]) {
 
           myfile[feb_vmm]         = std::ofstream("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
           myfile_summary[feb_vmm] = std::ofstream("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+	  myfile_baseline_ouside_150to200mV[feb_vmm] = std::ofstream("baselines_outside150to200mV_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
           fe_samples_tmp[feb_vmm] = blank;
       }
       
@@ -569,11 +587,17 @@ int main(int ac, const char *av[]) {
           uint n_vmms = feb_nvmms.second;
           nsw::FEBConfig feb = feb_nvmms.first;
 
-          for ( uint vmm_id=0; vmm_id < n_vmms; vmm_id++ ) {
+	  uint init_vmmid = 0;
+
+	  if(n_vmms == 6) init_vmmid=2;
+	  uint final_vmmid_plus1 = init_vmmid+n_vmms;
+
+	  for ( uint vmm_id=init_vmmid; vmm_id < final_vmmid_plus1; vmm_id++ ) {
 
               // Read pdo of the certain channel n_samples times.
-              feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
-              feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
+              feb.getVmm(vmm_id-vmm_start).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
+	      feb.getVmm(vmm_id-vmm_start).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
+              //feb.getVmm(vmm_id-vmm_start).setChannelMOMode(channel_id, nsw::vmm::ChannelTrimmedThreshold);
               cs.configVmmForPdoConsecutiveSamples(feb, vmm_id);
           }
 
@@ -590,6 +614,11 @@ int main(int ac, const char *av[]) {
 
           uint n_vmms = feb_nvmms.second;
           nsw::FEBConfig feb = feb_nvmms.first;
+
+	  uint init_vmmid =0;
+
+	  if(n_vmms == 6) init_vmmid=2;
+	  uint final_vmmid_plus1 = init_vmmid+n_vmms;
 
           //-------------------------------------------------------//
           //                  Build RMS Factors 
@@ -615,7 +644,7 @@ int main(int ac, const char *av[]) {
           //                  Loop over VMM ID
           //---------------------------------------------------------------//
 
-          for ( uint vmm_id=0; vmm_id < n_vmms; vmm_id++ ) {
+	  for ( uint vmm_id=init_vmmid; vmm_id < final_vmmid_plus1; vmm_id++ ) {
 
               std::pair<std::string,int> feb_vmm = std::make_pair( feb.getAddress(), vmm_id);
               std::pair<std::string, std::pair<int,int>> feb_ch  = std::make_pair( feb.getAddress(), std::make_pair(vmm_id,channel_id) );
@@ -626,8 +655,8 @@ int main(int ac, const char *av[]) {
 
               std::vector<short unsigned int> results;
 
-              for ( uint i=0; i<1; i++ ) {
-                  auto results_temp = cs.queryVmmPdoConsecutiveSamples(feb, vmm_id, 100);//n_samples*10);
+              for ( uint i=0; i<100; i++ ) {
+                  auto results_temp = cs.queryVmmPdoConsecutiveSamples(feb, vmm_id, 1);//n_samples*10);
                   results.insert(results.end(), results_temp.begin(), results_temp.end());
               }
 
@@ -640,13 +669,15 @@ int main(int ac, const char *av[]) {
 
               std::cout << "late size " << results_late.size() << std::endl;
 
+	      std::vector<short unsigned int> results_cut;
 
               //------------------------------------------------------//
               //             write baseline results to file
               //------------------------------------------------------//
               for (auto result: results) {
                   //std::cout << result << std::endl;
-                  
+		//if(result < 1000){
+		  results_cut.push_back(result);
                   myfile[feb_vmm] << "DATA"
                                   << " " << feb.getAddress()
                                   << " " << vmm_id
@@ -656,8 +687,8 @@ int main(int ac, const char *av[]) {
                                   << " " << -1
                                   << " " << result
                                   << std::endl;
-              }
-
+		  //}
+	      }
               //------------------------------------------------------//
               //      calculate channel level baseline median, rms
               //------------------------------------------------------//
@@ -673,6 +704,11 @@ int main(int ac, const char *av[]) {
               float median_late = take_median(results_late);
 
 
+	      float sum_cut    = std::accumulate(results_cut.begin(), results_cut.end(), 0.0);
+              float mean_cut   = sum_cut / results_cut.size();
+              float stdev_cut  = take_rms(results_cut, mean_cut);
+              float median_cut = take_median(results_cut);
+	      
               // add medians, baseline to (MMFE8, CH) map
               channel_baseline_med[feb_ch] = median;
               channel_baseline_rms[feb_ch] = stdev;
@@ -704,18 +740,27 @@ int main(int ac, const char *av[]) {
                                       << " " << feb.getAddress()
                                       << " vmm " << vmm_id
                                       << " channel " << channel_id
-                                      << " mean " << mean
-                                      << " stdev " << stdev
-                                      << " median " << median
+                                      << " mean " << mean_cut
+                                      << " stdev " << stdev_cut
+                                      << " median " << median_cut
                                       << std::endl;
+
+	      if (debug)
+		std::cout << "INFO late "      << feb.getAddress()
+			  << " vmm"            << vmm_id
+			  << ", channel "      << channel_id
+			  << " - mean: "       << sample_to_mV(mean_cut)
+			  << " , median: "     << sample_to_mV(median_cut)
+			  << " , stdev: "      << sample_to_mV(stdev_cut)
+			  << std::endl;
               
               float mean_mV = mean*1000.0/4095.0;
               float stdev_mV = stdev*1000.0/4095.0;
               float median_mV = median*1000.0/4095.0;
               
               //@patmasid - Prachi
-              /*if(mean_mV < 150 || mean_mV > 200){          
-                myfile_baseline_outside_150_200mV << "BASELINE_OUTSIDE_150_200_MV"
+              if(mean_mV < 150 || mean_mV > 200){          
+                myfile_baseline_ouside_150to200mV[feb_vmm] << "BASELINE_OUTSIDE_150_200_MV"
                 << " " << feb.getAddress()
                 << " vmm " << vmm_id
                 << " channel " << channel_id
@@ -723,7 +768,7 @@ int main(int ac, const char *av[]) {
                 << " stdev " << stdev_mV
                 << " median " << median_mV
                 << std::endl;
-                }*/
+	      }
               
               // if RMS of channel is too large, it's probably crap, ignore it
               // potentially output a list of channels to mask?
@@ -747,11 +792,16 @@ int main(int ac, const char *av[]) {
 
   for (auto & feb_nvmms : frontend_configs) {
 
-      uint n_vmms = feb_nvmms.second;
-      nsw::FEBConfig feb = feb_nvmms.first;
-
-      for ( uint vmm_id=0; vmm_id < n_vmms; vmm_id++ ) {
-
+    uint n_vmms = feb_nvmms.second;
+    nsw::FEBConfig feb = feb_nvmms.first;
+    
+    uint init_vmmid = 0;
+    
+    if(n_vmms == 6) init_vmmid=2;
+    uint final_vmmid_plus1 = init_vmmid+n_vmms;
+    
+    for ( uint vmm_id=init_vmmid; vmm_id < final_vmmid_plus1; vmm_id++ ) {
+      
           std::pair<std::string,int> feb_vmm(feb.getAddress(), vmm_id);
 
           //-------------------------------------------------------//
@@ -760,12 +810,14 @@ int main(int ac, const char *av[]) {
           
           myfile[feb_vmm].close();
           myfile_summary[feb_vmm].close();
+	  myfile_baseline_ouside_150to200mV[feb_vmm].close();
       }
 
   }
 
   myfile.clear();
   myfile_summary.clear();
+  myfile_baseline_ouside_150to200mV.clear();
 
   /*
 
@@ -896,8 +948,8 @@ int main(int ac, const char *av[]) {
           if (debug)
               std::cout << "INFO - Threshold for " << feb.getAddress() << " vmm" << vmm_id << " is " << thdac << std::endl;
           
-          feb.getVmm(vmm_id).setMonitorOutput  (nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor);
-          feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+          feb.getVmm(vmm_id-vmm_start).setMonitorOutput  (nsw::vmm::ThresholdDAC, nsw::vmm::CommonMonitor);
+          feb.getVmm(vmm_id-vmm_start).setGlobalThreshold((size_t)(thdac));
           auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
           float sum = std::accumulate(results.begin(), results.end(), 0.0);
           float mean = sum / results.size();
@@ -916,10 +968,10 @@ int main(int ac, const char *av[]) {
           for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
               
               thdac = thdacs[feb.getAddress()];
-              feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-              feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-              feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
-              feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+              feb.getVmm(vmm_id-vmm_start).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+              feb.getVmm(vmm_id-vmm_start).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+              feb.getVmm(vmm_id-vmm_start).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
+              feb.getVmm(vmm_id-vmm_start).setGlobalThreshold((size_t)(thdac));
               auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
               
               // add samples to the vector for a given fe
@@ -1037,10 +1089,10 @@ int main(int ac, const char *av[]) {
               // need to find a new effective threshold at TRIM_MID for different rms
               // slope and trimmer_max are taken from the first rms_factor
               for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
-                  feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-                  feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-                  feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
-                  feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+                  feb.getVmm(vmm_id-vmm_start).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+                  feb.getVmm(vmm_id-vmm_start).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+                  feb.getVmm(vmm_id-vmm_start).setChannelTrimmer (channel_id, (size_t)(TRIM_MID));
+                  feb.getVmm(vmm_id-vmm_start).setGlobalThreshold((size_t)(thdac));
                   auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
                   
                   std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
@@ -1109,10 +1161,10 @@ int main(int ac, const char *av[]) {
                   }
                   
                   int thdac = thdacs[feb.getAddress()];
-                  feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-                  feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-                  feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
-                  feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+                  feb.getVmm(vmm_id-vmm_start).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+                  feb.getVmm(vmm_id-vmm_start).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+                  feb.getVmm(vmm_id-vmm_start).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
+                  feb.getVmm(vmm_id-vmm_start).setGlobalThreshold((size_t)(thdac));
                   auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
                   
                   // unused for now

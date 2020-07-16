@@ -73,12 +73,19 @@ def wait_for(jobs, max_threads):
 
 def process_vmms(cfg, feb):
 
+    print("FEB is %s" % (feb))
+
     # Number of VMMs per MMFE8
     VMM_NUM = 8
+    VMM_START = 0
     if feb.split("_")[0].lower() == "pfeb":
 	VMM_NUM = 3
-    
-    for i in range(VMM_NUM):
+        VMM_START = 0
+    elif feb.split("_")[0].lower() == "sfeb6":
+        VMM_NUM = 6
+        VMM_START = 2
+
+    for i in range(VMM_START,VMM_START+VMM_NUM):
        # if i == 0: continue
        this_cfg = copy.deepcopy(cfg)
        this_cfg["feb"] = feb

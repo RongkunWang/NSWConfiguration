@@ -185,8 +185,11 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     auto opc_ip = feb.getOpcServerIp();
     auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
-
-    auto vmm = feb.getVmms()[vmm_id];
+    
+    int vmm_start = 0;
+    std::string FEBName = feb.getAddress();
+    if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+    auto vmm = feb.getVmms()[vmm_id-vmm_start];
     auto vmmdata = vmm.getByteVector();
     ERS_DEBUG(1, "Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
@@ -271,6 +274,15 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
 
     std::cout << "reading " <<  n_samples << " from " << node << std::endl;
 
+    /*std::vector<short unsigned int> output;
+    output.clear();
+
+    for ( uint i=0; i<n_samples; i++ ) {
+      output.push_back( m_clients[opcserver_ipport]->readAnalogInput(node)*4095 );
+    }
+
+    return output;*/
+
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
 
 }
@@ -282,22 +294,30 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
 void nsw::ConfigSender::configVmmForPdoConsecutiveSamples(FEBConfig& feb,
                                                           size_t vmm_id) {
 
-    auto opc_ip      = feb.getOpcServerIp();
-    auto feb_address = feb.getAddress();
-    auto& vmms       = feb.getVmms();
+  int vmm_start = 0;
+  std::string FEBName = feb.getAddress();
+  if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
 
-    vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+  std::cout << "Read VMM Pdo vmm_start: " << vmm_start << std::endl;
 
-    sendVmmConfigSingle(feb, vmm_id);
+  auto opc_ip      = feb.getOpcServerIp();
+  auto feb_address = feb.getAddress();
+  auto& vmms       = feb.getVmms();
 
-    return;
+  vmms[vmm_id-vmm_start].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output                        
+  vmms[vmm_id-vmm_start].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading) 
+
+  sendVmmConfigSingle(feb, vmm_id);
+  
+  //usleep(1e6); 
+  
+  return;
 
 }
 
 //------------------------------------------------------------------//
 //          Changed to only sample and return SCA ADC values
-//                         S.Sun 31.Jan.2020
+//                         S.Sun 31.oJan.2020
 //------------------------------------------------------------------//
 std::vector<short unsigned int> nsw::ConfigSender::queryVmmPdoConsecutiveSamples(FEBConfig& feb,
                                                                                  size_t vmm_id,
@@ -306,6 +326,8 @@ std::vector<short unsigned int> nsw::ConfigSender::queryVmmPdoConsecutiveSamples
     auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
     auto& vmms       = feb.getVmms();
+
+    //usleep(1e5);
 
     return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
 
@@ -319,16 +341,22 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
                                                                                 size_t vmm_id,
                                                                                 size_t n_samples) {
 
+    int vmm_start = 0;
+    std::string FEBName = feb.getAddress();
+    if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+
+    std::cout << "Read VMM Pdo vmm_start: " << vmm_start << std::endl;
+
     auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();
     auto& vmms       = feb.getVmms();
     
-    vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+    vmms[vmm_id-vmm_start].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
+    vmms[vmm_id-vmm_start].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
     
     sendVmmConfigSingle(feb, vmm_id);
 
-    //usleep(1e7);
+    //usleep(1e5);
     
     return readAnalogInputConsecutiveSamples(opc_ip, feb_address + ".ai.vmmPdo" + std::to_string(vmm_id), n_samples);
 

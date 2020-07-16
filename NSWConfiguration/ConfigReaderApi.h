@@ -78,7 +78,7 @@ class ConfigReaderApi {
   std::set<std::string> getElementNames(std::string regexp);
 
   /// Read configuration of front end, specifying number of vmm and tds in the FE
-  virtual ptree readFEB(std::string element_name, size_t nvmm, size_t ntds);
+  virtual ptree readFEB(std::string element_name, size_t nvmm, size_t ntds, size_t vmm_start = 0, size_t tds_start = 0);
 
   ptree readMMFE8(std::string element) {
     return readFEB(element, 8, 0);
@@ -87,9 +87,16 @@ class ConfigReaderApi {
   ptree readPFEB(std::string element) {
     return readFEB(element, 3, 1);
   }
+  
+  ptree readSFEB(std::string element, int nTDS) {
+    // return readFEB(element, 8, 4);
+    return readFEB(element, 8, nTDS);
+  }
 
-  ptree readSFEB(std::string element) {
-    return readFEB(element, 8, 4);
+
+  ptree readSFEB6(std::string element) {
+    //return readFEB(element, 8, 4);
+    return readFEB(element, 8, 4, 2, 1);
   }
 
   // TODO(cyildiz): Following read functions should be deprecated!

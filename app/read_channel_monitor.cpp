@@ -204,20 +204,32 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
     nsw::ConfigSender cs;
     // Rongkun: let's not hard-code this
     int VMMS  = feb.getVmms().size();
+    int VMM_START = 0;
     std::cout << "VMM no. " << VMMS <<std::endl;
     int CHS   = 64;
     int tpdac = -1;
 
+    if(feb.getAddress().find("SFEB6") != std::string::npos){
+      VMMS = 6;
+      VMM_START = 2;
+    }
+    else if(feb.getAddress().find("SFEB8") != std::string::npos){
+      VMMS = 8;
+      VMM_START= 0;
+    }
+
+    std::cout << "Read monitor VMM Start Value: " << VMM_START <<std::endl;
+    
     std::ofstream myfile;
     std::ofstream myfile_summary;
     if (cfg.dump){
         myfile.open( cfg.outdir + "/" + (cfg.baseline ? "baselines_" : "thresholds_") + feb.getAddress() + ".txt");
         myfile_summary.open(cfg.outdir + "/" + (cfg.baseline ? "summary_baselines_" : "summary_thresholds_") + feb.getAddress() + ".txt");
     }
-
+    
     auto & vmms = feb.getVmms();
 
-    for (int vmm_id = 0; vmm_id < VMMS; vmm_id++) {
+    for (int vmm_id = VMM_START; vmm_id < VMM_START+VMMS; vmm_id++) {
 
       for (int channel_id = 0; channel_id < CHS; channel_id++) {
 
@@ -235,14 +247,14 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
                     << std::endl;
 
         // configure the VMM
-        if (true)                  feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
-        if (cfg.threshold)         feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
-        if (cfg.baseline)          feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelAnalogOutput);
-        if (cfg.channel_trim >= 0) feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(cfg.channel_trim));
-        if (cfg.thdac >= 0)        feb.getVmm(vmm_id).setGlobalThreshold((size_t)(cfg.thdac));
+        if (true)                  feb.getVmm(vmm_id-VMM_START).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+        if (cfg.threshold)         feb.getVmm(vmm_id-VMM_START).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+        if (cfg.baseline)          feb.getVmm(vmm_id-VMM_START).setChannelMOMode  (channel_id, nsw::vmm::ChannelAnalogOutput);
+        if (cfg.channel_trim >= 0) feb.getVmm(vmm_id-VMM_START).setChannelTrimmer (channel_id, (size_t)(cfg.channel_trim));
+        if (cfg.thdac >= 0)        feb.getVmm(vmm_id-VMM_START).setGlobalThreshold((size_t)(cfg.thdac));
 
         auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, cfg.n_samples);
-
+	
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
         float mean = sum / results.size();
         float stdev = take_rms(results,mean);
@@ -268,19 +280,20 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
                            << " stdev " << stdev
                            << " median " << median
                            << std::endl;
-
+	
       }
     }
 
     // reset the MO for all channels
-    for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
-      vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
+    
+    for (int vmm_id = VMM_START; vmm_id < VMM_START+VMMS; vmm_id++)
+      vmms[vmm_id-VMM_START].setChannelRegisterAllChannels("channel_smx", 0);
 
     if (cfg.dump){
         myfile.close();
         myfile_summary.close();
     }
-
+    
     return 0;
 }
 
