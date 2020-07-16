@@ -24,9 +24,9 @@ struct ThreadConfig {
   bool readback_tds;
   bool reset_roc;
   bool reset_vmm;
+  bool reset_tds;
   int vmm_to_unmask;
   int channel_to_unmask;
-  int vmm_channel_to_monitor;
 };
 
 int active_threads(std::vector< std::future<int> >* threads);
@@ -46,9 +46,10 @@ int main(int ac, const char *av[]) {
     bool readback_tds;
     bool reset_roc;
     bool reset_vmm;
+    bool reset_tds;
     int vmm_to_unmask;
     int channel_to_unmask;
-    int vmm_channel_to_monitor;
+
     int max_threads;
     std::string config_filename;
     std::string fe_name;
@@ -76,14 +77,15 @@ int main(int ac, const char *av[]) {
         default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
         ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
         default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
-        ("vmmchanneltomonitor,M", po::value<int>(&vmm_channel_to_monitor)->
-         default_value(-1), "VMM channel to Monitor on MO (0-63) (Used for Scope Testing)")
         ("max_threads,m", po::value<int>(&max_threads)->
         default_value(-1), "Maximum number of threads to run")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
         "Reset the ROC via SCA. This option can't be used with -r or -v")
         ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
-        "Hard reset vmm before configuration. Need to be used with -v");
+
+        "Hard reset vmm before configuration. Need to be used with -v")
+        ("resettds", po::bool_switch(&reset_tds)->default_value(false),
+        "Reset TDS SER, logic, ePLL after configuring tds. Need to be used with -t");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -156,7 +158,6 @@ int main(int ac, const char *av[]) {
     auto threads = new std::vector< std::future<int> >();
 
     for (auto & feb : frontend_configs){
-
       if (max_threads > 0) {
         int n_active = active_threads(threads);
         while(n_active >= max_threads) {
@@ -174,15 +175,22 @@ int main(int ac, const char *av[]) {
       cfg.readback_tds      = readback_tds;
       cfg.reset_roc         = reset_roc;
       cfg.reset_vmm         = reset_vmm;
+      cfg.reset_tds         = reset_tds;
       cfg.vmm_to_unmask     = vmm_to_unmask;
       cfg.channel_to_unmask = channel_to_unmask;
-      cfg.vmm_channel_to_monitor = vmm_channel_to_monitor;
       threads->push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
     }
 
     // wait
-    for (auto& thread: *threads)
-      thread.get();
+    for (auto& thread: *threads) {
+        try {
+            thread.get();
+        } catch (ers::Issue & ex) {
+            ERS_LOG("Configuration failed due to ers::Issue: " << ex.what());
+        } catch (std::exception & ex) {
+            ERS_LOG("Configuration failed due to std::exception: " << ex.what());
+        }
+    }
 
     return 0;
 
@@ -227,27 +235,22 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
             vmms[cfg.vmm_to_unmask].setGlobalRegister("sm", cfg.channel_to_unmask);
         }
 
-        if ( cfg.vmm_channel_to_monitor != -1 ) {
-            for (auto & vmm : vmms) {
-                vmm.setGlobalRegister("sbmx", 0);  // Disable Route analog monitor to pdo output
-                vmm.setGlobalRegister("sbfp", 0);  // Disable PDO output buffers (more stable reading)
-
-                vmm.setMonitorOutput(cfg.vmm_channel_to_monitor, nsw::vmm::ChannelMonitor);      // set Global Monitor Register to channel and not common
-                vmm.setChannelMOMode(cfg.vmm_channel_to_monitor, nsw::vmm::ChannelAnalogOutput); // set channel's SMX to 0 for analog monitoring
-            }
-        }
-
         if (cfg.reset_vmm)
         {
+          std::vector <unsigned> reset_ori;
           for (auto & vmm : vmms) {
+            reset_ori.push_back(vmm.getGlobalRegister("reset"));  // Set reset bits to 1
+
             vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
           }
 
           cs.sendVmmConfig(feb);  // Sends configuration to all vmm
 
 
+          size_t i = 0;
           for (auto & vmm : vmms) {
-            vmm.setGlobalRegister("reset", 0);  // Set reset bits to 0
+            vmm.setGlobalRegister("reset", reset_ori[i++]);  // Set reset bits to original
+
           }
         }
 
@@ -256,7 +259,7 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
     }
 
     if (cfg.configure_tds) {
-        cs.sendTdsConfig(feb);  // Sends configuration to all tds
+        cs.sendTdsConfig(feb, cfg.reset_tds);  // Sends configuration to all tds
     }
 
     if (cfg.readback_tds) {

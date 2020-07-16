@@ -19,10 +19,11 @@
 
 #include "NSWConfiguration/Types.h"
 
-static const char ROC_ANALOG_NAME[] = "rocPllCoreAnalog";
+static const char ROC_ANALOG_NAME[]  = "rocPllCoreAnalog";
 static const char ROC_DIGITAL_NAME[] = "rocCoreDigital";
-
-static const char TDS_NAME[] = "tds";
+static const char TDS_NAME[]         = "tds";
+static const char ART_CORE_NAME[]    = "art_core";
+static const char ART_PS_NAME[]      = "art_ps";
 
 static const i2c::AddressRegisterMap ROC_ANALOG_REGISTERS = {
     { "reg064ePllVmm0", {
@@ -445,64 +446,64 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                      {"NOT_USED", 1}, {"trig_lutb", 15}, {"NOT_USED", 1}, {"trig_luta", 15},
                      {"NOT_USED", 1}, {"trig_lut9", 15}, {"NOT_USED", 1}, {"trig_lut8", 15}}},
 
-     {"register5", {{"NOT_USED", 3}, {"Chan000", 5}, {"NOT_USED", 3}, {"Chan001", 5},
-                    {"NOT_USED", 3}, {"Chan002", 5}, {"NOT_USED", 3}, {"Chan003", 5},
-                    {"NOT_USED", 3}, {"Chan004", 5}, {"NOT_USED", 3}, {"Chan005", 5},
-                    {"NOT_USED", 3}, {"Chan006", 5}, {"NOT_USED", 3}, {"Chan007", 5},
-                    {"NOT_USED", 3}, {"Chan008", 5}, {"NOT_USED", 3}, {"Chan009", 5},
-                    {"NOT_USED", 3}, {"Chan010", 5}, {"NOT_USED", 3}, {"Chan011", 5},
-                    {"NOT_USED", 3}, {"Chan012", 5}, {"NOT_USED", 3}, {"Chan013", 5},
-                    {"NOT_USED", 3}, {"Chan014", 5}, {"NOT_USED", 3}, {"Chan015", 5}}},
+     {"register5", {{"NOT_USED", 3}, {"Chan015", 5}, {"NOT_USED", 3}, {"Chan014", 5},
+                    {"NOT_USED", 3}, {"Chan013", 5}, {"NOT_USED", 3}, {"Chan012", 5},
+                    {"NOT_USED", 3}, {"Chan011", 5}, {"NOT_USED", 3}, {"Chan010", 5},
+                    {"NOT_USED", 3}, {"Chan009", 5}, {"NOT_USED", 3}, {"Chan008", 5},
+                    {"NOT_USED", 3}, {"Chan007", 5}, {"NOT_USED", 3}, {"Chan006", 5},
+                    {"NOT_USED", 3}, {"Chan005", 5}, {"NOT_USED", 3}, {"Chan004", 5},
+                    {"NOT_USED", 3}, {"Chan003", 5}, {"NOT_USED", 3}, {"Chan002", 5},
+                    {"NOT_USED", 3}, {"Chan001", 5}, {"NOT_USED", 3}, {"Chan000", 5}}},
 
-     {"register6", {{"NOT_USED", 3}, {"Chan016", 5}, {"NOT_USED", 3}, {"Chan017", 5},
-                    {"NOT_USED", 3}, {"Chan018", 5}, {"NOT_USED", 3}, {"Chan019", 5},
-                    {"NOT_USED", 3}, {"Chan020", 5}, {"NOT_USED", 3}, {"Chan021", 5},
-                    {"NOT_USED", 3}, {"Chan022", 5}, {"NOT_USED", 3}, {"Chan023", 5},
-                    {"NOT_USED", 3}, {"Chan024", 5}, {"NOT_USED", 3}, {"Chan025", 5},
-                    {"NOT_USED", 3}, {"Chan026", 5}, {"NOT_USED", 3}, {"Chan027", 5},
-                    {"NOT_USED", 3}, {"Chan028", 5}, {"NOT_USED", 3}, {"Chan029", 5},
-                    {"NOT_USED", 3}, {"Chan030", 5}, {"NOT_USED", 3}, {"Chan031", 5}}},
+     {"register6", {{"NOT_USED", 3}, {"Chan031", 5}, {"NOT_USED", 3}, {"Chan030", 5},
+                    {"NOT_USED", 3}, {"Chan029", 5}, {"NOT_USED", 3}, {"Chan028", 5},
+                    {"NOT_USED", 3}, {"Chan027", 5}, {"NOT_USED", 3}, {"Chan026", 5},
+                    {"NOT_USED", 3}, {"Chan025", 5}, {"NOT_USED", 3}, {"Chan024", 5},
+                    {"NOT_USED", 3}, {"Chan023", 5}, {"NOT_USED", 3}, {"Chan022", 5},
+                    {"NOT_USED", 3}, {"Chan021", 5}, {"NOT_USED", 3}, {"Chan020", 5},
+                    {"NOT_USED", 3}, {"Chan019", 5}, {"NOT_USED", 3}, {"Chan018", 5},
+                    {"NOT_USED", 3}, {"Chan017", 5}, {"NOT_USED", 3}, {"Chan016", 5}}},
 
-     {"register7", {{"NOT_USED", 3}, {"Chan032", 5}, {"NOT_USED", 3}, {"Chan033", 5},
-                    {"NOT_USED", 3}, {"Chan034", 5}, {"NOT_USED", 3}, {"Chan035", 5},
-                    {"NOT_USED", 3}, {"Chan036", 5}, {"NOT_USED", 3}, {"Chan037", 5},
-                    {"NOT_USED", 3}, {"Chan038", 5}, {"NOT_USED", 3}, {"Chan039", 5},
-                    {"NOT_USED", 3}, {"Chan040", 5}, {"NOT_USED", 3}, {"Chan041", 5},
-                    {"NOT_USED", 3}, {"Chan042", 5}, {"NOT_USED", 3}, {"Chan043", 5},
-                    {"NOT_USED", 3}, {"Chan044", 5}, {"NOT_USED", 3}, {"Chan045", 5},
-                    {"NOT_USED", 3}, {"Chan046", 5}, {"NOT_USED", 3}, {"Chan047", 5}}},
+     {"register7", {{"NOT_USED", 3}, {"Chan047", 5}, {"NOT_USED", 3}, {"Chan046", 5},
+                    {"NOT_USED", 3}, {"Chan045", 5}, {"NOT_USED", 3}, {"Chan044", 5},
+                    {"NOT_USED", 3}, {"Chan043", 5}, {"NOT_USED", 3}, {"Chan042", 5},
+                    {"NOT_USED", 3}, {"Chan041", 5}, {"NOT_USED", 3}, {"Chan040", 5},
+                    {"NOT_USED", 3}, {"Chan039", 5}, {"NOT_USED", 3}, {"Chan038", 5},
+                    {"NOT_USED", 3}, {"Chan037", 5}, {"NOT_USED", 3}, {"Chan036", 5},
+                    {"NOT_USED", 3}, {"Chan035", 5}, {"NOT_USED", 3}, {"Chan034", 5},
+                    {"NOT_USED", 3}, {"Chan033", 5}, {"NOT_USED", 3}, {"Chan032", 5}}},
 
-     {"register8", {{"NOT_USED", 3}, {"Chan048", 5}, {"NOT_USED", 3}, {"Chan049", 5},
-                    {"NOT_USED", 3}, {"Chan050", 5}, {"NOT_USED", 3}, {"Chan051", 5},
-                    {"NOT_USED", 3}, {"Chan052", 5}, {"NOT_USED", 3}, {"Chan053", 5},
-                    {"NOT_USED", 3}, {"Chan054", 5}, {"NOT_USED", 3}, {"Chan055", 5},
-                    {"NOT_USED", 3}, {"Chan056", 5}, {"NOT_USED", 3}, {"Chan057", 5},
-                    {"NOT_USED", 3}, {"Chan058", 5}, {"NOT_USED", 3}, {"Chan059", 5},
-                    {"NOT_USED", 3}, {"Chan060", 5}, {"NOT_USED", 3}, {"Chan061", 5},
-                    {"NOT_USED", 3}, {"Chan062", 5}, {"NOT_USED", 3}, {"Chan063", 5}}},
+     {"register8", {{"NOT_USED", 3}, {"Chan063", 5}, {"NOT_USED", 3}, {"Chan062", 5},
+                    {"NOT_USED", 3}, {"Chan061", 5}, {"NOT_USED", 3}, {"Chan060", 5},
+                    {"NOT_USED", 3}, {"Chan059", 5}, {"NOT_USED", 3}, {"Chan058", 5},
+                    {"NOT_USED", 3}, {"Chan057", 5}, {"NOT_USED", 3}, {"Chan056", 5},
+                    {"NOT_USED", 3}, {"Chan055", 5}, {"NOT_USED", 3}, {"Chan054", 5},
+                    {"NOT_USED", 3}, {"Chan053", 5}, {"NOT_USED", 3}, {"Chan052", 5},
+                    {"NOT_USED", 3}, {"Chan051", 5}, {"NOT_USED", 3}, {"Chan050", 5},
+                    {"NOT_USED", 3}, {"Chan049", 5}, {"NOT_USED", 3}, {"Chan048", 5}}},
 
-     {"register9", {{"NOT_USED", 3}, {"Chan064", 5}, {"NOT_USED", 3}, {"Chan065", 5},
-                    {"NOT_USED", 3}, {"Chan066", 5}, {"NOT_USED", 3}, {"Chan067", 5},
-                    {"NOT_USED", 3}, {"Chan068", 5}, {"NOT_USED", 3}, {"Chan069", 5},
-                    {"NOT_USED", 3}, {"Chan070", 5}, {"NOT_USED", 3}, {"Chan071", 5},
-                    {"NOT_USED", 3}, {"Chan072", 5}, {"NOT_USED", 3}, {"Chan073", 5},
-                    {"NOT_USED", 3}, {"Chan074", 5}, {"NOT_USED", 3}, {"Chan075", 5},
-                    {"NOT_USED", 3}, {"Chan076", 5}, {"NOT_USED", 3}, {"Chan077", 5},
-                    {"NOT_USED", 3}, {"Chan078", 5}, {"NOT_USED", 3}, {"Chan079", 5}}},
+     {"register9", {{"NOT_USED", 3}, {"Chan079", 5}, {"NOT_USED", 3}, {"Chan078", 5},
+                    {"NOT_USED", 3}, {"Chan077", 5}, {"NOT_USED", 3}, {"Chan076", 5},
+                    {"NOT_USED", 3}, {"Chan075", 5}, {"NOT_USED", 3}, {"Chan074", 5},
+                    {"NOT_USED", 3}, {"Chan073", 5}, {"NOT_USED", 3}, {"Chan072", 5},
+                    {"NOT_USED", 3}, {"Chan071", 5}, {"NOT_USED", 3}, {"Chan070", 5},
+                    {"NOT_USED", 3}, {"Chan069", 5}, {"NOT_USED", 3}, {"Chan068", 5},
+                    {"NOT_USED", 3}, {"Chan067", 5}, {"NOT_USED", 3}, {"Chan066", 5},
+                    {"NOT_USED", 3}, {"Chan065", 5}, {"NOT_USED", 3}, {"Chan064", 5}}},
 
-     {"register10", {{"NOT_USED", 3}, {"Chan080", 5}, {"NOT_USED", 3}, {"Chan081", 5},
-                     {"NOT_USED", 3}, {"Chan082", 5}, {"NOT_USED", 3}, {"Chan083", 5},
-                     {"NOT_USED", 3}, {"Chan084", 5}, {"NOT_USED", 3}, {"Chan085", 5},
-                     {"NOT_USED", 3}, {"Chan086", 5}, {"NOT_USED", 3}, {"Chan087", 5},
-                     {"NOT_USED", 3}, {"Chan088", 5}, {"NOT_USED", 3}, {"Chan089", 5},
-                     {"NOT_USED", 3}, {"Chan090", 5}, {"NOT_USED", 3}, {"Chan091", 5},
-                     {"NOT_USED", 3}, {"Chan092", 5}, {"NOT_USED", 3}, {"Chan093", 5},
-                     {"NOT_USED", 3}, {"Chan094", 5}, {"NOT_USED", 3}, {"Chan095", 5}}},
+     {"register10", {{"NOT_USED", 3}, {"Chan095", 5}, {"NOT_USED", 3}, {"Chan094", 5},
+                     {"NOT_USED", 3}, {"Chan093", 5}, {"NOT_USED", 3}, {"Chan092", 5},
+                     {"NOT_USED", 3}, {"Chan091", 5}, {"NOT_USED", 3}, {"Chan090", 5},
+                     {"NOT_USED", 3}, {"Chan089", 5}, {"NOT_USED", 3}, {"Chan088", 5},
+                     {"NOT_USED", 3}, {"Chan087", 5}, {"NOT_USED", 3}, {"Chan086", 5},
+                     {"NOT_USED", 3}, {"Chan085", 5}, {"NOT_USED", 3}, {"Chan084", 5},
+                     {"NOT_USED", 3}, {"Chan083", 5}, {"NOT_USED", 3}, {"Chan082", 5},
+                     {"NOT_USED", 3}, {"Chan081", 5}, {"NOT_USED", 3}, {"Chan080", 5}}},
 
-     {"register11", {{"NOT_USED", 3}, {"Chan096", 5}, {"NOT_USED", 3}, {"Chan097", 5},
-                     {"NOT_USED", 3}, {"Chan098", 5}, {"NOT_USED", 3}, {"Chan099", 5},
-                     {"NOT_USED", 3}, {"Chan100", 5}, {"NOT_USED", 3}, {"Chan101", 5},
-                     {"NOT_USED", 3}, {"Chan102", 5}, {"NOT_USED", 3}, {"Chan103", 5}}},
+     {"register11", {{"NOT_USED", 3}, {"Chan103", 5}, {"NOT_USED", 3}, {"Chan102", 5},
+                     {"NOT_USED", 3}, {"Chan101", 5}, {"NOT_USED", 3}, {"Chan100", 5},
+                     {"NOT_USED", 3}, {"Chan099", 5}, {"NOT_USED", 3}, {"Chan098", 5},
+                     {"NOT_USED", 3}, {"Chan097", 5}, {"NOT_USED", 3}, {"Chan096", 5}}},
 
      {"register12", {{"timer", 8}, {"bypass", 4}, {"prompt_circuit", 4}, {"NOT_USED", 3},
                      {"bypass_trigger", 1}, {"bypass_scrambler", 1}, {"test_frame2Router_enable", 1},
@@ -521,4 +522,649 @@ static const i2c::AddressRegisterMap TDS_REGISTERS = {
                               {"NOT_USED", 3}, {"strip_trigger_band_phid", 13}}}
 };
 
+static const i2c::AddressRegisterMap ART_PS_REGISTERS = {
+    {"00",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muzEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"01",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"02",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"03",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"04",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"05",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"06",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"07",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"08",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"09",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"10",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"11",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"12",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"13",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    // {"14",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
+    {"15",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"16",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"17",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"18",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"19",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"20",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"21",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"22",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"23",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"24",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"25",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"26",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"27",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"28",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    // {"29",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
+    {"30",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"31",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"32",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"33",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"34",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"35",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"36",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"37",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"38",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"39",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"40",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"41",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"42",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"43",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    // {"44",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
+    {"45",
+     {
+         {"dllLockedV",               1},
+         {"reserved",                 1},
+         {"dllLockCfg",               2},
+         {"muxEn2to8",                1},
+         {"muxEn1to8",                1},
+         {"dllCoarseLockDetection",   1},
+         {"dllResetFromCfg",          1}
+     }
+    },
+    {"46",
+     {
+         {"dataRateDll",              2},
+         {"dllConfirmCountSelect",    2},
+         {"dllChargePumpCurrent",     4}
+     }
+    },
+    {"47",
+     {
+         {"enableGroup",              1},
+         {"outRegEn",                 1},
+         {"dataRate",                 2},
+         {"sampleClockSel",           2},
+         {"trackMode",                2}
+     }
+    },
+    {"48",
+     {
+         {"enableChannel",            8}
+     }
+    },
+    {"49",
+     {
+         {"resetChannel",             8}
+     }
+    },
+    {"50",
+     {
+         {"trainChannel",             8}
+     }
+    },
+    {"51",
+     {
+         {"phaseSelectChannel1input", 4},
+         {"phaseSelectChannel0input", 4}
+     }
+    },
+    {"52",
+     {
+         {"phaseSelectChannel3input", 4},
+         {"phaseSelectChannel2input", 4}
+     }
+    },
+    {"53",
+     {
+         {"phaseSelectChannel5input", 4},
+         {"phaseSelectChannel4input", 4}
+     }
+    },
+    {"54",
+     {
+         {"phaseSelectChannel7input", 4},
+         {"phaseSelectChannel6input", 4}
+     }
+    },
+    {"55",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"56",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"57",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    {"58",
+     {
+         {"phaseSelectChannel1output", 4},
+         {"phaseSelectChannel0output", 4}
+     }
+    },
+    // {"59",
+    //  {
+    //      {"channelLockedV",           8}
+    //  }
+    // },
+    {"60",
+     {
+         {"dllLockedMask",            4},
+         {"txcset",                   4}
+     }
+    },
+    {"61",
+     {
+         {"unused",                   2},
+         {"resetAll",                 1},
+         {"test_mux",                 1},
+         {"rxOffSclk",                1},
+         {"rxTermSclk",               1},
+         {"rxTermClk_i",              2}
+     }
+    },
+    {"62",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"63",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"64",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"65",
+     {
+         {"rxOff",                    8}
+     }
+    },
+    {"66",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"67",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"68",
+     {
+         {"rxTermEnable",             8}
+     }
+    },
+    {"69",
+     {
+         {"rxTermEnable",             8}
+     }
+    }
+};
+
+static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
+    {"00",
+     {
+         {"c_disable_arthist",         1},
+         {"c_bypass_pa",               1},
+         {"rxterm",                    2},
+         {"txcset",                    4}
+     }
+    },
+    {"01",
+     {
+         {"cfg_dout_time2",            1},
+         {"cfg_bcr_sel",               1},
+         {"cfg_bcrout_sel",            1},
+         {"cfg_art_revall",            1},
+         {"cfg_art_revbank",           4}
+     }
+    },
+    {"02",
+     {
+         {"cfg_dout_pattern",          1},
+         {"cfg_dout_artbypass",        1},
+         {"cfg_dout_hitlist",          1},
+         {"cfg_dout_artflags",         1},
+         {"cfg_dout_time",             1},
+         {"cfg_artmask",               3}
+     }
+    },
+    {"03",
+     {
+         {"cfg_deser_flagmask",        8}
+     }
+    },
+    {"04",
+     {
+         {"cfg_deser_flagpatt",        8}
+     }
+    },
+    {"05",
+     {
+         {"cfg_din_invert[7:0]",       8}
+     }
+    },
+    {"06",
+     {
+         {"cfg_din_invert[15:8]",      8}
+     }
+    },
+    {"07",
+     {
+         {"cfg_din_invert[23:16]",     8}
+     }
+    },
+    {"08",
+     {
+         {"cfg_din_invert[31:24]",     8}
+     }
+    },
+    {"09",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"10",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"11",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"12",
+     {
+         {"cfg_din_mask[7:0]",         8}
+     }
+    },
+    {"13",
+     {
+         {"cfg_bcid0[7:0]",            8}
+     }
+    },
+    {"14",
+     {
+         {"cfg_bcid1[3:0]",            4},
+         {"cfg_bcid0[11:8]",           4}
+     }
+    },
+    {"15",
+     {
+         {"cfg_bcid1[11:4]",           8}
+     }
+    },
+     // here be dragons
+    {"16",
+     {
+         {"cfg_artbypass_sel_ch1[2:0]", 3},
+         {"cfg_artbypass_sel_ch0[4:0]", 5}
+     }
+    },
+    {"17",
+     {
+         {"cfg_artbypass_sel_ch3[0]",   1},
+         {"cfg_artbypass_sel_ch2[4:0]", 5},
+         {"cfg_artbypass_sel_ch1[4:3]", 2}
+     }
+    },
+    {"18",
+     {
+         {"cfg_artbypass_sel_ch4[3:0]", 4},
+         {"cfg_artbypass_sel_ch3[4:1]", 4}
+     }
+    },
+    {"19",
+     {
+         {"cfg_artbypass_sel_ch6[1:0]", 2},
+         {"cfg_artbypass_sel_ch5[4:0]", 5},
+         {"cfg_artbypass_sel_ch4[4]",   1}
+     }
+    },
+    {"20",
+     {
+         {"cfg_artbypass_sel_ch7[4:0]", 5},
+         {"cfg_artbypass_sel_ch6[4:2]", 3}
+     }
+    },
+    {"21",
+     {
+         {"cfg_pattern_data_phi0[7:0]", 8}
+     }
+    },
+    {"22",
+     {
+         {"cfg_pattern_data_phi1[1:0]",  2},
+         {"cfg_pattern_data_phi0[13:8]", 6}
+     }
+    },
+    {"23",
+     {
+         {"cfg_pattern_data_phi1[9:2]", 8}
+     }
+    },
+    {"24",
+     {
+         {"cfg_pattern_data_phi2[3:0]",   4},
+         {"cfg_pattern_data_phi1[13:10]", 4}
+     }
+    },
+    {"25",
+     {
+         {"cfg_pattern_data_phi2[11:4]", 8}
+     }
+    },
+    {"26",
+     {
+         {"cfg_pattern_data_phi3[5:0]",   6},
+         {"cfg_pattern_data_phi2[13:12]", 2}
+     }
+    },
+    {"27",
+     {
+         {"cfg_pattern_data_phi3[13:6]", 8}
+     }
+    },
+    {"28",
+     {
+         {"cfg_pattern_data_phi4[7:0]", 8}
+     }
+    },
+    {"29",
+     {
+         {"cfg_pattern_data_phi5[1:0]",  2},
+         {"cfg_pattern_data_phi4[13:8]", 6}
+     }
+    },
+    {"30",
+     {
+         {"cfg_pattern_data_phi5[9:2]", 8}
+     }
+    },
+    {"31",
+     {
+         {"cfg_pattern_data_phi6[3:0]",   4},
+         {"cfg_pattern_data_phi5[13:10]", 4}
+     }
+    },
+    {"32",
+     {
+         {"cfg_pattern_data_phi6[11:4]", 8}
+     }
+    },
+    {"33",
+     {
+         {"cfg_pattern_data_phi7[5:0]",   6},
+         {"cfg_pattern_data_phi6[13:12]", 2}
+     }
+    },
+    {"34",
+     {
+         {"cfg_pattern_data_phi7[13:6]", 8}
+     }
+    }
+};
+
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_
+

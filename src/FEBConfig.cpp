@@ -6,7 +6,7 @@
 
 
 nsw::FEBConfig::FEBConfig(ptree config):
-        FEConfig(config),
+        SCAConfig(config),
         m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
         m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {
     /// A FE can have up to 8 vmms, the config ptree should be constructed with correct number vmms
@@ -19,8 +19,8 @@ nsw::FEBConfig::FEBConfig(ptree config):
         }
     }
 
-    /// A FE can have up to 3 tdss, the config ptree should be constructed with correct number vmms
-    for (int i = 0; i < 3; i++) {
+    /// A FE can have up to 4 tdss, the config ptree should be constructed with correct number vmms
+    for (int i = 0; i < 4; i++) {
         std::string tdsname = "tds" + std::to_string(i);
         if (config.find(tdsname) != config.not_found()) {
             ERS_DEBUG(3, "TDS id:" << tdsname);

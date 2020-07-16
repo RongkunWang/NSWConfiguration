@@ -6,18 +6,15 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <future>
+
+#include "ers/ers.h"
 
 #include "RunControl/RunControl.h"
 #include "RunControl/Common/RunControlCommands.h"
-
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/NSWConfig.h"
 
 using boost::property_tree::ptree;
-
-namespace nsw {
-class FEBConfig;
-}
 
 namespace nsw {
 class NSWConfigRc: public daq::rc::Controllable {
@@ -31,11 +28,15 @@ class NSWConfigRc: public daq::rc::Controllable {
     //! FEBConfig objects in the map m_frontends
     void configure(const daq::rc::TransitionCmd& cmd) override;
 
+    void connect(const daq::rc::TransitionCmd& cmd) override;
+
     void prepareForRun(const daq::rc::TransitionCmd& cmd) override;
 
     void stopRecording(const daq::rc::TransitionCmd& cmd) override;
 
-    // void unconfigure(const daq::rc::TransitionCmd& cmd) override;
+    void unconfigure(const daq::rc::TransitionCmd& cmd) override;
+
+    void disconnect(const daq::rc::TransitionCmd& cmd) override;
 
     void user(const daq::rc::UserCmd& cmd) override;
 
@@ -45,25 +46,9 @@ class NSWConfigRc: public daq::rc::Controllable {
     void subTransition(const daq::rc::SubTransitionCmd&) override;
 
  private:
-    //! Configure ROCs in all FEBs in m_frontends
-    void configureROCs();
-
-    //! Configure VMMs in all FEBs in m_frontends
-    void configureVMMs();
-
-    //! Configure all front ends in m_frontends
-    void configureFEBs();
-
-    std::unique_ptr<nsw::ConfigReader> m_reader;
-    std::unique_ptr<nsw::ConfigSender> m_sender;
-
-    std::map<std::string, FEBConfig> m_frontends;   //! Each element is [frontend_name, frontend_config]
-
-    // Run the program in simulation mode, don't send any configuration
+    std::unique_ptr<NSWConfig> m_NSWConfig;
     bool m_simulation;
 
-    // Database connection string
-    std::string m_dbcon;
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_

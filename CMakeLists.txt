@@ -13,11 +13,28 @@ tdaq_add_library(nswconfigdal DAL
   ${dal_cpp_srcs}
   LINK_LIBRARIES tdaq::config tdaq::daq-core-dal tdaq::daq-df-dal)
 
+tdaq_add_library(NSWConfig src/NSWConfig.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal
+)
+
 tdaq_add_executable(generate_config_json app/generate_config_json.cpp
   LINK_LIBRARIES Boost::boost
 )
 
 tdaq_add_executable(configure_frontend app/configure_frontend.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(read_sca_info app/read_sca_info.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(roc_register_readout app/roc_register_readout.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(vmm_capture_status app/vmm_capture_status.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
@@ -73,24 +90,55 @@ tdaq_add_executable(roc_select_phase app/roc_select_phase.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_trigger_loop_mm app/trigger_loop_mm.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+  tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
+)
+
+tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_pad_repeaters app/pad_repeaters.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(nsw_router app/router.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
-                 src/FEConfig.cpp
+                 src/SCAConfig.cpp
                  src/I2cMasterConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
-                 src/FEBConfig.cpp
+                 src/FEBConfig.cpp src/ARTConfig.cpp
+                 src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
+                 src/TPConfig.cpp src/RouterConfig.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
 )
 
-tdaq_add_executable(nsw_integration_addc_config app/integration_addc_config.cpp
-  LINK_LIBRARIES nswconfig
+tdaq_add_executable(tp_comm_test app/tp_comm_test.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(mmtp_loopback_test app/mmtp_loopback_test.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+tdaq_add_executable(configure_tp app/configure_tp.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
 tdaq_add_schema(schema/NSWConfig.schema.xml)
@@ -136,8 +184,9 @@ endif()
 
 include_directories(${OPC_OPEN62541_PATH}/include)
 include_directories(${OPC_OPEN62541_PATH}/build/open62541/)
+include_directories(${OPC_OPEN62541_PATH}/build/LogIt/include)
 
-file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*.cpp)
+file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*)
 
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
@@ -149,17 +198,8 @@ tdaq_add_library(nswopcclient
         ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
         ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
         rt
+        Protobuf
 )
-
-#tdaq_add_executable(demo_opc_client
-#        app/demo_opc_client.cpp
-#        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
-#        ${OPC_GENERATED_CLIENT_SRCS}
-#    LINK_LIBRARIES
-#        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
-#        ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
-#        rt
-#)
 
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
     LINK_LIBRARIES nswopcclient

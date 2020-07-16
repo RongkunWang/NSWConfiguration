@@ -15,9 +15,10 @@
 
 namespace po = boost::program_options;
 
-int NCH_PER_VMM = 64; //10//64; //10;//64;
-int RMS_CUTOFF = 5;//30; // in mV
-int BASELINE_CUTOFF = 10; // in mV
+int NCH_PER_VMM = 64;  //10//64;  //10;//64;
+int RMS_CUTOFF = 30;  // in mV
+int BASELINE_CUTOFF = 30;  // in mV
+
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
@@ -39,16 +40,16 @@ float take_median(std::vector<short unsigned int> &v) {
   return median;
 }
 
-float sample_to_mV(float sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+float sample_to_mV(float sample) {
+  return sample * 1000. * 1.5 / 4095.0;  //1.5 is due to a resistor
 }
 
-float sample_to_mV(short unsigned int sample){
-  return sample * 1000. * 1.5 / 4095.0; //1.5 is due to a resistor
+float sample_to_mV(short unsigned int sample) {
+  return sample * 1000. * 1.5 / 4095.0;  //1.5 is due to a resistor
 }
 
-float mV_to_sample(float mV_read){
-  return mV_read / 1000. / 1.5 * 4095.0; //1.5 is due to a resistor
+float mV_to_sample(float mV_read) {
+  return mV_read / 1000. / 1.5 * 4095.0;  //1.5 is due to a resistor
 }
 
 float take_rms(std::vector<float> &v, float mean) {
@@ -63,7 +64,7 @@ float take_rms(std::vector<short unsigned int> &v, float mean) {
   return stdev;
 }
 
-bool check_channel(float ch_baseline_med, float ch_baseline_rms, float vmm_baseline_med){
+bool check_channel(float ch_baseline_med, float ch_baseline_rms, float vmm_baseline_med) {
   if (sample_to_mV(ch_baseline_rms) > RMS_CUTOFF)
     return false;
   // if (fabs(sample_to_mV(ch_baseline_med - vmm_baseline_med))  > RMS_CUTOFF)
@@ -71,18 +72,18 @@ bool check_channel(float ch_baseline_med, float ch_baseline_rms, float vmm_basel
   return true;
 }
 
-std::pair<float,float> get_slopes(float ch_lo,
+std::pair<float, float> get_slopes(float ch_lo,
                                   float ch_mid,
                                   float ch_hi,
                                   int trim_hi  = TRIM_HI,
                                   int trim_mid = TRIM_MID,
-                                  int trim_lo  = TRIM_LO){
+                                  int trim_lo  = TRIM_LO) {
   float m1 = (ch_hi - ch_mid)/(trim_hi-trim_mid);
   float m2 = (ch_mid - ch_lo)/(trim_mid-trim_lo);
   return std::make_pair(m1,m2);
 }
 
-bool check_slopes(float m1, float m2){
+bool check_slopes(float m1, float m2) {
   if ( fabs(m1 - m2) > SLOPE_CHECK )
     return false;
   return true;
@@ -94,15 +95,15 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
                           int vmm_id,
                           int n_samples,
                           int thdac_central_guess,
-                          std::vector<int> & thdac_guess_variations){
+                          std::vector<int> & thdac_guess_variations) {
   std::vector<float> thdac_guesses_sample;
 
-  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
-    if (thdac_guess_variations[i]>1023){
+  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++) {
+    if (thdac_guess_variations[i] > 1023) {
       if (debug) std::cout << "WARNING: Capping THDAC value out of range (>1023): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 1023;
       return 1023;
-    } else if (thdac_guess_variations[i]<0){
+    } else if (thdac_guess_variations[i]<0) {
       if (debug) std::cout << "WARNING: Capping THDAC value out of range (<0): " << thdac_guess_variations[i] << std::endl;
       thdac_guess_variations[i] = 0;
       return 1023;
@@ -130,7 +131,7 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
 
   float num = 0.;
   float denom = 0.;
-  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++){
+  for (unsigned int i = 0; i < thdac_guess_variations.size(); i++) {
     num += (thdac_guess_variations[i]-thdac_guess_mean) * (thdac_guesses_sample[i]-thdac_guess_sample_mean);
     denom += pow((thdac_guess_variations[i]-thdac_guess_mean),2);
   }
@@ -145,7 +146,7 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
 }
 
 
-std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
+std::pair<float, int> find_linear_region_slope(nsw::ConfigSender & cs,
                             nsw::FEBConfig & feb,
                             int vmm_id,
                             int channel_id,
@@ -158,22 +159,22 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                             float & tmp_mid_eff_threshold,
                             float & tmp_max_eff_threshold,
                             int & nch_base_above_thresh,
-                            int trim_hi=TRIM_HI,
-                            int trim_mid=TRIM_MID,
-                            int trim_lo=TRIM_LO
-                            ){
+                            int trim_hi = TRIM_HI,
+                            int trim_mid = TRIM_MID,
+                            int trim_lo = TRIM_LO
+                            ) {
 
-      if (trim_hi <= trim_mid) return std::make_pair(0,0);
-      if (trim_mid <= trim_lo) return std::make_pair(0,0);
+      if (trim_hi <= trim_mid) return std::make_pair(0, 0);
+      if (trim_mid <= trim_lo) return std::make_pair(0, 0);
 
-      float channel_mid_eff_thresh=0., channel_max_eff_thresh=0., channel_min_eff_thresh=0.;
-      float channel_mid_eff_thresh_err=0., channel_max_eff_thresh_err=0., channel_min_eff_thresh_err=0.;
+      float channel_mid_eff_thresh = 0., channel_max_eff_thresh = 0., channel_min_eff_thresh = 0.;
+      float channel_mid_eff_thresh_err = 0., channel_max_eff_thresh_err = 0., channel_min_eff_thresh_err = 0.;
 
       // loop through trims to get full range, then then middle of range
       std::vector<int> trims;
 
-      trims.push_back(trim_lo );
-      trims.push_back(trim_hi );
+      trims.push_back(trim_lo);
+      trims.push_back(trim_hi);
       trims.push_back(trim_mid);
 
       for (auto trim : trims) {
@@ -186,7 +187,7 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
         float sum = std::accumulate(results.begin(), results.end(), 0.0);
         float mean = sum / results.size();
-        float stdev = take_rms(results,mean);
+        float stdev = take_rms(results, mean);
         float median = take_median(results);
 
         // calculate "signal" --> threshold - channel
@@ -207,7 +208,7 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
                                         << sample_to_mV(ch_baseline_med)
                                         << std::endl;
 
-        if (trim == trim_mid){
+        if (trim == trim_mid) {
           channel_mid_eff_thresh = eff_thresh;
           channel_mid_eff_thresh_err = std::sqrt( pow(stdev,2.) + pow(ch_baseline_rms,2.) );
           // std::cout << "DATA "
@@ -219,11 +220,11 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
           //     << " " << trim
           //     << " " << eff_thresh << std::endl;
         }
-        else if (trim == trim_lo){
+        else if (trim == trim_lo) {
           channel_max_eff_thresh = eff_thresh;
           channel_max_eff_thresh_err = std::sqrt( pow(stdev,2.) + pow(ch_baseline_rms,2.) );
         }
-        else if (trim == trim_hi){
+        else if (trim == trim_hi) {
           channel_min_eff_thresh = eff_thresh;
           channel_min_eff_thresh_err = std::sqrt( pow(stdev,2.) + pow(ch_baseline_rms,2.) );
         }
@@ -244,21 +245,21 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
       tmp_mid_eff_threshold = mid;
       tmp_max_eff_threshold = max;
 
-      std::pair<float,float> slopes = get_slopes(min,mid,max);
+      std::pair<float, float> slopes = get_slopes(min,mid,max);
       float m1 = slopes.first;
       float m2 = slopes.second;
       float avg_m = (m1+m2)/2.;
 
-      if(debug) 
-        std::cout << "INFO "      << feb.getAddress() 
-                  << ", vmm"      << vmm_id 
-                  << ", channel " << channel_id 
-                  << ", avg_m "   << avg_m 
-                  << ", m1 "      << m1 
-                  << ", m2 "      << m2 
+      if(debug)
+        std::cout << "INFO "      << feb.getAddress()
+                  << ", vmm"      << vmm_id
+                  << ", channel " << channel_id
+                  << ", avg_m "   << avg_m
+                  << ", m1 "      << m1
+                  << ", m2 "      << m2
                   << std::endl;
 
-      if (!check_slopes(m1,m2)){
+      if (!check_slopes(m1,m2)) {
         return find_linear_region_slope(cs,
                             feb,
                             vmm_id,
@@ -356,8 +357,8 @@ int main(int ac, const char *av[]) {
 
   nsw::ConfigSender cs;
 
-  std::map< std::pair< std::string,int>, float> channel_baseline_med;
-  std::map< std::pair< std::string,int>, float> channel_baseline_rms;
+  std::map< std::pair< std::string, int>, float> channel_baseline_med;
+  std::map< std::pair< std::string, int>, float> channel_baseline_rms;
 
   std::map< std::string, float> vmm_baseline_med;
   std::map< std::string, float> vmm_baseline_rms;
@@ -370,23 +371,23 @@ int main(int ac, const char *av[]) {
   // first read baselines
 
   // calculate thdac
-  std::map<std::string,int> thdacs;
-  std::map<std::string,float> thdacs_sample;
+  std::map<std::string, int> thdacs;
+  std::map<std::string, float> thdacs_sample;
 
   // then, take trimmer values
 
 
-  std::map< std::pair< std::string,int>, float> channel_max_eff_thresh;
-  std::map< std::pair< std::string,int>, float> channel_min_eff_thresh;
-  std::map< std::pair< std::string,int>, float> channel_mid_eff_thresh;
+  std::map< std::pair< std::string, int>, float> channel_max_eff_thresh;
+  std::map< std::pair< std::string, int>, float> channel_min_eff_thresh;
+  std::map< std::pair< std::string, int>, float> channel_mid_eff_thresh;
 
-  std::map< std::pair< std::string,int>, float> channel_max_eff_thresh_err;
-  std::map< std::pair< std::string,int>, float> channel_min_eff_thresh_err;
-  std::map< std::pair< std::string,int>, float> channel_mid_eff_thresh_err;
+  std::map< std::pair< std::string, int>, float> channel_max_eff_thresh_err;
+  std::map< std::pair< std::string, int>, float> channel_min_eff_thresh_err;
+  std::map< std::pair< std::string, int>, float> channel_mid_eff_thresh_err;
 
-  std::map< std::string,float > vmm_mid_eff_thresh;
-  std::map< std::pair< std::string,int>, float> channel_eff_thresh_slope;
-  std::map< std::pair< std::string,int>, float> channel_trimmer_max;
+  std::map< std::string, float > vmm_mid_eff_thresh;
+  std::map< std::pair< std::string, int>, float> channel_eff_thresh_slope;
+  std::map< std::pair< std::string, int>, float> channel_trimmer_max;
 
 
   std::cout << "\nTaking baselines\n" << std::endl;
@@ -397,7 +398,7 @@ int main(int ac, const char *av[]) {
     // VMM-level calculations
 
     fe_samples_tmp.clear();
-    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
+    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++) {// channel loop
 
       // Read pdo of the certain channel n_samples times.
       feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
@@ -410,7 +411,7 @@ int main(int ac, const char *av[]) {
       float stdev  = take_rms(results, mean);
       float median = take_median(results);
 
-      std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
+      std::pair<std::string, int> feb_ch(feb.getAddress(),channel_id);
       // add medians, baseline to (MMFE8, CH) map
       channel_baseline_med[feb_ch] = median;
       channel_baseline_rms[feb_ch] = stdev;
@@ -508,7 +509,7 @@ int main(int ac, const char *av[]) {
     //////////////////////////////////
     // Get VMM-level averages.
     fe_samples_tmp.clear();
-    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
+    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++) {
 
       thdac = thdacs[feb.getAddress()];
       feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
@@ -559,11 +560,11 @@ int main(int ac, const char *av[]) {
 
     thdac = thdacs[feb.getAddress()];
 
-    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
+    for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++) {
 
       // check if channel has a weird RMS or baseline
 
-      std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
+      std::pair<std::string, int> feb_ch(feb.getAddress(),channel_id);
       float ch_baseline_rms = channel_baseline_rms[feb_ch];
       float ch_baseline_med = channel_baseline_med[feb_ch];
 
@@ -575,7 +576,7 @@ int main(int ac, const char *av[]) {
       float tmp_mid_eff_threshold = 0.;
       float tmp_max_eff_threshold = 0.;
 
-      std::pair<float,int> slopeAndMax = find_linear_region_slope(cs,
+      std::pair<float, int> slopeAndMax = find_linear_region_slope(cs,
                             feb,
                             vmm_id,
                             channel_id,
@@ -593,7 +594,7 @@ int main(int ac, const char *av[]) {
                             TRIM_LO
                             );
 
-      if(slopeAndMax.first==0){
+      if(slopeAndMax.first==0) {
         std::cout << "Failed to find a linear region" << std::endl;
         tot_chs--;
         continue;
@@ -607,7 +608,7 @@ int main(int ac, const char *av[]) {
 
       ch_baseline_rms = channel_baseline_rms[std::make_pair(feb.getAddress(), channel_id)];
       ch_baseline_med = channel_baseline_med[std::make_pair(feb.getAddress(), channel_id)];
-      if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])){
+      if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])) {
         tot_chs--;
         continue;
       }
@@ -619,10 +620,9 @@ int main(int ac, const char *av[]) {
                             << ", vmm_eff_thresh "
                             << sample_to_mV(vmm_eff_thresh) << std::endl;
 
-      if ( vmm_eff_thresh < tmp_min_eff_threshold || vmm_eff_thresh > tmp_max_eff_threshold ){
+      if ( vmm_eff_thresh < tmp_min_eff_threshold || vmm_eff_thresh > tmp_max_eff_threshold ) {
         if (debug) std::cout << "INFO sad! channel " << channel_id << " can't be equalized!" << std::endl;
-      }
-      else {
+      } else {
         good_chs++;
         if (debug) std::cout << "INFO :) channel " << channel_id << " is okay!" << std::endl;
       }
@@ -635,7 +635,7 @@ int main(int ac, const char *av[]) {
     // note that this is for a channel trim value @ TRIM_MID
     // if channel decides on another channel trim value, eff_thresh could still be neg.
 
-    if (nch_base_above_thresh > NCH_ABOVE_THRESH_CUTOFF){
+    if (nch_base_above_thresh > NCH_ABOVE_THRESH_CUTOFF) {
       std::cout << "Error: Threshold is too low!" << std::endl;
       std::cout << "N(ch) where eff. thresh is negative: " << nch_base_above_thresh << std::endl;
       return 0;
@@ -650,15 +650,15 @@ int main(int ac, const char *av[]) {
     // Trimmer Analysis
 
     if (debug) std::cout << "INFO " << good_chs << " out of " << tot_chs << " are okay!" << std::endl;
-    if ((good_chs-tot_chs) < 1){
+    if ((good_chs-tot_chs) < 1) {
       if (debug) std::cout << "INFO set trim flag true!" << std::endl;
       flag_trim_in_range = true;
     }
 
-    std::map< std::pair< std::string,int>, int> best_channel_trim;
-    if (flag_trim_in_range){ // trimmed thresholds are equalizable!
-      for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){ // channel loop
-        std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
+    std::map< std::pair< std::string, int>, int> best_channel_trim;
+    if (flag_trim_in_range) { // trimmed thresholds are equalizable!
+      for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++) { // channel loop
+        std::pair<std::string, int> feb_ch(feb.getAddress(),channel_id);
 
         // again check if channel is sensible
         if (fabs(channel_eff_thresh_slope[feb_ch]) < pow(10,-9.)) {
@@ -667,7 +667,7 @@ int main(int ac, const char *av[]) {
 
         float ch_baseline_rms = channel_baseline_rms[feb_ch];
         float ch_baseline_med = channel_baseline_med[feb_ch];
-        if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])){
+        if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])) {
           continue;
         }
 
@@ -680,7 +680,7 @@ int main(int ac, const char *av[]) {
         // std::cout << "delta: " << sample_to_mV(delta)
         //      << ", slope: " << channel_eff_thresh_slope[feb_ch] << std::endl;
         int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
-        //std::cout << "trim_guess: " << trim_guess << std::endl;
+        // std::cout << "trim_guess: " << trim_guess << std::endl;
 
         // cap off the guess for trimmer value to avoid non-linear region.
         best_channel_trim[feb_ch] = trim_guess > channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;

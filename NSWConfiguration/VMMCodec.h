@@ -19,6 +19,18 @@
 
 using boost::property_tree::ptree;
 
+ERS_DECLARE_ISSUE(nsw,
+                  MissingVmmRegister,
+                  "VMM register missing from configuration: " << message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  VmmCodecIssue,
+                  message,
+                  ((const char *)message)
+                  )
+
 namespace nsw {
 
 enum class GlobalRegisters {global0, global1};

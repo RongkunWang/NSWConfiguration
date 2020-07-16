@@ -67,7 +67,7 @@ class ConfigReaderApi {
 
   /// Get names of all Front end elements in the configuration
   /// The base class method iterates through config ptree and finds all
-  /// elements that start with MMFE8, PFEB, SFEB, ADDC in the name.
+  /// elements that start with MMFE8, PFEB, SFEB, ADDC, PadTriggerSCA, Router in the name.
   /// The results contain the full path of the element in the ptree
   std::set<std::string> getAllElementNames();
 
@@ -78,7 +78,9 @@ class ConfigReaderApi {
   std::set<std::string> getElementNames(std::string regexp);
 
   /// Read configuration of front end, specifying number of vmm and tds in the FE
-  virtual ptree readFEB(std::string element_name, size_t nvmm, size_t ntds, size_t vmm_start = 0, size_t tds_start = 0);
+  virtual ptree readFEB(
+      std::string element_name, size_t nvmm, size_t ntds,
+      size_t vmm_start = 0, size_t tds_start = 0);
 
   ptree readMMFE8(std::string element) {
     return readFEB(element, 8, 0);
@@ -95,15 +97,15 @@ class ConfigReaderApi {
 
 
   ptree readSFEB6(std::string element) {
-    //return readFEB(element, 8, 4);
+    // return readFEB(element, 8, 4);
     return readFEB(element, 8, 4, 2, 1);
   }
 
-  // TODO(cyildiz): Following read functions should be deprecated!
-  virtual ptree readVMM(std::string element_name);
-  virtual ptree readROC(std::string element_name);
-  virtual ptree readTDS(std::string element_name);
-
+  virtual ptree readADDC(std::string element, size_t nart);
+  virtual ptree readPadTriggerSCA(std::string element);
+  virtual ptree readRouter(std::string element);
+  virtual ptree readTP(std::string element_name);
+  
   virtual ~ConfigReaderApi() {}
 };
 
@@ -141,6 +143,14 @@ class OksApi: public ConfigReaderApi {
 
  public:
   explicit OksApi(std::string file_path): m_file_path(file_path) {}
+  ptree & read();
+};
+
+class PtreeApi: public ConfigReaderApi {
+ public:
+  explicit PtreeApi(ptree tree) {
+    m_config = tree;
+  }
   ptree & read();
 };
 

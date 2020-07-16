@@ -13,23 +13,27 @@
 #include "NSWConfiguration/Utility.h"
 
 ptree ConfigReaderApi::read(std::string element) {
-    if (nsw::getElementType(element) == "VMM") {
-        return readVMM(element);
-    } else if (nsw::getElementType(element) == "ROC") {
-        return readROC(element);
-    } else if (nsw::getElementType(element) == "TDS") {
-        return readTDS(element);
-    } else if (nsw::getElementType(element) == "MMFE8") {
+    if (nsw::getElementType(element) == "MMFE8") {
         return readMMFE8(element);
     } else if (nsw::getElementType(element) == "PFEB") {
         return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB_old") {
+        return readSFEB(element, 3);
     } else if (nsw::getElementType(element) == "SFEB") {
-        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8" << element);
-        return readSFEB(element, 4);
+      ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
+      return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB8") {
       return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB6") {
-      return readSFEB6(element);
+        return readSFEB6(element);
+    } else if (nsw::getElementType(element) == "TP") {
+        return readTP(element);
+    } else if (nsw::getElementType(element) == "ADDC") {
+        return readADDC(element, 2);
+    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
+        return readPadTriggerSCA(element);
+    } else if (nsw::getElementType(element) == "Router") {
+        return readRouter(element);
     }
     
 }
@@ -39,7 +43,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
       read();
     }
 
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|MMTP.*|STGCTP.*", m_config);
 }
 
 std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
@@ -54,75 +58,13 @@ std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
     return result;
 }
 
-ptree ConfigReaderApi::readVMM(std::string element) {
-    ptree tree;
-    ERS_LOG("Reading configuration for VMM: " << element);
+ptree ConfigReaderApi::readTP(std::string element) {
+    ERS_LOG("Reading configuration for TP: " << element);
+    ptree tree = m_config.get_child(element);
 
-    // Create tree with default values from common config
-    tree = m_config.get_child("vmm_common_config");
-
-    // Go over elements and overwrite the values from common config
-    ptree temp = m_config.get_child(element);
-    for (ptree::iterator iter = temp.begin(); iter != temp.end(); iter++) {
-        std::string name = iter->first;
-        std::string type;
-
-        // if no child, put as data, otherwise add child
-        if (iter->second.empty()) {
-            type = "data";
-            tree.put(name, iter->second.data());  // This overwrites the value from common config
-        } else {  // This is a array, thus should be a channel register
-            if (name.find("channel")!= 0) {
-                throw std::runtime_error("Expecting channel register, got this instead: " + name);
-            }
-            tree.erase(name);  // Remove common config value for register
-            tree.add_child(name, iter->second);  // Add it as a child tree
-            type = "tree";
-        }
-        ERS_DEBUG(5, name << ", " << type);
-    }
-
-    return tree;
-}
-
-ptree ConfigReaderApi::readROC(std::string element) {
-    ptree tree = m_config.get_child("roc_common_config");
-    ptree temp = m_config.get_child(element);  // roc specific config
-    std::string type;
-
-    for (ptree::iterator iter = temp.begin(); iter != temp.end(); iter++) {
-        std::string name = iter->first;
-        // Put Opc related FE configuration
-        if (name.find("Opc") != std::string::npos) {
-            tree.put(name, iter->second.data());
-        } else if (name == "rocPllCoreAnalog" || name == "rocCoreDigital") {
-            ptree i2ctree = iter->second;
-
-            // Loop over I2c addresses within Roc analog or digital
-            for (ptree::iterator iter_addresses = i2ctree.begin();
-                iter_addresses != i2ctree.end(); iter_addresses++) {
-                std::string address = iter_addresses->first;
-                ptree addresstree = iter_addresses->second;
-
-                for (ptree::iterator iter_registers = addresstree.begin();
-                    iter_registers != addresstree.end(); iter_registers++) {
-                    std::string registername = iter_registers->first;
-                    std::string node = name + "." + address + "." + registername;
-
-                    if (!tree.get_optional<std::string>(node).is_initialized()) {  // Check if node exists
-                        nsw::ROCConfigBadNode issue(ERS_HERE, node.c_str());
-                        ers::error(issue);
-                        // throw issue;  // TODO(cyildiz): throw or just error
-                    } else {
-                        tree.put(node, iter_registers->second.data());
-                    }
-                }
-            }
-        } else {
-            ERS_LOG("Unknown element in ROC config: " << name);
-            // TODO(cyildiz): Handle exception
-        }
-    }
+    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    // }
 
     return tree;
 }
@@ -142,9 +84,17 @@ void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
 
             //  Check if node exists in specific tree, and replace the value from common
             if (!common.get_optional<std::string>(node).is_initialized()) {
-                nsw::ConfigBadNode issue(ERS_HERE, node, "i2c element");
+                nsw::ConfigBadNode issue(ERS_HERE, node, "i2c master. See err file for details");
                 ers::error(issue);
-                // throw issue;  // TODO(cyildiz): throw or just error?
+
+                std::stringstream ss;
+                ss << "Problematic i2c common ptree: " << std::endl;
+                boost::property_tree::json_parser::write_json(ss, common);
+                ss << "Problematic i2c specific ptree: " << std::endl;
+                boost::property_tree::json_parser::write_json(ss, specific);
+                std::cerr << ss.str() << std::endl;
+
+                throw issue;
             } else {
                 common.put(node, iter_registers->second.data());
             }
@@ -162,7 +112,15 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
         if (!common.get_optional<std::string>(registername).is_initialized()) {
             nsw::ConfigBadNode issue(ERS_HERE, registername, "vmm");
             ers::error(issue);
-            // throw issue;  // TODO(cyildiz): throw or just error?
+
+            std::stringstream ss;
+            ss << "Problematic vmm common ptree: " << std::endl;
+            boost::property_tree::json_parser::write_json(ss, common);
+            ss << "Problematic vmm specific ptree: " << std::endl;
+            boost::property_tree::json_parser::write_json(ss, specific);
+            std::cerr << ss.str() << std::endl;
+
+            throw issue;
         } else {
             if (registername.find("channel_" == 0)) {
               ptree temp = iter_registers->second;
@@ -185,6 +143,8 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
             specific = feb.get_child(name);
         }
         ptree common = roc_common.get_child(name);
+
+        ERS_DEBUG(4, "Merging " << name << " ptree");
         mergeI2cMasterTree(specific, common);
         feb.put_child(name, common);
     }
@@ -198,8 +158,6 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
             specific = feb.get_child(vmmname);
         }
         mergeVMMTree(specific, vmm_common);
-        vmm_common.put("OpcServerIp", "none");  // TODO(cyildiz): Remove
-        vmm_common.put("OpcNodeId", "none");   // TODO(cyildiz): Remove
         feb.put_child(vmmname, vmm_common);
     }
 
@@ -214,10 +172,10 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
         }
     }
 
-    ptree tds_common = m_config.get_child("tds_common_config");
     for ( int i = tds_start; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
+        ptree tds_common = m_config.get_child("tds_common_config");
         if (feb.get_child_optional(name)) {  // If node exists
             specific = feb.get_child(name);
         }
@@ -238,59 +196,105 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
     return feb;
 }
 
-ptree ConfigReaderApi::readTDS(std::string element) {
-    ptree tree = m_config.get_child("tds_common_config");
-    ptree temp = m_config.get_child(element);  // tds specific config
-    std::string type;
+ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
+    // how to dump a json to screen:
+    // std::stringstream ss;
+    // boost::property_tree::json_parser::write_json(ss, m_config);
+    // std::cout << ss.str() << std::endl;
 
-    for (ptree::iterator iter = temp.begin(); iter != temp.end(); iter++) {
-        std::string name = iter->first;
-        // Put Opc related FE configuration
-        if (name.find("Opc") != std::string::npos) {
-            tree.put(name, iter->second.data());
-        } else if (name == "tds") {
-            ptree i2ctree = iter->second;
+    ptree feb = m_config.get_child(element);
 
-            // Loop over I2c addresses within tds
-            for (ptree::iterator iter_addresses = i2ctree.begin();
-                iter_addresses != i2ctree.end(); iter_addresses++) {
-                std::string address = iter_addresses->first;
-                ptree addresstree = iter_addresses->second;
+    for ( size_t i = 0; i < nart; i++ ) {
+        std::string name = "art" + std::to_string(i);
 
-                for (ptree::iterator iter_registers = addresstree.begin();
-                    iter_registers != addresstree.end(); iter_registers++) {
-                    std::string registername = iter_registers->first;
-                    std::string node = name + "." + address + "." + registername;
+        // check for ART-specific configuration
+        ptree specific;
+        ptree common = m_config.get_child("art_common_config");
+        if (feb.get_child_optional(name))
+            specific = feb.get_child(name);
 
-                    if (!tree.get_optional<std::string>(node).is_initialized()) {  // Check if node exists
-                        nsw::TDSConfigBadNode issue(ERS_HERE, node.c_str());
-                        ers::error(issue);
-                        // throw issue;  // TODO(cyildiz): throw or just error
-                    } else {
-                        tree.put(node, iter_registers->second.data());
-                    }
-                }
-            }
-        } else {
-            ERS_LOG("Unknown element in TDS config: " << name);
-            // TODO(cyildiz): Handle exception
+        // top-level registers
+        // i.e. not art_core and art_ps, which are i2c master trees
+        for (auto iter : specific) {
+            std::string address = iter.first;
+            if (address != "art_core" && address != "art_ps")
+                common.put_child(address, iter.second);
         }
+
+        // art_core and art_ps
+        for ( auto name_i2c : {"art_core", "art_ps"} ) {
+            ptree specific_i2c;
+            ptree common_i2c = common.get_child(name_i2c);
+            if (specific.get_child_optional(name_i2c))
+                specific_i2c = specific.get_child(name_i2c);
+            mergeI2cMasterTree(specific_i2c, common_i2c);
+            common.put_child(name_i2c, common_i2c);
+        }
+
+        feb.put_child(name, common);
     }
 
-    return tree;
+    return feb;
+}
+
+ptree ConfigReaderApi::readPadTriggerSCA(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
+    return feb;
+}
+
+ptree ConfigReaderApi::readRouter(std::string element) {
+    //
+    // Need to add functionality to overwrite values!
+    //
+    ptree feb = m_config.get_child(element);
+    return feb;
 }
 
 ptree & JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
     ERS_LOG(s);
 
-    try {
-        boost::property_tree::read_json(m_file_path, m_config);
-    } catch(std::exception & e) {
-        ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception
-        throw;
+    // temporary objects for reading in JSON file for cleaning
+    std::stringstream jsonStringStream;
+    std::ifstream inputJSONFile(m_file_path.c_str() );
+    std::string line;
+    int found;
+
+    // Clean input JSON file
+    while (std::getline(inputJSONFile, line)) {
+        // Skip whitespace starting a line
+        found = line.find_first_not_of(" \t");
+        // Remove lines that start with a "/" or "#"
+        if (found != std::string::npos && line[found] == '/' ) continue;
+        if (found != std::string::npos && line[found] == '#' ) continue;
+        jsonStringStream << line << "\r\n";
     }
-  return m_config;
+
+    // Converting to string for trans-line cleaning
+    std::string jsonString(jsonStringStream.str());
+
+    // Removing comments that come after a comma and whitespace
+    jsonString = std::regex_replace(jsonString, std::regex("(\\S)\\s*\\/\\/.*"), "$1");
+    jsonString = std::regex_replace(jsonString, std::regex("(\\S)\\s*#.*"), "$1");
+
+    // Removing any commas that are followed by white space and then either a } or ]
+    jsonString = std::regex_replace(jsonString, std::regex(",(?=\\s*[}\\]])"), "");
+
+    // Converting back to a stringstream to make read_json() happy
+    jsonStringStream.str(jsonString);
+
+    try {
+        boost::property_tree::read_json(jsonStringStream, m_config);
+    } catch(std::exception & e) {
+        nsw::ConfigIssue issue(ERS_HERE, e.what());
+        ers::fatal(issue);
+        throw issue;
+    }
+
+    return m_config;
 }
 
 ptree & XmlApi::read() {
@@ -300,8 +304,9 @@ ptree & XmlApi::read() {
     try {
         boost::property_tree::read_xml(m_file_path, m_config);
     } catch(std::exception & e) {
-        ERS_LOG("Failed: " << e.what());  // TODO(cyildiz): ers exception
-        throw;
+        nsw::ConfigIssue issue(ERS_HERE, e.what());
+        ers::fatal(issue);
+        throw issue;
     }
     return m_config;
 }
@@ -318,7 +323,13 @@ ptree & OksApi::read() {
       ERS_LOG("read oks dummy ");
     } catch(std::exception & e) {
       ERS_LOG("Failed: " << e.what());
-      throw;
+      nsw::ConfigIssue issue(ERS_HERE, e.what());
+      ers::fatal(issue);
+      throw issue;
     }
+  return m_config;
+}
+
+ptree & PtreeApi::read() {
   return m_config;
 }

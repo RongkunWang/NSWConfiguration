@@ -17,44 +17,19 @@ nsw::NSWConfigRc::NSWConfigRc(bool simulation):m_simulation {simulation} {
 
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_INFO("Start");
-
+    // Retrieving the configuration db
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
 
-    try {
-      const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-      const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
-      m_dbcon = nswConfigApp->get_dbConnection();
-      ERS_INFO("DB Connection: " << m_dbcon);
-    } catch(std::exception& ex) {
-        // TODO(cyildiz): catch and throw correct exceptions
-        ERS_LOG("Configuration issue: " << ex.what());
-    }
+    m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
+    m_NSWConfig->readConf(nswConfigApp);
+    ERS_LOG("End");
+}
 
-    // std::string base_folder = "/afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/";
-    // m_reader = std::make_unique<nsw::ConfigReader>("json://" + base_folder + "integration_config.json");
-    m_reader = std::make_unique<nsw::ConfigReader>(m_dbcon);
-    m_sender = std::make_unique<nsw::ConfigSender>();
-
-    auto config = m_reader->readConfig();
-
-    // TODO(cyildiz): Instead of reading all front ends from the database,
-    // we should find the ones that are at the same links with the swROD
-    auto frontend_names = m_reader->getAllElementNames();
-
-    ERS_LOG("\nFollowing front ends will be configured:\n"
-          <<"========================================");
-    for (auto & name : frontend_names) {
-      try {
-        m_frontends.emplace(std::make_pair(name, m_reader->readConfig(name)));
-        std::cout << name << std::endl;
-      } catch (std::exception & e) {
-        // TODO(cyildiz): turn into exception
-        std::cout << name << " - ERROR: Skipping this FE!"
-                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
-      }
-    }
-
-    configureFEBs();  // Configure all front-ends
+void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    m_NSWConfig->configureRc();
     ERS_LOG("End");
 }
 
@@ -66,6 +41,17 @@ void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
 void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
     ERS_LOG("End");
+}
+
+void nsw::NSWConfigRc::disconnect(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    m_NSWConfig->unconfigureRc();
+    ERS_INFO("End");
+}
+
+void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+    ERS_INFO("Start");
+    ERS_INFO("End");
 }
 
 void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
@@ -91,41 +77,4 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
     }*/
 }
 
-void nsw::NSWConfigRc::configureFEBs() {
-    ERS_INFO("Configuring all Front ends");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendConfig(configuration);
-        }
-        sleep(1);  // TODO(cyildiz) remove this
-        ERS_LOG("Sending config to: " << name);
-    }
-}
 
-void nsw::NSWConfigRc::configureVMMs() {
-    ERS_INFO("Configuring VMMs");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendVmmConfig(configuration);
-        }
-        sleep(1);  // TODO(cyildiz) remove this
-        ERS_LOG("Sending VMM config to: " << name);
-    }
-}
-
-void nsw::NSWConfigRc::configureROCs() {
-    ERS_INFO("Configuring ROCs");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendRocConfig(configuration);
-        }
-        sleep(1);  // TODO(cyildiz) remove this
-        ERS_LOG("Sending ROC config to: " << name);
-    }
-}

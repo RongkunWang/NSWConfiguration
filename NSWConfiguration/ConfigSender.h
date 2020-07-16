@@ -8,12 +8,15 @@
 #include <string>
 #include <vector>
 
+
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
-#include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
-#include "NSWConfiguration/TDSConfig.h"
-
+#include "NSWConfiguration/ADDCConfig.h"
+#include "NSWConfiguration/ARTConfig.h"
+#include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/RouterConfig.h"
 
 
 namespace nsw {
@@ -34,19 +37,15 @@ class ConfigSender {
     ConfigSender();
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
 
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendVmmConfig(const nsw::VMMConfig& vmm);
-
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendRocConfig(const nsw::ROCConfig& roc);
-
     /// Send configuration to roc
     void sendRocConfig(std::string opc_ip, std::string sca_address,
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
     /// Send configuration to tds
-    void sendTdsConfig(std::string opc_ip, std::string sca_address, const I2cMasterConfig & tds);
+    void sendTdsConfig(std::string opc_ip, std::string sca_address,
+        const I2cMasterConfig & tds, int ntds, bool reset_tds = false);
 
+    // TODO(rongkun): consider remove this function ?
     /// Send configuration to all ROC, VMM and TDS that belongs to the FEB
     void sendConfig(const nsw::FEBConfig& feb);
 
@@ -60,10 +59,26 @@ class ConfigSender {
     void sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vmm_id);
 
     /// Send configuration to all tds in the feb
-    void sendTdsConfig(const nsw::FEBConfig& feb);
+    void sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds = false);
 
-    /// High level send function - TODO(cyildiz): deprecate
-    void sendTdsConfig(const nsw::TDSConfig& tds);
+    /// Send configuration to ADDC and its ARTs
+    /// By default (i_art == -1), configure both ARTs
+    void sendAddcConfig(const nsw::ADDCConfig& feb, int i_art = -1);
+
+    /// Send configuration to ADDC for aligning ART to TP
+    void alignAddcGbtxTp(const std::map<std::string, nsw::ADDCConfig> & addcs_map);
+    void alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs);
+
+    /// High level send function
+    void readPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj);
+    void sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj, bool write = true);
+    void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
+
+    /// High level send function
+    void sendRouterConfig(const nsw::RouterConfig& obj);
+
+    /// High level send function
+    void sendTpConfig(nsw::TPConfig& tp);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);
@@ -72,6 +87,17 @@ class ConfigSender {
     void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
                              std::string reg_address);
 
+    /// Read back ROC
+    /// \param opcserver_ipport OPCServer IP and port
+    /// \param node node ID in the OPC space, something such as "SCA Name.gpio.bitBanger"
+    /// \param sclLine scl lines to use
+    /// \param sdaLine sda lines to use
+    /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
+    /// \param delay I2c delay value, 2 corresponds to 100kHz
+    /// \return result 8 bit register value
+    uint8_t readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, 
+                                  uint8_t registerAddress, unsigned int delay );
+                                  
     /// Low level Spi send function
     void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
 
@@ -98,6 +124,10 @@ class ConfigSender {
     // Read back I2c register as vector for ADDC
     std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
                                           uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
+
+    // Send I2c register as vector for ADDC
+    void sendI2cAtAddress(std::string opcserver_ipport, std::string node,
+                          std::vector<uint8_t> address, std::vector<uint8_t> data);
 
     /// Read multiple consecutive samples from an analog input
     std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
@@ -133,6 +163,18 @@ class ConfigSender {
                                                                  size_t vmm_id,
                                                                  size_t n_samples);
 
+    // Read SCA ID 
+    int readSCAID(FEBConfig& feb);
+
+    // Read SCA Address 
+    std::string readSCAAddress(FEBConfig& feb);
+
+    // Read SCA Online Status 
+    bool readSCAOnline(FEBConfig& feb);
+
+    /// Program FPGA from bitfile
+    /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
+    void sendFPGA(std::string opcserver_ipport, std::string node, std::string bitfile_path);
 };
 
 }  // namespace nsw

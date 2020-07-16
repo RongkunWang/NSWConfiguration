@@ -1,5 +1,7 @@
 # NSW Configuration prototype
 
+[![pipeline status](https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration/badges/dev/pipeline.svg)](https://gitlab.cern.ch/atlas-muon-nsw-daq/NSWConfiguration/commits/dev)
+
 * [Configuration DB](#configuration-db)
 * [Communication with Front End](#communication-with-front-end)
 * [Installation](#Installation)
@@ -7,6 +9,12 @@
   * [NSWConfiguration](#nswconfiguration)
 * [Creating Config File](#creating-config-file)
 * [Running](#Running)
+* [Software Design](#software-design)
+  * [ConfigReader](#configreader)
+    * [How to implement a new ConfigReaderApi](#how-to-implement-a-new-configreaderapi)
+  * [Configuration Classes](#configuration-classes)
+  * [ConfigSender](#configsender)
+  * [How to Implement a New FE](#how-to-implement-a-new-fe)
 
 ## Configuration DB
 
@@ -23,23 +31,43 @@
 
 These instructions are for centos7, for SLC6, check older versions of the README file.
 
+### Prerequisites
+
+First you need to decide which tdaq release you will use. Possible options:
+- ```nightly```: latest changes, not be ideal for long term stability
+- ```tdaq-08-03-01```: August 2019 release with new implementation of Software ROD and ALTI
+- ```tdaq-09-00-00```: March 2020 release
+- other: Keep following Detector/DAQ meetings for newer releases.
+
+Lets say you chose tdaq release tdaq-08-03-01. Set the environment and find out which LCG
+release you are using. (Each tdaq release is compiled against a certain LCG release)
+
+```bash
+ssh lxplus7.cern.ch
+source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 x86_64-centos7-gcc8-opt
+echo $TDAQ_LCG_RELEASE   # LCG release you should use
+echo $CMTCONFIG   # Tag that defines OS and gcc version. For this example, it's: ```x86_64-centos7-gcc8-opt```
+```
+
 ### External Software
 
 NSW Configuration requires external Opc related software to build and run.
-Note that you can skip this step and use installation from /eos area (see below)
+Note that you can skip this step and use installation from prebuilt /afs areas (see below)
 
 * Go to any lxplus node with centos7: ```ssh lxplus7.cern.ch```
 
-* Set lcg environment:
+* Set lcg environment with correct tag(CMTCONFIG) and LCG version from previous step
 ```bash
-source /cvmfs/sft.cern.ch/lcg/views/LCG_94a/x86_64-centos7-gcc8-opt/setup.sh
+export LCG_VERSION=LCG_96
+export HW_TAG=x86_64-centos7-gcc8-opt
+source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
 ```
 
-* Clone open62541-compat package and select correct tag
+* Clone open62541-compat package and select correct git tag
 ```bash
 git clone https://github.com/quasar-team/open62541-compat.git
 cd open62541-compat
-git checkout v1.1.1
+git checkout v1.1.3-rc0
 ```
 
 Build the software.
@@ -58,6 +86,12 @@ open62541/libopen62541.a
 
 The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment variable to compile NSWConfiguration
 
+To use the OPC libraries in a partition, create a installed area under open62541-compat directory, and copy libraries there:
+```bash
+mkdir -p installed/$HW_TAG/lib/
+cp build/libopen62541-compat.so  installed/$HW_TAG/lib/
+```
+
 ### NSWConfiguration
 
 * Go to any lxplus node: ```ssh lxplus7.cern.ch```
@@ -66,22 +100,20 @@ The path of open62541-compat will be set as ```OPC_OPEN62541_PATH``` environment
 ```bash
 mkdir work
 cd work
-printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_project(NSWDAQ 1.0.0 USES tdaq 99.0.0)\n" > CMakeLists.txt
+printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_work_area()\n" > CMakeLists.txt
 ```
 
-If you will use another tdaq release, replace 99.0.0 with the release number (for instance 8.1.1)
-
-* Checkout this package using with `--recursive` option to get submodules
+* Clone this package using with `--recursive` option to get submodules
 
 ```bash
 git clone --recursive https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfiguration.git
 ```
 * Setup tdaq and OpcUA environment for production release.
-  For latter, you can your build from previous step, or a build from eos area
+  For latter, you can your build from previous step, or a build from nswdaq afs area
 
 ```bash
-source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh nightly # replace nightly with prod if you want to use production release
-export OPC_OPEN62541_PATH=/eos/atlas/atlascerngroupdisk/det-nsw/sw/OpcUa/open62541-compat-v1.1.1
+source /afs/cern.ch/atlas/project/tdaq/cmake/cmake_tdaq/bin/cm_setup.sh tdaq-08-03-01 # replace nightly with any other release
+export OPC_OPEN62541_PATH=/afs/cern.ch/work/n/nswdaq/public/tdaq-08-03-01/sw/external/open62541-compat
 ```
 
 * Checkout the branch or tag you need. Latest developments are in `dev` branch.
@@ -192,6 +224,80 @@ cd NSWConfiguration
 ```bash
 ./configure_frontend -c my_config.json -r -v -t # Configure ROC, all VMMs and TDSs on all front ends in config file
 ```
+
+# Software Design
+
+This section aims to help future developers about the design of NSWConfiguration. The software has few components and
+the main idea is the following:
+
+- ConfigReader reads configuration database, and returns ptree objects. It doesn't depend on anything
+- Frontend specific configuration classes take the ptree objects, manipulate them if needed and create the bits that can
+  be sent to frontends. They don't depend on anything.
+- ConfigSender uses frontend specific configuration classes and write/read configuration to/from frontends using an
+  OpcClient. It depends on Frontend specific configuration classes and OpcClient.
+
+## ConfigReader
+
+ConfigReader is the entry point to reading a configuration database and dumping it in ptree objects.  It doesn't depend
+on any other component.
+
+**ConfigReader**: ConfigReader class is the only class exposed to the user and it doesn't know the details of the
+database. Depending on the connection string, it selects which API to use. It has only few methods, details of which
+should be implemented in the ConfigReaderApi
+
+**ConfigReaderApi**: This is the base class for any reader API.
+- For instance if it's a json file, `JsonApi` is used and `read()` method creates a ptree from the json string.
+- The more specific methods such as `readFEB()` then combine common configuration and frontend specific configurations
+  to create the final ptree for the frontend.
+- The `read(std::string element)` method figures out the front end type from the name, and choses the correct method to
+  use.
+
+### How to implement a new ConfigReaderApi
+To implement reading configuration from another source(for instance OKS, oracle database etc.), one has to derive a new
+class from `ConfigReaderApi` class, similar to `JsonApi`. There are 2 ways to implement the new reader API:
+1. Only implement the `read()` method to create a ptree identical to one from `JsonApi::read()` (It has to have
+   `common_config` and subdetector  specific configuration elements in the same ptree). All the other methods in
+   ConfigReaderApi has default implementations
+1. If one doesn't the new API to read the whole configuration, but only read configuration of a certain elements with
+   `read(std::string element` method, then one may need to implement several methods. Note that in this case
+   ConfigReaderApi may require a reconsideration, and some methods may need to be converted to virtual.
+
+## Configuration Classes
+Configuration classes are simply container to for configuration registers. They are used to initialize and modify
+configuration for a certain front end. Each configuration class is initialized by a ptree that is returned from
+`ConfigReader::read(std::string element)` method. For instance the most commonly used `FEBConfig` is a generic class
+that can represent MMFE8, sFEB and pFEB, depending on the number of `vmm` and `tds` in the input ptree.
+
+## ConfigSender
+ConfigSender is the main component that communicates with the frontends. The details of this communication is hidden in
+`OpcClient` class.
+
+- `UaoClientForOpcUaSca`: Classes to read/write from SCAs using OpcUa. It is generated by OpcUa team and  It is
+  added to the software as a git submodule. Once in a while one may need to checkout the new version, for instance
+  if a new front end element is added.
+- `OpcClient`: Uses the classes and methods from `UaoClientForOpcUaSca` to read/write frontends. Note that not all
+  classes from `UaoClientForOpcUaSca` are used, but only the relevant ones.
+- `ConfigSender`: Uses both `OpcClient` and classes like `FEBConfig`. It is the only class exposed to user and it
+  hides the implementation details of OpcClient from user.
+
+## How to Implement a New FE
+If there is a new configuration component/front end element that need to be implemented in the NSWConfiguration, there
+are several things to do:
+- Create a new class for the front end element. Lets call this `NewSCAConfig`. If the frontend contains a SCA, use
+  `SCAConfig` class as base class. Ideally this class should contain some containers that have bitstreams that will be
+  sent to the front end, and methods to modify the configuration. Take a look at the current configuration classes to
+  have an idea.
+- Implement the way to read the configuration from database/json. One needs to decide what kind of ptree should be
+  accepted by the `NewSCAConfig`. The constructor should take the ptree and fill the containers that hold configuration
+  registers.
+- Modify `getElementType()` if needed (See `Utility.h`)
+- Implement relevant reader method in `ConfigReaderApi`. These method should create the ptree that will be used in
+  constructor of `NewSCAConfig`.
+- If needed, implement a new OpcClient method using the relevant class from `UaoClientForOpcUaSca`. (It's also possible
+  that a new version of `UaoClientForOpcUaSca` need to be used, in this case checkout the new version)
+- Implement the relevant ConfigSender method using the OpcClient method and `NewSCAConfig` class.
+- If needed, modify programs `NSWConfigRc`, `configure_frontend` and if needed create a new example program to read/send
+  configuration of this front end.
 
 ## Issue Tracker:
 * [ATLNSWDAQ: ATLAS NSW DAQ Software JIRA](https://its.cern.ch/jira/projects/ATLNSWDAQ)
