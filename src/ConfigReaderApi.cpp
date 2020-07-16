@@ -197,7 +197,6 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
         feb.put_child(name, tds_common);
     }
 
-
     return feb;
 }
 

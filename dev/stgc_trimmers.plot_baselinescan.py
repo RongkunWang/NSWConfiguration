@@ -7,6 +7,7 @@ def options():
     parser.add_argument("-o",             help="Output ROOT file", default="out.root")
     parser.add_argument("--bl",           help="txt file of baselines")
     parser.add_argument("--bl_summ",      help="txt file of summary of baselines")
+    parser.add_argument("--SCAs",        help="SCAs array")
     return parser.parse_args()
 
 def fatal(msg):
@@ -17,6 +18,10 @@ def main():
     ops = options()
     if not ops.bl:           fatal("Please give a --bl file")
     if not ops.bl_summ:      fatal("Please give a --bl_summ file") # @ Prachi - patmasid
+    #if not ops.SCAs:         fatal("Please give a --SCAs array file") # @ Prachi - patmasid  
+
+    #SCA_list=[]
+    #SCA_list = ops.SCAs.split(",")
 
     rootlogon()
 
@@ -36,11 +41,25 @@ def main():
 
     # plot
     for feb in febs:
-        print("Plotting %s" % (feb))
-        plot(feb, outfile, tr_bl, tr_bl_summ)
+        feb_name = feb
+        print("Plotting %s" % (feb_name))
+        '''if('L0Q0') in feb_name: 
+            feb_name = feb_name.replace('L0Q0',SCA_list[0])
+        elif('L0Q1') in feb_name:
+            feb_name = feb_name.replace('L0Q1',SCA_list[1])
+        elif('L0Q2') in feb_name:
+            feb_name = feb_name.replace('L0Q2',SCA_list[2])
+        elif('L1Q1') in feb_name:
+            feb_name = feb_name.replace('L1Q1',SCA_list[0])
+        elif('L1Q2') in feb_name:
+            feb_name = feb_name.replace('L1Q2',SCA_list[1])
+        elif('L1Q3') in feb_name:
+            feb_name = feb_name.replace('L1Q3',SCA_list[2])
+        '''
+        plot(feb, feb_name, outfile, tr_bl, tr_bl_summ)
         #plot_gaussian(feb, outfile, tr_bl, tr_bl_summ)
 
-def plot(feb, outfile, tr_bl, tr_bl_summ): 
+def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ): 
 
     ispFEB = None
     
@@ -71,7 +90,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
     for hist in hists:
         style(hist)
         hist.SetMarkerSize(0.5)
-        #hist.SetMaximum(250)
+        hist.SetMaximum(250)
         hist.SetMinimum(  0)
         #hist.GetXaxis().SetRangeUser(63.5, 127.5)
         hist.GetXaxis().SetTitle("VMM*64 + Channel")
@@ -81,8 +100,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
     h1_bl     .SetMarkerStyle(ROOT.kFullCircle)
 
     # text
-    boardname = ROOT.TLatex(0.22, 0.935, feb)
-    # benchorno = ROOT.TLatex(0.62, 0.935, "On-chamber: PCB %s" % (int(feb)+1))
+    boardname = ROOT.TLatex(0.22, 0.935, feb_name)
+    # benchorno = ROOT.TLatex(0.62, 0.935, "On-chamber: PCB %s" % (int(feb_name)+1))
     texs = [boardname]
     for tex in texs:
         style(tex)
@@ -93,8 +112,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
     legend.AddEntry(h1_bl,      "Baseline",                            "pe")
 
     # draw, zoom
-    canv = ROOT.TCanvas("summary_zoom_%s" % (feb), 
-                        "summary_zoom_%s" % (feb), 800, 800)
+    canv = ROOT.TCanvas("summary_zoom_%s" % (feb_name), 
+                        "summary_zoom_%s" % (feb_name), 800, 800)
     canv.Draw()
     h1_bl     .Draw("pesame")
     legend.Draw()
@@ -110,8 +129,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
     # draw, unzoom
     for hist in hists:
         hist.SetMaximum(1200)
-    canv = ROOT.TCanvas("summary_unzoom_%s" % (feb), 
-                        "summary_unzoom_%s" % (feb), 800, 800)
+    canv = ROOT.TCanvas("summary_unzoom_%s" % (feb_name), 
+                        "summary_unzoom_%s" % (feb_name), 800, 800)
     canv.Draw()
     h1_bl     .Draw("pesame")
     legend.Draw()
@@ -127,8 +146,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
     # draw, megazoom
     for hist in hists:
         hist.SetMaximum(70)
-    canv = ROOT.TCanvas("summary_megazoom_%s" % (feb), 
-                        "summary_megazoom_%s" % (feb), 800, 800)
+    canv = ROOT.TCanvas("summary_megazoom_%s" % (feb_name), 
+                        "summary_megazoom_%s" % (feb_name), 800, 800)
     canv.Draw()
     h1_bl     .Draw("pesame")
     # legend.Draw()
@@ -171,8 +190,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
         legend_only_stdev_strip = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
         style(legend_only_stdev_strip)
         legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip,      "Strip- stdev on Baseline",                            "p")
-        canv = ROOT.TCanvas("strip_only_stdev_%s" % (feb),
-                            "strip_only_stdev_%s" % (feb), 800, 800)
+        canv = ROOT.TCanvas("strip_only_stdev_%s" % (feb_name),
+                            "strip_only_stdev_%s" % (feb_name), 800, 800)
         canv.Draw()
         
         grid_strip = ROOT.TPad("grid_strip","",0,0,1,1);
@@ -226,8 +245,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
         elif(feb[-2:]=="Q3"):
             legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 470 pF", "p")
         h1_bl_stdev_wire.GetXaxis().SetRangeUser(-0.5,63.5)
-        canv = ROOT.TCanvas("wire_only_stdev_%s" % (feb),
-                            "wire_only_stdev_%s" % (feb), 800, 800)
+        canv = ROOT.TCanvas("wire_only_stdev_%s" % (feb_name),
+                            "wire_only_stdev_%s" % (feb_name), 800, 800)
         canv.Draw()
         
         grid_wire = ROOT.TPad("grid_wire","",0,0,1,1);
@@ -280,8 +299,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ):
         elif(feb[-2:]=="Q3"):
             legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 470 pF", "p")
         h1_bl_stdev_pad.GetXaxis().SetRangeUser(63.5,191.5)
-        canv = ROOT.TCanvas("pad_only_stdev_%s" % (feb),
-                            "pad_only_stdev_%s" % (feb), 800, 800)
+        canv = ROOT.TCanvas("pad_only_stdev_%s" % (feb_name),
+                            "pad_only_stdev_%s" % (feb_name), 800, 800)
         canv.Draw()
         
         grid_pad = ROOT.TPad("grid_pad","",0,0,1,1);

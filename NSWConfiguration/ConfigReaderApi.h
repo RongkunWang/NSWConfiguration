@@ -92,6 +92,12 @@ class ConfigReaderApi {
     return readFEB(element, 3, 1);
   }
 
+  ptree readSFEB(std::string element, int nTDS) {
+    // return readFEB(element, 8, 4);
+    return readFEB(element, 8, nTDS);
+  }
+
+
   ptree readSFEB(const std::string& element, int nTDS) const {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, nTDS);
@@ -106,7 +112,7 @@ class ConfigReaderApi {
   virtual ptree readPadTriggerSCA(const std::string& element) const;
   virtual ptree readRouter(const std::string& element) const;
   virtual ptree readTP(const std::string& element) const;
-  
+
   virtual ~ConfigReaderApi() {}
 };
 

@@ -1,0 +1,56 @@
+** urn:CERN:OpcUaScaServer: start trace
+** Product version: CERN OPC UA SCA SERVER 1.3.5.000
+** Date: 2020-06-04
+**
+08:05:49.544Z|4|81661880* ==> UaCoreServerApplication::start
+08:05:49.544Z|6|81661880* --> ServerConfigXml::loadConfiguration
+08:05:49.544Z|6|81661880* <-- ServerConfigXml::loadConfiguration [ret=0x0]
+08:05:57.544Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.555Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.557Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.571Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.572Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.577Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.586Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.593Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.612Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.617Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.618Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.639Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.645Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.678Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.681Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.709Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.710Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.740Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.742Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.774Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.799Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.808Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.816Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:05:57.832Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.510Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.513Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.521Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.522Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.539Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.539Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.545Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.553Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.572Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.575Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.579Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.586Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.627Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.629Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.654Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.657Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.690Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.700Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.723Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.729Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.764Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.804Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.834Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:06:35.852Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 
+08:07:50.979Z|2|77CFA700* Warning: UaServer::CreateSession - client sent ApplicationType Server for application URI 

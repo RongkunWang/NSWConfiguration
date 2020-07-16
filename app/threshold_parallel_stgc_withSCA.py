@@ -9,6 +9,7 @@ def options():
     parser.add_argument("-f",                      help="Comma-separated list of FEBs")
     parser.add_argument("-s",			   help="Script to run")
     parser.add_argument("-m",			   help="Maximum number of parallel threads")
+    parser.add_argument("-sca",                    help="SCAid string separated with commas")
     return parser.parse_args()
 
 def main():
@@ -29,7 +30,11 @@ def main():
         fatal("This config file doesnt exist: %s" % (ops.c))
     if not ops.f:
         fatal("Please give a list of FEBs to measure baselines")
+    if not ops.sca:
+        fatal("Please give a string of SCAs separated by commas ")
+        
 
+    SCA_str = ops.sca
     # announcements
     febs = ops.f.split(",")
     if not febs:
@@ -58,11 +63,11 @@ def main():
         if parallel:
             if ops.m:
                 wait_for(jobs, int(ops.m))
-            proc = multiprocessing.Process(target=process_vmms, args=(cfg,feb))
+            proc = multiprocessing.Process(target=process_vmms, args=(cfg,feb,SCA_str))
             jobs.append(proc)
             proc.start()
         else:
-            process_vmms(cfg, feb)
+            process_vmms(cfg, feb, SCA_str)
 
 def wait_for(jobs, max_threads):
     n_active = [job.is_alive() for job in jobs].count(True)
@@ -71,7 +76,7 @@ def wait_for(jobs, max_threads):
         time.sleep(10)
         n_active = [job.is_alive() for job in jobs].count(True)
 
-def process_vmms(cfg, feb):
+def process_vmms(cfg, feb, SCA_str):
 
     # Number of VMMs per MMFE8
     #VMM_NUM = 8
@@ -80,23 +85,25 @@ def process_vmms(cfg, feb):
     
     #for i in range(VMM_NUM):
     # if i == 0: continue
-    #i = 4
+    i = 4
     this_cfg = copy.deepcopy(cfg)
     this_cfg["feb"] = feb
     this_cfg["vmm"] = i
+    
     this_cfg["out"] = "baselines_%s_vmm_%i.txt" % (feb, i)
-    process_baselines(this_cfg)
+    process_baselines(this_cfg,SCA_str)
     return
 
-def process_baselines(cfg):
+def process_baselines(cfg,SCA_str):
     isSTGC = False
     if cfg["feb"].split("_")[0].lower() in [ "pfeb", "sfeb"]:
         isSTGC = True
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -s %(sample)s --baseline --dump | tee %(out)s" % (cfg)
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -V %(vmm)s --rms_factor %(rms)s | tee %(out)s" % (cfg)
     cmd = "%(script)s -c %(config)s -n        %(feb)s -V %(vmm)s --rms_factor %(rms)s " % (cfg) +\
-          (" --isSTGC " if isSTGC else "") 
-          #" | tee %(out)s" % (cfg)
+          (" --isSTGC " if isSTGC else "") +\
+          (" --SCAid_List %s") %(SCA_str)+\
+          " | tee %(out)s" % (cfg)
     os.system(cmd)
 
 def fatal(message):

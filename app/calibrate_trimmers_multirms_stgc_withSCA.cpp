@@ -396,6 +396,7 @@ int main(int ac, const char *av[]) {
   std::string config_filename;
   std::string fe_name;
   std::string rms_str;
+  std::string SCA_str;
   po::options_description desc(description);
   desc.add_options()
       ("help,h", "produce help message")
@@ -408,6 +409,7 @@ int main(int ac, const char *av[]) {
       ("samples,s", po::value<int>(&n_samples)->default_value(1000), "Number of samples to read")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
       ("isSTGC", po::bool_switch()->default_value(false), "Use the sTGC configuration")
+      ("SCAid_List", po::value<std::string>(&SCA_str)->default_value("-1"), "String of SCAids separated by commas")
     ;
 
   po::variables_map vm;
@@ -442,13 +444,29 @@ int main(int ac, const char *av[]) {
     frontend_names = reader1.getAllElementNames();
   }
 
-  std::vector<std::pair<nsw::FEBConfig, int>> frontend_configs;
+  std::vector<std::string> v_SCAid_str;
+  std::string token;
+  std::string delimiter = ",";
+  int position=0;
 
+  while ((position = SCA_str.find(delimiter)) != std::string::npos) {
+      token = SCA_str.substr(0, position);
+      v_SCAid_str.push_back(token);
+      //std::cout << token << std::endl;
+      SCA_str.erase(0, position + delimiter.length());
+  }
+  v_SCAid_str.push_back(SCA_str);
+
+  for(int ii=0; ii<v_SCAid_str.size(); ii++){
+    std::cout << "SCAID " << ii << ": " << v_SCAid_str[ii] << std::endl;
+  }
+  
+  std::vector<std::pair<nsw::FEBConfig, int>> frontend_configs;
   std::cout << "\nFollowing front ends will be configured:\n";
   std::cout <<   "========================================\n";
   for (auto & name : frontend_names) {
     try {
-
+      
         int nvmm = 8;
 
         if (  name.find("PFEB") != std::string::npos ) {
@@ -470,13 +488,15 @@ int main(int ac, const char *av[]) {
         
         frontend_configs.emplace_back( FEB_config_nvmm );
 
-      std::cout << name << std::endl;
-    } catch (std::exception & e) {
+	std::cout << name << std::endl;
+    } 
+    catch (std::exception & e) {
       std::cout << name << " - ERROR: Skipping this FE!"
                 << " - Problem constructing configuration due to : " << e.what() << std::endl;
     }
     // frontend_configs.back().dump();
   }
+
 
   std::cout << "\n";
 
@@ -523,14 +543,14 @@ int main(int ac, const char *av[]) {
 
   std::map< std::pair< std::string, int>, std::ofstream > myfile;
   std::map< std::pair< std::string, int>, std::ofstream > myfile_summary;
-  std::map< std::pair< std::string, int>, std::ofstream > myfile_baseline_ouside_150to200mV;
+  std::map< std::pair< std::string, int>, std::ofstream > myfile_baseline_outside_150to200mV;
 
   //--------------------------------------------------------------------//
 
   std::vector<float> blank;
   blank.clear();
 
-  if ( debug ) std::cout << "running calibrate_trimmers_multirms_stgc.cpp" << std::endl;
+  if ( debug ) std::cout << "running calibrate_trimmers_multirms_stgc_withSCA.cpp" << std::endl;
 
   for (auto & feb_nvmms : frontend_configs) {
       
@@ -559,17 +579,75 @@ int main(int ac, const char *av[]) {
           //myfile_summary_i.open("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
           
           //-------------------------------------------------------//
-          //           Append output to vector of output files
+        //           Append output to vector of output files
           //-------------------------------------------------------//
+	  
+	  //for(int ii=0; ii<v_SCAid_str.size(); ii++){
+	  // std::cout << "LATER SCAID " << ii << ": " << v_SCAid_str[ii] << std::endl;
+	  //}
 
-          myfile[feb_vmm]         = std::ofstream("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
-          myfile_summary[feb_vmm] = std::ofstream("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
-	  myfile_baseline_ouside_150to200mV[feb_vmm] = std::ofstream("baselines_outside150to200mV_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+
+	  size_t pos = 100;
+	  std::string feb_newAddress = feb.getAddress();
+	  pos = feb.getAddress().find("L");
+
+	  if(feb.getAddress().find("L1Q1") != std::string::npos || feb.getAddress().find("L0Q0") != std::string::npos){
+	      feb_newAddress.replace(pos,4,v_SCAid_str[0]);
+	      std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[0] << std::endl;
+	    }
+          else if(feb.getAddress().find("L1Q2") != std::string::npos || feb.getAddress().find("L0Q1") != std::string::npos) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[1]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[1] << std::endl;
+          }
+          else if(feb.getAddress().find("L1Q3") != std::string::npos || feb.getAddress().find("L0Q2") != std::string::npos) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[2]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[2] << std::endl;
+          }
+	  else if(feb.getAddress().find("L2Q1") != std::string::npos ){
+            feb_newAddress.replace(pos,4,v_SCAid_str[3]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[3] << std::endl;
+          }
+          else if(feb.getAddress().find("L2Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[4]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[4] << std::endl;
+          }
+          else if(feb.getAddress().find("L2Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[5]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[5] << std::endl;
+          }
+	  else if(feb.getAddress().find("L3Q1") != std::string::npos ){
+            feb_newAddress.replace(pos,4,v_SCAid_str[6]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[6] << std::endl;
+          }
+          else if(feb.getAddress().find("L3Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[7]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[7] << std::endl;
+          }
+          else if(feb.getAddress().find("L3Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[8]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[8] << std::endl;
+          }
+          else if(feb.getAddress().find("L4Q1") != std::string::npos ){
+            feb_newAddress.replace(pos,4,v_SCAid_str[9]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[9] << std::endl;
+          }
+          else if(feb.getAddress().find("L4Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[10]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[10] << std::endl;
+          }
+          else if(feb.getAddress().find("L4Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[11]);
+	    std::cout << feb_newAddress << " " << feb.getAddress() << " " << v_SCAid_str[11] << std::endl;
+	  }
+
+          myfile[feb_vmm]         = std::ofstream("baselines_" + feb_newAddress + "_VMM" + std::to_string(vmm_id) + ".txt");
+          myfile_summary[feb_vmm] = std::ofstream("summary_baselines_" + feb_newAddress + "_VMM" + std::to_string(vmm_id) + ".txt");
+	  myfile_baseline_outside_150to200mV[feb_vmm] = std::ofstream("baselines_outside150to200mV_" + feb_newAddress + "_VMM" + std::to_string(vmm_id) + ".txt");
           fe_samples_tmp[feb_vmm] = blank;
       }
       
   }
-
+  
   //-----------------------------------------------------//
   //                Loop over all channels
   //-----------------------------------------------------//
@@ -612,8 +690,48 @@ int main(int ac, const char *av[]) {
 
       for (auto & feb_nvmms : frontend_configs) { // big feb loop
 
-          uint n_vmms = feb_nvmms.second;
-          nsw::FEBConfig feb = feb_nvmms.first;
+	  uint n_vmms = feb_nvmms.second;
+	  nsw::FEBConfig feb = feb_nvmms.first;
+	
+	  size_t pos = 100;
+	  std::string feb_newAddress = feb.getAddress();
+	  pos = feb.getAddress().find("L");
+	  if(feb.getAddress().find("L1Q1") != std::string::npos || feb.getAddress().find("L0Q0") != std::string::npos){
+	    feb_newAddress.replace(pos,4,v_SCAid_str[0]);
+	  }
+	  else if(feb.getAddress().find("L1Q2") != std::string::npos || feb.getAddress().find("L0Q1") != std::string::npos) {
+	    feb_newAddress.replace(pos,4,v_SCAid_str[1]);
+	  }
+	  else if(feb.getAddress().find("L1Q3") != std::string::npos || feb.getAddress().find("L0Q2") != std::string::npos) {
+	    feb_newAddress.replace(pos,4,v_SCAid_str[2]);
+	  }
+	  else if(feb.getAddress().find("L2Q1") != std::string::npos ){
+	    feb_newAddress.replace(pos,4,v_SCAid_str[3]);
+	  }
+          else if(feb.getAddress().find("L2Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[4]);
+          }
+          else if(feb.getAddress().find("L2Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[5]);
+          }
+	  else if(feb.getAddress().find("L3Q1") != std::string::npos ){
+	    feb_newAddress.replace(pos,4,v_SCAid_str[6]);
+	  }
+          else if(feb.getAddress().find("L3Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[7]);
+          }
+          else if(feb.getAddress().find("L3Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[8]);
+          }
+	  else if(feb.getAddress().find("L4Q1") != std::string::npos ){
+	    feb_newAddress.replace(pos,4,v_SCAid_str[9]);
+	  }
+          else if(feb.getAddress().find("L4Q2") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[10]);
+          }
+          else if(feb.getAddress().find("L4Q3") != std::string::npos ) {
+            feb_newAddress.replace(pos,4,v_SCAid_str[11]);
+          }
 
 	  uint init_vmmid =0;
 
@@ -679,7 +797,7 @@ int main(int ac, const char *av[]) {
 		//if(result < 1000){
 		  results_cut.push_back(result);
                   myfile[feb_vmm] << "DATA"
-                                  << " " << feb.getAddress()
+                                  << " " << feb_newAddress
                                   << " " << vmm_id
                                   << " " << channel_id
                                   << " " << tpdac
@@ -713,7 +831,7 @@ int main(int ac, const char *av[]) {
               channel_baseline_med[feb_ch] = median;
               channel_baseline_rms[feb_ch] = stdev;
               if (debug)
-                  std::cout << "INFO "      << feb.getAddress()
+                  std::cout << "INFO "      << feb_newAddress
                             << " vmm"       << vmm_id
                             << ", channel " << channel_id
                             << " - mean: "  << sample_to_mV(mean)
@@ -722,7 +840,7 @@ int main(int ac, const char *av[]) {
                             << std::endl;
               
               if (debug)
-                  std::cout << "INFO late "      << feb.getAddress()
+                  std::cout << "INFO late "      << feb_newAddress
                             << " vmm"            << vmm_id
                             << ", channel "      << channel_id
                             << " - mean: "       << sample_to_mV(mean_late)
@@ -737,7 +855,7 @@ int main(int ac, const char *av[]) {
               
               //@patmasid - Prachi
               myfile_summary[feb_vmm] << "SUMMARY"
-                                      << " " << feb.getAddress()
+                                      << " " << feb_newAddress
                                       << " vmm " << vmm_id
                                       << " channel " << channel_id
                                       << " mean " << mean_cut
@@ -746,7 +864,7 @@ int main(int ac, const char *av[]) {
                                       << std::endl;
 
 	      if (debug)
-		std::cout << "INFO late "      << feb.getAddress()
+		std::cout << "INFO late "      << feb_newAddress
 			  << " vmm"            << vmm_id
 			  << ", channel "      << channel_id
 			  << " - mean: "       << sample_to_mV(mean_cut)
@@ -760,8 +878,8 @@ int main(int ac, const char *av[]) {
               
               //@patmasid - Prachi
               if(mean_mV < 150 || mean_mV > 200){          
-                myfile_baseline_ouside_150to200mV[feb_vmm] << "BASELINE_OUTSIDE_150_200_MV"
-                << " " << feb.getAddress()
+                myfile_baseline_outside_150to200mV[feb_vmm] << "BASELINE_OUTSIDE_150_200_MV"
+                << " " << feb_newAddress
                 << " vmm " << vmm_id
                 << " channel " << channel_id
                 << " mean " << mean_mV
@@ -810,14 +928,21 @@ int main(int ac, const char *av[]) {
           
           myfile[feb_vmm].close();
           myfile_summary[feb_vmm].close();
-	  myfile_baseline_ouside_150to200mV[feb_vmm].close();
+	  myfile_baseline_outside_150to200mV[feb_vmm].close();
       }
 
   }
 
   myfile.clear();
   myfile_summary.clear();
-  myfile_baseline_ouside_150to200mV.clear();
+  myfile_baseline_outside_150to200mV.clear();
+  
+
+
+
+
+
+
 
   /*
 

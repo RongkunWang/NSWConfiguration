@@ -56,6 +56,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   calibrate_trimmers_threaded
   calibrate_trimmers_multirms
   calibrate_trimmers_multirms_stgc
+  calibrate_trimmers_multirms_stgc_withSCA
   read_channel_trimmers
   read_channel_monitor
   check_gpio
