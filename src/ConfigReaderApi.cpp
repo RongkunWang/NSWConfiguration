@@ -35,7 +35,6 @@ ptree ConfigReaderApi::read(std::string element) {
     } else if (nsw::getElementType(element) == "Router") {
         return readRouter(element);
     }
-    
 }
 
 std::set<std::string> ConfigReaderApi::getAllElementNames() {
