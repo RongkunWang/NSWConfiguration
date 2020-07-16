@@ -95,7 +95,6 @@ class ConfigReaderApi {
     return readFEB(element, 8, nTDS);
   }
 
-
   ptree readSFEB6(std::string element) {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, 4, 2, 1);
