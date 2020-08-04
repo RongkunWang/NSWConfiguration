@@ -121,7 +121,7 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
 
             throw issue;
         } else {
-            if (registername.find("channel_" == 0)) {
+            if (registername.find("channel_") == 0) {
               ptree temp = iter_registers->second;
               common.put_child(registername, temp);
             } else {
