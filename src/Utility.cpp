@@ -68,7 +68,7 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     std::string substr;
     uint8_t byte;
     // Go 8 bit at a time and convert it to hex
-    for (size_t pos; pos < bitstr.length(); pos=pos+8) {
+    for (size_t pos = 0; pos < bitstr.length(); pos=pos+8) {
         substr = bitstr.substr(pos, 8);
         ERS_DEBUG(6, std::string("substr: ") << substr);
         byte = static_cast<uint8_t> (std::stoi(substr, nullptr, 2));
@@ -84,7 +84,7 @@ std::vector<uint8_t> nsw::hexStringToByteVector(std::string hexstr, int length =
     std::string substr;
     uint8_t byte;
     // Go 8 bit at a time and convert it to hex
-    for (size_t pos; pos < hexstr.length(); pos=pos+2) {
+    for (size_t pos = 0; pos < hexstr.length(); pos=pos+2) {
         substr = hexstr.substr(pos, 2);
         ERS_DEBUG(6, std::string("substr: ") << substr);
         byte = static_cast<uint8_t> (std::strtoul(substr.c_str(), 0, 16));
@@ -128,7 +128,7 @@ std::string nsw::bitstringToHexString(std::string bitstr) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
     // Go 8 bit at a time and convert it to hex
-    for (size_t pos; pos < bitstr.length(); pos=pos+8) {
+    for (size_t pos = 0; pos < bitstr.length(); pos=pos+8) {
         substr = bitstr.substr(pos, 8);
         byte = static_cast<uint32_t> (std::stoi(substr, nullptr, 2));
         hexstream << std::setw(2) << byte;
