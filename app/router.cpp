@@ -23,10 +23,10 @@ int main(int argc, const char *argv[])
     po::options_description desc(std::string("Router configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file,C", po::value<std::string>(&config_filename)
+        ("config_file,c", po::value<std::string>(&config_filename)
          ->default_value(config_files+"router.json"), "Configuration file path")
         ("name,n",        po::value<std::string>(&board_name)
-         ->default_value("Router_00"), "Name of desired router (should contain router).")
+         ->default_value("Router_A14_L0"), "Name of desired router (should contain router).")
         ("gpio", po::bool_switch()->default_value(false), "Option to read all GPIOs")
         ;
     po::variables_map vm;
@@ -38,54 +38,9 @@ int main(int argc, const char *argv[])
         return 1;
     }    
 
-    // create a json reader
-    nsw::ConfigReader reader1("json://" + config_filename);
-    try {
-        auto config1 = reader1.readConfig();
-    }
-    catch (std::exception & e) {
-        std::cout << "Make sure the json is formed correctly. "
-                  << "Can't read config file due to : " << e.what() << std::endl;
-        std::cout << "Exiting..." << std::endl;
-        exit(0);
-    }
-
-    // parse input names
-    std::set<std::string> board_names;
-    if (board_name != ""){
-        if (std::count(board_name.begin(), board_name.end(), ',')){
-            std::istringstream ss(board_name);
-            while(!ss.eof()){
-                std::string buf;
-                std::getline(ss, buf, ',');
-                if (buf != "")
-                    board_names.emplace(buf);
-            }
-        }
-        else
-            board_names.emplace(board_name);
-    }
-    else
-        board_names = reader1.getAllElementNames();
-
-    // make ADDC objects
-    std::vector<nsw::RouterConfig> board_configs;
-    for (auto & name : board_names) {
-        try {
-            if (nsw::getElementType(name) == "Router") {
-                board_configs.emplace_back(reader1.readConfig(name));
-                std::cout << "Adding: " << name << std::endl;
-            }
-            else
-                std::cout << "Skipping: " << name
-                          << " because its a " << nsw::getElementType(name)
-                          << std::endl;
-        }
-        catch (std::exception & e) {
-            std::cout << name << " - ERROR: Skipping this FE!"
-                      << " - Problem constructing configuration due to : " << e.what() << std::endl;
-        }
-    }
+    // make router objects
+    auto board_configs = nsw::ConfigReader::makeObjects<nsw::RouterConfig>
+      ("json://" + config_filename, "Router", board_name);
 
     // the sender
     nsw::ConfigSender cs;

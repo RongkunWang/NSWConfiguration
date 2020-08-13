@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 
-
 #include "ers/ers.h"
 
 #include "NSWConfiguration/ConfigSender.h"
@@ -951,7 +950,7 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
         bool exp = kv.second;
         bool obs = readGPIO(opc_ip, bit);
         bool yay = obs==exp;
-        std::cout << std::left << std::setw(30) << bit << " ::"
+        std::cout << std::left << std::setw(34) << bit << " ::"
                   << " Expected = " << exp
                   << " Observed = " << obs
                   << " -> " << (yay ? "Good" : "Bad")
@@ -966,6 +965,26 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
 
     // Reset cout
     std::cout << std::setw(0);
+
+    // Set ID
+    auto scaid = obj.id();
+    auto id_sector_str = nsw::bitString((uint)(obj.id_sector()), 4);
+    auto id_layer_str  = nsw::bitString((uint)(obj.id_layer()),  3);
+    auto id_endcap_str = nsw::bitString((uint)(obj.id_endcap()), 1);
+    std::cout << sca_addr << ": ID (sector) = 0b" << id_sector_str << std::endl;
+    std::cout << sca_addr << ": ID (layer)  = 0b" << id_layer_str  << std::endl;
+    std::cout << sca_addr << ": ID (endcap) = 0b" << id_endcap_str << std::endl;
+    std::cout << sca_addr << ": -> ID = 0b" << id_sector_str << id_layer_str << id_endcap_str << std::endl;
+    std::cout << sca_addr << ": -> ID = " << (uint)(scaid) << std::endl;
+    for (int bit = 0; bit < 8; bit++) {
+      bool this_bit = ((scaid >> bit) & 0b1);
+      auto gpio = sca_addr + ".gpio.routerId" + std::to_string(bit);
+      sendGPIO(opc_ip, gpio, this_bit);
+      std::cout << sca_addr
+                << ": Set ID bit " << bit
+                << " = " << this_bit
+                << " => Readback = " << readGPIO(opc_ip, gpio) << std::endl;
+    }
 
     // Complain if bad config
     if (!all_ok) {

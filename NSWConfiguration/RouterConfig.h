@@ -17,15 +17,27 @@ class RouterConfig: public SCAConfig {
     bool dummy;
 
  public:
-    //! Constructor.
-    //! The ptree in the argument should contain
-    //! - OpcServerIp, OpcNodeId
     explicit RouterConfig(ptree config);
     ~RouterConfig() {}
 
     bool CrashOnClkReadyFailure() const;
     bool CrashOnConfigFailure() const;
     void dump();
+
+    uint8_t id() const;
+    uint8_t id_sector() const;
+    uint8_t id_layer() const;
+    uint8_t id_endcap() const;
+    void id_check() const;
+    void id_crash() const;
+
+ private:
+    // NAMING CONVENTION: Router_XYY_LZ
+    // Endcap: X = A,C
+    // Sector: YY = 01, 02, ..., 16
+    // Layer:  Z = 0, 1, ..., 7
+    std::string convention = "Router_XYY_LZ";
+    std::string name_error = "This Router doesnt follow the naming convention";
 
 };
 
