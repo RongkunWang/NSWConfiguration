@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include <fstream>
+#include <bitset>
 
 #include "ers/ers.h"
 
