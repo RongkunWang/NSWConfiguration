@@ -14,35 +14,41 @@
 namespace po = boost::program_options;
 
 double adc2temp(int adc);
-std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg);
+bool file_exists(std::string fname);
 
 int main(int argc, const char *argv[]) 
 {
     std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
     std::string config_filename;
     std::string board_name;
+    std::string bitstream;
     std::string gpio_name;
     std::string adc_name;
     std::string i2c_reg;
     std::string i2c_val;
     bool do_config;
+    bool do_control;
     int samples;
     int val;
 
     // options
-    po::options_description desc(std::string("ADDC configuration script"));
+    po::options_description desc(std::string("Pad trigger configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file", po::value<std::string>(&config_filename)
-         ->default_value(config_files+"padTrigger.json"), "Configuration file path")
+        ("config_file,c", po::value<std::string>(&config_filename)
+         ->default_value(config_files+"config_json/191/A12/padTrigger.json"), "Configuration file path")
         ("name,n", po::value<std::string>(&board_name)
          ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
+        ("bitstream,b", po::value<std::string>(&bitstream)
+         ->default_value(""), "Bitstream name to write to the FPGA. WARNING: EXPERIMENTAL.")
         ("gpio", po::value<std::string>(&gpio_name)
          ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
         ("adc", po::value<std::string>(&adc_name)
          ->default_value(""), "ADC name to read (check the xml for valid names).")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
+        ("do_control", po::bool_switch()->
+         default_value(false), "Option to send Pad Trigger control register (built from json)")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -55,19 +61,29 @@ int main(int argc, const char *argv[])
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    do_config = vm["do_config"].as<bool>();
+    do_config  = vm["do_config"] .as<bool>();
+    do_control = vm["do_control"].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
     }    
 
     // make objects from json
-    auto board_configs = parse_name(board_name, config_filename);
+    auto board_configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
+        ("json://" + config_filename, "PadTriggerSCA", board_name);
     for (auto & board: board_configs)
         std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << std::endl;
 
     // the sender
     nsw::ConfigSender cs;
+
+    // fpga bitstream
+    if (bitstream != "") {
+        if (!file_exists(bitstream))
+            throw std::runtime_error("File doesnt exist: " + bitstream);
+        for (auto & board: board_configs)
+            cs.sendFPGA(board.getOpcServerIp(), board.getAddress(), bitstream);
+    }
 
     // GPIO read/write
     if (gpio_name != "") {
@@ -144,6 +160,11 @@ int main(int argc, const char *argv[])
         for (auto & board: board_configs)
             cs.sendPadTriggerSCAConfig(board);
 
+    // control
+    if (do_control)
+        for (auto & board: board_configs)
+            cs.sendPadTriggerSCAControlRegister(board);
+
     return 0;
 }
 
@@ -151,56 +172,8 @@ double adc2temp(int adc) {
     return (0.79-adc/4095.0)*545.454545455 - 40;
 }
 
-std::vector<nsw::PadTriggerSCAConfig> parse_name(std::string name, std::string cfg) {
-
-    // create a json reader
-    nsw::ConfigReader reader1("json://" + cfg);
-    try {
-        auto config1 = reader1.readConfig();
-    }
-    catch (std::exception & e) {
-        std::cout << "Make sure the json is formed correctly. "
-                  << "Can't read config file due to : " << e.what() << std::endl;
-        std::cout << "Exiting..." << std::endl;
-        exit(0);
-    }
-
-    // parse input names
-    std::set<std::string> names;
-    if (name != "") {
-        if (std::count(name.begin(), name.end(), ',')) {
-            std::istringstream ss(name);
-            while (!ss.eof()) {
-                std::string buf;
-                std::getline(ss, buf, ',');
-                if (buf != "")
-                    names.emplace(buf);
-            }
-        } else {
-            names.emplace(name);
-        }
-    } else {
-        names = reader1.getAllElementNames();
-    }
-
-    // make board objects
-    std::vector<nsw::PadTriggerSCAConfig> board_configs;
-    for (auto & this_name : names) {
-        try {
-            if (nsw::getElementType(this_name) == "PadTriggerSCA") {
-                board_configs.emplace_back(reader1.readConfig(this_name));
-                std::cout << "Adding: " << this_name << std::endl;
-            }
-            else
-                std::cout << "Skipping: " << this_name
-                          << " because its a " << nsw::getElementType(this_name)
-                          << std::endl;
-        }
-        catch (std::exception & e) {
-            std::cout << this_name << " - ERROR: Skipping this!"
-                      << " - Problem constructing configuration due to : " << e.what() << std::endl;
-        }
-    }
-
-    return board_configs;
+bool file_exists(std::string fname) {
+    std::ifstream fi(fname.c_str());
+    return fi.good();
 }
+
