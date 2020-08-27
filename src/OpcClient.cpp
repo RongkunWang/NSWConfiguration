@@ -12,7 +12,7 @@
 
 
 
-nsw::OpcClient::OpcClient(std::string server_ip_port): m_server_ipport(server_ip_port) {
+nsw::OpcClient::OpcClient(const std::string& server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
     // Can we have multiple init() in the same application?
     // Do we need this at all? It's an empty function
@@ -42,16 +42,17 @@ nsw::OpcClient::~OpcClient() {
   m_session->disconnect(sessset, OpcUa_True);
 }
 
-void nsw::OpcClient::writeSpiSlave(std::string node, std::vector<uint8_t> cdata) {
+void nsw::OpcClient::writeSpiSlave(const std::string& node, const std::vector<uint8_t>& cdata) {
     auto data = cdata.data();  // get pointer to array
     writeSpiSlaveRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t number_of_bytes) {
+void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
-    bs.setByteString(number_of_bytes, data);
+    // UaByteString::setByteString does not modify its buffer argument.
+    bs.setByteString(number_of_bytes, const_cast<uint8_t*>(data));
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
@@ -76,7 +77,7 @@ void nsw::OpcClient::writeSpiSlaveRaw(std::string node, uint8_t* data, size_t nu
 }
 
 
-uint8_t nsw::OpcClient::readRocRaw(std::string node, unsigned int scl, unsigned int sda,
+uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, unsigned int sda,
                                     uint8_t registerAddress, unsigned int i2cDelay) {
     UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
 
@@ -160,7 +161,7 @@ uint8_t nsw::OpcClient::readRocRaw(std::string node, unsigned int scl, unsigned 
 }
 
 
-std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t number_of_chunks) {
+std::vector<uint8_t> nsw::OpcClient::readSpiSlave(const std::string& node, size_t number_of_chunks) {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     try {
@@ -179,16 +180,17 @@ std::vector<uint8_t> nsw::OpcClient::readSpiSlave(std::string node, size_t numbe
     }
 }
 
-void nsw::OpcClient::writeI2c(std::string node, std::vector<uint8_t> cdata) {
+void nsw::OpcClient::writeI2c(const std::string& node, const std::vector<uint8_t>& cdata) {
     auto data = cdata.data();  // get pointer to array
     writeI2cRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t number_of_bytes) {
+void nsw::OpcClient::writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) {
     UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
-    bs.setByteString(number_of_bytes, data);
+    // UaByteString::setByteString does not modify its buffer argument.
+    bs.setByteString(number_of_bytes, const_cast<uint8_t*>(data));
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
@@ -213,7 +215,7 @@ void nsw::OpcClient::writeI2cRaw(std::string node, uint8_t* data, size_t number_
     }
 }
 
-void nsw::OpcClient::writeGPIO(std::string node, bool data) {
+void nsw::OpcClient::writeGPIO(const std::string& node, bool data) {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
@@ -228,7 +230,7 @@ void nsw::OpcClient::writeGPIO(std::string node, bool data) {
     }
 }
 
-bool nsw::OpcClient::readGPIO(std::string node) {
+bool nsw::OpcClient::readGPIO(const std::string& node) {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     bool value = false;
 
@@ -242,7 +244,7 @@ bool nsw::OpcClient::readGPIO(std::string node) {
     return value;
 }
 
-std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node, size_t number_of_bytes) {
+std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t number_of_bytes) {
     UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
@@ -261,12 +263,12 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(std::string node, size_t number_of_
     return result;
 }
 
-float nsw::OpcClient::readAnalogInput(std::string node) {
+float nsw::OpcClient::readAnalogInput(const std::string& node) {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
     return ainode.readValue();
 }
 
-std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(std::string node, size_t n_samples) {
+std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<short unsigned int> values;
@@ -294,17 +296,17 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     return values;
 }
 
-int nsw::OpcClient::readScaID(std::string node) {
+int nsw::OpcClient::readScaID(const std::string& node) {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readId();
 }
 
-std::string nsw::OpcClient::readScaAddress(std::string node) {
+std::string nsw::OpcClient::readScaAddress(const std::string& node) {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readAddress().toUtf8();
 }
 
-bool nsw::OpcClient::readScaOnline(std::string node) {
+bool nsw::OpcClient::readScaOnline(const std::string& node) {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readOnline();
 }

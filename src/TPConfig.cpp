@@ -7,7 +7,7 @@
 #include "NSWConfiguration/TPConfig.h"
 
 
-nsw::TPConfig::TPConfig(ptree config) :
+nsw::TPConfig::TPConfig(const ptree& config) :
 SCAConfig(config),
 m_numMasters(NUM_REGISTER_FILES) {
     // restructureConfig();
@@ -28,14 +28,14 @@ m_numMasters(NUM_REGISTER_FILES) {
     }
 }
 
-void nsw::TPConfig::setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name) {
+void nsw::TPConfig::setRegisterValue(const std::string& master, const std::string& slave, uint32_t value, const std::string& register_name) {
     // set value of a register which salve of is on a register file (master)
     m_registerFiles[master]->setRegisterValue(slave, register_name, value);
 
     return;
 }
 
-uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, std::string register_name) {
+uint32_t nsw::TPConfig::getRegisterValue(const std::string& master, const std::string& slave, const std::string& register_name) {
     // get value of a register which salve of is on a register file (master)
     return m_registerFiles[master]->getRegisterValue(slave, register_name);
 }

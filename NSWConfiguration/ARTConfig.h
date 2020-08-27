@@ -31,7 +31,7 @@ class ARTConfig {
     nsw::I2cMasterConfig core;
     nsw::I2cMasterConfig ps;
 
-    explicit ARTConfig(ptree config);
+    explicit ARTConfig(const ptree& config);
     ~ARTConfig() {}
 
     ptree getConfig() const {return m_config;}
@@ -40,7 +40,7 @@ class ARTConfig {
     void dump_ps()   { ps  .dump(); }
 
     std::string getName() { return name; }
-    void setName(std::string str) { name = str; }
+    void setName(std::string str) { name = std::move(str); }
 
     std::string getNameCore() { return getName() + "Core." + getName() + "Core"; }
     std::string getNamePs()   { return getName() + "Ps."   + getName() + "Ps"; }
@@ -61,8 +61,8 @@ class ARTConfig {
     std::string TP_GBTxAlignmentPhase();
     std::string getOpcServerIp_TP();
     std::string getOpcNodeId_TP();
-    bool IsAlignedWithTP(std::vector<uint8_t> vec);
-    bool IsMyTP(std::string ServerIp, std::string NodeId);
+    bool IsAlignedWithTP(const std::vector<uint8_t>& vec);
+    bool IsMyTP(const std::string& ServerIp, const std::string& NodeId);
     bool failsafe();
 
 };

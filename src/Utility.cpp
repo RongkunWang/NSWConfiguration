@@ -38,7 +38,7 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
     return str;
 }
 
-std::string nsw::getElementType(std::string element_name) {
+std::string nsw::getElementType(const std::string& element_name) {
     // do not easily change the order
     for (auto name : std::vector<std::string>({"MMFE8", "PFEB", "SFEB_old", "SFEB8", "SFEB6", "SFEB",
                                                "TP", "ADDC", "PadTriggerSCA", "Router"})) {
@@ -51,7 +51,7 @@ std::string nsw::getElementType(std::string element_name) {
     throw std::runtime_error(err);
 }
 
-void nsw::checkOverflow(size_t register_size, unsigned value, std::string register_name) {
+void nsw::checkOverflow(size_t register_size, unsigned value, const std::string& register_name) {
     if (std::pow(2, register_size) <= value) {
         std::string err = "Overflow, register: " + register_name + ", size: "
                            + std::to_string(register_size) + ", max value: "
@@ -63,7 +63,7 @@ void nsw::checkOverflow(size_t register_size, unsigned value, std::string regist
     }
 }
 
-std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
+std::vector<uint8_t> nsw::stringToByteVector(const std::string& bitstr) {
     std::vector<uint8_t> vec;
     std::string substr;
     uint8_t byte;
@@ -79,7 +79,7 @@ std::vector<uint8_t> nsw::stringToByteVector(std::string bitstr) {
     return vec;
 }
 
-std::vector<uint8_t> nsw::hexStringToByteVector(std::string hexstr, int length = 4, bool littleEndian = true) {
+std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int length = 4, bool littleEndian = true) {
     std::vector<uint8_t> vec(length);
     std::string substr;
     uint8_t byte;
@@ -99,29 +99,45 @@ std::vector<uint8_t> nsw::hexStringToByteVector(std::string hexstr, int length =
     return vecFront;
 }
 
-std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
+std::string nsw::vectorToHexString(const std::vector<uint8_t>& vec, bool littleEndian) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
-    if (littleEndian) std::reverse(vec.begin(), vec.end());
-    // Go 8 bit at a time and convert it to hex
-    for (auto byte : vec) {
+    if (!littleEndian) {
+        // Go 8 bit at a time and convert it to hex
+        for (auto byte : vec) {
+            hexstream << std::setw(2) << static_cast<uint32_t>(byte);
+        }
+        return hexstream.str();
+    }
+
+    auto vec_copy = vec;
+    std::reverse(vec_copy.begin(), vec_copy.end());
+    for (auto byte : vec_copy) {
         hexstream << std::setw(2) << static_cast<uint32_t>(byte);
     }
     return hexstream.str();
 }
 
-std::string nsw::vectorToBitString(std::vector<uint8_t> vec, bool littleEndian) {
+std::string nsw::vectorToBitString(const std::vector<uint8_t>& vec, bool littleEndian) {
     std::string bitstring;
-    if (littleEndian) std::reverse(vec.begin(), vec.end());
-    // Go 8 bit at a time and convert it to binary
-    for (auto byte : vec) {
+    if (!littleEndian) {
+        // Go 8 bit at a time and convert it to binary
+        for (auto byte : vec) {
+            std::bitset<8> bs(byte);
+            bitstring = bitstring + bs.to_string();
+        }
+        return bitstring;
+    }
+    auto vec_copy = vec;
+    std::reverse(vec_copy.begin(), vec_copy.end());
+    for (auto byte : vec_copy) {
         std::bitset<8> bs(byte);
-        bitstring = bitstring +  bs.to_string();
+        bitstring = bitstring + bs.to_string();
     }
     return bitstring;
 }
 
-std::string nsw::bitstringToHexString(std::string bitstr) {
+std::string nsw::bitstringToHexString(const std::string& bitstr) {
     std::string substr;
     uint32_t byte;
     std::string hexstr;
@@ -169,7 +185,7 @@ std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>
     return tempstr;
 }
 
-ptree nsw::buildPtreeFromVector(std::vector<unsigned> vec) {
+ptree nsw::buildPtreeFromVector(const std::vector<unsigned>& vec) {
     ptree temp;
 
     // This is the only way to create an array in a ptree
@@ -191,7 +207,7 @@ std::string nsw::stripReadonly(std::string str) {
     return str;
 }
 
-std::set<std::string> nsw::matchRegexpInPtree(std::string regexp, ptree pt, std::string current_node) {
+std::set<std::string> nsw::matchRegexpInPtree(const std::string& regexp, const ptree& pt, const std::string& current_node) {
     std::set<std::string> names;
     std::regex re(regexp);
 

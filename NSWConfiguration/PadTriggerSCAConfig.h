@@ -20,7 +20,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit PadTriggerSCAConfig(ptree config);
+    explicit PadTriggerSCAConfig(const ptree& config);
     ~PadTriggerSCAConfig() {}
 
     void dump();

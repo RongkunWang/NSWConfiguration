@@ -12,7 +12,7 @@
 
 #include "boost/property_tree/json_parser.hpp"
 
-nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(ptree config):
+nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
     SCAConfig(config)
 {
     m_UserL1AReadoutLatency = -1;

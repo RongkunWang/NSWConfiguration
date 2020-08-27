@@ -40,23 +40,23 @@ class VMMConfig {
     ptree m_config;
 
  public:
-    explicit VMMConfig(ptree vmmconfig);
+    explicit VMMConfig(const ptree& vmmconfig);
     ~VMMConfig() {}
 
     std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 
     std::string getBitString() const {return m_bitstring;}  /// return the string of bits
 
-    void setName(std::string str) {name = str;}
+    void setName(std::string str) {name = std::move(str);}
     std::string getName() {return name;}
 
-    unsigned getGlobalRegister(std::string register_name);
-    unsigned getChannelRegisterOneChannel(std::string register_name, size_t channel);
+    unsigned getGlobalRegister(const std::string& register_name);
+    unsigned getChannelRegisterOneChannel(const std::string& register_name, size_t channel);
     std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name);
 
-    void setGlobalRegister(std::string register_name, unsigned value);
-    void setChannelRegisterAllChannels(std::string register_name, unsigned value);
-    void setChannelRegisterOneChannel(std::string register_name, unsigned value, size_t channel);
+    void setGlobalRegister(const std::string& register_name, unsigned value);
+    void setChannelRegisterAllChannels(const std::string& register_name, unsigned value);
+    void setChannelRegisterOneChannel(const std::string& register_name, unsigned value, size_t channel);
 
     void setTestPulseDAC    (size_t param);
     void setGlobalThreshold (size_t param);

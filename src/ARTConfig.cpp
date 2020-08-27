@@ -9,7 +9,7 @@
 
 using boost::property_tree::ptree;
 
-nsw::ARTConfig::ARTConfig(ptree config):
+nsw::ARTConfig::ARTConfig(const ptree& config):
     m_config(config),
     core(config.get_child(ART_CORE_NAME), ART_CORE_NAME, ART_CORE_REGISTERS),
     ps  (config.get_child(ART_PS_NAME),   ART_PS_NAME,   ART_PS_REGISTERS)
@@ -69,7 +69,7 @@ int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() {
     return m_config.get<int>("TP_GBTxAlignmentSleepTime");
 }
 
-bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
+bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) {
     // bit of interest
     int boi = TP_GBTxAlignmentBit();
     if (boi < 0)
@@ -92,6 +92,6 @@ std::string nsw::ARTConfig::PhaseToString(uint phase) {
     return zeropad.str();
 }
 
-bool nsw::ARTConfig::IsMyTP(std::string ServerIp, std::string NodeId){
+bool nsw::ARTConfig::IsMyTP(const std::string& ServerIp, const std::string& NodeId){
     return ServerIp==getOpcServerIp_TP() && NodeId==getOpcNodeId_TP();
 }

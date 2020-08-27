@@ -45,10 +45,10 @@ class VMMCodec {
     static constexpr size_t NBITS_CHANNEL = 24 * NCHANNELS;  /// Size of channel registers
     static constexpr size_t NBITS_TOTAL = NBITS_CHANNEL + 2*NBITS_GLOBAL;  /// total number of bits
 
-    std::string buildConfig(ptree config);
+    std::string buildConfig(const ptree& config);
 
-    bool globalRegisterExists(std::string);
-    bool channelRegisterExists(std::string);
+    bool globalRegisterExists(const std::string& register_name);
+    bool channelRegisterExists(const std::string& register_name);
 
     /// Creates a vector for each channel register, such that element ["channel_sd"][4] is sd value for 4th channel
     std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config);
@@ -58,13 +58,13 @@ class VMMCodec {
     VMMCodec();
     ~VMMCodec() { ERS_DEBUG(1, "Destroying VMMCodec");}
 
-    std::string buildGlobalConfig(ptree config, GlobalRegisters type);
+    std::string buildGlobalConfig(const ptree& config, GlobalRegisters type);
 
-    std::string buildGlobalConfig0(ptree config);
-    std::string buildGlobalConfig1(ptree config);
-    std::string buildChannelConfig(ptree config);
+    std::string buildGlobalConfig0(const ptree& config);
+    std::string buildGlobalConfig1(const ptree& config);
+    std::string buildChannelConfig(const ptree& config);
 
-    void checkOverflow(size_t register_size, unsigned value, std::string register_name);
+    void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
 
     /// Type to be used for pairs that contain: {register name, register size in bits}
     using NameSizeType = std::pair<std::string, size_t>;

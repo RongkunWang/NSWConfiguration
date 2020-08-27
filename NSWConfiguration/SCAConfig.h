@@ -28,7 +28,7 @@ class SCAConfig {
     ptree m_config;  /// Configuration ptree that contains at least OpcServerIp and OpcNodeId
 
  public:
-    explicit SCAConfig(ptree config);
+    explicit SCAConfig(const ptree& config);
     virtual ~SCAConfig() {}
 
     std::string getOpcServerIp() const {return m_opcserver_ip;}

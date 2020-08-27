@@ -5,7 +5,7 @@
 #include "NSWConfiguration/FEBConfig.h"
 
 
-nsw::FEBConfig::FEBConfig(ptree config):
+nsw::FEBConfig::FEBConfig(const ptree& config):
         SCAConfig(config),
         m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
         m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {

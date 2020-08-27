@@ -62,7 +62,7 @@ class OpcClient {
 
  public:
     /// Initialize Opc Platform Layer and creates a UaSession
-    explicit OpcClient(std::string server_ip_port);
+    explicit OpcClient(const std::string& server_ip_port);
     ~OpcClient();
 
     OpcClient(const OpcClient&) = delete;
@@ -80,35 +80,35 @@ class OpcClient {
     /// \param number_of_chunks Number of 96 bit chunks to read
     /// \param current_node Current ptree node we are at, required for recursive calls
     /// \return vector of bytes, with size number_of_chunks*12
-    std::vector<uint8_t> readSpiSlave(std::string node, size_t number_of_chunks);
+    std::vector<uint8_t> readSpiSlave(const std::string& node, size_t number_of_chunks);
 
 
-    void writeSpiSlave(std::string node, std::vector<uint8_t> data);
-    void writeSpiSlaveRaw(std::string node, uint8_t* data, size_t number_of_bytes);
+    void writeSpiSlave(const std::string& node, const std::vector<uint8_t>& data);
+    void writeSpiSlaveRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes);
 
-    void writeI2c(std::string node, std::vector<uint8_t> data);
-    void writeI2cRaw(std::string node, uint8_t* data, size_t number_of_bytes);
+    void writeI2c(const std::string& node, const std::vector<uint8_t>& data);
+    void writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes);
 
-    void writeGPIO(std::string node, bool value);
-    bool readGPIO(std::string node);
+    void writeGPIO(const std::string& node, bool value);
+    bool readGPIO(const std::string& node);
 
     /// Read back the I2c
-    std::vector<uint8_t> readI2c(std::string node, size_t number_of_bytes = 1);
+    std::vector<uint8_t> readI2c(const std::string& node, size_t number_of_bytes = 1);
 
     //! Read current value of an analog output
-    float readAnalogInput(std::string node);
+    float readAnalogInput(const std::string& node);
 
     //! Read n_samples consecutive samples from an analog output.
-    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string node, size_t n_samples);
+    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples);
 
     // Read SCA ID
-    int readScaID(std::string node); 
+    int readScaID(const std::string& node); 
 
     // Read SCA Address
-    std::string readScaAddress(std::string node);
+    std::string readScaAddress(const std::string& node);
 
     // Read SCA Online Status
-    bool readScaOnline(std::string node);
+    bool readScaOnline(const std::string& node);
 
     /// Read back ROC
     /// \param node node ID in the OPC space, something such as "SCA Name.gpio.bitBanger"
@@ -117,7 +117,7 @@ class OpcClient {
     /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
     /// \param i2cDelay I2c delay value, 2 corresponds to 100kHz
     /// \return result 8 bit register value
-    uint8_t readRocRaw(std::string node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay);
+    uint8_t readRocRaw(const std::string& node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay);
 
     /// Program FPGA
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration

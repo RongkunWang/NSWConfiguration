@@ -44,7 +44,7 @@ class FEBConfig: public SCAConfig {
     //! - rocPllCoreAnalog, rocCoreDigital
     //! - Multiple vmm instances named vmm0 to vmmN
     //! - Multiple tds instances named tds0 to tdsN (optional)
-    explicit FEBConfig(ptree config);
+    explicit FEBConfig(const ptree& config);
     ~FEBConfig() {}
 
     void dump();

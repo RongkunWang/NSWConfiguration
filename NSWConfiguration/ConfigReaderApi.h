@@ -63,7 +63,7 @@ class ConfigReaderApi {
   virtual ptree & read() = 0;
 
   /// Read configuration of a single front end element into a ptree
-  virtual ptree read(std::string element_name);
+  virtual ptree read(const std::string& element);
 
   /// Get names of all Front end elements in the configuration
   /// The base class method iterates through config ptree and finds all
@@ -75,35 +75,35 @@ class ConfigReaderApi {
   /// \param regexp Regular expression to match. For instance to get path of
   ///     all MMFE8, one should use .*MMFE8.*
   /// \return Result is a subset of getAllElementNames()
-  std::set<std::string> getElementNames(std::string regexp);
+  std::set<std::string> getElementNames(const std::string& regexp);
 
   /// Read configuration of front end, specifying number of vmm and tds in the FE
   virtual ptree readFEB(
-      std::string element_name, size_t nvmm, size_t ntds,
+      const std::string& element, size_t nvmm, size_t ntds,
       size_t vmm_start = 0, size_t tds_start = 0);
 
-  ptree readMMFE8(std::string element) {
+  ptree readMMFE8(const std::string& element) {
     return readFEB(element, 8, 0);
   }
 
-  ptree readPFEB(std::string element) {
+  ptree readPFEB(const std::string& element) {
     return readFEB(element, 3, 1);
   }
 
-  ptree readSFEB(std::string element, int nTDS) {
+  ptree readSFEB(const std::string& element, int nTDS) {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, nTDS);
   }
 
-  ptree readSFEB6(std::string element) {
+  ptree readSFEB6(const std::string& element) {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, 4, 2, 1);
   }
 
-  virtual ptree readADDC(std::string element, size_t nart);
-  virtual ptree readPadTriggerSCA(std::string element);
-  virtual ptree readRouter(std::string element);
-  virtual ptree readTP(std::string element_name);
+  virtual ptree readADDC(const std::string& element, size_t nart);
+  virtual ptree readPadTriggerSCA(const std::string& element);
+  virtual ptree readRouter(const std::string& element);
+  virtual ptree readTP(const std::string& element);
   
   virtual ~ConfigReaderApi() {}
 };
@@ -113,7 +113,7 @@ class JsonApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit JsonApi(std::string file_path): m_file_path(file_path) {}
+  explicit JsonApi(const std::string& file_path): m_file_path(file_path) {}
   ptree & read();
 };
 
@@ -122,7 +122,7 @@ class XmlApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit XmlApi(std::string file_path): m_file_path(file_path) {}
+  explicit XmlApi(const std::string& file_path): m_file_path(file_path) {}
   ptree & read();
 };
 
@@ -131,7 +131,7 @@ class OracleApi: public ConfigReaderApi {
   std::string db_connection;
 
  public:
-  explicit OracleApi(std::string db_connection) {}
+  explicit OracleApi(const std::string& db_connection) {}
   ~OracleApi() {}
   ptree & read();
 };
@@ -141,7 +141,7 @@ class OksApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit OksApi(std::string file_path): m_file_path(file_path) {}
+  explicit OksApi(const std::string& file_path): m_file_path(file_path) {}
   ptree & read();
 };
 

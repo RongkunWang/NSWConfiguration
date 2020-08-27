@@ -17,7 +17,7 @@ class RouterConfig: public SCAConfig {
     bool dummy;
 
  public:
-    explicit RouterConfig(ptree config);
+    explicit RouterConfig(const ptree& config);
     ~RouterConfig() {}
 
     bool CrashOnClkReadyFailure() const;

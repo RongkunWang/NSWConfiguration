@@ -4,7 +4,7 @@
 
 #include "boost/property_tree/json_parser.hpp"
 
-nsw::RouterConfig::RouterConfig(ptree config):
+nsw::RouterConfig::RouterConfig(const ptree& config):
     SCAConfig(config)
 {
     // std::cout << std::endl;

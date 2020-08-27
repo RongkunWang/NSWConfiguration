@@ -14,35 +14,36 @@ using boost::property_tree::ptree;
 nsw::ConfigSender::ConfigSender() {
 }
 
-void nsw::ConfigSender::addOpcClientIfNew(std::string opcserver_ipport) {
+void nsw::ConfigSender::addOpcClientIfNew(const std::string& opcserver_ipport) {
+    // std::map doesn't allow duplicates anyway, consider removing this check?
     if (m_clients.find(opcserver_ipport) == m_clients.end()) {
         m_clients.emplace(opcserver_ipport, std::make_unique<nsw::OpcClient>(opcserver_ipport));
     }
 }
 
-void nsw::ConfigSender::sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
+void nsw::ConfigSender::sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readSpi(std::string opcserver_ipport, std::string node, size_t data_size) {
+std::vector<uint8_t> nsw::ConfigSender::readSpi(const std::string& opcserver_ipport, const std::string& node, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     return m_clients[opcserver_ipport]->readSpiSlave(node, data_size);
 }
 
-void nsw::ConfigSender::sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata) {
+void nsw::ConfigSender::sendSpi(const std::string& opcserver_ipport, const std::string& node, const std::vector<uint8_t>& vdata) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, vdata.data(), vdata.size());
 }
 
-uint8_t nsw::ConfigSender::readBackRoc(std::string opcserver_ipport, std::string node,
+uint8_t nsw::ConfigSender::readBackRoc(const std::string& opcserver_ipport, const std::string& node,
     unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay ) {
   addOpcClientIfNew(opcserver_ipport);
   return m_clients[opcserver_ipport]->readRocRaw(node, sclLine, sdaLine, registerAddress, delay);
 }
 
 
-void nsw::ConfigSender::sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t* data, size_t data_size) {
+void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
 }
@@ -52,24 +53,24 @@ void nsw::ConfigSender::sendI2c(std::string opcserver_ipport, std::string node, 
     m_clients[opcserver_ipport]->writeI2cRaw(node, vdata.data(), vdata.size());
 }
 
-void nsw::ConfigSender::sendGPIO(std::string opcserver_ipport, std::string node, bool data) {
+void nsw::ConfigSender::sendGPIO(const std::string& opcserver_ipport, const std::string& node, bool data) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeGPIO(node, data);
 }
 
-bool nsw::ConfigSender::readGPIO(std::string opcserver_ipport, std::string node) {
+bool nsw::ConfigSender::readGPIO(const std::string& opcserver_ipport, const std::string& node) {
     addOpcClientIfNew(opcserver_ipport);
     return m_clients[opcserver_ipport]->readGPIO(node);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2c(std::string opcserver_ipport,
-    std::string node, size_t number_of_bytes) {
+std::vector<uint8_t> nsw::ConfigSender::readI2c(const std::string& opcserver_ipport,
+    const std::string& node, size_t number_of_bytes) {
     addOpcClientIfNew(opcserver_ipport);
     return m_clients[opcserver_ipport]->readI2c(node, number_of_bytes);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_ipport,
-    std::string node, uint8_t* address, size_t address_size, size_t number_of_bytes) {
+std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(const std::string& opcserver_ipport,
+    const std::string& node, uint8_t* address, size_t address_size, size_t number_of_bytes) {
     // Write only the address without data
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, address_size);
 
@@ -78,9 +79,9 @@ std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(std::string opcserver_i
     return readdata;
 }
 
-void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
-                                         std::string node,
-                                         std::vector<uint8_t> address,
+void nsw::ConfigSender::sendI2cAtAddress(const std::string& opcserver_ipport,
+                                         const std::string& node,
+                                         const std::vector<uint8_t>& address,
                                          std::vector<uint8_t> data) {
     // Insert the address in the beginning of data vector
     for (auto & address_byte : address) {
@@ -90,8 +91,8 @@ void nsw::ConfigSender::sendI2cAtAddress(std::string opcserver_ipport,
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode,
-                                            const nsw::I2cMasterConfig& cfg, std::string reg_address) {
+void nsw::ConfigSender::sendI2cMasterSingle(const std::string& opcserver_ipport, const std::string& topnode,
+                                            const nsw::I2cMasterConfig& cfg, const std::string& reg_address) {
     ERS_LOG("Sending I2c configuration to " << topnode << "." + cfg.getName() + "." << reg_address);
     auto addr_bitstr = cfg.getBitstreamMap();
     auto address = topnode + "." + cfg.getName() + "." + reg_address;  // Full I2C address
@@ -103,8 +104,8 @@ void nsw::ConfigSender::sendI2cMasterSingle(std::string opcserver_ipport, std::s
         sendI2cRaw(opcserver_ipport, address, data.data(), data.size());
 }
 
-void nsw::ConfigSender::sendI2cMasterConfig(std::string opcserver_ipport,
-    std::string topnode, const nsw::I2cMasterConfig& cfg) {
+void nsw::ConfigSender::sendI2cMasterConfig(const std::string& opcserver_ipport,
+    const std::string& topnode, const nsw::I2cMasterConfig& cfg) {
     ERS_LOG("Sending I2c configuration to " << topnode << "." << cfg.getName());
     auto addr_bitstr = cfg.getBitstreamMap();
     for (auto ab : addr_bitstr) {
@@ -191,7 +192,7 @@ void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds)
     // Read back to verify something? (TODO)
 }
 
-void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_address,
+void nsw::ConfigSender::sendRocConfig(const std::string& opc_ip, const std::string& sca_address,
     const I2cMasterConfig & analog, const I2cMasterConfig & digital) {
     // 1. Reset all logics
     sendGPIO(opc_ip, sca_address + ".gpio.rocCoreResetN", 0);
@@ -231,7 +232,7 @@ void nsw::ConfigSender::sendRocConfig(std::string opc_ip, std::string sca_addres
 
 // }
 
-void nsw::ConfigSender::sendTdsConfig(std::string opc_ip, std::string sca_address,
+void nsw::ConfigSender::sendTdsConfig(const std::string& opc_ip, const std::string& sca_address,
     const I2cMasterConfig & tds, int ntds, bool reset_tds) {
   // internal call
   // sca_address is feb.getAddress()
@@ -995,8 +996,8 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
 
 }
 
-std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
-    std::string node, size_t n_samples) {
+std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(const std::string& opcserver_ipport,
+    const std::string& node, size_t n_samples) {
     addOpcClientIfNew(opcserver_ipport);
     ERS_DEBUG(4, "Reading " <<  n_samples << " consecutive samples from " << node);
     return m_clients[opcserver_ipport]->readAnalogInputConsecutiveSamples(node, n_samples);
@@ -1048,8 +1049,8 @@ bool nsw::ConfigSender::readSCAOnline(FEBConfig& feb) {
     return m_clients[opc_ip]->readScaOnline(feb_address);
 }
 
-void nsw::ConfigSender::sendFPGA(std::string opcserver_ipport, std::string node,
-                                 std::string bitfile_path) {
+void nsw::ConfigSender::sendFPGA(const std::string& opcserver_ipport, const std::string& node,
+                                 const std::string& bitfile_path) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeXilinxFpga(node, bitfile_path);
 }

@@ -68,7 +68,7 @@ class NSWConfig {
     ptree getConf();
 
     //! Substitute the configuration ptree
-    void substituteConf(ptree tree);
+    void substituteConf(const ptree& tree);
 
     void unconfigureRc();
 
@@ -81,7 +81,7 @@ class NSWConfig {
 
     //! Configure all front ends in m_frontends
     void configureFEBs();
-    void configureFEB(std::string name);
+    void configureFEB(const std::string& name);
 
     //! Count how many threads are running
     size_t active_threads();
@@ -89,7 +89,7 @@ class NSWConfig {
 
     //! Configure all ADDCs in m_addcs
     void configureADDCs();
-    void configureADDC(std::string name);
+    void configureADDC(const std::string& name);
     void alignADDCsToTP();
 
     //! Configure all Routers, Pad Triggers, and Trigger Processors
