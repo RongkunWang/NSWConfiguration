@@ -22,7 +22,7 @@ class RouterConfig: public SCAConfig {
 
     bool CrashOnClkReadyFailure() const;
     bool CrashOnConfigFailure() const;
-    void dump();
+    void dump() const;
 
     uint8_t id() const;
     uint8_t id_sector() const;

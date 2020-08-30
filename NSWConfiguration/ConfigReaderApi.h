@@ -48,17 +48,19 @@ class ConfigReaderApi {
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
   /// \param common ptree that is fully populated with all fields required by I2cMasterConfig
   /// \param specific ptree that is partially populated.
-  virtual void mergeI2cMasterTree(ptree & specific, ptree & common);
+  virtual void mergeI2cMasterTree(ptree & specific, ptree & common) const;
 
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
   /// \param common ptree that is fully populated with all fields required by VMMConfig
   /// \param specific ptree that is partially populated.
-  virtual void mergeVMMTree(ptree & specific, ptree & common);
+  virtual void mergeVMMTree(ptree & specific, ptree & common) const;
 
  protected:
   ptree m_config;  /// Ptree that holds all configuration
 
  public:
+  // Problematic (yzach): this triggers reading from file in to m_api's m_config,
+  // but but read(const std::string&) doesn't.
   /// Read the whole config db and dump it in the m_config tree
   virtual ptree & read() = 0;
 
@@ -80,30 +82,30 @@ class ConfigReaderApi {
   /// Read configuration of front end, specifying number of vmm and tds in the FE
   virtual ptree readFEB(
       const std::string& element, size_t nvmm, size_t ntds,
-      size_t vmm_start = 0, size_t tds_start = 0);
+      size_t vmm_start = 0, size_t tds_start = 0) const;
 
-  ptree readMMFE8(const std::string& element) {
+  ptree readMMFE8(const std::string& element) const {
     return readFEB(element, 8, 0);
   }
 
-  ptree readPFEB(const std::string& element) {
+  ptree readPFEB(const std::string& element) const {
     return readFEB(element, 3, 1);
   }
 
-  ptree readSFEB(const std::string& element, int nTDS) {
+  ptree readSFEB(const std::string& element, int nTDS) const {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, nTDS);
   }
 
-  ptree readSFEB6(const std::string& element) {
+  ptree readSFEB6(const std::string& element) const {
     // return readFEB(element, 8, 4);
     return readFEB(element, 8, 4, 2, 1);
   }
 
-  virtual ptree readADDC(const std::string& element, size_t nart);
-  virtual ptree readPadTriggerSCA(const std::string& element);
-  virtual ptree readRouter(const std::string& element);
-  virtual ptree readTP(const std::string& element);
+  virtual ptree readADDC(const std::string& element, size_t nart) const;
+  virtual ptree readPadTriggerSCA(const std::string& element) const;
+  virtual ptree readRouter(const std::string& element) const;
+  virtual ptree readTP(const std::string& element) const;
   
   virtual ~ConfigReaderApi() {}
 };

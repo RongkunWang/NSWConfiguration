@@ -22,7 +22,7 @@ std::vector<uint8_t> nsw::VMMConfig::getByteVector() const {
     return nsw::stringToByteVector(m_bitstring);
 }
 
-unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) {
+unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) const {
     if (!codec.globalRegisterExists(register_name)) {
         std::string temp = register_name;
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
@@ -32,7 +32,7 @@ unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) {
     return m_config.get<unsigned>(register_name);
 }
 
-unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& register_name, size_t channel) {
+unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const {
     auto channelreg = codec.buildChannelRegisterMap(m_config);
     if (!codec.channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
@@ -47,7 +47,7 @@ unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& registe
     return channelreg[register_name][channel];
 }
 
-std::vector<unsigned> nsw::VMMConfig::getChannelRegisterAllChannels(std::string register_name) {
+std::vector<unsigned> nsw::VMMConfig::getChannelRegisterAllChannels(std::string register_name) const {
     auto channelreg = codec.buildChannelRegisterMap(m_config);
     if (!codec.channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";

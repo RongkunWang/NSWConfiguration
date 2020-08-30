@@ -53,7 +53,7 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
     }
 }
 
-i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) {
+i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) const {
     i2c::AddressBitstreamMap bitstreams;
     for (auto e : m_addr_reg) {
         auto address = e.first;
@@ -108,7 +108,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) {
     return bitstreams;
 }
 
-void nsw::I2cMasterConfig::dump() {
+void nsw::I2cMasterConfig::dump() const {
     ERS_LOG("Dumping Config for: " << m_name);
     for (auto ab : m_address_bitstream) {
         auto address = ab.first;
@@ -120,24 +120,24 @@ void nsw::I2cMasterConfig::dump() {
     }
 }
 
-uint32_t nsw::I2cMasterConfig::getRegisterValue(const std::string& address, const std::string& register_name) {
+uint32_t nsw::I2cMasterConfig::getRegisterValue(const std::string& address, const std::string& register_name) const {
     if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
         std::string temp = address;
         nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
         ers::error(issue);
         throw issue;
     }
-    if (m_codec.m_addr_reg_pos[address].find(register_name) == m_codec.m_addr_reg_pos[address].end()) {
+    if (m_codec.m_addr_reg_pos.at(address).find(register_name) == m_codec.m_addr_reg_pos.at(address).end()) {
         std::string temp = address;
         nsw::NoSuchI2cRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
         throw issue;
     }
-    auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
-    auto reg_size = m_codec.m_addr_reg_size[address][register_name];
+    auto reg_pos = m_codec.m_addr_reg_pos.at(address).at(register_name);
+    auto reg_size = m_codec.m_addr_reg_size.at(address).at(register_name);
 
     // Find corresponding string of bits from the bitstream and convert it to long
-    auto tmp = m_address_bitstream[address].substr(reg_pos, reg_size);
+    auto tmp = m_address_bitstream.at(address).substr(reg_pos, reg_size);
     return std::stoul(tmp, nullptr, 2);
 }
 
@@ -165,7 +165,7 @@ void nsw::I2cMasterConfig::setRegisterValue(const std::string& address, const st
     m_address_bitstream[address].replace(reg_pos, reg_size, bitstring);
 }
 
-void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::vector<uint8_t>& vec) {
+void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::vector<uint8_t>& vec) const {
     if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
         nsw::NoSuchI2cAddress issue(ERS_HERE, address.c_str());
         ers::error(issue);
@@ -182,17 +182,29 @@ void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::v
 
     std::cout << address << std::endl;
     auto bitstring = vectorToBitString(vec);
-    for (auto reg : m_codec.m_addr_reg_size[address]) {
+    for (auto reg : m_codec.m_addr_reg_size.at(address)) {
         auto register_name = reg.first;
         auto reg_size = reg.second;
-        auto reg_pos = m_codec.m_addr_reg_pos[address][register_name];
+        auto reg_pos = m_codec.m_addr_reg_pos.at(address).at(register_name);
         auto tmp = bitstring.substr(reg_pos, reg_size);
 
         std::cout << " - " << register_name  << " : " <<  std::stoul(tmp, nullptr, 2) << std::endl;
     }
 }
 
-std::vector<std::string> nsw::I2cMasterCodec::getAddresses() {
+size_t nsw::I2cMasterCodec::getTotalSize(const std::string& address) const {
+    size_t size{ 0 }; 
+    try {
+       size = m_addr_size.at(address);
+    } catch (const std::exception& ex) {
+        nsw::NoSuchI2cAddress issue(ERS_HERE, address.c_str());
+        ers::error(issue);
+        throw issue;
+    }
+    return size;
+}
+
+std::vector<std::string> nsw::I2cMasterCodec::getAddresses() const {
     std::vector<std::string> addresses;
     for (auto e : m_addr_reg) {
         addresses.push_back(e.first);

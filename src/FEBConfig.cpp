@@ -29,7 +29,7 @@ nsw::FEBConfig::FEBConfig(const ptree& config):
     }
 }
 
-void nsw::FEBConfig::dump() {
+void nsw::FEBConfig::dump() const {
     m_roc_analog.dump();
     m_roc_digital.dump();
     std::cout << "Number of TDS: " << m_tdss.size() << std::endl;

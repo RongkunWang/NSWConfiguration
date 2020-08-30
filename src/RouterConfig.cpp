@@ -80,7 +80,7 @@ void nsw::RouterConfig::id_crash() const {
   throw std::runtime_error(msg);
 }
 
-void nsw::RouterConfig::dump() {
+void nsw::RouterConfig::dump() const {
     // std::cout << std::endl;
 }
 

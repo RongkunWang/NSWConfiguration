@@ -48,11 +48,11 @@ class VMMConfig {
     std::string getBitString() const {return m_bitstring;}  /// return the string of bits
 
     void setName(std::string str) {name = std::move(str);}
-    std::string getName() {return name;}
+    std::string getName() const {return name;}
 
-    unsigned getGlobalRegister(const std::string& register_name);
-    unsigned getChannelRegisterOneChannel(const std::string& register_name, size_t channel);
-    std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name);
+    unsigned getGlobalRegister(const std::string& register_name) const;
+    unsigned getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const;
+    std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name) const;
 
     void setGlobalRegister(const std::string& register_name, unsigned value);
     void setChannelRegisterAllChannels(const std::string& register_name, unsigned value);

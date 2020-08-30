@@ -124,7 +124,7 @@ nsw::VMMCodec& nsw::VMMCodec::Instance() {
     return c;
 }
 
-bool nsw::VMMCodec::globalRegisterExists(const std::string& register_name) {
+bool nsw::VMMCodec::globalRegisterExists(const std::string& register_name) const {
     for (auto name_size : m_global_name_size0) {
         if (register_name == name_size.first) {
             return true;
@@ -138,7 +138,7 @@ bool nsw::VMMCodec::globalRegisterExists(const std::string& register_name) {
     return false;
 }
 
-bool nsw::VMMCodec::channelRegisterExists(const std::string& register_name) {
+bool nsw::VMMCodec::channelRegisterExists(const std::string& register_name) const {
     for (auto name_size : m_channel_name_size) {
         if (register_name == name_size.first) {
             return true;
@@ -147,15 +147,15 @@ bool nsw::VMMCodec::channelRegisterExists(const std::string& register_name) {
     return false;
 }
 
-std::string nsw::VMMCodec::buildGlobalConfig0(const ptree& config) {
+std::string nsw::VMMCodec::buildGlobalConfig0(const ptree& config) const {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global0);
 }
 
-std::string nsw::VMMCodec::buildGlobalConfig1(const ptree& config) {
+std::string nsw::VMMCodec::buildGlobalConfig1(const ptree& config) const {
     return buildGlobalConfig(config, nsw::GlobalRegisters::global1);
 }
 
-std::string nsw::VMMCodec::buildGlobalConfig(const ptree& config, nsw::GlobalRegisters type) {
+std::string nsw::VMMCodec::buildGlobalConfig(const ptree& config, nsw::GlobalRegisters type) const {
     std::vector<NameSizeType> vname_size;
     if (type == nsw::GlobalRegisters::global0) {
         vname_size = m_global_name_size0;
@@ -205,7 +205,7 @@ std::string nsw::VMMCodec::buildGlobalConfig(const ptree& config, nsw::GlobalReg
     return bitstr;
 }
 
-std::string nsw::VMMCodec::buildChannelConfig(const ptree& config) {
+std::string nsw::VMMCodec::buildChannelConfig(const ptree& config) const {
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
 
     auto ch_reg_map = buildChannelRegisterMap(config);
@@ -236,11 +236,11 @@ std::string nsw::VMMCodec::buildChannelConfig(const ptree& config) {
     return bitstr;
 }
 
-std::string nsw::VMMCodec::buildConfig(const ptree& config) {
+std::string nsw::VMMCodec::buildConfig(const ptree& config) const {
     return buildGlobalConfig1(config) + buildChannelConfig(config) + buildGlobalConfig0(config);
 }
 
-std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegisterMap(ptree config) {
+std::map<std::string, std::vector<unsigned>> nsw::VMMCodec::buildChannelRegisterMap(ptree config) const {
     auto constexpr Nch = nsw::VMMCodec::NCHANNELS;
     std::map<std::string, std::vector<unsigned>> result;
 

@@ -42,12 +42,12 @@ nsw::OpcClient::~OpcClient() {
   m_session->disconnect(sessset, OpcUa_True);
 }
 
-void nsw::OpcClient::writeSpiSlave(const std::string& node, const std::vector<uint8_t>& cdata) {
+void nsw::OpcClient::writeSpiSlave(const std::string& node, const std::vector<uint8_t>& cdata) const {
     auto data = cdata.data();  // get pointer to array
     writeSpiSlaveRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) {
+void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) const {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
@@ -56,20 +56,20 @@ void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* da
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
-    SUCCESS    = 0;
-    THIS_RETRY = 0;
-    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+    bool success{ false };
+    size_t retry{ 0 };
+    while (!success && retry < MAX_RETRY) {
         try {
             ss.writeSlave(bs);
-            SUCCESS = 1;
+            success = true;
         } catch (const std::exception& e) {
-            ERS_LOG("writeSpiSlaveRaw " << THIS_RETRY << " failed. " << e.what()
+            ERS_LOG("writeSpiSlaveRaw " << retry << " failed. " << e.what()
                     << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
-            THIS_RETRY++;
+            retry++;
             sleep(1);
         }
     }
-    if (!SUCCESS) {
+    if (!success) {
         nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "writeSpiSlaveRaw failed");
         ers::warning(issue);
         throw issue;
@@ -78,7 +78,7 @@ void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* da
 
 
 uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, unsigned int sda,
-                                    uint8_t registerAddress, unsigned int i2cDelay) {
+                                    uint8_t registerAddress, unsigned int i2cDelay) const {
     UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
 
     ioBatch.addSetPins( { { scl, true }, { sda, true } } );
@@ -161,7 +161,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 }
 
 
-std::vector<uint8_t> nsw::OpcClient::readSpiSlave(const std::string& node, size_t number_of_chunks) {
+std::vector<uint8_t> nsw::OpcClient::readSpiSlave(const std::string& node, size_t number_of_chunks) const {
     UaoClientForOpcUaSca::SpiSlave ss(m_session.get(), UaNodeId(node.c_str(), 2));
 
     try {
@@ -180,12 +180,12 @@ std::vector<uint8_t> nsw::OpcClient::readSpiSlave(const std::string& node, size_
     }
 }
 
-void nsw::OpcClient::writeI2c(const std::string& node, const std::vector<uint8_t>& cdata) {
+void nsw::OpcClient::writeI2c(const std::string& node, const std::vector<uint8_t>& cdata) const {
     auto data = cdata.data();  // get pointer to array
     writeI2cRaw(node, data, cdata.size());
 }
 
-void nsw::OpcClient::writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) {
+void nsw::OpcClient::writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes)  const {
     UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     UaByteString bs;
@@ -194,28 +194,28 @@ void nsw::OpcClient::writeI2cRaw(const std::string& node, const uint8_t* data, s
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
-    SUCCESS    = 0;
-    THIS_RETRY = 0;
-    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+    bool success{ false };
+    size_t retry{ 0 };
+    while (!success && retry < MAX_RETRY) {
         try {
             i2cnode.writeSlave(bs);
-            SUCCESS = 1;
+            success = true;
         } 
         catch (const std::exception& e) {
-            ERS_LOG("writeI2cRaw " << THIS_RETRY << " failed. " << e.what() 
+            ERS_LOG("writeI2cRaw " << retry << " failed. " << e.what() 
                     << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
-            THIS_RETRY++;
+            retry++;
             sleep(1);
         }
     }
-    if (!SUCCESS) {
+    if (!success) {
         nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "writeI2c failed");
         ers::warning(issue);
         throw issue;
     }
 }
 
-void nsw::OpcClient::writeGPIO(const std::string& node, bool data) {
+void nsw::OpcClient::writeGPIO(const std::string& node, bool data) const {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
@@ -230,7 +230,7 @@ void nsw::OpcClient::writeGPIO(const std::string& node, bool data) {
     }
 }
 
-bool nsw::OpcClient::readGPIO(const std::string& node) {
+bool nsw::OpcClient::readGPIO(const std::string& node) const {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     bool value = false;
 
@@ -244,7 +244,7 @@ bool nsw::OpcClient::readGPIO(const std::string& node) {
     return value;
 }
 
-std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t number_of_bytes) {
+std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t number_of_bytes) const {
     UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
@@ -263,32 +263,32 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t num
     return result;
 }
 
-float nsw::OpcClient::readAnalogInput(const std::string& node) {
+float nsw::OpcClient::readAnalogInput(const std::string& node) const {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
     return ainode.readValue();
 }
 
-std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) {
+std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<short unsigned int> values;
 
-    SUCCESS    = 0;
-    THIS_RETRY = 0;
-    while (!SUCCESS && THIS_RETRY < MAX_RETRY) {
+    bool success{ false };
+    size_t retry{ 0 };
+    while (!success && retry < MAX_RETRY) {
         try {
             ainode.getConsecutiveRawSamples(n_samples, values);
-            SUCCESS = 1;
+            success = true;
         }
         catch (const std::exception& e) {
             values.clear();
-            ERS_LOG("readAnalogInputConsecutiveSamples " << THIS_RETRY << " failed. " << e.what() 
+            ERS_LOG("readAnalogInputConsecutiveSamples " << retry << " failed. " << e.what() 
                     << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
-            THIS_RETRY++;
+            retry++;
             sleep(1);
         }
     }
-    if (!SUCCESS) {
+    if (!success) {
         nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "readAnalogInputConsecutiveSamples failed");
         ers::warning(issue);
         throw issue;
@@ -296,22 +296,22 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     return values;
 }
 
-int nsw::OpcClient::readScaID(const std::string& node) {
+int nsw::OpcClient::readScaID(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readId();
 }
 
-std::string nsw::OpcClient::readScaAddress(const std::string& node) {
+std::string nsw::OpcClient::readScaAddress(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readAddress().toUtf8();
 }
 
-bool nsw::OpcClient::readScaOnline(const std::string& node) {
+bool nsw::OpcClient::readScaOnline(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
     return scanode.readOnline();
 }
 
-void nsw::OpcClient::writeXilinxFpga(std::string node, std::string bitfile_path) {
+void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string& bitfile_path) const {
     UaoClientForOpcUaSca::XilinxFpga fpga(m_session.get(), UaNodeId(node.c_str(), 2));
 
     // Read file content and convert to UaByteString

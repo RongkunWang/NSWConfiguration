@@ -47,7 +47,7 @@ class FEBConfig: public SCAConfig {
     explicit FEBConfig(const ptree& config);
     ~FEBConfig() {}
 
-    void dump();
+    void dump() const;
 
     VMMConfig & getVmm(size_t i) {return m_vmms[i];}
     const std::vector<VMMConfig> & getVmms() const {return m_vmms;}
