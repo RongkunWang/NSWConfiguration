@@ -5,6 +5,7 @@
 #include <utility>
 #include <regex>
 #include <set>
+#include <bitset>
 
 #include "boost/foreach.hpp"
 

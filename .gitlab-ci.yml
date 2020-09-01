@@ -80,7 +80,7 @@ build-test-next:
     except:
         - dev
     variables:
-        TDAQ_RELEASE: tdaq-09-00-00
+        TDAQ_RELEASE: tdaq-09-01-00
     <<: *build_job
     allow_failure: true
 
@@ -114,7 +114,7 @@ build-test-next-dev:
     only:
         - dev
     variables:
-        TDAQ_RELEASE: tdaq-09-00-00
+        TDAQ_RELEASE: tdaq-09-01-00
         NCORES: 1
     <<: *build_job
     allow_failure: true
