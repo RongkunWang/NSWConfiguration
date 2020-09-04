@@ -967,15 +967,17 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
     std::cout << std::setw(0);
 
     // Set ID
-    auto scaid = obj.id();
+    auto scaid = (uint)(obj.id());
     auto id_sector_str = nsw::bitString((uint)(obj.id_sector()), 4);
     auto id_layer_str  = nsw::bitString((uint)(obj.id_layer()),  3);
     auto id_endcap_str = nsw::bitString((uint)(obj.id_endcap()), 1);
     std::cout << sca_addr << ": ID (sector) = 0b" << id_sector_str << std::endl;
     std::cout << sca_addr << ": ID (layer)  = 0b" << id_layer_str  << std::endl;
     std::cout << sca_addr << ": ID (endcap) = 0b" << id_endcap_str << std::endl;
-    std::cout << sca_addr << ": -> ID = 0b" << id_sector_str << id_layer_str << id_endcap_str << std::endl;
-    std::cout << sca_addr << ": -> ID = " << (uint)(scaid) << std::endl;
+    std::cout << sca_addr << ": -> ID";
+    std::cout << " = 0b" << id_sector_str << id_layer_str << id_endcap_str;
+    std::cout << " = 0x" << std::hex << scaid << std::dec;
+    std::cout << " = "   << scaid << std::endl;
     for (int bit = 0; bit < 8; bit++) {
       bool this_bit = ((scaid >> bit) & 0b1);
       auto gpio = sca_addr + ".gpio.routerId" + std::to_string(bit);
