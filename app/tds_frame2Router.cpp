@@ -11,7 +11,7 @@
 size_t NTDS = 4;
 namespace po = boost::program_options;
 std::set<std::string> split(std::string str);
-bool setRegisterValue(nsw::FEBConfig, std::set<std::string> tds_names, bool enable, bool dry);
+bool setRegisterValue(nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry);
 
 int main(int argc, const char *argv[]) {
 
@@ -73,7 +73,7 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl;
 }
 
-bool setRegisterValue(nsw::FEBConfig feb, std::set<std::string> tds_names, bool enable, bool dry) {
+bool setRegisterValue(nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry) {
   auto cs = std::make_unique<nsw::ConfigSender>();
   auto opc_ip = feb.getOpcServerIp();
   auto sca_address = feb.getAddress();
