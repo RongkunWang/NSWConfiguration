@@ -11,19 +11,14 @@
 size_t NTDS = 4;
 namespace po = boost::program_options;
 std::set<std::string> split(std::string str);
-bool setRegisterValue(nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry);
+bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry);
 
 int main(int argc, const char *argv[]) {
-
   // user arguments
   std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
   std::string vs_filename = config_files + "config_json/VS/VS_sFEB_frame2Router.json";
-  std::string config;
-  std::string sfeb_name;
-  std::string tds_name;
-  bool frame2Router_enable;
-  bool frame2Router_disable;
-  bool dry;
+  std::string config, sfeb_name, tds_name;
+  bool frame2Router_enable, frame2Router_disable, dry;
   po::options_description desc(std::string("TDS frame2Router script"));
   desc.add_options()
       ("help,h", "produce help message")
@@ -41,31 +36,34 @@ int main(int argc, const char *argv[]) {
   frame2Router_disable = vm["disable"].as<bool>();
   dry                  = vm["dry"]    .as<bool>();
   if (vm.count("help")) {
-      std::cout << desc << "\n";
+      std::cout << desc << std::endl;;
       return 1;
-  }    
+  }
 
   // check user arguments
-  if (!frame2Router_enable && !frame2Router_disable)
-      throw std::runtime_error("Please choose either --enable or --disable");
-  if (frame2Router_enable && frame2Router_disable)
-      throw std::runtime_error("--enable and --disable cannot both be chosen");
+  if (!frame2Router_enable && !frame2Router_disable) {
+      std::cout << "Error: Please choose either --enable or --disable" << std::endl;
+      return 1;
+  } else if (frame2Router_enable && frame2Router_disable) {
+      std::cout << "Error: --enable and --disable cannot both be chosen" << std::endl;
+      return 1;
+  }
 
   // make sFEB objects and TDS strings
   auto sfeb6s = nsw::ConfigReader::makeObjects<nsw::FEBConfig>("json://" + config, "SFEB6", sfeb_name);
   auto sfeb8s = nsw::ConfigReader::makeObjects<nsw::FEBConfig>("json://" + config, "SFEB8", sfeb_name);
   auto tds_names = split(tds_name);
   std::cout << "Adding:" << std::endl;
-  for (auto & obj: tds_names)
+  for (auto & obj : tds_names)
       std::cout << " " << obj << std::endl;
 
   // send the TDS config commands
   std::cout << std::endl;
   std::cout << "Setting registers in the TDS:" << std::endl;
   std::cout << std::endl;
-  for (auto & feb: sfeb6s)
+  for (auto & feb : sfeb6s)
     setRegisterValue(feb, tds_names, frame2Router_enable, dry);
-  for (auto & feb: sfeb8s)
+  for (auto & feb : sfeb8s)
     setRegisterValue(feb, tds_names, frame2Router_enable, dry);
 
   std::cout << std::endl;
@@ -73,13 +71,13 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl;
 }
 
-bool setRegisterValue(nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry) {
+bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names, bool enable, bool dry) {
   auto cs = std::make_unique<nsw::ConfigSender>();
   auto opc_ip = feb.getOpcServerIp();
   auto sca_address = feb.getAddress();
   std::string subreg = "test_frame2Router_enable";
-  for (auto & tds : feb.getTdss()) {
-    for (auto name: tds_names) {
+  for (auto tds : feb.getTdss()) {
+    for (auto name : tds_names) {
       if (tds.getName() != name)
         continue;
       std::cout << " " << sca_address
