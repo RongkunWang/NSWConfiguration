@@ -19,6 +19,7 @@ int main(int argc, const char *argv[])
     std::string config_filename;
     std::string board_name;
     bool read_all_gpio;
+    bool no_config;
 
     po::options_description desc(std::string("Router configuration script"));
     desc.add_options()
@@ -28,11 +29,13 @@ int main(int argc, const char *argv[])
         ("name,n",        po::value<std::string>(&board_name)
          ->default_value("Router_A14_L0"), "Name of desired router (should contain router).")
         ("gpio", po::bool_switch()->default_value(false), "Option to read all GPIOs")
+        ("no_config", po::bool_switch()->default_value(false), "Option to disable config")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    read_all_gpio = vm["gpio"].as<bool>();
+    read_all_gpio = vm["gpio"]     .as<bool>();
+    no_config     = vm["no_config"].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
@@ -46,7 +49,9 @@ int main(int argc, const char *argv[])
     nsw::ConfigSender cs;
 
     // announce
-    for (auto & board: board_configs) {
+    for (auto & board : board_configs) {
+        if (no_config)
+            continue;
         std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
@@ -94,7 +99,7 @@ int main(int argc, const char *argv[])
             auto sca_addr = board.getAddress();
             for (auto pair : pairs) {
                 auto gpio_addr = sca_addr + ".gpio." + pair.first;
-                std::cout << std::left << std::setw(35) << (gpio_addr + " " + pair.second)
+                std::cout << std::left << std::setw(40) << (gpio_addr + " " + pair.second)
                           << " = " << cs.readGPIO(opc_ip, gpio_addr)
                           << std::endl;
             }
