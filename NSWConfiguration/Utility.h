@@ -70,10 +70,10 @@ std::vector<uint8_t> hexStringToByteVector(const std::string& hexstr, int length
 std::string bitstringToHexString(const std::string& bitstr);
 
 /// Converts vector of values to string of hex
-std::string vectorToHexString(const std::vector<uint8_t>& vec, bool littleEndian = false);
+std::string vectorToHexString(std::vector<uint8_t> vec, bool littleEndian = false);
 
 /// Converts vector of values to string of bits
-std::string vectorToBitString(const std::vector<uint8_t>& vec, bool littleEndian = false);
+std::string vectorToBitString(std::vector<uint8_t> vec, bool littleEndian = false);
 
 
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
@@ -90,7 +90,8 @@ std::string stripReadonly(std::string str);
 /// \param pt input ptree
 /// \param current_node Current ptree node we are at, required for recursive calls
 /// \return set of matched elements. Each element has the full path of each node
-std::set<std::string> matchRegexpInPtree(const std::string& regexp, const ptree& pt, const std::string& current_node = "");
+std::set<std::string> matchRegexpInPtree(const std::string& regexp, const ptree& pt,
+    const std::string& current_node = "");
 
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

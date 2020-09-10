@@ -35,7 +35,7 @@ class ARTConfig {
     ~ARTConfig() {}
 
     ptree getConfig() const {return m_config;}
-    void dump() {}
+    void dump() const {}
     void dump_core() const { core.dump(); }
     void dump_ps()   const { ps  .dump(); }
 

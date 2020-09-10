@@ -35,7 +35,8 @@ class TPConfig: public SCAConfig {
     explicit TPConfig(const ptree& config);
     ~TPConfig();
 
-    uint32_t getRegisterValue(const std::string& master, const std::string& slave, const std::string& register_name = "register") const;
+    uint32_t getRegisterValue(const std::string& master, const std::string& slave,
+        const std::string& register_name = "register") const;
     void setRegisterValue(const std::string& master, const std::string& slave, uint32_t value,
         const std::string& register_name = "register");
     void dump() const;

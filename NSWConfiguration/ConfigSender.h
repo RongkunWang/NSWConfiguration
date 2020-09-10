@@ -81,11 +81,12 @@ class ConfigSender {
     void sendTpConfig(nsw::TPConfig& tp);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
-    void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode, const nsw::I2cMasterConfig& cfg);
+    void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,
+        const nsw::I2cMasterConfig& cfg);
 
     /// Write only one of the register addresses in I2cMaster
-    void sendI2cMasterSingle(const std::string& opcserver_ipport, const std::string& topnode, const nsw::I2cMasterConfig& cfg,
-                             const std::string& reg_address);
+    void sendI2cMasterSingle(const std::string& opcserver_ipport, const std::string& topnode,
+        const nsw::I2cMasterConfig& cfg, const std::string& reg_address);
 
     /// Read back ROC
     /// \param opcserver_ipport OPCServer IP and port
@@ -95,8 +96,8 @@ class ConfigSender {
     /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
     /// \param delay I2c delay value, 2 corresponds to 100kHz
     /// \return result 8 bit register value
-    uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node, unsigned int sclLine, unsigned int sdaLine, 
-                                  uint8_t registerAddress, unsigned int delay );
+    uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node,
+        unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay);
                                   
     /// Low level Spi send function
     void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t *data, size_t data_size);
@@ -119,7 +120,8 @@ class ConfigSender {
     bool readGPIO(const std::string& opcserver_ipport, const std::string& node);
 
     // Read back I2c register as vector
-    std::vector<uint8_t> readI2c(const std::string& opcserver_ipport, const std::string& node, size_t number_of_bytes = 1);
+    std::vector<uint8_t> readI2c(const std::string& opcserver_ipport, const std::string& node,
+        size_t number_of_bytes = 1);
 
     // Read back I2c register as vector for ADDC
     std::vector<uint8_t> readI2cAtAddress(const std::string& opcserver_ipport, const std::string& node,

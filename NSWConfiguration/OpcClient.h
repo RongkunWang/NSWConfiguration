@@ -67,7 +67,7 @@ class OpcClient {
 
     OpcClient(const OpcClient&) = delete;
 
-   static constexpr size_t MAX_RETRY  = 5;
+    static constexpr size_t MAX_RETRY  = 5;
 
     // vector may not be the best option...
 
@@ -83,7 +83,7 @@ class OpcClient {
     void writeSpiSlave(const std::string& node, const std::vector<uint8_t>& data) const;
     void writeSpiSlaveRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) const;
 
-    void writeI2c(const std::string& node, const std::vector<uint8_t>& data) const ;
+    void writeI2c(const std::string& node, const std::vector<uint8_t>& data) const;
     void writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) const;
 
     void writeGPIO(const std::string& node, bool value) const;

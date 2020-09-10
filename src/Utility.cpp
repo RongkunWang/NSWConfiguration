@@ -99,40 +99,24 @@ std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int l
     return vecFront;
 }
 
-std::string nsw::vectorToHexString(const std::vector<uint8_t>& vec, bool littleEndian) {
+std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
-    if (!littleEndian) {
-        // Go 8 bit at a time and convert it to hex
-        for (auto byte : vec) {
-            hexstream << std::setw(2) << static_cast<uint32_t>(byte);
-        }
-        return hexstream.str();
-    }
-
-    auto vec_copy = vec;
-    std::reverse(vec_copy.begin(), vec_copy.end());
-    for (auto byte : vec_copy) {
+    if (littleEndian) std::reverse(vec.begin(), vec.end());
+    // Go 8 bit at a time and convert it to hex
+    for (auto byte : vec) {
         hexstream << std::setw(2) << static_cast<uint32_t>(byte);
     }
     return hexstream.str();
 }
 
-std::string nsw::vectorToBitString(const std::vector<uint8_t>& vec, bool littleEndian) {
+std::string nsw::vectorToBitString(std::vector<uint8_t> vec, bool littleEndian) {
     std::string bitstring;
-    if (!littleEndian) {
-        // Go 8 bit at a time and convert it to binary
-        for (auto byte : vec) {
-            std::bitset<8> bs(byte);
-            bitstring = bitstring + bs.to_string();
-        }
-        return bitstring;
-    }
-    auto vec_copy = vec;
-    std::reverse(vec_copy.begin(), vec_copy.end());
-    for (auto byte : vec_copy) {
+    if (littleEndian) std::reverse(vec.begin(), vec.end());
+    // Go 8 bit at a time and convert it to binary
+    for (auto byte : vec) {
         std::bitset<8> bs(byte);
-        bitstring = bitstring + bs.to_string();
+        bitstring = bitstring +  bs.to_string();
     }
     return bitstring;
 }
@@ -207,7 +191,8 @@ std::string nsw::stripReadonly(std::string str) {
     return str;
 }
 
-std::set<std::string> nsw::matchRegexpInPtree(const std::string& regexp, const ptree& pt, const std::string& current_node) {
+std::set<std::string> nsw::matchRegexpInPtree(const std::string& regexp, const ptree& pt,
+    const std::string& current_node) {
     std::set<std::string> names;
     std::regex re(regexp);
 

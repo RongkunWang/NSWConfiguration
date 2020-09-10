@@ -141,7 +141,8 @@ uint32_t nsw::I2cMasterConfig::getRegisterValue(const std::string& address, cons
     return std::stoul(tmp, nullptr, 2);
 }
 
-void nsw::I2cMasterConfig::setRegisterValue(const std::string& address, const std::string& register_name, uint32_t value) {
+void nsw::I2cMasterConfig::setRegisterValue(const std::string& address, const std::string& register_name,
+    uint32_t value) {
     if (m_codec.m_addr_reg_pos.find(address) == m_codec.m_addr_reg_pos.end()) {
         std::string temp = address;
         nsw::NoSuchI2cAddress issue(ERS_HERE, temp.c_str());
@@ -193,7 +194,7 @@ void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::v
 }
 
 size_t nsw::I2cMasterCodec::getTotalSize(const std::string& address) const {
-    size_t size{ 0 }; 
+    size_t size{ 0 };
     try {
        size = m_addr_size.at(address);
     } catch (const std::exception& ex) {

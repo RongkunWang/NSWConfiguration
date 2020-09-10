@@ -54,7 +54,8 @@ class ConfigReader {
 
   //! Get vector of objects from config file and element type
   template <class T>
-  static std::vector<T> makeObjects(const std::string& cfg, const std::string& element_type, const std::string& name = "") {
+  static std::vector<T> makeObjects(const std::string& cfg, const std::string& element_type,
+    const std::string& name = "") {
     // create config reader
     nsw::ConfigReader reader1(cfg);
     try {

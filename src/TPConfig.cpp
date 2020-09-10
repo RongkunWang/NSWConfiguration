@@ -28,14 +28,16 @@ m_numMasters(NUM_REGISTER_FILES) {
     }
 }
 
-void nsw::TPConfig::setRegisterValue(const std::string& master, const std::string& slave, uint32_t value, const std::string& register_name) {
+void nsw::TPConfig::setRegisterValue(const std::string& master, const std::string& slave, uint32_t value,
+    const std::string& register_name) {
     // set value of a register which salve of is on a register file (master)
     m_registerFiles[master]->setRegisterValue(slave, register_name, value);
 
     return;
 }
 
-uint32_t nsw::TPConfig::getRegisterValue(const std::string& master, const std::string& slave, const std::string& register_name) const {
+uint32_t nsw::TPConfig::getRegisterValue(const std::string& master, const std::string& slave,
+    const std::string& register_name) const {
     // get value of a register which salve of is on a register file (master)
     if (m_registerFiles.find(master) == m_registerFiles.end()) {
         // not sure if this is the right error.
@@ -48,10 +50,13 @@ uint32_t nsw::TPConfig::getRegisterValue(const std::string& master, const std::s
 
 void nsw::TPConfig::dump() const {
     for (int i = 0; i < m_numMasters; i++) {
-        if (m_registerFiles.find(registerFilesNamesArr[i]) == m_registerFiles.end() || !m_registerFiles.at(registerFilesNamesArr[i]))
+        if (m_registerFiles.find(registerFilesNamesArr[i]) == m_registerFiles.end() ||
+            !m_registerFiles.at(registerFilesNamesArr[i])) {
             ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i]);
-        else
+        }
+        else {
             m_registerFiles.at(registerFilesNamesArr[i])->dump();
+        }
     }
     boost::property_tree::write_json(std::cout, m_config);
 

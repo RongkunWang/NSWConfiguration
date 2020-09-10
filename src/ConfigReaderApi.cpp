@@ -12,6 +12,61 @@
 #include "NSWConfiguration/ConfigReaderApi.h"
 #include "NSWConfiguration/Utility.h"
 
+ptree ConfigReaderApi::read(const std::string& element) {
+    if (nsw::getElementType(element) == "MMFE8") {
+        return readMMFE8(element);
+    } else if (nsw::getElementType(element) == "PFEB") {
+        return readPFEB(element);
+    } else if (nsw::getElementType(element) == "SFEB_old") {
+        return readSFEB(element, 3);
+    } else if (nsw::getElementType(element) == "SFEB") {
+        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
+        return readSFEB(element, 4);
+    } else if (nsw::getElementType(element) == "SFEB8") {
+        return readSFEB(element, 4);
+    } else if (nsw::getElementType(element) == "SFEB6") {
+        return readSFEB6(element);
+    } else if (nsw::getElementType(element) == "TP") {
+        return readTP(element);
+    } else if (nsw::getElementType(element) == "ADDC") {
+        return readADDC(element, 2);
+    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
+        return readPadTriggerSCA(element);
+    } else if (nsw::getElementType(element) == "Router") {
+        return readRouter(element);
+    }
+}
+
+std::set<std::string> ConfigReaderApi::getAllElementNames() {
+    if (m_config.empty()) {
+      read();
+    }
+
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|MMTP.*|STGCTP.*", m_config);
+}
+
+std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp) {
+    std::set<std::string> result;
+    std::regex re(regexp);
+    auto all = getAllElementNames();
+    for (auto el : all) {
+        if (std::regex_match(el, re)) {
+          result.emplace(el);
+        }
+    }
+    return result;
+}
+
+ptree ConfigReaderApi::readTP(const std::string& element) const {
+    ERS_LOG("Reading configuration for TP: " << element);
+    ptree tree = m_config.get_child(element);
+
+    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
+    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
+    // }
+
+    return tree;
+}
 
 void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) const {
     // Loop over I2c addresses within specific tree
@@ -76,52 +131,8 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) const {
     }
 }
 
-ptree ConfigReaderApi::read(const std::string& element) {
-    if (nsw::getElementType(element) == "MMFE8") {
-        return readMMFE8(element);
-    } else if (nsw::getElementType(element) == "PFEB") {
-        return readPFEB(element);
-    } else if (nsw::getElementType(element) == "SFEB_old") {
-        return readSFEB(element, 3);
-    } else if (nsw::getElementType(element) == "SFEB") {
-        ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
-        return readSFEB(element, 4);
-    } else if (nsw::getElementType(element) == "SFEB8") {
-        return readSFEB(element, 4);
-    } else if (nsw::getElementType(element) == "SFEB6") {
-        return readSFEB6(element);
-    } else if (nsw::getElementType(element) == "TP") {
-        return readTP(element);
-    } else if (nsw::getElementType(element) == "ADDC") {
-        return readADDC(element, 2);
-    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
-        return readPadTriggerSCA(element);
-    } else if (nsw::getElementType(element) == "Router") {
-        return readRouter(element);
-    }
-}
-
-std::set<std::string> ConfigReaderApi::getAllElementNames() {
-    if (m_config.empty()) {
-      read();
-    }
-
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|MMTP.*|STGCTP.*", m_config);
-}
-
-std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp) {
-    std::set<std::string> result;
-    std::regex re(regexp);
-    auto all = getAllElementNames();
-    for (auto el : all) {
-        if (std::regex_match(el, re)) {
-          result.emplace(el);
-        }
-    }
-    return result;
-}
-
-ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, size_t vmm_start, size_t tds_start) const {
+ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, size_t vmm_start,
+    size_t tds_start) const {
     ptree feb = m_config.get_child(element);
     ptree roc_common = m_config.get_child("roc_common_config");
 
@@ -241,17 +252,6 @@ ptree ConfigReaderApi::readRouter(const std::string& element) const {
     //
     ptree feb = m_config.get_child(element);
     return feb;
-}
-
-ptree ConfigReaderApi::readTP(const std::string& element) const {
-    ERS_LOG("Reading configuration for TP: " << element);
-    ptree tree = m_config.get_child(element);
-
-    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
-    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
-    // }
-
-    return tree;
 }
 
 ptree & JsonApi::read() {

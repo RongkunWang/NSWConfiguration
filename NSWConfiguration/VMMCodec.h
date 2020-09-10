@@ -64,7 +64,7 @@ class VMMCodec {
     std::string buildGlobalConfig1(const ptree& config) const;
     std::string buildChannelConfig(const ptree& config) const;
 
-   // void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
+    // void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
 
     /// Type to be used for pairs that contain: {register name, register size in bits}
     using NameSizeType = std::pair<std::string, size_t>;
