@@ -931,6 +931,7 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
     auto soft_reset = sca_addr + ".gpio.softReset";
     sendGPIO(opc_ip, soft_reset, 1); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
     sendGPIO(opc_ip, soft_reset, 0); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
+    usleep(3e6);
 
     // Read SCA IO status back: Line 6 & 8 in excel
     // (only need to match with star mark bits)
