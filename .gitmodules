@@ -1,3 +1,0 @@
-[submodule "UaoClientForOpcUaSca"]
-	path = UaoClientForOpcUaSca
-	url = https://:@gitlab.cern.ch:8443/atlas-dcs-opcua-servers/UaoClientForOpcUaSca.git
