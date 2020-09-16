@@ -88,13 +88,11 @@ int main(int argc, const char *argv[]) {
 
   // read the monitoring register
   if (read) {
-    for (auto & feb : sfeb6s) {
-      readRegisterValue(feb, tds_names, "register14", dry);
-      readRegisterValue(feb, tds_names, "register15", dry);
-    }
-    for (auto & feb : sfeb8s) {
-      readRegisterValue(feb, tds_names, "register14", dry);
-      readRegisterValue(feb, tds_names, "register15", dry);
+    for (auto & reg: {"register14", "register15"}) {
+      for (auto & feb : sfeb6s)
+        readRegisterValue(feb, tds_names, reg, dry);
+      for (auto & feb : sfeb8s)
+        readRegisterValue(feb, tds_names, reg, dry);
     }
   }
 
