@@ -31,7 +31,7 @@ int main(int argc, const char *argv[]) {
       ("config,c", po::value<std::string>(&config)->default_value(std::string(vs_filename)), "Configuration file")
       ("sfeb,s",   po::value<std::string>(&sfeb_name)->default_value(""), "Name of sFEB")
       ("tds,t",    po::value<std::string>(&tds_name)->default_value(""), "Name of TDS")
-      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Test mode to enable (bypass_trigger or test_frame2Router_enable)")
+      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Mode: bypass_trigger or test_frame2Router_enable")
       ("enable",  po::bool_switch()->default_value(false), "Enable frame2Router")
       ("disable", po::bool_switch()->default_value(false), "Disable frame2Router")
       ("read",    po::bool_switch()->default_value(false), "Read register 14")
@@ -62,7 +62,7 @@ int main(int argc, const char *argv[]) {
     }
     if (mode != "bypass_trigger" && mode != "test_frame2Router_enable") {
       std::cout << "Error: --mode must be bypass_trigger or test_frame2Router_enable" << std::endl;
-      std::cout << "You gave: " << (mode=="" ? "(empty)" : mode) << std::endl;
+      std::cout << "You gave: " << (mode == "" ? "(empty)" : mode) << std::endl;
       return 1;
     }
   }
@@ -88,7 +88,7 @@ int main(int argc, const char *argv[]) {
 
   // read the monitoring register
   if (read) {
-    for (auto & reg: {"register14", "register15"}) {
+    for (auto & reg : {"register14", "register15"}) {
       for (auto & feb : sfeb6s)
         readRegisterValue(feb, tds_names, reg, dry);
       for (auto & feb : sfeb8s)
@@ -109,7 +109,8 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl;
 }
 
-bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names, std::string subreg, bool enable, bool dry) {
+bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names,
+                      std::string subreg, bool enable, bool dry) {
   auto cs = std::make_unique<nsw::ConfigSender>();
   auto opc_ip = feb.getOpcServerIp();
   auto sca_address = feb.getAddress();
@@ -140,8 +141,6 @@ bool readRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_nam
       if (tds.getName() != name)
         continue;
       std::cout << sca_address << " " << tds.getName() << std::endl;
-      //std::string address_to_read("register14");
-      //std::string tds_i2c_address("register14_READONLY");
       std::string address_to_read(reg);
       std::string tds_i2c_address(reg + "_READONLY");
       auto size_in_bytes = tds.getTotalSize(tds_i2c_address) / 8;
