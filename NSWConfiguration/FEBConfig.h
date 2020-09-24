@@ -44,10 +44,10 @@ class FEBConfig: public SCAConfig {
     //! - rocPllCoreAnalog, rocCoreDigital
     //! - Multiple vmm instances named vmm0 to vmmN
     //! - Multiple tds instances named tds0 to tdsN (optional)
-    explicit FEBConfig(ptree config);
+    explicit FEBConfig(const ptree& config);
     ~FEBConfig() {}
 
-    void dump();
+    void dump() const;
 
     VMMConfig & getVmm(size_t i) {return m_vmms[i];}
     const std::vector<VMMConfig> & getVmms() const {return m_vmms;}

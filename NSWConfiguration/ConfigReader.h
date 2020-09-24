@@ -27,9 +27,9 @@ class ConfigReader {
   std::unique_ptr<ConfigReaderApi> m_api;
 
  public:
-  ConfigReader(const std::string connection_string, const std::vector<std::string> components);
-  explicit ConfigReader(const std::string connection_string);
-  explicit ConfigReader(const ptree tree);
+  ConfigReader(const std::string& connection_string, const std::vector<std::string>& components);
+  explicit ConfigReader(const std::string& connection_string);
+  explicit ConfigReader(const ptree& tree);
   ~ConfigReader();
 
   ptree readConfig() {
@@ -38,7 +38,7 @@ class ConfigReader {
     // TODO(cyildiz): if (!m_components.empty()) Get Only relevant components config
   }
 
-  ptree readConfig(std::string element_name) {
+  ptree readConfig(const std::string& element_name) {
     return m_api->read(element_name);
   }
 
@@ -48,13 +48,14 @@ class ConfigReader {
   }
 
   //! Get names of all Front end elements that match with regular expression
-  std::set<std::string> getElementNames(std::string regexp) {
+  std::set<std::string> getElementNames(const std::string& regexp) {
     return m_api->getElementNames(regexp);
   }
 
   //! Get vector of objects from config file and element type
   template <class T>
-  static std::vector<T> makeObjects(std::string cfg, std::string element_type, std::string name = "") {
+  static std::vector<T> makeObjects(const std::string& cfg, const std::string& element_type,
+    const std::string& name = "") {
     // create config reader
     nsw::ConfigReader reader1(cfg);
     try {

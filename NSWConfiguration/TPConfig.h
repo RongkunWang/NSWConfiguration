@@ -32,22 +32,23 @@ class TPConfig: public SCAConfig {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit TPConfig(ptree config);
+    explicit TPConfig(const ptree& config);
     ~TPConfig();
 
-    uint32_t getRegisterValue(std::string master, std::string slave, std::string register_name = "register");
-    void setRegisterValue(std::string master, std::string slave, uint32_t value,
-        std::string register_name = "register");
-    void dump();
+    uint32_t getRegisterValue(const std::string& master, const std::string& slave,
+        const std::string& register_name = "register") const;
+    void setRegisterValue(const std::string& master, const std::string& slave, uint32_t value,
+        const std::string& register_name = "register");
+    void dump() const;
 
     std::map<std::string, I2cMasterConfig*> getI2cMastersMap() { return m_registerFiles; }
-    const uint8_t getNumMasters() { return m_numMasters; }
+    uint8_t getNumMasters() const { return m_numMasters; }
 
-    int ARTWindowCenter();
-    int ARTWindowLeft();
-    int ARTWindowRight();
-    uint32_t FiberBCOffset();
-    int GlobalInputPhase();
+    int ARTWindowCenter() const;
+    int ARTWindowLeft() const;
+    int ARTWindowRight() const;
+    uint32_t FiberBCOffset() const;
+    int GlobalInputPhase() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);

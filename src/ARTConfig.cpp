@@ -9,7 +9,7 @@
 
 using boost::property_tree::ptree;
 
-nsw::ARTConfig::ARTConfig(ptree config):
+nsw::ARTConfig::ARTConfig(const ptree& config):
     m_config(config),
     core(config.get_child(ART_CORE_NAME), ART_CORE_NAME, ART_CORE_REGISTERS),
     ps  (config.get_child(ART_PS_NAME),   ART_PS_NAME,   ART_PS_REGISTERS)
@@ -17,46 +17,46 @@ nsw::ARTConfig::ARTConfig(ptree config):
     // std::cout << "ART Constructor!" << std::endl;
 }
 
-int nsw::ARTConfig::register0_test_00() { 
+int nsw::ARTConfig::register0_test_00() const { 
     return m_config.get_child("register0").get<int>("test_00");
 }
 
-int nsw::ARTConfig::art_core_cfg_deser_flagmask() {
+int nsw::ARTConfig::art_core_cfg_deser_flagmask() const {
     return core.getRegisterValue("03", "cfg_deser_flagmask");
 }
 
-std::string nsw::ARTConfig::getOpcServerIp_TP() {
+std::string nsw::ARTConfig::getOpcServerIp_TP() const {
     return m_config.get<std::string>("OpcServerIp_TP");
 }
 
-std::string nsw::ARTConfig::getOpcNodeId_TP() {
+std::string nsw::ARTConfig::getOpcNodeId_TP() const {
     return m_config.get<std::string>("OpcNodeId_TP");
 }
 
-bool nsw::ARTConfig::failsafe() {
+bool nsw::ARTConfig::failsafe() const {
     return (bool)(m_config.get<int>("failsafe"));
 }
 
-int nsw::ARTConfig::TP_GBTxAlignmentBit() {
+int nsw::ARTConfig::TP_GBTxAlignmentBit() const {
     return m_config.get<int>("TP_GBTxAlignmentBit");
 }
 
-bool nsw::ARTConfig::TP_GBTxAlignmentSkip() {
+bool nsw::ARTConfig::TP_GBTxAlignmentSkip() const {
     return (bool)(m_config.get<int>("TP_GBTxAlignmentSkip"));
 }
 
-std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentCommonPhases() {
+std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentCommonPhases() const {
     std::vector<uint> phases = {};
-    for (auto ph : m_config.get_child("TP_GBTxAlignmentCommonPhases"))
+    for (const auto& ph : m_config.get_child("TP_GBTxAlignmentCommonPhases"))
         phases.push_back(ph.second.get_value<uint>());
     return phases;
 }
 
-std::string nsw::ARTConfig::TP_GBTxAlignmentPhase() {
+std::string nsw::ARTConfig::TP_GBTxAlignmentPhase() const {
     return m_config.get<std::string>("TP_GBTxAlignmentPhase");
 }
 
-std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentPhasesToTest() {
+std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentPhasesToTest() const {
     std::vector<uint> phases = {};
     for (auto ph: TP_GBTxAlignmentCommonPhases())
         phases.push_back(ph);
@@ -65,11 +65,11 @@ std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentPhasesToTest() {
     return phases;
 }
 
-int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() {
+int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() const {
     return m_config.get<int>("TP_GBTxAlignmentSleepTime");
 }
 
-bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
+bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     // bit of interest
     int boi = TP_GBTxAlignmentBit();
     if (boi < 0)
@@ -86,12 +86,12 @@ bool nsw::ARTConfig::IsAlignedWithTP(std::vector<uint8_t> vec) {
     return reg32 & (uint32_t)(pow(2, boi));
 }
 
-std::string nsw::ARTConfig::PhaseToString(uint phase) {
+std::string nsw::ARTConfig::PhaseToString(uint phase) const {
     std::stringstream zeropad;
     zeropad << std::hex << std::setfill('0') << std::setw(2) << phase;
     return zeropad.str();
 }
 
-bool nsw::ARTConfig::IsMyTP(std::string ServerIp, std::string NodeId){
+bool nsw::ARTConfig::IsMyTP(const std::string& ServerIp, const std::string& NodeId) const {
     return ServerIp==getOpcServerIp_TP() && NodeId==getOpcNodeId_TP();
 }

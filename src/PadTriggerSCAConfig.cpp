@@ -12,7 +12,7 @@
 
 #include "boost/property_tree/json_parser.hpp"
 
-nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(ptree config):
+nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
     SCAConfig(config)
 {
     m_UserL1AReadoutLatency = -1;
@@ -30,7 +30,7 @@ void nsw::PadTriggerSCAConfig::dump() {
     // std::cout << std::endl;
 }
 
-int nsw::PadTriggerSCAConfig::UserControlRegister() {
+int nsw::PadTriggerSCAConfig::UserControlRegister() const {
   if (UserL1AReadoutLatency() == -1 ||
       UserL1AReadoutNBCMode() == -1 ||
       UserL1AReadoutEnable()  == -1 ||
@@ -44,15 +44,15 @@ int nsw::PadTriggerSCAConfig::UserControlRegister() {
   return reg;
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutLatency() {
+int nsw::PadTriggerSCAConfig::UserL1AReadoutLatency() const {
   return (m_UserL1AReadoutLatency != -1) ? m_UserL1AReadoutLatency : m_config.get<int>("L1AReadoutLatency");
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutNBC() {
+int nsw::PadTriggerSCAConfig::UserL1AReadoutNBC() const {
   return (m_UserL1AReadoutNBC != -1) ? m_UserL1AReadoutNBC : m_config.get<int>("L1AReadoutNBC");
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutNBCMode() {
+int nsw::PadTriggerSCAConfig::UserL1AReadoutNBCMode() const {
   if (UserL1AReadoutNBC() == -1)
     return -1;
   else if (UserL1AReadoutNBC() == 1)
@@ -65,11 +65,11 @@ int nsw::PadTriggerSCAConfig::UserL1AReadoutNBCMode() {
   throw std::runtime_error(msg);
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutEnable() {
+int nsw::PadTriggerSCAConfig::UserL1AReadoutEnable() const {
   return (m_UserL1AReadoutEnable != -1) ? m_UserL1AReadoutEnable : m_config.get<int>("L1AReadoutEnable");
 }
 
-int nsw::PadTriggerSCAConfig::UserpFEBBCIDOffset() {
+int nsw::PadTriggerSCAConfig::UserpFEBBCIDOffset() const {
   return (m_UserpFEBBCIDOffset != -1) ? m_UserpFEBBCIDOffset : m_config.get<int>("pFEBBCIDOffset");
 }
 
@@ -82,7 +82,7 @@ void nsw::PadTriggerSCAConfig::SetRealControlRegister(int val) {
 }
 
 
-int nsw::PadTriggerSCAConfig::RealL1AReadoutNBC() {
+int nsw::PadTriggerSCAConfig::RealL1AReadoutNBC() const {
   if (RealL1AReadoutNBCMode() == -1)
     return -1;
   else if (RealL1AReadoutNBCMode() == 0)

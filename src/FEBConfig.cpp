@@ -5,7 +5,7 @@
 #include "NSWConfiguration/FEBConfig.h"
 
 
-nsw::FEBConfig::FEBConfig(ptree config):
+nsw::FEBConfig::FEBConfig(const ptree& config):
         SCAConfig(config),
         m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
         m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {
@@ -29,7 +29,7 @@ nsw::FEBConfig::FEBConfig(ptree config):
     }
 }
 
-void nsw::FEBConfig::dump() {
+void nsw::FEBConfig::dump() const {
     m_roc_analog.dump();
     m_roc_digital.dump();
     std::cout << "Number of TDS: " << m_tdss.size() << std::endl;

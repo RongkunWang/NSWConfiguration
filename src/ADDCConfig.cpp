@@ -4,7 +4,7 @@
 
 #include "boost/property_tree/json_parser.hpp"
 
-nsw::ADDCConfig::ADDCConfig(ptree config):
+nsw::ADDCConfig::ADDCConfig(const ptree& config):
     SCAConfig(config) {
     /// ADDC has 2 ART ASICs
     for (int i = 0; i < 2; i++) {

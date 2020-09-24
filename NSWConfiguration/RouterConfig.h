@@ -17,12 +17,12 @@ class RouterConfig: public SCAConfig {
     bool dummy;
 
  public:
-    explicit RouterConfig(ptree config);
+    explicit RouterConfig(const ptree& config);
     ~RouterConfig() {}
 
     bool CrashOnClkReadyFailure() const;
     bool CrashOnConfigFailure() const;
-    void dump();
+    void dump() const;
 
     uint8_t id() const;
     uint8_t id_sector() const;

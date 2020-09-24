@@ -17,7 +17,7 @@ ptree nsw::NSWConfig::getConf() {
   return m_reader->readConfig();
 }
 
-void nsw::NSWConfig::substituteConf(ptree tree) {
+void nsw::NSWConfig::substituteConf(const ptree& tree) {
   m_reader  = std::make_unique<nsw::ConfigReader>(tree);
 }
 
@@ -93,7 +93,7 @@ void nsw::NSWConfig::configureFEBs() {
     }
 }
 
-void nsw::NSWConfig::configureFEB(std::string name) {
+void nsw::NSWConfig::configureFEB(const std::string& name) {
     // how can we avoid this?
     auto local_sender = std::make_unique<nsw::ConfigSender>();
 
@@ -152,7 +152,7 @@ void nsw::NSWConfig::configureADDCs() {
     }
 }
 
-void nsw::NSWConfig::configureADDC(std::string name) {
+void nsw::NSWConfig::configureADDC(const std::string& name) {
     ERS_LOG("Configuring ADDC: " + name);
     if (m_addcs.count(name) == 0) {
         std::string err = "ADDC has bad name: " + name;
