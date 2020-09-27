@@ -188,8 +188,9 @@ void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::v
         auto reg_size = reg.second;
         auto reg_pos = m_codec.m_addr_reg_pos.at(address).at(register_name);
         auto tmp = bitstring.substr(reg_pos, reg_size);
-
-        std::cout << " - " << register_name  << " : " <<  std::stoul(tmp, nullptr, 2) << std::endl;
+        std::stringstream name_stream;
+        name_stream << std::setw(30) << std::left << register_name;
+        std::cout << " - " << name_stream.str()  << " : " <<  std::stoul(tmp, nullptr, 2) << std::endl;
     }
 }
 
