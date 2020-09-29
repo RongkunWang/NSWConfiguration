@@ -27,7 +27,7 @@ int main(int argc, const char *argv[])
         ("config_file,c", po::value<std::string>(&config_filename)
          ->default_value(config_files+"router.json"), "Configuration file path")
         ("name,n",        po::value<std::string>(&board_name)
-         ->default_value("Router_A14_L0"), "Name of desired router (should contain router).")
+         ->default_value(""), "Name of desired router (e.g. Router_A14_L0).")
         ("gpio", po::bool_switch()->default_value(false), "Option to read all GPIOs")
         ("no_config", po::bool_switch()->default_value(false), "Option to disable config")
         ;
