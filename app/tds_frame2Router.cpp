@@ -68,6 +68,7 @@ int main(int argc, const char *argv[]) {
   }
 
   // make sFEB objects and TDS strings
+  auto sfebNs = nsw::ConfigReader::makeObjects<nsw::FEBConfig>("json://" + config, "SFEB",  sfeb_name);
   auto sfeb6s = nsw::ConfigReader::makeObjects<nsw::FEBConfig>("json://" + config, "SFEB6", sfeb_name);
   auto sfeb8s = nsw::ConfigReader::makeObjects<nsw::FEBConfig>("json://" + config, "SFEB8", sfeb_name);
   auto tds_names = split(tds_name);
@@ -80,6 +81,8 @@ int main(int argc, const char *argv[]) {
     std::cout << std::endl;
     std::cout << "Setting registers in the TDS:" << std::endl;
     std::cout << std::endl;
+    for (auto & feb : sfebNs)
+      setRegisterValue(feb, tds_names, mode, enable, dry);
     for (auto & feb : sfeb6s)
       setRegisterValue(feb, tds_names, mode, enable, dry);
     for (auto & feb : sfeb8s)
@@ -89,6 +92,8 @@ int main(int argc, const char *argv[]) {
   // read the monitoring register
   if (read) {
     for (auto & reg : {"register14", "register15"}) {
+      for (auto & feb : sfebNs)
+        readRegisterValue(feb, tds_names, reg, dry);
       for (auto & feb : sfeb6s)
         readRegisterValue(feb, tds_names, reg, dry);
       for (auto & feb : sfeb8s)
@@ -98,6 +103,8 @@ int main(int argc, const char *argv[]) {
 
   // send a reset
   if (reset) {
+    for (auto & feb : sfebNs)
+      sendReset(feb, tds_names, dry);
     for (auto & feb : sfeb6s)
       sendReset(feb, tds_names, dry);
     for (auto & feb : sfeb8s)
