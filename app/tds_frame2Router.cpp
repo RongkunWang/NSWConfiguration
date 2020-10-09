@@ -31,7 +31,7 @@ int main(int argc, const char *argv[]) {
       ("config,c", po::value<std::string>(&config)->default_value(std::string(vs_filename)), "Configuration file")
       ("sfeb,s",   po::value<std::string>(&sfeb_name)->default_value(""), "Name of sFEB")
       ("tds,t",    po::value<std::string>(&tds_name)->default_value(""), "Name of TDS")
-      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Mode: bypass_trigger or test_frame2Router_enable")
+      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Mode: bypass_trigger, test_frame2Router_enable, PRBS_e")
       ("enable",  po::bool_switch()->default_value(false), "Enable frame2Router")
       ("disable", po::bool_switch()->default_value(false), "Disable frame2Router")
       ("read",    po::bool_switch()->default_value(false), "Read register 14")
@@ -60,8 +60,14 @@ int main(int argc, const char *argv[]) {
       std::cout << "Error: --enable and --disable cannot both be chosen" << std::endl;
       return 1;
     }
-    if (mode != "bypass_trigger" && mode != "test_frame2Router_enable") {
-      std::cout << "Error: --mode must be bypass_trigger or test_frame2Router_enable" << std::endl;
+    if (mode != "bypass_trigger" &&
+        mode != "test_frame2Router_enable" &&
+        mode != "PRBS_e") {
+      std::cout << "Error: --mode must be "
+                << "bypass_trigger or "
+                << "test_frame2Router_enable or "
+                << "PRBS_e"
+                << std::endl;
       std::cout << "You gave: " << (mode == "" ? "(empty)" : mode) << std::endl;
       return 1;
     }
