@@ -58,8 +58,8 @@ Note that you can skip this step and use installation from prebuilt /afs areas (
 
 * Set lcg environment with correct tag(CMTCONFIG) and LCG version from previous step
 ```bash
-export LCG_VERSION=LCG_96
-export HW_TAG=x86_64-centos7-gcc8-opt
+export LCG_VERSION=$TDAQ_LCG_RELEASE
+export HW_TAG=x$CMTCONFIG
 source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
 ```
 
