@@ -59,7 +59,7 @@ Note that you can skip this step and use installation from prebuilt /afs areas (
 * Set lcg environment with correct tag(CMTCONFIG) and LCG version from previous step
 ```bash
 export LCG_VERSION=$TDAQ_LCG_RELEASE
-export HW_TAG=x$CMTCONFIG
+export HW_TAG=$CMTCONFIG
 source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
 ```
 
