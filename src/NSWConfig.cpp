@@ -188,6 +188,7 @@ void nsw::NSWConfig::configureRouters() {
             ers::warning(issue);
         }
     }
+    ERS_LOG("Finished configuration of Routers");
 }
 
 void nsw::NSWConfig::configureRouter(const std::string& name) {
