@@ -94,6 +94,7 @@ class NSWConfig {
 
     //! Configure all Routers, Pad Triggers, and Trigger Processors
     void configureRouters();
+    void configureRouter(const std::string& name);
     void configurePadTriggers();
     void configureTPs();
 
