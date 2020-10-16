@@ -1006,9 +1006,9 @@ void nsw::ConfigSender::sendRouterSetSCAID(const nsw::RouterConfig& obj) {
     auto id_sector_str = nsw::bitString((uint)(obj.id_sector()), 4);
     auto id_layer_str  = nsw::bitString((uint)(obj.id_layer()),  3);
     auto id_endcap_str = nsw::bitString((uint)(obj.id_endcap()), 1);
-    ERS_LOG (sca_addr << ": ID (sector) = 0b" << id_sector_str);
-    ERS_LOG (sca_addr << ": ID (layer)  = 0b" << id_layer_str);
-    ERS_LOG (sca_addr << ": ID (endcap) = 0b" << id_endcap_str);
+    ERS_LOG( sca_addr << ": ID (sector) = 0b" << id_sector_str);
+    ERS_LOG( sca_addr << ": ID (layer)  = 0b" << id_layer_str);
+    ERS_LOG( sca_addr << ": ID (endcap) = 0b" << id_endcap_str);
     ERS_INFO(sca_addr << ": -> ID"
              << " = 0b" << id_sector_str << id_layer_str << id_endcap_str
              << " = 0x" << std::hex << scaid << std::dec
