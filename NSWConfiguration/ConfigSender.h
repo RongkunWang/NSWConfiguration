@@ -74,8 +74,11 @@ class ConfigSender {
     void sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj, bool write = true);
     void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
 
-    /// High level send function
+    /// High level send function, and the kids
     void sendRouterConfig(const nsw::RouterConfig& obj);
+    void sendRouterSoftReset(const nsw::RouterConfig& obj, int hold_reset = 0);
+    void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
+    void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);
