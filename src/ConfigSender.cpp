@@ -916,23 +916,38 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
 }
 
 void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
+    sendRouterSoftReset(obj);
+    sendRouterCheckGPIO(obj);
+    sendRouterSetSCAID(obj);
+}
 
+void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj, int hold_reset) {
     auto opc_ip   = obj.getOpcServerIp();
     auto sca_addr = obj.getAddress();
+    ERS_LOG(sca_addr << ": toggling soft reset");
 
     // Set Router control mode to SCA mode: Line 17 in excel
     auto ctrlMod0 = sca_addr + ".gpio.ctrlMod0";
     auto ctrlMod1 = sca_addr + ".gpio.ctrlMod1";
     sendGPIO(opc_ip, ctrlMod0, 0);
     sendGPIO(opc_ip, ctrlMod1, 0);
-    std::cout << std::left << std::setw(30) << ctrlMod0 << " " << readGPIO(opc_ip, ctrlMod0) << std::endl;
-    std::cout << std::left << std::setw(30) << ctrlMod1 << " " << readGPIO(opc_ip, ctrlMod1) << std::endl;
+    ERS_LOG(ctrlMod0 << " " << readGPIO(opc_ip, ctrlMod0));
+    ERS_LOG(ctrlMod1 << " " << readGPIO(opc_ip, ctrlMod1));
 
     // Send Soft_RST: Line 11 in excel
     auto soft_reset = sca_addr + ".gpio.softReset";
-    sendGPIO(opc_ip, soft_reset, 1); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
-    sendGPIO(opc_ip, soft_reset, 0); std::cout << std::left << std::setw(30) << soft_reset << " " << readGPIO(opc_ip, soft_reset) << std::endl;
+    sendGPIO(opc_ip, soft_reset, 1);
+    ERS_LOG(soft_reset << " " << readGPIO(opc_ip, soft_reset));
+    if (hold_reset)
+        sleep(hold_reset);
+    sendGPIO(opc_ip, soft_reset, 0);
+    ERS_LOG(soft_reset << " " << readGPIO(opc_ip, soft_reset));
     usleep(3e6);
+}
+
+void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
+    auto opc_ip   = obj.getOpcServerIp();
+    auto sca_addr = obj.getAddress();
 
     // Read SCA IO status back: Line 6 & 8 in excel
     // (only need to match with star mark bits)
@@ -947,56 +962,65 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
                                                           {"mmcmTopLock",    1},
                                                           {"semFatalError",  0},
                                                           {"masterChannel0", 1} };
-    for (auto kv: check) {
+    for (auto kv : check) {
         auto bit = sca_addr + ".gpio." + kv.first;
         bool exp = kv.second;
         bool obs = readGPIO(opc_ip, bit);
         bool yay = obs==exp;
-        std::cout << std::left << std::setw(34) << bit << " ::"
-                  << " Expected = " << exp
-                  << " Observed = " << obs
-                  << " -> " << (yay ? "Good" : "Bad")
-                  << std::endl;
+        std::stringstream msg;
+        msg << bit << " ::"
+            << " Expected = " << exp
+            << " Observed = " << obs
+            << " -> " << (yay ? "Good" : "Bad");
+        if (kv.first == "fpgaConfigOK" ||
+            kv.first == "rxClkReady"   ||
+            kv.first == "txClkReady")
+            ERS_INFO(msg.str());
+        else
+            ERS_LOG(msg.str());
         if (!obj.CrashOnConfigFailure())
             yay = 1;
         if (kv.first.find("ClkReady") != std::string::npos && !obj.CrashOnClkReadyFailure())
             yay = 1;
         if (!yay)
             all_ok = 0;
+        if (kv.first == "fpgaConfigOK")
+            usleep(1e6);
     }
 
-    // Reset cout
-    std::cout << std::setw(0);
+    // Complain if bad config
+    if (!all_ok) {
+        auto msg = opc_ip + "/" + sca_addr + " Configuration error. Crashing.";
+        ERS_INFO(msg);
+        throw std::runtime_error(msg);
+    }
+    usleep(1e6);
+}
+
+void nsw::ConfigSender::sendRouterSetSCAID(const nsw::RouterConfig& obj) {
+    auto opc_ip   = obj.getOpcServerIp();
+    auto sca_addr = obj.getAddress();
 
     // Set ID
     auto scaid = (uint)(obj.id());
     auto id_sector_str = nsw::bitString((uint)(obj.id_sector()), 4);
     auto id_layer_str  = nsw::bitString((uint)(obj.id_layer()),  3);
     auto id_endcap_str = nsw::bitString((uint)(obj.id_endcap()), 1);
-    std::cout << sca_addr << ": ID (sector) = 0b" << id_sector_str << std::endl;
-    std::cout << sca_addr << ": ID (layer)  = 0b" << id_layer_str  << std::endl;
-    std::cout << sca_addr << ": ID (endcap) = 0b" << id_endcap_str << std::endl;
-    std::cout << sca_addr << ": -> ID";
-    std::cout << " = 0b" << id_sector_str << id_layer_str << id_endcap_str;
-    std::cout << " = 0x" << std::hex << scaid << std::dec;
-    std::cout << " = "   << scaid << std::endl;
+    ERS_LOG (sca_addr << ": ID (sector) = 0b" << id_sector_str);
+    ERS_LOG (sca_addr << ": ID (layer)  = 0b" << id_layer_str);
+    ERS_LOG (sca_addr << ": ID (endcap) = 0b" << id_endcap_str);
+    ERS_INFO(sca_addr << ": -> ID"
+             << " = 0b" << id_sector_str << id_layer_str << id_endcap_str
+             << " = 0x" << std::hex << scaid << std::dec
+             << " = "   << scaid);
     for (int bit = 0; bit < 8; bit++) {
       bool this_bit = ((scaid >> bit) & 0b1);
       auto gpio = sca_addr + ".gpio.routerId" + std::to_string(bit);
       sendGPIO(opc_ip, gpio, this_bit);
-      std::cout << sca_addr
-                << ": Set ID bit " << bit
-                << " = " << this_bit
-                << " => Readback = " << readGPIO(opc_ip, gpio) << std::endl;
+      ERS_LOG(sca_addr << ": Set ID bit " << bit
+              << " = " << this_bit
+              << " => Readback = " << readGPIO(opc_ip, gpio));
     }
-
-    // Complain if bad config
-    if (!all_ok) {
-        auto msg = opc_ip + "/" + sca_addr + " Configuration error. Crashing.";
-        std::cout << msg << std::endl;
-        throw std::runtime_error(msg);
-    }
-
 }
 
 std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSamples(const std::string& opcserver_ipport,
