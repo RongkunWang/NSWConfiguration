@@ -31,18 +31,18 @@ class ConfigSender {
     std::map<std::string, std::unique_ptr<nsw::OpcClient>> m_clients;
 
     /// Add new client if it connects to a new Opc Server
-    void addOpcClientIfNew(std::string opcserver_ipport);
+    void addOpcClientIfNew(const std::string& opcserver_ipport);
 
  public:
     ConfigSender();
     ~ConfigSender() {}  // Disconnect from Opc Server(s)?
 
     /// Send configuration to roc
-    void sendRocConfig(std::string opc_ip, std::string sca_address,
+    void sendRocConfig(const std::string& opc_ip, const std::string& sca_address,
                        const I2cMasterConfig & analog, const I2cMasterConfig & digital);
 
     /// Send configuration to tds
-    void sendTdsConfig(std::string opc_ip, std::string sca_address,
+    void sendTdsConfig(const std::string& opc_ip, const std::string& sca_address,
         const I2cMasterConfig & tds, int ntds, bool reset_tds = false);
 
     // TODO(rongkun): consider remove this function ?
@@ -74,18 +74,22 @@ class ConfigSender {
     void sendPadTriggerSCAControlRegister(nsw::PadTriggerSCAConfig& obj, bool write = true);
     void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
 
-    /// High level send function
+    /// High level send function, and the kids
     void sendRouterConfig(const nsw::RouterConfig& obj);
+    void sendRouterSoftReset(const nsw::RouterConfig& obj, int hold_reset = 0);
+    void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
+    void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
     /// High level send function
     void sendTpConfig(nsw::TPConfig& tp);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
-    void sendI2cMasterConfig(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg);
+    void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,
+        const nsw::I2cMasterConfig& cfg);
 
     /// Write only one of the register addresses in I2cMaster
-    void sendI2cMasterSingle(std::string opcserver_ipport, std::string topnode, const nsw::I2cMasterConfig& cfg,
-                             std::string reg_address);
+    void sendI2cMasterSingle(const std::string& opcserver_ipport, const std::string& topnode,
+        const nsw::I2cMasterConfig& cfg, const std::string& reg_address);
 
     /// Read back ROC
     /// \param opcserver_ipport OPCServer IP and port
@@ -95,43 +99,44 @@ class ConfigSender {
     /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
     /// \param delay I2c delay value, 2 corresponds to 100kHz
     /// \return result 8 bit register value
-    uint8_t readBackRoc( std::string opcserver_ipport, std::string node, unsigned int sclLine, unsigned int sdaLine, 
-                                  uint8_t registerAddress, unsigned int delay );
+    uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node,
+        unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay);
                                   
     /// Low level Spi send function
-    void sendSpiRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+    void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t *data, size_t data_size);
 
-    std::vector<uint8_t> readSpi(std::string opcserver_ipport, std::string node, size_t data_size);
+    std::vector<uint8_t> readSpi(const std::string& opcserver_ipport, const std::string& node, size_t data_size);
 
     /// Low level Spi send function
-    void sendSpi(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
+    void sendSpi(const std::string& opcserver_ipport, const std::string& node, const std::vector<uint8_t>& vdata);
 
     /// Low level I2c send function
     void sendI2c(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
 
     /// Low level I2c send function
-    void sendI2cRaw(std::string opcserver_ipport, std::string node, uint8_t *data, size_t data_size);
+    void sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t *data, size_t data_size);
 
     /// Low level GPIO send function
-    void sendGPIO(std::string opcserver_ipport, std::string node, bool data);
+    void sendGPIO(const std::string& opcserver_ipport, const std::string& node, bool data);
 
     /// Read  back GPIO register
-    bool readGPIO(std::string opcserver_ipport, std::string node);
+    bool readGPIO(const std::string& opcserver_ipport, const std::string& node);
 
     // Read back I2c register as vector
-    std::vector<uint8_t> readI2c(std::string opcserver_ipport, std::string node, size_t number_of_bytes = 1);
+    std::vector<uint8_t> readI2c(const std::string& opcserver_ipport, const std::string& node,
+        size_t number_of_bytes = 1);
 
     // Read back I2c register as vector for ADDC
-    std::vector<uint8_t> readI2cAtAddress(std::string opcserver_ipport, std::string node,
+    std::vector<uint8_t> readI2cAtAddress(const std::string& opcserver_ipport, const std::string& node,
                                           uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
 
     // Send I2c register as vector for ADDC
-    void sendI2cAtAddress(std::string opcserver_ipport, std::string node,
-                          std::vector<uint8_t> address, std::vector<uint8_t> data);
+    void sendI2cAtAddress(const std::string& opcserver_ipport, const std::string& node,
+                          const std::vector<uint8_t>& address, std::vector<uint8_t> data);
 
     /// Read multiple consecutive samples from an analog input
-    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(std::string opcserver_ipport,
-                                                         std::string node, size_t n_samples);
+    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(const std::string& opcserver_ipport,
+                                                         const std::string& node, size_t n_samples);
 
     /// Read multiple samples from a channel of a VMM in a frontend
     ///
@@ -158,7 +163,7 @@ class ConfigSender {
 
     /// Program FPGA from bitfile
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
-    void sendFPGA(std::string opcserver_ipport, std::string node, std::string bitfile_path);
+    void sendFPGA(const std::string& opcserver_ipport, const std::string& node, const std::string& bitfile_path);
 };
 
 }  // namespace nsw

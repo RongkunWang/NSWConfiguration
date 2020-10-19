@@ -6,7 +6,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigReaderApi.h"
 
-nsw::ConfigReader::ConfigReader(const std::string connection_string, const std::vector<std::string> components):
+nsw::ConfigReader::ConfigReader(const std::string& connection_string, const std::vector<std::string>& components):
     m_connection_string(connection_string),
     m_components(components) {
     // Open db, json file or oracle db
@@ -29,7 +29,7 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string, const std::
     }
 }
 
-nsw::ConfigReader::ConfigReader(const std::string connection_string):
+nsw::ConfigReader::ConfigReader(const std::string& connection_string):
     m_connection_string(connection_string) {
     // Open db, json file or oracle db
     if (m_connection_string.find("json://") == 0) {
@@ -51,7 +51,7 @@ nsw::ConfigReader::ConfigReader(const std::string connection_string):
     }
 }
 
-nsw::ConfigReader::ConfigReader(const ptree tree) {
+nsw::ConfigReader::ConfigReader(const ptree& tree) {
   m_api = std::make_unique<PtreeApi> (tree);
 }
 

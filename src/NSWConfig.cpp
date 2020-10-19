@@ -17,7 +17,7 @@ ptree nsw::NSWConfig::getConf() {
   return m_reader->readConfig();
 }
 
-void nsw::NSWConfig::substituteConf(ptree tree) {
+void nsw::NSWConfig::substituteConf(const ptree& tree) {
   m_reader  = std::make_unique<nsw::ConfigReader>(tree);
 }
 
@@ -93,22 +93,17 @@ void nsw::NSWConfig::configureFEBs() {
     }
 }
 
-void nsw::NSWConfig::configureFEB(std::string name) {
-    // how can we avoid this?
+void nsw::NSWConfig::configureFEB(const std::string& name) {
     auto local_sender = std::make_unique<nsw::ConfigSender>();
-
     ERS_INFO("Configuring front end " + name);
     if (m_frontends.count(name) == 0) {
         std::string err = "FEB has bad name: " + name;
         nsw::NSWConfigIssue issue(ERS_HERE, err);
         ers::error(issue);
     }
-
-
     auto configuration = m_frontends.at(name);
     if (!m_simulation) {
         local_sender->sendRocConfig(configuration);
-
         if (m_resetvmm) {
             std::vector <unsigned> reset_ori;
             for (auto & vmm : configuration.getVmms()) {
@@ -152,7 +147,7 @@ void nsw::NSWConfig::configureADDCs() {
     }
 }
 
-void nsw::NSWConfig::configureADDC(std::string name) {
+void nsw::NSWConfig::configureADDC(const std::string& name) {
     ERS_LOG("Configuring ADDC: " + name);
     if (m_addcs.count(name) == 0) {
         std::string err = "ADDC has bad name: " + name;
@@ -175,14 +170,39 @@ void nsw::NSWConfig::alignADDCsToTP() {
 
 void nsw::NSWConfig::configureRouters() {
     ERS_LOG("Configuring all Routers");
-    for (auto obj : m_routers) {
-        auto name = obj.first;
-        auto configuration = obj.second;
-        ERS_LOG("Sending config to: " << name);
-        if (!m_simulation)
-            m_sender->sendRouterConfig(configuration);
+    m_threads->clear();
+    for (const auto& kv : m_routers) {
+        while (too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        &nsw::NSWConfig::configureRouter,
+                                        this,
+                                        kv.first));
+    }
+    for (auto& thread : *m_threads) {
+        try {
+            thread.get();
+        } catch (std::exception & ex) {
+            std::string message = "Skipping Router due to : " + std::string(ex.what());
+            nsw::NSWConfigIssue issue(ERS_HERE, message);
+            ers::warning(issue);
+        }
     }
     ERS_LOG("Finished configuration of Routers");
+}
+
+void nsw::NSWConfig::configureRouter(const std::string& name) {
+    ERS_LOG("Configuring Router: " + name);
+    if (m_routers.count(name) == 0) {
+        std::string err = "Router has bad name: " + name;
+        nsw::NSWConfigIssue issue(ERS_HERE, err);
+        ers::error(issue);
+    }
+    auto local_sender = std::make_unique<nsw::ConfigSender>();
+    auto configuration = m_routers.at(name);
+    if (!m_simulation)
+        local_sender->sendRouterConfig(configuration);
+    ERS_LOG("Finished config to: " << name);
 }
 
 void nsw::NSWConfig::configurePadTriggers() {

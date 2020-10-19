@@ -95,6 +95,10 @@ tdaq_add_executable(nsw_router app/router.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
+tdaq_add_executable(nsw_tds_frame2Router app/tds_frame2Router.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/SCAConfig.cpp

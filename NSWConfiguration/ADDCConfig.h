@@ -28,7 +28,7 @@ class ADDCConfig: public SCAConfig {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit ADDCConfig(ptree config);
+    explicit ADDCConfig(const ptree& config);
     ~ADDCConfig() {}
 
     void dump();

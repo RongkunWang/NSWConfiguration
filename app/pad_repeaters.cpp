@@ -1,5 +1,7 @@
-// Program to set Pad Trigger configuration
-
+//
+// Program to write values to the Pad Trigger repeater chips,
+//    via SCA I2C.
+//
 #include <iostream>
 #include <string>
 #include <vector>
@@ -28,11 +30,11 @@ int main(int argc, const char *argv[]) {
     po::options_description desc(std::string("Pad trigger repeaters configuration script"));
     desc.add_options()
         ("help,h", "produce help message")
-        ("config_file", po::value<std::string>(&config_filename)
+        ("config_file,c", po::value<std::string>(&config_filename)
          ->default_value(config_files+"config_json/191/A14/STGC_191_A14_HOIP_PAD_TEST.json"), "Configuration file path")
         ("name,n", po::value<std::string>(&board_name)
          ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
-        ("rep", po::value<std::string>(&rep)
+        ("rep,r", po::value<std::string>(&rep)
          ->default_value(""), "Repeater number (1, 2, 3, 4, 5, 6)")
         ("address", po::value<std::string>(&i2c_addr)
          ->default_value(""), "i2c register for SCA communication (0xHEX).")
@@ -57,7 +59,16 @@ int main(int argc, const char *argv[]) {
         rep != "4" &&
         rep != "5" &&
         rep != "6") {
-        throw std::runtime_error("Repeater number must be 1, 2, 3, 4, 5, 6");
+        std::cerr << "Error: please give a repeater number (-r) which is 1, 2, 3, 4, 5, or 6." << std::endl;
+        return 1;
+    }
+    if (i2c_addr == "") {
+        std::cerr << "Error: please give an I2C address (--address) to write to." << std::endl;
+        return 1;
+    }
+    if (i2c_val == "") {
+        std::cerr << "Error: please give a value (--value) to write." << std::endl;
+        return 1;
     }
 
     // Repeater I2C

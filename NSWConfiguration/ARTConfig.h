@@ -31,39 +31,39 @@ class ARTConfig {
     nsw::I2cMasterConfig core;
     nsw::I2cMasterConfig ps;
 
-    explicit ARTConfig(ptree config);
+    explicit ARTConfig(const ptree& config);
     ~ARTConfig() {}
 
     ptree getConfig() const {return m_config;}
-    void dump() {}
-    void dump_core() { core.dump(); }
-    void dump_ps()   { ps  .dump(); }
+    void dump() const {}
+    void dump_core() const { core.dump(); }
+    void dump_ps()   const { ps  .dump(); }
 
-    std::string getName() { return name; }
-    void setName(std::string str) { name = str; }
+    std::string getName() const { return name; }
+    void setName(std::string str) { name = std::move(str); }
 
-    std::string getNameCore() { return getName() + "Core." + getName() + "Core"; }
-    std::string getNamePs()   { return getName() + "Ps."   + getName() + "Ps"; }
-    std::string getNameGbtx() { return "gbtx" + std::to_string(index()) + ".gbtx" + std::to_string(index()); }
+    std::string getNameCore() const { return getName() + "Core." + getName() + "Core"; }
+    std::string getNamePs()   const { return getName() + "Ps."   + getName() + "Ps"; }
+    std::string getNameGbtx() const { return "gbtx" + std::to_string(index()) + ".gbtx" + std::to_string(index()); }
 
-    int index() { return i_art; }
+    int index() const { return i_art; }
     void setIndex(int i) { i_art = i; }
 
-    size_t NPhase() { return n_phase; }
-    std::string PhaseToString(uint phase);
-    int register0_test_00();
-    int art_core_cfg_deser_flagmask();
-    int TP_GBTxAlignmentBit();
-    int TP_GBTxAlignmentSleepTime();
-    bool TP_GBTxAlignmentSkip();
-    std::vector<uint> TP_GBTxAlignmentCommonPhases();
-    std::vector<uint> TP_GBTxAlignmentPhasesToTest();
-    std::string TP_GBTxAlignmentPhase();
-    std::string getOpcServerIp_TP();
-    std::string getOpcNodeId_TP();
-    bool IsAlignedWithTP(std::vector<uint8_t> vec);
-    bool IsMyTP(std::string ServerIp, std::string NodeId);
-    bool failsafe();
+    size_t NPhase() const { return n_phase; }
+    std::string PhaseToString(uint phase) const;
+    int register0_test_00() const;
+    int art_core_cfg_deser_flagmask() const;
+    int TP_GBTxAlignmentBit() const;
+    int TP_GBTxAlignmentSleepTime() const;
+    bool TP_GBTxAlignmentSkip() const;
+    std::vector<uint> TP_GBTxAlignmentCommonPhases() const;
+    std::vector<uint> TP_GBTxAlignmentPhasesToTest() const;
+    std::string TP_GBTxAlignmentPhase() const;
+    std::string getOpcServerIp_TP() const;
+    std::string getOpcNodeId_TP() const;
+    bool IsAlignedWithTP(const std::vector<uint8_t>& vec) const;
+    bool IsMyTP(const std::string& ServerIp, const std::string& NodeId) const;
+    bool failsafe() const;
 
 };
 

@@ -7,7 +7,7 @@
 #include "NSWConfiguration/TPConfig.h"
 
 
-nsw::TPConfig::TPConfig(ptree config) :
+nsw::TPConfig::TPConfig(const ptree& config) :
 SCAConfig(config),
 m_numMasters(NUM_REGISTER_FILES) {
     // restructureConfig();
@@ -28,24 +28,35 @@ m_numMasters(NUM_REGISTER_FILES) {
     }
 }
 
-void nsw::TPConfig::setRegisterValue(std::string master, std::string slave, uint32_t value, std::string register_name) {
+void nsw::TPConfig::setRegisterValue(const std::string& master, const std::string& slave, uint32_t value,
+    const std::string& register_name) {
     // set value of a register which salve of is on a register file (master)
     m_registerFiles[master]->setRegisterValue(slave, register_name, value);
 
     return;
 }
 
-uint32_t nsw::TPConfig::getRegisterValue(std::string master, std::string slave, std::string register_name) {
+uint32_t nsw::TPConfig::getRegisterValue(const std::string& master, const std::string& slave,
+    const std::string& register_name) const {
     // get value of a register which salve of is on a register file (master)
-    return m_registerFiles[master]->getRegisterValue(slave, register_name);
+    if (m_registerFiles.find(master) == m_registerFiles.end()) {
+        // not sure if this is the right error.
+        nsw::MissingI2cAddress issue(ERS_HERE, master.c_str());
+        ers::error(issue);
+        throw issue;
+    }
+    return m_registerFiles.at(master)->getRegisterValue(slave, register_name);
 }
 
-void nsw::TPConfig::dump() {
+void nsw::TPConfig::dump() const {
     for (int i = 0; i < m_numMasters; i++) {
-        if (!m_registerFiles[registerFilesNamesArr[i]])
+        if (m_registerFiles.find(registerFilesNamesArr[i]) == m_registerFiles.end() ||
+            !m_registerFiles.at(registerFilesNamesArr[i])) {
             ERS_DEBUG(3, "Nothing found in register file: " << registerFilesNamesArr[i]);
-        else
-            m_registerFiles[registerFilesNamesArr[i]]->dump();
+        }
+        else {
+            m_registerFiles.at(registerFilesNamesArr[i])->dump();
+        }
     }
     boost::property_tree::write_json(std::cout, m_config);
 
@@ -80,19 +91,19 @@ void nsw::TPConfig::restructureConfig() {
 }
 
 
-int nsw::TPConfig::ARTWindowCenter() {
+int nsw::TPConfig::ARTWindowCenter() const {
     return m_config.get<int>("ARTWindowCenter");
 }
-int nsw::TPConfig::ARTWindowLeft() {
+int nsw::TPConfig::ARTWindowLeft() const {
     return m_config.get<int>("ARTWindowLeft");
 }
-int nsw::TPConfig::ARTWindowRight() {
+int nsw::TPConfig::ARTWindowRight() const {
     return m_config.get<int>("ARTWindowRight");
 }
-uint32_t nsw::TPConfig::FiberBCOffset() {
+uint32_t nsw::TPConfig::FiberBCOffset() const {
     return m_config.get<uint32_t>("FiberBCOffset");
 }
-int nsw::TPConfig::GlobalInputPhase() {
+int nsw::TPConfig::GlobalInputPhase() const {
     return m_config.get<int>("GlobalInputPhase");
 }
 

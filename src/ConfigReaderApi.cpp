@@ -12,7 +12,7 @@
 #include "NSWConfiguration/ConfigReaderApi.h"
 #include "NSWConfiguration/Utility.h"
 
-ptree ConfigReaderApi::read(std::string element) {
+ptree ConfigReaderApi::read(const std::string& element) {
     if (nsw::getElementType(element) == "MMFE8") {
         return readMMFE8(element);
     } else if (nsw::getElementType(element) == "PFEB") {
@@ -45,7 +45,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
     return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|MMTP.*|STGCTP.*", m_config);
 }
 
-std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
+std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp) {
     std::set<std::string> result;
     std::regex re(regexp);
     auto all = getAllElementNames();
@@ -57,7 +57,7 @@ std::set<std::string> ConfigReaderApi::getElementNames(std::string regexp) {
     return result;
 }
 
-ptree ConfigReaderApi::readTP(std::string element) {
+ptree ConfigReaderApi::readTP(const std::string& element) const {
     ERS_LOG("Reading configuration for TP: " << element);
     ptree tree = m_config.get_child(element);
 
@@ -68,7 +68,7 @@ ptree ConfigReaderApi::readTP(std::string element) {
     return tree;
 }
 
-void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
+void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) const {
     // Loop over I2c addresses within specific tree
     for (ptree::iterator iter_addresses = specific.begin();
         iter_addresses != specific.end(); iter_addresses++) {
@@ -101,7 +101,7 @@ void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) {
     }
 }
 
-void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
+void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) const {
     // Iterate over registers in I2c address
     for (ptree::iterator iter_registers = specific.begin();
         iter_registers != specific.end(); iter_registers++) {
@@ -121,7 +121,7 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
 
             throw issue;
         } else {
-            if (registername.find("channel_" == 0)) {
+            if (registername.find("channel_") == 0) {
               ptree temp = iter_registers->second;
               common.put_child(registername, temp);
             } else {
@@ -131,7 +131,8 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) {
     }
 }
 
-ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, size_t vmm_start, size_t tds_start) {
+ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, size_t vmm_start,
+    size_t tds_start) const {
     ptree feb = m_config.get_child(element);
     ptree roc_common = m_config.get_child("roc_common_config");
 
@@ -202,7 +203,7 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
     return feb;
 }
 
-ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
+ptree ConfigReaderApi::readADDC(const std::string& element, size_t nart) const {
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
@@ -243,7 +244,7 @@ ptree ConfigReaderApi::readADDC(std::string element, size_t nart) {
     return feb;
 }
 
-ptree ConfigReaderApi::readPadTriggerSCA(std::string element) {
+ptree ConfigReaderApi::readPadTriggerSCA(const std::string& element) const {
     //
     // Need to add functionality to overwrite values!
     //
@@ -251,7 +252,7 @@ ptree ConfigReaderApi::readPadTriggerSCA(std::string element) {
     return feb;
 }
 
-ptree ConfigReaderApi::readRouter(std::string element) {
+ptree ConfigReaderApi::readRouter(const std::string& element) const {
     //
     // Need to add functionality to overwrite values!
     //
