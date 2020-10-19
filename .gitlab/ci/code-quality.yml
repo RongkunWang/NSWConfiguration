@@ -1,0 +1,140 @@
+## GitLab CI template for NSW DAQ code quality checks
+
+variables:
+  ARTIFACTS_DIR: ${CI_PROJECT_DIR}/artifacts
+  REPORTS_PATH: ${CI_PROJECT_DIR}/artifacts/reports
+  BUILD_DIR: ${CI_BUILDS_DIR}/${GITLAB_USER_LOGIN}/ci-build
+
+.quality_setup: &quality_setup |-
+  # source /cvmfs/sft.cern.ch/lcg/contrib/clang/10/x86_64-centos7/setup.sh ## Compatible with GCC9?
+  source /cvmfs/sft.cern.ch/lcg/contrib/clang/8/x86_64-centos7/setup.sh
+  mkdir -p ${REPORTS_PATH}
+
+.cmake_prep: &cmake_prep |-
+  yum install -y iwyu
+  source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
+  mkdir -p ${BUILD_DIR}
+  pushd ${BUILD_DIR}
+  ln -sf ../${CI_PROJECT_NAME} .
+  ## obtain this cmake directory as submodule? via curl only in the CI? as part of a setup script?
+  ln -sf ${CI_PROJECT_NAME}/cmake .
+  ln -sf cmake/CMakeLists.txt.in CMakeLists.txt
+  export TDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}')
+  cmake -Bquality-checks -DTDAQ_VERSION=${TDAQ_VERSION} -S. -DRUN_IWYU=ON -DRUN_LWYU=ON
+
+.quality:
+  image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+  tags:
+    - cvmfs
+  stage: quality
+  needs: []
+  allow_failure: true
+  before_script:
+    - echo "Running code quality checks"
+    - *quality_setup
+    - yum install -y python-gitlab
+  after_script:
+    - ls -l ${ARTIFACTS_DIR}
+    - ls -l ${REPORTS_PATH}
+  artifacts:
+    paths:
+      - artifacts
+
+quality:clang-tidy:
+  extends: .quality
+  script:
+    - *cmake_prep
+    - popd
+    - CLANG_TIDY_EXE=$(dirname $(dirname `which clang-tidy`))/share/clang/run-clang-tidy.py
+    - ${CLANG_TIDY_EXE} -p ${BUILD_DIR}/quality-checks -export-fixes ${REPORTS_PATH}/clang-tidy-fixes.yml ${MAKE_OPTIONS} > ${REPORTS_PATH}/clang-tidy.txt || true
+    # - ${CLANG_TIDY_EXE} -p ${BUILD_DIR}/quality-checks -export-fixes ${REPORTS_PATH}/clang-tidy-fixes.yml ${MAKE_OPTIONS} -fix -format -style='file'
+  
+quality:clang-format:
+  extends: .quality
+  script:
+    - source /cvmfs/sft.cern.ch/lcg/contrib/clang/10/x86_64-centos7/setup.sh
+    - curl -LO https://raw.githubusercontent.com/Sarcasm/run-clang-format/master/run-clang-format.py
+    - CLANG_FORMAT_EXE=run-clang-format.py
+    - chmod +x ${CLANG_FORMAT_EXE}
+    - export PATCHFILE=clang-format-${GITLAB_USER_LOGIN}-${CI_COMMIT_REF_SLUG}-job-${CI_JOB_ID}.patch
+    - echo ARTIFACTS_DIR/PATCHFILE is ${ARTIFACTS_DIR}/${PATCHFILE}
+    - ${CLANG_FORMAT_EXE} -r . > format.tmp.patch || true
+    - |
+        if [ -s format.tmp.patch ]
+        then
+          git checkout -b patch/${GITLAB_USER_LOGIN}-${CI_COMMIT_REF_SLUG}-job-${CI_JOB_ID}
+          git config --global user.email "${GITLAB_USER_EMAIL}"
+          git config --global user.name "${GITLAB_USER_NAME}"
+          git apply < format.tmp.patch
+          git commit -am "Apply clang-format for ${GITLAB_USER_LOGIN}-${CI_COMMIT_REF_SLUG}-job-${CI_JOB_ID}"
+          git format-patch ${CI_COMMIT_SHORT_SHA} --stdout > ${ARTIFACTS_DIR}/${PATCHFILE}
+          .gitlab/ci/scripts/post_mr_note.py --fail format
+        else
+          .gitlab/ci/scripts/post_mr_note.py format
+        fi
+
+## Need an image with cppcheck, or an lcg path therewith 
+quality:cppcheck:
+  extends: .quality
+  script:
+    - *cmake_prep
+    - popd
+    - export CPPCHECK_EXE=/cvmfs/sft.cern.ch/lcg/contrib/gentoo/linux/x86_64/usr/bin/cppcheck
+    - |
+        ${CPPCHECK_EXE} --project=${BUILD_DIR}/quality-checks/compile_commands.json \
+        --enable=all \
+        --suppress='*:/cvmfs/*' --suppress='*:*/external/*' --suppress='*:*/extern/*' \
+        --xml 2> ${REPORTS_PATH}/cppcheck-results.xml | tee ${REPORTS_PATH}/cppcheck.txt
+
+quality:iwyu:
+  extends: .quality
+  script:
+    - *cmake_prep
+    - cmake --build quality-checks | tee iwyu.tmp.log
+    - grep -E '(^#include|The full include-list)' iwyu.tmp.log > ${REPORTS_PATH}/iwyu.log
+
+## This *should* be the "proper" way, but it fails
+# include:
+#   - template: Code-Quality.gitlab-ci.yml
+      
+code_quality:
+  stage: reports
+  allow_failure: false
+  needs:
+    - job: quality:clang-tidy
+      artifacts: true
+    - job: quality:cppcheck
+      artifacts: true
+    # - quality:clang-format
+  # before_script:
+  # ## ensure gitlab API is present in this job running in some default image?
+  #   - yum install -y python-gitlab
+  script:
+    - pwd; ls -l;
+    - ls -l ${REPORTS_PATH}
+    - |
+      for f in $(ls ${REPORTS_PATH}/*.txt)
+      do
+          .gitlab/ci/scripts/generate-report.sh $f
+      done
+    - .gitlab/ci/scripts/merge-reports.sh
+  artifacts:
+    reports:
+      codequality: artifacts/reports/gl-code-quality-report.json
+    paths: [artifacts/reports/gl-code-quality-report.json]
+    expire_in: 1 month
+
+# # See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
+# quality:code_quality:
+#   extends: .quality
+#   image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+#   before_script:
+#     - echo "Running code quality checks"
+#   script:
+#     - python ./test/runcpplint.py --files ./*/*/*.cxx ./*/*/*.cpp ./*/*/*.h ./*/*/*.hpp
+#   allow_failure: true
+#   artifacts:
+#     reports:
+#       codequality: gl-code-quality-report.json
+#     paths: [gl-code-quality-report.json]
+#     expire_in: 1 month

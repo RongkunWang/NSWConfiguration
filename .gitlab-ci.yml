@@ -1,171 +1,25 @@
-# .gitlab-ci.yml
-# Configuration for CI/CD for NSWConfiguration
+## .gitlab-ci.yml
+## Configuration for CI/CD for NSWConfiguration
 
 variables:
     GIT_STRATEGY: fetch
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_SSL_NO_VERIFY: "true"
-    TDAQ_RELEASE: tdaq-09-01-00
+    TDAQ_RELEASE: tdaq-09-02-01
     COMPILER_PROFILE: x86_64-centos7-gcc8-opt
     MAKE_OPTIONS: -j2
+    CMAKE_JOB_OPTIONS: -DBUILD_NSW_STANDALONE=ON
 
-#
-# Run before each job
-#
-before_script:
-    - echo 'New job started'
-
-#
-# Run after each job
-#
-after_script:
-    - echo 'Job finished'
-
-#
-# Job stages
-#
 stages:
-    - test
-    # - build
-    - deploy
+  - build
+  - quality
+  - reports
 
-# Template for the build steps:
-.build_template: &build_job
-    image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
-    stage: test
-    tags:
-        - cvmfs
-    script:
-        - echo 'Running Build Test'
-        - export WD=$PWD
-        - cd $WD/../
-        - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
-        - |
-          cat <<'EOF'> CMakeLists.txt
-          cmake_minimum_required(VERSION 3.14.0)
+include:
+  - .gitlab/ci/build.yml
+  - .gitlab/ci/code-quality.yml
 
-          ## Replace "X.Y.Z" with current default TDAQ version.
-          set(TDAQ_VERSION 8.3.1 CACHE STRING "TDAQ version number")
-          set(NSWDAQ_VERSION 1.0.0 CACHE STRING "NSWDAQ version number")
-
-          message(STATUS "TDAQ_VERSION [${TDAQ_VERSION}]")
-          message(STATUS "NSWDAQ_VERSION [${NSWDAQ_VERSION}]")
-
-          project(nswdaq-ci-build VERSION ${NSWDAQ_VERSION})
-
-          find_package(TDAQ)
-          include(CTest)
-
-          tdaq_project(nswdaq-ci-build ${NSWDAQ_VERSION} USES tdaq ${TDAQ_VERSION})
-          EOF
-        - cmake -B${CMTCONFIG} -DTDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}') -S.
-        - cmake --build ${CMTCONFIG} -- ${MAKE_OPTIONS}
-        - pwd;ls
-
-#
-# Job: Build test - 8.3.1
-#
-build-08-03-01:
-    except:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-08-03-01
-    <<: *build_job
-    allow_failure: false
-
-#
-# Job: Build test - 9.1.0
-#
-build-09-01-00:
-    except:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-09-01-00
-    <<: *build_job
-    allow_failure: true
-
-#
-# Job: Build test - 9.2.1
-#
-build-09-02-01:
-    except:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-09-02-01
-    <<: *build_job
-    allow_failure: true
-
-build-09-02-01-gcc10:
-    except:
-        - master
-        - tags
-    variables:
-        TDAQ_RELEASE: tdaq-09-02-01
-        COMPILER_PROFILE: x86_64-centos7-gcc10-opt
-    allow_failure: true
-    <<: *build_job
-
-#
-# Job: Build test - nightly
-#
-build-test-nightly:
-    when: manual
-    except:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-99-00-00
-    <<: *build_job
-    allow_failure: true
-
-#
-# Job: Build test - dev
-#
-build-test-dev:
-    only:
-        - dev
-    variables:
-        NCORES: 1
-    <<: *build_job
-    allow_failure: false
-
-
-# Job: Build test - dev - next
-#
-build-test-next-dev:
-    only:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-09-01-00
-        NCORES: 1
-    <<: *build_job
-    allow_failure: true
-
-#
-# Job: Build test - dev - nightly
-#
-build-test-nightly-dev:
-    when: manual
-    only:
-        - dev
-    variables:
-        TDAQ_RELEASE: tdaq-99-00-00
-        NCORES: 1
-    <<: *build_job
-    allow_failure: true
-
-
-# See: https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
-#
-# Job: Linting job
-#
-code_quality:
-    image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
-    stage: test
-    script:
-        - python ./test/runcpplint.py --files ./src/* ./NSWConfiguration/* ./app/* ./test/*
-    allow_failure: true        
-    artifacts:
-        reports:
-            codequality: gl-code-quality-report.json
-        paths: [gl-code-quality-report.json]
-        expire_in: 1 month
+workflow:
+  rules:
+    - if: $CI_JOB_ID
+    - when: always

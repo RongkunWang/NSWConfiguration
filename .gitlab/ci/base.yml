@@ -1,0 +1,59 @@
+# GitLab CI base template for NSW DAQ jobs
+
+variables:
+    GIT_STRATEGY: fetch
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SSL_NO_VERIFY: "true"
+    NCORES: 3
+    TDAQ_RELEASE: tdaq-08-03-01
+
+stages:
+  - test
+  - build
+  - code-quality
+
+.job_setup: &job_setup |-
+  source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh $TDAQ_RELEASE
+
+.cmake_prep: &cmake_prep |-
+  mkdir -p ../build
+  pushd ../build
+  ln -sf ../${CI_PROJECT_NAME} .
+  export TDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}')
+  cat <<'EOF'> CMakeLists.txt
+  cmake_minimum_required(VERSION 3.14.0)
+
+  set(TDAQ_VERSION 8.3.1 CACHE STRING "TDAQ version number")
+  set(NSWDAQ_VERSION 1.0.0 CACHE STRING "NSWDAQ version number")
+
+  message(STATUS "TDAQ_VERSION [${TDAQ_VERSION}]")
+  message(STATUS "NSWDAQ_VERSION [${NSWDAQ_VERSION}]")
+
+  project(nswdaq-ci-build VERSION ${NSWDAQ_VERSION})
+
+  find_package(TDAQ)
+  include(CTest)
+
+  tdaq_project(nswdaq-ci-build ${NSWDAQ_VERSION} USES tdaq ${TDAQ_VERSION})
+  EOF
+
+  cmake -B${CMTCONFIG} -DTDAQ_VERSION=${TDAQ_VERSION} -S.
+  
+# Base template for all jobs
+.base_template: &build_job
+    image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+    tags:
+        - cvmfs
+
+
+test:
+  extends: .base_template
+  stage: test
+  before_script:
+    - echo "CI job started"
+    - *job_setup
+  script:
+    - echo "Running test job"
+  after_script:
+    - echo "CI job finished"
+    
