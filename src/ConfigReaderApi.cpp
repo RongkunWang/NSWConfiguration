@@ -148,7 +148,22 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
         feb.put_child(name, common);
     }
 
+
+
     // VMM
+    // If the configuation has more than expected vmms, remove them
+    for (size_t i = 0; i < 8; i++) {
+        if (i >= vmm_start && i < nvmm) continue;
+        std::string vmmname = "vmm" + std::to_string(i);
+        ptree vmm;
+        if (feb.get_child_optional(vmmname)) {  // If node exists
+            nsw::ConfigIssue issue(ERS_HERE, "Too many vmm instances in the configuration, ignoring!");
+            ers::warning(issue);
+            feb.erase(vmmname);
+        }
+    }
+
+    // fill for the remaining vmms
     for (size_t i = vmm_start; i < nvmm; i++) {
         ptree vmm_common = m_config.get_child("vmm_common_config");
         std::string vmmname = "vmm" + std::to_string(i);
@@ -160,18 +175,19 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
         feb.put_child(vmmname, vmm_common);
     }
 
-    // If the configuation has more than expected vmms, remove them
-    for (size_t i = nvmm; i < 8; i++) {
-        std::string vmmname = "vmm" + std::to_string(i);
-        ptree vmm;
-        if (feb.get_child_optional(vmmname)) {  // If node exists
-            nsw::ConfigIssue issue(ERS_HERE, "Too many vmm instances in the configuration, ignoring!");
+    // TDS
+    // If the configuation has more than expected tds, remove them
+    for (size_t i = 0; i < 4; i++) {
+        if (i >= tds_start && i < ntds) continue;
+        std::string tdsname = "tds" + std::to_string(i);
+        ptree tds;
+        if (feb.get_child_optional(tdsname)) {  // If node exists
+            nsw::ConfigIssue issue(ERS_HERE, "Too many tds instances in the configuration, ignoring!");
             ers::warning(issue);
-            feb.erase(vmmname);
+            feb.erase(tdsname);
         }
     }
-
-    for ( int i = tds_start; i < ntds; i++ ) {
+    for (size_t i = tds_start; i < ntds; i++ ) {
         std::string name = "tds" + std::to_string(i);
         ptree specific;
         ptree tds_common = m_config.get_child("tds_common_config");
@@ -182,16 +198,6 @@ ptree ConfigReaderApi::readFEB(std::string element, size_t nvmm, size_t ntds, si
         feb.put_child(name, tds_common);
     }
 
-    // If the configuation has more than expected tds, remove them
-    for (int i = ntds; i < 4; i++) {
-        std::string tdsname = "tds" + std::to_string(i);
-        ptree tds;
-        if (feb.get_child_optional(tdsname)) {  // If node exists
-            nsw::ConfigIssue issue(ERS_HERE, "Too many tds instances in the configuration, ignoring!");
-            ers::warning(issue);
-            feb.erase(tdsname);
-        }
-    }
 
     return feb;
 }
