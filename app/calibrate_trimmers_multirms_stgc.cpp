@@ -257,7 +257,8 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       int vmm_start = 0;
       std::string FEBName = feb.getAddress();
-      if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      // if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      if(feb.getVmms().size() == 6) vmm_start = 2;
 
       if (trim_hi <= trim_mid) return std::make_pair(0,0);
       if (trim_mid <= trim_lo) return std::make_pair(0,0);
@@ -523,7 +524,7 @@ int main(int ac, const char *av[]) {
 
   std::map< std::pair< std::string, int>, std::ofstream > myfile;
   std::map< std::pair< std::string, int>, std::ofstream > myfile_summary;
-  std::map< std::pair< std::string, int>, std::ofstream > myfile_baseline_ouside_150to200mV;
+  std::map< std::pair< std::string, int>, std::ofstream > myfile_baseline_outside_150to200mV;
 
   //--------------------------------------------------------------------//
 
@@ -564,7 +565,7 @@ int main(int ac, const char *av[]) {
 
           myfile[feb_vmm]         = std::ofstream("baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
           myfile_summary[feb_vmm] = std::ofstream("summary_baselines_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
-	  myfile_baseline_ouside_150to200mV[feb_vmm] = std::ofstream("baselines_outside150to200mV_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
+	  myfile_baseline_outside_150to200mV[feb_vmm] = std::ofstream("baseline_outside_150_200mV_" + feb.getAddress() + "_VMM" + std::to_string(vmm_id) + ".txt");
           fe_samples_tmp[feb_vmm] = blank;
       }
       
@@ -760,7 +761,7 @@ int main(int ac, const char *av[]) {
               
               //@patmasid - Prachi
               if(mean_mV < 150 || mean_mV > 200){          
-                myfile_baseline_ouside_150to200mV[feb_vmm] << "BASELINE_OUTSIDE_150_200_MV"
+                myfile_baseline_outside_150to200mV[feb_vmm] << "BASELINE_OUTSIDE_150_200_MV"
                 << " " << feb.getAddress()
                 << " vmm " << vmm_id
                 << " channel " << channel_id
@@ -810,14 +811,14 @@ int main(int ac, const char *av[]) {
           
           myfile[feb_vmm].close();
           myfile_summary[feb_vmm].close();
-	  myfile_baseline_ouside_150to200mV[feb_vmm].close();
+	  myfile_baseline_outside_150to200mV[feb_vmm].close();
       }
 
   }
 
   myfile.clear();
   myfile_summary.clear();
-  myfile_baseline_ouside_150to200mV.clear();
+  myfile_baseline_outside_150to200mV.clear();
 
   /*
 

@@ -117,7 +117,8 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
   int vmm_start = 0;
   std::string FEBName = feb.getAddress();
   std::cout<< "FEBName " << FEBName << std::endl;
-  if(FEBName.find("SFEB6") != std::string::npos) {
+  // if(FEBName.find("SFEB6") != std::string::npos) {
+  if(feb.getVmms().size() == 6) {
     vmm_start = 2;
     std::cout << "The input FEB name is " << feb.getAddress() << std::endl;
   }
@@ -216,7 +217,8 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       int vmm_start = 0;
       std::string FEBName = feb.getAddress();
-      if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      // if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      if(feb.getVmms().size() == 6) vmm_start = 2;
   
       if (trim_hi <= trim_mid) return std::make_pair(0,0);
       if (trim_mid <= trim_lo) return std::make_pair(0,0);
@@ -623,8 +625,6 @@ int main(int ac, const char *av[]) {
     //
     //////////////////////////////////
 
-
-
     //////////////////////////////////
     // Global Threshold Calculations
 
@@ -644,7 +644,7 @@ int main(int ac, const char *av[]) {
       // int thdac_central_guess = rms_factor * sample_to_mV(vmm_baseline_rms[feb.getAddress()]) + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + (int)(offset_center * 50.0/32.0);
 
       // @patmasid
-      int thdac_central_guess = 30 + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
+      int thdac_central_guess = rms_factor + sample_to_mV(vmm_baseline_med[feb.getAddress()]) + offset_center;
 
       if (debug)
         std::cout << "INFO - baseline_mean, baseline_med, baseline_rms, rms_factor: "
@@ -721,7 +721,7 @@ int main(int ac, const char *av[]) {
                   << rms_factor                        << ", "
                   << std::endl;
 
-      float expectDACThres = mV_to_sample(30)/thdac_slopes[feb.getAddress()]; 
+      float expectDACThres = mV_to_sample(rms_factor)/thdac_slopes[feb.getAddress()]; 
       float sampleDACThres = vmm_eff_thresh/thdac_slopes[feb.getAddress()];
       int previous_thdac = thdacs[feb.getAddress()];
 

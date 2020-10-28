@@ -257,7 +257,8 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 
       int vmm_start = 0;
       std::string FEBName = feb.getAddress();
-      if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      // if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+      if(feb.getVmms().size() == 6) vmm_start = 2;
 
       if (trim_hi <= trim_mid) return std::make_pair(0,0);
       if (trim_mid <= trim_lo) return std::make_pair(0,0);
