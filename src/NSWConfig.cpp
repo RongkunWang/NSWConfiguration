@@ -164,7 +164,9 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
 
 void nsw::NSWConfig::alignADDCsToTP() {
     ERS_LOG("Checking alignment of ADDCs to TP");
-    m_sender->alignAddcGbtxTp(m_addcs);
+    if (!m_simulation) {
+        m_sender->alignAddcGbtxTp(m_addcs);
+    }
     ERS_LOG("Finished checking alignment of ADDCs to TP");
 }
 
@@ -221,7 +223,9 @@ void nsw::NSWConfig::configureTPs() {
     ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
     for (const auto& kv : m_tps) {
         auto configuration = m_tps.at(kv.first);
-        m_sender->sendTpConfig(configuration);
+        if (!m_simulation) {
+            m_sender->sendTpConfig(configuration);
+        }
         ERS_LOG("Finished config to: " << kv.first);
     }
 }
