@@ -62,14 +62,26 @@ float mV_to_sample(float mV_read){
 }
 
 float take_rms(std::vector<float> &v, float mean) {
-  float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
-  float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+  // https://stackoverflow.com/questions/7616511/
+  // float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+  // float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+  std::vector<float> diff(v.size());
+  std::transform(v.begin(), v.end(), diff.begin(),
+                 [mean](float x) { return x - mean; });
+  float sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+  float stdev = std::sqrt(sq_sum / v.size());
   return stdev;
 }
 
 float take_rms(std::vector<short unsigned int> &v, float mean) {
-  float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
-  float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+  // https://stackoverflow.com/questions/7616511/
+  // float sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+  // float stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+  std::vector<float> diff(v.size());
+  std::transform(v.begin(), v.end(), diff.begin(),
+                 [mean](float x) { return x - mean; });
+  float sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+  float stdev = std::sqrt(sq_sum / v.size());
   return stdev;
 }
 
@@ -300,7 +312,61 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
       return std::make_pair(avg_m,trim_hi);
 }
 
+std::vector<short unsigned int> vector_without_outliers(const std::vector<short unsigned int> & input, std::string tag,
+                                                        float bulk = 0.9, int nrms = 5) {
 
+    // need a minimum number of entries to have outliers
+    if (input.size() < 10) {
+        std::vector<short unsigned int> input_copy(input.begin(), input.end());
+        return input_copy;
+    }
+
+    // define a "bulk" of the distribution: e.g. inner 90%
+    float margin = (1.0 - bulk) / 2.0;
+    size_t total = input.size();
+    std::vector<short unsigned int> sorted_input(input.begin(), input.end());
+    std::sort(sorted_input.begin(), sorted_input.end());
+    std::vector<short unsigned int> bulk_distribution = {};
+    for (size_t entry = 0; entry < total; entry++) {
+        float position = (float)(entry) / (float)(total);
+        if (position > margin && position < 1 - margin)
+            bulk_distribution.push_back(sorted_input.at(entry));
+    }
+
+    // take median and RMS of the bulk
+    auto bulk_median = take_median(bulk_distribution);
+    auto bulk_rms    = take_rms(bulk_distribution, bulk_median);
+    std::cout << "OUTLIERS for " << tag << " ::"
+              << " bulk_median = " << bulk_median
+              << " bulk_rms = " << bulk_rms
+              << std::endl;
+
+    // only include measurements within nrms*bulk_RMS of bulk_median: e.g. 5*bulk_RMS
+    std::vector<short unsigned int> output = {};
+    for (auto val: input) {
+        if (std::fabs(val - bulk_median) < (nrms * bulk_rms)) {
+            output.push_back(val);
+        } else {
+            std::cout << "OUTLIERS for " << tag << " ::"
+                      << "Removing outlier " << val
+                      << " because bulk of distribution has"
+                      << " median = " << bulk_median
+                      << ", RMS = " << bulk_rms
+                      << std::endl;
+        }
+    }
+
+    // fin
+    return output;
+
+    // a simpler, dumber approach
+    // std::vector<short unsigned int> output = {};
+    // auto input_median = take_median(input);
+    // for (auto val: input)
+    //     if (std::fabs(input_median - val)/input_median < threshold)
+    //         output.push_back(val);
+    // return output;
+}
 
 
 
@@ -313,6 +379,7 @@ int main(int ac, const char *av[]) {
   int n_samples;
   int tpdac = -1;
   bool isSTGC = 0;
+  bool remove_outliers = 0;
   std::string config_filename;
   std::string fe_name;
   std::string rms_str;
@@ -328,11 +395,13 @@ int main(int ac, const char *av[]) {
       ("samples,s", po::value<int>(&n_samples)->default_value(10), "Number of samples to read")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
       ("isSTGC", po::bool_switch()->default_value(false), "Use the sTGC configuration")
+      ("remove_outliers", po::bool_switch()->default_value(false), "Remove outliers from the baseline measurement")
     ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
   po::notify(vm);
+  remove_outliers = vm["remove_outliers"].as<bool>();
   isSTGC = vm["isSTGC"].as<bool>();
   isMM = !isSTGC;
   std::cout << std::endl;
@@ -450,6 +519,15 @@ int main(int ac, const char *av[]) {
       feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
       feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
       auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10);
+
+      // option to remove outliers
+      if (remove_outliers) {
+          std::string tag = feb.getAddress() + "_VMM" + std::to_string(vmm_id) + "_CH" + std::to_string(channel_id);
+          auto results_without_outliers = vector_without_outliers(results, tag);
+          results.clear();
+          for (auto val: results_without_outliers)
+              results.push_back(val);
+      }
 
       // write to file
       for (auto result: results)
