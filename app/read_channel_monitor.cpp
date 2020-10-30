@@ -31,6 +31,8 @@ struct ThreadConfig {
 };
 
 int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg);
+int active_threads(std::vector< std::future<int> >* threads);
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads);
 
 int main(int ac, const char *av[]) {
 
@@ -40,6 +42,7 @@ int main(int ac, const char *av[]) {
     bool dump;
     bool baseline;
     bool threshold;
+    int max_threads;
     int n_samples;
     int thdac;
     int channel_trim;
@@ -76,6 +79,8 @@ int main(int ac, const char *av[]) {
         default_value(false), "Dump information to the screen")
         ("outdir,o", po::value<std::string>(&outdir)->
         default_value("./"), "Output directory for dumping text files")
+        ("threads", po::value<int>(&max_threads)->
+        default_value(16), "Maximum number of threads to run in parallel")
       ;
 
     po::variables_map vm;
@@ -144,8 +149,10 @@ int main(int ac, const char *av[]) {
     }
 
     // launch
-    std::vector< std::future<int> > threads = {};
+    auto threads = new std::vector< std::future<int> >();
     for (auto & feb : frontend_configs){
+      while(too_many_threads(threads, max_threads))
+        sleep(5);
       ThreadConfig cfg;
       cfg.targeted_vmm_id     = targeted_vmm_id;
       cfg.targeted_channel_id = targeted_channel_id;
@@ -156,11 +163,11 @@ int main(int ac, const char *av[]) {
       cfg.baseline            = baseline;
       cfg.dump                = dump;
       cfg.outdir              = outdir;
-      threads.push_back( std::async(std::launch::async, read_channel_monitor, feb, cfg) );
+      threads->push_back( std::async(std::launch::async, read_channel_monitor, feb, cfg) );
     }
 
     // wait
-    for (auto& thread: threads)
+    for (auto& thread: *threads)
       thread.get();
 
     return 0;
@@ -169,7 +176,8 @@ int main(int ac, const char *av[]) {
 int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
 
     nsw::ConfigSender cs;
-    int VMMS  = 8;
+    // Rongkun: let's not hard-code this
+    int VMMS  = feb.getVmms().size();
     int CHS   = 64;
     int tpdac = -1;
 
@@ -227,4 +235,24 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
       myfile.close();
 
     return 0;
+}
+
+int active_threads(std::vector< std::future<int> >* threads) {
+    int nfinished = 0;
+    for (auto& thread: *threads)
+        if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            nfinished++;
+    return (int)(threads->size()) - nfinished;
+}
+
+bool too_many_threads(std::vector< std::future<int> >* threads, int max_threads) {
+    int nthreads = active_threads(threads);
+    bool decision = (nthreads >= max_threads);
+    if(decision){
+        std::cout << "Too many active threads ("
+                  << nthreads
+                  << "), waiting for fewer than "
+                  << max_threads << std::endl;
+    }
+    return decision;
 }

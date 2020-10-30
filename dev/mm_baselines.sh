@@ -1,10 +1,14 @@
-OLDSLICE="MMFE8_ML1P4_IPR,MMFE8_ML2P4_IPL,MMFE8_ML3P4_IPR,MMFE8_ML4P4_IPL,MMFE8_ML4P4_HOR,MMFE8_ML3P4_HOL,MMFE8_ML2P4_HOR,MMFE8_ML1P4_HOL"
-NEWSLICE="MMFE8_ML1P4_IPL,MMFE8_ML2P4_IPR,MMFE8_ML3P4_IPL,MMFE8_ML4P4_IPR,MMFE8_ML4P4_HOL,MMFE8_ML3P4_HOR,MMFE8_ML2P4_HOL,MMFE8_ML1P4_HOR"
+OLDSLICE="MMFE8_ML1P5_IPR,MMFE8_ML2P5_IPL,MMFE8_ML3P5_IPR,MMFE8_ML4P5_IPL,MMFE8_ML4P5_HOR,MMFE8_ML3P5_HOL,MMFE8_ML2P5_HOR,MMFE8_ML1P5_HOL"
+#USE ME WHEN WE GET THE BOARD BACK IN
+#NEWSLICE="MMFE8_ML1P5_IPL,MMFE8_ML2P5_IPR,MMFE8_ML3P5_IPL,MMFE8_ML4P5_IPR,MMFE8_ML4P5_HOL,MMFE8_ML3P5_HOR,MMFE8_ML2P5_HOL,MMFE8_ML1P5_HOR"
+
+#USE ME NOW BECAUSE THE BOARD IS :X
+NEWSLICE="MMFE8_ML1P5_IPL,MMFE8_ML2P5_IPR,MMFE8_ML4P5_IPR,MMFE8_ML4P5_HOL,MMFE8_ML3P5_HOR,MMFE8_ML2P5_HOL,MMFE8_ML1P5_HOR"
 MMFE8S="${OLDSLICE},${NEWSLICE}"
 
 #
 # How to choose only a single board:
-# MMFE8S="MMFE8_ML1P4_IPR"
+# MMFE8S="MMFE8_ML1P5_IPR"
 #
 
 # NOW="2019_07_16_11h99m99s"
@@ -14,7 +18,7 @@ WEB=/eos/atlas/atlascerngroupdisk/det-nsw/bb5/cosmics/html/baselines/${NOW}
 LOG=/eos/atlas/atlascerngroupdisk/det-nsw/bb5/cosmics/html/baselines/index.html
 ROOT2HTML="/eos/atlas/atlascerngroupdisk/det-nsw/bb5/cosmics/html/root2html.py"
 
-CONFIG="/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/mmfe8_bb5_16_boards_l1matching_nobypass_712_phase1_cosmicsSlice_cosmics.json"
+CONFIG="/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/mmfe8_bb5_16_boards_l1matching_nobypass_712_phase1_cosmicsSlice_cosmics_pcb5.json"
 BIN="./x86_64-centos7-gcc8-opt/NSWConfiguration"
 NSAMPS="100"
 

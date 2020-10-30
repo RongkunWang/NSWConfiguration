@@ -116,12 +116,24 @@ int main(int ac, const char *av[]) {
       exit(0);
     }
 
+    // parse input names
     std::set<std::string> frontend_names;
-    if (fe_name != "") {
-      frontend_names.emplace(fe_name);
-    } else {  // If no name is given, find all elements
-      frontend_names = reader1.getAllElementNames();
+    if (fe_name != ""){
+        if (std::count(fe_name.begin(), fe_name.end(), ',')){
+            std::istringstream ss(fe_name);
+            while(!ss.eof()){
+                std::string buf;
+                std::getline(ss, buf, ',');
+                if (buf != "")
+                    frontend_names.emplace(buf);
+            }
+        }
+        else
+            frontend_names.emplace(fe_name);
     }
+    else
+        frontend_names = reader1.getAllElementNames();
+
 
     std::vector<nsw::FEBConfig> frontend_configs;
 
@@ -231,7 +243,6 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
           }
 
           cs.sendVmmConfig(feb);  // Sends configuration to all vmm
-
 
           size_t i = 0;
           for (auto & vmm : vmms) {
