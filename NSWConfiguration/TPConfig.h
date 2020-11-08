@@ -49,12 +49,14 @@ class TPConfig: public SCAConfig {
     int ARTWindowRight() const;
     uint32_t FiberBCOffset() const;
     int GlobalInputPhase() const;
+    int GlobalInputOffset() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
     void setARTWindowRight(int val);
     void setFiberBCOffset(uint32_t val);
     void setGlobalInputPhase(int val);
+    void setGlobalInputOffset(int val);
 };
 
 }  // namespace nsw

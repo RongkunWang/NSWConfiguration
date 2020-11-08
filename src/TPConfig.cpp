@@ -106,6 +106,9 @@ uint32_t nsw::TPConfig::FiberBCOffset() const {
 int nsw::TPConfig::GlobalInputPhase() const {
     return m_config.get<int>("GlobalInputPhase");
 }
+int nsw::TPConfig::GlobalInputOffset() const {
+    return m_config.get<int>("GlobalInputOffset");
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -121,6 +124,9 @@ void nsw::TPConfig::setFiberBCOffset(uint32_t val) {
 }
 void nsw::TPConfig::setGlobalInputPhase(int val) {
   m_config.put("GlobalInputPhase", val);
+}
+void nsw::TPConfig::setGlobalInputOffset(int val) {
+  m_config.put("GlobalInputOffset", val);
 }
 
 nsw::TPConfig::~TPConfig() {
