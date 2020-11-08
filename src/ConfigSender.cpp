@@ -968,16 +968,12 @@ void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
         bool obs = readGPIO(opc_ip, bit);
         bool yay = obs==exp;
         std::stringstream msg;
-        msg << bit << " ::"
+        msg << std::left << std::setw(34) << bit
+            << " ::"
             << " Expected = " << exp
             << " Observed = " << obs
             << " -> " << (yay ? "Good" : "Bad");
-        if (kv.first == "fpgaConfigOK" ||
-            kv.first == "rxClkReady"   ||
-            kv.first == "txClkReady")
-            ERS_INFO(msg.str());
-        else
-            ERS_LOG(msg.str());
+        ERS_INFO(msg.str());
         if (!obj.CrashOnConfigFailure())
             yay = 1;
         if (kv.first.find("ClkReady") != std::string::npos && !obj.CrashOnClkReadyFailure())
