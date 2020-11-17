@@ -13,21 +13,8 @@
 
 #include "ers/ers.h"
 
-// From UaoForQuasar
-#include "UaoClientForOpcUaSca/include/ClientSessionFactory.h"
-
-// Generated  files
-#include "UaoClientForOpcUaSca/include/SpiSlave.h"
-#include "UaoClientForOpcUaSca/include/I2cSlave.h"
-#include "UaoClientForOpcUaSca/include/DigitalIO.h"
-#include "UaoClientForOpcUaSca/include/AnalogInput.h"
-#include "UaoClientForOpcUaSca/include/SCA.h"
-#include "UaoClientForOpcUaSca/include/IoBatch.h"
-#include "UaoClientForOpcUaSca/include/XilinxFpga.h"
-
-
-// From: open62541-compat, seems not necessary at the moment
-// #include "uaplatformlayer.h"
+// From UaoForQuasar (UaoClientForOpcUaSca/include)
+#include "ClientSessionFactory.h"
 
 #include "NSWConfiguration/OpcClient.h"
 

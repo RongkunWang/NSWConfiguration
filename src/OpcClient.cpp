@@ -11,7 +11,14 @@
 
 #include "NSWConfiguration/OpcClient.h"
 
-
+// Generated (UaoClientForOpcUaSca/include) files
+#include "SpiSlave.h"
+#include "I2cSlave.h"
+#include "DigitalIO.h"
+#include "AnalogInput.h"
+#include "SCA.h"
+#include "IoBatch.h"
+#include "XilinxFpga.h"
 
 nsw::OpcClient::OpcClient(const std::string& server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?

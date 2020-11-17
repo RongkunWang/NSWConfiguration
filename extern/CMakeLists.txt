@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.14.0)
+
+project(NSWConfiguration_extern)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(FetchOpen62541Compat)
+include(FetchLogIt)
+include(FetchUaoClientForOpcUaSca)
+
+if(BUILD_OPEN62541_COMPAT)
+  message(STATUS "BUILD_OPEN62541_COMPAT [${BUILD_OPEN62541_COMPAT}]")
+  message(STATUS "OPEN62541_COMPAT_VERSION [${OPEN62541_COMPAT_VERSION}]")
+  build_open62541_compat()
+  set(OPC_OPEN62541_PATH ${open62541-compat_DIR} PARENT_SCOPE)
+endif()
+
+if(BUILD_UAOCLIENTFOROPCUASCA)
+  message(STATUS "BUILD_UAOCLIENTFOROPCUASCA [${BUILD_UAOCLIENTFOROPCUASCA}]")
+  message(STATUS "UAOCLIENTFOROPCUASCA_VERSION [${UAOCLIENTFOROPCUASCA_VERSION}]")
+  build_UaoClientForOpcUaSca()
+  set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_DIR} PARENT_SCOPE)
+endif()
+
+if(BUILD_LOGIT)
+  message(STATUS "BUILD_LOGIT [${BUILD_LOGIT}]")
+  message(STATUS "LOGIT_VERSION [${LOGIT_VERSION}]")
+  build_LogIt()
+  set(LOGIT_PATH ${logit_DIR} PARENT_SCOPE)
+endif()

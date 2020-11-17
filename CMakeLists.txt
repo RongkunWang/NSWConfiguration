@@ -1,10 +1,26 @@
+cmake_minimum_required(VERSION 3.14.0)
+
+### compile_commands.json DB
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+include(CheckIPOSupported)
+set(IPO_SUPPORTED)
+check_ipo_supported(RESULT IPO_SUPPORTED)
+message(STATUS "IPO_SUPPORTED::${IPO_SUPPORTED}")
+
+add_subdirectory(extern)
+
 tdaq_package() #This will make a package called NSWConfiguration
+
+set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
+set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 
 remove_definitions(-DERS_NO_DEBUG)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
   NAMESPACE nsw::dal
-  INCLUDE_DIRECTORIES DFConfiguration dal 
+  INCLUDE_DIRECTORIES DFConfiguration dal
   INCLUDE NSWConfigurationDal
   CPP_OUTPUT dal_cpp_srcs)
 
@@ -18,86 +34,70 @@ tdaq_add_library(NSWConfig src/NSWConfig.cpp
                  tdaq-common::ers Boost::program_options nswconfigdal
 )
 
-tdaq_add_executable(generate_config_json app/generate_config_json.cpp
-  LINK_LIBRARIES Boost::boost
-)
+## Executables linked against Boost::boost
+set(NSWCONFIG_EXE_WITH_BOOST generate_config_json)
 
-tdaq_add_executable(configure_frontend app/configure_frontend.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST)
+  tdaq_add_executable(${appsrc} app/${appsrc}.cpp
+    LINK_LIBRARIES Boost::boost
+  )
+endforeach()
 
-tdaq_add_executable(read_sca_info app/read_sca_info.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+## Executables linked against nswconfig and Boost::program_options
+set(NSWCONFIG_EXE_WITH_BOOST_PO
+  configure_frontend
+  read_sca_info
+  roc_register_readout
+  vmm_capture_status
+  read_tds_continous
+  read_vmm_adc
+  read_baseline_with_scope
+  calibrate_trimmers
+  read_channel_trimmers
+  read_channel_thresholds
+  check_gpio
+  roc_loop_over_phase
+  roc_select_phase
+  addc_skeleton
+  tp_comm_test
+  mmtp_loopback_test
+  configure_tp
+  )
 
-tdaq_add_executable(roc_register_readout app/roc_register_readout.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+## Executables linked against nswconfig and Boost::program_options, but renamed to nsw_<X>
+set(NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED
+  pad_trigger       # nsw_pad_trigger
+  pad_repeaters     # nsw_pad_repeaters
+  router            # nsw_router
+  tds_frame2Router  # nsw_tds_frame2Router
+  )
 
-tdaq_add_executable(vmm_capture_status app/vmm_capture_status.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
+  tdaq_add_executable(${appsrc} app/${appsrc}.cpp
+    LINK_LIBRARIES nswconfig
+    LINK_LIBRARIES Boost::program_options
+  )
+endforeach()
 
-tdaq_add_executable(read_tds_continous app/read_tds_continous.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
+  tdaq_add_executable(nsw_${appsrc} app/${appsrc}.cpp
+    LINK_LIBRARIES nswconfig
+    LINK_LIBRARIES Boost::program_options
+  )
+endforeach()
 
-tdaq_add_executable(read_vmm_adc app/read_vmm_adc.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+## Executables linked against nswconfig, Boost::program_options, tdaq::Alti, and tdaq::RCDCmemSegment
+set(NSWCONFIG_EXE_WITH_BOOST_PO_ALTI
+  trigger_loop_mm
+  )
 
-tdaq_add_executable(read_baseline_with_scope app/read_baseline_with_scope.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(calibrate_trimmers app/calibrate_trimmers.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(read_channel_trimmers app/read_channel_trimmers.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(read_channel_thresholds app/read_channel_thresholds.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(check_gpio app/check_gpio.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(roc_loop_over_phase app/roc_loop_over_phase.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(roc_select_phase app/roc_select_phase.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(addc_skeleton app/addc_skeleton.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(nsw_trigger_loop_mm app/trigger_loop_mm.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-  tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
-)
-
-tdaq_add_executable(nsw_pad_trigger app/pad_trigger.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(nsw_pad_repeaters app/pad_repeaters.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(nsw_router app/router.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(nsw_tds_frame2Router app/tds_frame2Router.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_ALTI)
+  tdaq_add_executable(nsw_${appsrc} "app/${appsrc}.cpp"
+    LINK_LIBRARIES nswconfig
+    LINK_LIBRARIES Boost::program_options
+    LINK_LIBRARIES tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
+    )
+endforeach()
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
@@ -110,18 +110,6 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
-)
-
-tdaq_add_executable(tp_comm_test app/tp_comm_test.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(mmtp_loopback_test app/mmtp_loopback_test.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
-tdaq_add_executable(configure_tp app/configure_tp.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
@@ -137,57 +125,46 @@ configure_file(test/test_vmm.json test_vmm.json COPYONLY)
 configure_file(test/test_configreader.json test_configreader.json COPYONLY)
 
 tdaq_add_executable(test_vmmconfig test/test_vmmconfig.cpp
-      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers nswconfig)
+  LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers nswconfig)
 
 tdaq_add_executable(test_configreader test/test_configreader.cpp
-      LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
 
 
-add_test(NAME vmmconfig COMMAND test_vmmconfig)
-
-add_test(NAME configreader COMMAND test_configreader)
+### Tests
+set(NSWCONFIG_TESTS vmmconfig configreader utility)
+foreach(testname IN LISTS NSWCONFIG_TESTS)
+  message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
+  add_test(NAME ${testname} COMMAND test_${testname})
+endforeach()
 
 tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
-
-add_test(NAME utility COMMAND nsw_test_utility)
 
 tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
 
 add_test(NAME test_i2cmasterconfig COMMAND test_i2cmasterconfig)
 
-# Generated headers and ClientSessionFactory.h from submodule
-include_directories(UaoClientForOpcUaSca/include)
-
-# Directory of open source OPCUA SDK
-# https://github.com/quasar-team/open62541-compat.git
-# branch: origin/OPCUA-887a_client_extensions
-if (DEFINED ENV{OPC_OPEN62541_PATH})
-    set(OPC_OPEN62541_PATH $ENV{OPC_OPEN62541_PATH})
-    message("OPC_OPEN62541_PATH: " ${OPC_OPEN62541_PATH})
-else()
-    message( FATAL_ERROR "OPC_OPEN62541_PATH environment variable not defined!" )
-endif()
-
-include_directories(${OPC_OPEN62541_PATH}/include)
-include_directories(${OPC_OPEN62541_PATH}/build/open62541/)
-include_directories(${OPC_OPEN62541_PATH}/build/LogIt/include)
-
-file(GLOB OPC_GENERATED_CLIENT_SRCS UaoClientForOpcUaSca/src/*)
-
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
-        UaoClientForOpcUaSca/src/ClientSessionFactory.cpp
-        ${OPC_GENERATED_CLIENT_SRCS}
   LINK_LIBRARIES
         Boost::boost
         tdaq-common::ers
-        ${OPC_OPEN62541_PATH}/build/libopen62541-compat.so
-        ${OPC_OPEN62541_PATH}/build/open62541/libopen62541.a
+        UaoClient::UaoClientForOpcUaSca
         rt
-        Protobuf
 )
+# LINK_LIBRARIES PRIVATE
+
+## Link against static external dependencies
+# target_link_libraries(nswopcclient
+#   PRIVATE
+#   )
+
+if(IPO_SUPPORTED)
+  message(STATUS "Enabling IPO")
+  set_target_properties(nswopcclient PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+endif()
 
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
     LINK_LIBRARIES nswopcclient

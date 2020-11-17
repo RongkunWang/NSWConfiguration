@@ -5,8 +5,9 @@ variables:
     GIT_STRATEGY: fetch
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_SSL_NO_VERIFY: "true"
-    NCORES: 3
-    TDAQ_RELEASE: tdaq-08-03-01
+    TDAQ_RELEASE: tdaq-09-01-00
+    COMPILER_PROFILE: x86_64-centos7-gcc8-opt
+    MAKE_OPTIONS: -j2
 
 #
 # Run before each job
@@ -36,53 +37,73 @@ stages:
         - cvmfs
     script:
         - echo 'Running Build Test'
-        - pwd; ls
         - export WD=$PWD
-        - echo $WD
-        - cd /
-        - pwd; ls
-        - echo "Grabbing open62541-compat and compiling. A little wasteful, but works until it's installed in the tdaq release..."
-        - export LCG_VERSION=LCG_96
-        - export HW_TAG=x86_64-centos7-gcc8-opt
-        - source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$HW_TAG/setup.sh
-        - git clone https://github.com/quasar-team/open62541-compat.git
-        - cd open62541-compat
-        - git checkout v1.1.3-rc0
-        - mkdir build
-        - cd build
-        - cmake .. -DOPEN62541-COMPAT_BUILD_CONFIG_FILE=boost_lcg.cmake -DSTANDALONE_BUILD=ON -DSTANDALONE_BUILD_SHARED=ON -DSKIP_TESTS=ON
-        - make -j
-        - export OPC_OPEN62541_PATH=$PWD/../
-        - echo $OPC_OPEN62541_PATH
         - cd $WD/../
-        - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh $TDAQ_RELEASE # replace nightly with any other release
-        - printf "cmake_minimum_required(VERSION 3.4.3)\nfind_package(TDAQ)\ninclude(CTest)\ntdaq_work_area()\n" > CMakeLists.txt
-        - pwd;ls
-        - cmake_config
-        - cd $CMTCONFIG
-        - pwd;ls
-        - make -j $NCORES
+        - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
+        - |
+          cat <<'EOF'> CMakeLists.txt
+          cmake_minimum_required(VERSION 3.14.0)
+
+          ## Replace "X.Y.Z" with current default TDAQ version.
+          set(TDAQ_VERSION 8.3.1 CACHE STRING "TDAQ version number")
+          set(NSWDAQ_VERSION 1.0.0 CACHE STRING "NSWDAQ version number")
+
+          message(STATUS "TDAQ_VERSION [${TDAQ_VERSION}]")
+          message(STATUS "NSWDAQ_VERSION [${NSWDAQ_VERSION}]")
+
+          project(nswdaq-ci-build VERSION ${NSWDAQ_VERSION})
+
+          find_package(TDAQ)
+          include(CTest)
+
+          tdaq_project(nswdaq-ci-build ${NSWDAQ_VERSION} USES tdaq ${TDAQ_VERSION})
+          EOF
+        - cmake -B${CMTCONFIG} -DTDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}') -S.
+        - cmake --build ${CMTCONFIG} -- ${MAKE_OPTIONS}
         - pwd;ls
 
 #
-# Job: Build test
+# Job: Build test - 8.3.1
 #
-build-test:
+build-08-03-01:
     except:
         - dev
+    variables:
+        TDAQ_RELEASE: tdaq-08-03-01
     <<: *build_job
     allow_failure: false
 
 #
-# Job: Build test - next
+# Job: Build test - 9.1.0
 #
-build-test-next:
+build-09-01-00:
     except:
         - dev
     variables:
         TDAQ_RELEASE: tdaq-09-01-00
     <<: *build_job
     allow_failure: true
+
+#
+# Job: Build test - 9.2.1
+#
+build-09-02-01:
+    except:
+        - dev
+    variables:
+        TDAQ_RELEASE: tdaq-09-02-01
+    <<: *build_job
+    allow_failure: true
+
+build-09-02-01-gcc10:
+    except:
+        - master
+        - tags
+    variables:
+        TDAQ_RELEASE: tdaq-09-02-01
+        COMPILER_PROFILE: x86_64-centos7-gcc10-opt
+    allow_failure: true
+    <<: *build_job
 
 #
 # Job: Build test - nightly
