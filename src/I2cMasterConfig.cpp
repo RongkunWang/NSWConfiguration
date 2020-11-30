@@ -108,6 +108,18 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
     return bitstreams;
 }
 
+i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildPartialConfig(const ptree& config) const {
+    i2c::AddressBitstreamMap bitstreams;
+    std::transform(std::begin(config), std::end(config), std::inserter(bitstreams, std::end(bitstreams)), [&config] (const auto& pair) -> std::pair<std::string, std::string> {
+        const std::string address = pair.first;
+        const unsigned int value = config.get<unsigned int>(address);
+        // FIXME: Size?
+        std::bitset<8> bs(value);
+        return {address, bs.to_string()};
+    });
+    return bitstreams;
+}
+
 void nsw::I2cMasterConfig::dump() const {
     ERS_LOG("Dumping Config for: " << m_name);
     for (auto ab : m_address_bitstream) {

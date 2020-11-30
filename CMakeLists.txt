@@ -107,6 +107,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
                  src/TPConfig.cpp src/RouterConfig.cpp
+                 src/ConfigTranslation.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers

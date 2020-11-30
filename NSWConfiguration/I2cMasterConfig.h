@@ -65,6 +65,9 @@ class I2cMasterCodec {
     // Method that creates bitstreams from config tree.
     i2c::AddressBitstreamMap buildConfig(const ptree& config) const;
 
+    /// Method to create a bitstream from a partial config tree
+    i2c::AddressBitstreamMap buildPartialConfig(const ptree& config) const;
+
     /// Map of i2c addresses, to a map of registers to positions in the bitstream
     i2c::AddressRegisterSizeMap m_addr_reg_pos;
 
@@ -102,15 +105,27 @@ class I2cMasterConfig {
     i2c::AddressBitstreamMap m_address_bitstream;  /// Map of I2c addresses(string) and bitstreams(string)
 
  public:
-    explicit I2cMasterConfig(const ptree& config, const std::string& name, const i2c::AddressRegisterMap & reg):
-        m_config(config), m_name(name), m_codec(reg) {
-            buildConfig(config);
+    explicit I2cMasterConfig(const ptree& config, const std::string& name, const i2c::AddressRegisterMap & reg, const bool partial=false):
+        m_config(config), m_name(name), m_codec(reg)  { //FIXME why is buildConfig public? can I make it private and put it in the initializer list?
+            if (not partial)
+            {
+                buildConfig(config);
+            }
+            else
+            {
+                buildPartialConfig(config);
+            }   
         }
 
     ~I2cMasterConfig() {}
 
     void buildConfig(const ptree& config) {
       m_address_bitstream = m_codec.buildConfig(config);
+    }
+
+    // FIXME: Change name. Maybe buildTransaction?
+    void buildPartialConfig(const ptree& config) {
+      m_address_bitstream = m_codec.buildPartialConfig(config);
     }
 
     std::string getName() const { return m_name;}
