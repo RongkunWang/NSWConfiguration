@@ -12,11 +12,13 @@ variables:
 
 stages:
   - build
+  - test
   - quality
   - reports
 
 include:
   - .gitlab/ci/build.yml
+  - .gitlab/ci/test.yml
   - .gitlab/ci/code-quality.yml
 
 workflow:

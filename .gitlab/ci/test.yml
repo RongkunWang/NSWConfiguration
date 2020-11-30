@@ -1,0 +1,77 @@
+# Template for unit test jobs
+.test:
+  image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+  stage: test
+  before_script:
+    - yum update -y
+    - yum install -y python3
+  script:
+    - source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
+    - pwd; ls
+    - unset PYTHONPATH; unset PYTHONHOME
+    - /usr/bin/python3 ./test/run_unit_tests.py -d build/ -o junit.xml
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
+
+## Current stable TDAQ release
+test:stable:
+  rules:
+    - if: '$CI_COMMIT_BRANCH !~ "^dev$"'
+  needs:
+    - build:stable
+  extends: .test
+  allow_failure: false
+
+## Current stable builds on the dev branch
+test:stable:dev:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+  needs:
+    - build:stable:dev
+  extends: .test
+  allow_failure: false
+
+## Current stable release, gcc10 compiler profile
+test:stable:gcc10:
+  rules:
+    - if: '$CI_COMMIT_BRANCH !~ "^dev$"'
+  needs:
+    - build:stable:gcc10
+  variables:
+    COMPILER_PROFILE: x86_64-centos7-gcc10-opt
+  extends: .test
+  allow_failure: true
+
+## Unstable TDAQ releases, allowed to fail
+test:tdaq-08-03-01:
+  rules:
+    - if: '$CI_COMMIT_BRANCH !~ "^dev$"'
+  needs:
+    - build:tdaq-08-03-01
+  extends: .test
+  variables:
+    TDAQ_RELEASE: tdaq-08-03-01
+  allow_failure: true
+
+test:tdaq-09-01-00:
+  rules:
+    - if: '$CI_COMMIT_BRANCH !~ "^dev$"'
+  needs:
+    - build:tdaq-09-01-00
+  extends: .test
+  variables:
+    TDAQ_RELEASE: tdaq-09-01-00
+  allow_failure: true
+
+## Nightly TDAQ releases, allowed to fail
+test:nightly:
+  rules:
+    - when: manual
+  extends: .test
+  variables:
+    TDAQ_RELEASE: tdaq-99-00-00
+  allow_failure: true

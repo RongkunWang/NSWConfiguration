@@ -42,10 +42,15 @@ variables:
   script:
     - cmake -B${CMTCONFIG} -DTDAQ_VERSION=${TDAQ_VERSION} -S.
     - cmake --build ${CMTCONFIG} --verbose -- ${MAKE_OPTIONS}
+    - mv ${CMTCONFIG}/NSWConfiguration ${CI_PROJECT_DIR}/build
     - pwd; ls -l
   after_script:
     - ls -l
     - echo 'Build job ${CI_JOB_NAME} finished'
+  artifacts:
+    expire_in: 4 hours
+    paths:
+      - build/
 
 #
 # Build jobs
