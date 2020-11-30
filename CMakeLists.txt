@@ -138,7 +138,7 @@ foreach(testname IN LISTS NSWCONFIG_TESTS)
   add_test(NAME ${testname} COMMAND test_${testname})
 endforeach()
 
-tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
+tdaq_add_executable(test_nsw_utility test/test_utility.cpp src/Utility.cpp
       LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
 
 tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
