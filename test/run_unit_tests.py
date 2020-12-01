@@ -15,33 +15,35 @@ def get_tests():
                 yield node
 
 def run_test(executable):
-    """ Runs the given executable, filtering out ERS log messages and XML metadata.
+    """ Runs the given executable, filtering out XML header.
     """
-    proc = subprocess.Popen(f"./{executable} --catch_system_error=yes --report_level=no --log_format=JUNIT", shell=True, stdout=subprocess.PIPE)
-    out = b""
-    for line in proc.stdout:
-        # Need to filter out ERS logs...
-        if (line.find(b"LOG") == -1 and (line.find(b"<?xml") == -1 or line.find(b"?>") == -1)):
-            out += line
-
-    out += b"\n"
-    # 10 second timeout until termination
-    proc.wait(10)
+    report_filename = f"{executable}_report.xml"
+    proc = subprocess.Popen(f"./{executable} --catch_system_error=yes --report_level=no --log_format=JUNIT --log_sink={report_filename}", shell=True, stdout=subprocess.PIPE)
+    # 30 second timeout until termination
+    proc.wait(30)
     if (proc.returncode != 0):
         global is_failed
         is_failed = True
-    return out.decode("utf-8")
+    
+    out = ""
+    with open(report_filename, "r") as report_file:
+        report_file.readline()      # skip XML header
+        line = report_file.readline()
+        while line:
+            out += line
+            line = report_file.readline()
+    os.remove(report_filename)      # delete file created by test
+    return out
 
 def write_report(reports, output_file):
-    """ Collates the report strings in the reports list to output_file, re-adding XML metadata.
+    """ Collates the report strings in the reports list to output_file, prepending XML metadata.
     """
-    outfile = open(output_file, "w+")
-    outfile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-    outfile.write("<testsuites>\n")
-    for report in reports:
-        outfile.write(report)
-    outfile.write("</testsuites>\n")
-    outfile.close()
+    with open(output_file, "w+") as outfile:
+        outfile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+        outfile.write("<testsuites>\n")
+        for report in reports:
+            outfile.write(report + "\n")
+        outfile.write("</testsuites>\n")
     
 def main():
     parser = argparse.ArgumentParser()
@@ -56,7 +58,7 @@ def main():
     reports = []
     for filename in get_tests():
         print(f"\tRunning test executable {filename}")
-        reports += run_test(filename)
+        reports.append(run_test(filename))
     
     os.chdir(prev_wd)
     print(f"Writing report to {args.output_file}")
