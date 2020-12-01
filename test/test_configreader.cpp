@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE(getElementNames_test) {
     }
 
     {
-      auto elements = cfg.getElementNames("A02\\.Layer0.*");
+      auto elements = cfg.getElementNames(R"(A02\.Layer0.*)");
 
       std::set<std::string> s2 = { "A02.Layer0.MMFE8-0001"};
       BOOST_TEST(elements == s2);
     }
 
     {
-      auto elements = cfg.getElementNames("A0.*\\.Layer1.*");
+      auto elements = cfg.getElementNames(R"(A0.*\.Layer1.*)");
 
       std::set<std::string> s2 = { "A02.Layer1.MMFE8-0001", "A02.Layer1.PFEB-0001"};
       BOOST_TEST(elements == s2);
