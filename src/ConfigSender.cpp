@@ -949,7 +949,7 @@ void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj, int ho
         sleep(hold_reset);
     sendGPIO(opc_ip, soft_reset, 0);
     ERS_LOG(soft_reset << " " << readGPIO(opc_ip, soft_reset));
-    usleep(3e6);
+    usleep(5e6);
 }
 
 void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
