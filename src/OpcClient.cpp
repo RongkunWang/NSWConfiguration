@@ -227,12 +227,21 @@ void nsw::OpcClient::writeGPIO(const std::string& node, bool data) const {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     ERS_DEBUG(4, "Node: " << node << ", Data: " << data);
 
-    try {
-        gpio.writeValue(data);
-    } catch (const std::exception& e) {
-        // TODO(cyildiz) handle exception properly
-        std::cout << "Can't write GPIO: " <<  e.what() << std::endl;
-        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+    bool success{ false };
+    size_t retry{ 0 };
+    while (!success && retry < MAX_RETRY) {
+        try {
+            gpio.writeValue(data);
+            success = true;
+        } catch (const std::exception& e) {
+            ERS_LOG("writeGPIO " << retry << " to " << node << " failed. " << e.what()
+                    << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+            retry++;
+            sleep(1);
+        }
+    }
+    if (!success) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "writeGPIO failed");
         ers::warning(issue);
         throw issue;
     }
@@ -242,10 +251,21 @@ bool nsw::OpcClient::readGPIO(const std::string& node) const {
     UaoClientForOpcUaSca::DigitalIO gpio(m_session.get(), UaNodeId(node.c_str(), 2));
     bool value = false;
 
-    try {
-        value = gpio.readValue();
-    } catch (const std::exception& e) {
-        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+    bool success{ false };
+    size_t retry{ 0 };
+    while (!success && retry < MAX_RETRY) {
+        try {
+            value = gpio.readValue();
+            success = true;
+        } catch (const std::exception& e) {
+            ERS_LOG("readGPIO " << retry << " to " << node << " failed. " << e.what()
+                    << " Next attempt. Maximum " << MAX_RETRY << " attempts.");
+            retry++;
+            sleep(1);
+        }
+    }
+    if (!success) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "readGPIO failed");
         ers::warning(issue);
         throw issue;
     }
