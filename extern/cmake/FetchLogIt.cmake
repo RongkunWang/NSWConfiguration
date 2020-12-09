@@ -31,11 +31,14 @@ macro(build_LogIt)
   add_library(LogIt INTERFACE)
   add_library(LogIt::LogIt ALIAS LogIt)
 
-  ## Add -flto
-  # set_property(TARGET LogIt PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+  ## Add -flto, if supported
+  if(IPO_SUPPORTED)
+    message(STATUS "Enabling IPO for LogIt")
+    # set_target_properties(LogIt PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+  endif()
 
   ## Add -fPIC for inclusion in shared libs
-  set_property(TARGET LogIt PROPERTY POSITION_INDEPENDENT_CODE True)
+  set_target_property(LogIt PROPERTIES POSITION_INDEPENDENT_CODE True)
 
   target_include_directories(LogIt BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/LogIt/include>
@@ -61,14 +64,4 @@ macro(build_LogIt)
   set(logit_SOURCE_DIR  ${logit_SOURCE_DIR}  PARENT_SCOPE)
   set(logit_BINARY_DIR  ${logit_BINARY_DIR}  PARENT_SCOPE)
   set(logit_INSTALL_DIR ${logit_INSTALL_DIR} PARENT_SCOPE)
-
-  ## need to export this into the main build
-  set(LOGIT_PATH ${logit_SOURCE_DIR} PARENT_SCOPE)
-
-  message(DEBUG "fetching::LogIt source dir: ${logit_SOURCE_DIR}")
-  message(DEBUG "fetching::LogIt binary dir: ${logit_BINARY_DIR}")
-  message(DEBUG "fetching::LogIt install dir: ${logit_INSTALL_DIR}")
-  message(DEBUG "fetching::expanded expression for LogIt::$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
 endmacro()
-
-## Make libs, includes, and targets available

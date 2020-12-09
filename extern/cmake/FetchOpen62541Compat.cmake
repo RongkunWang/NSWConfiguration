@@ -24,6 +24,12 @@ macro(build_open62541_compat)
   option(STANDALONE_BUILD_SHARED CACHE OFF)
   option(SKIP_TESTS CACHE ON)
 
+  ## Because tdaq_cmake turns this on globally, resulting in the above cache variable
+  ## being ignored after a reconfiguration
+  if(NOT STANDALONE_BUILD_SHARED)
+    set(BUILD_SHARED_LIBS OFF)
+  endif()
+
   ### compile_commands.json DB
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
@@ -41,7 +47,7 @@ macro(build_open62541_compat)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    message(STATUS "Enabling IPO")
+    message(STATUS "Enabling IPO for open62541-compat")
     # set_target_properties(open62541 LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
@@ -92,6 +98,4 @@ macro(build_open62541_compat)
   set(open62541-compat_SOURCE_DIR  ${open62541-compat_SOURCE_DIR}  PARENT_SCOPE)
   set(open62541-compat_BINARY_DIR  ${open62541-compat_BINARY_DIR}  PARENT_SCOPE)
   set(open62541-compat_INSTALL_DIR ${open62541-compat_INSTALL_DIR} PARENT_SCOPE)
-
-  set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} PARENT_SCOPE)
 endmacro()
