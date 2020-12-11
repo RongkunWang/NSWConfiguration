@@ -1,5 +1,5 @@
-#ifndef NSWCONFIGURATION_CONFIGTRANSLATION_H
-#define NSWCONFIGURATION_CONFIGTRANSLATION_H
+#ifndef NSWCONFIGURATION_CONFIGCONVERTER_H
+#define NSWCONFIGURATION_CONFIGCONVERTER_H
 
 #include <map>
 #include <string>
@@ -7,6 +7,7 @@
 #include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/ConfigTranslationMap.h"
 
 using boost::property_tree::ptree;
 
@@ -35,12 +36,23 @@ public:
         VALUE_BASED
     };
 
+    /// Type of register Address space
+    enum class RegisterAddressSpace
+    {
+        ROC_ANALOG,
+        ROC_DIGITAL,
+        TDS,
+        VMM
+    };
+
     /// Create object from ptree
     /** Constructor to initialize object
      *  \param t_config configuration to be converted
+     *  \param t_addressSpace ROC analog, digital,...
      *  \param t_type type of configuration (register or value-based)
      */
     explicit ConfigConverter(const ptree &t_config, const ConfigType t_type);
+    explicit ConfigConverter(const ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type);
 
     /// Obtain value-based ptree of configuration
     /** The value-based ptree does not contain register values but configuration
@@ -138,8 +150,9 @@ private:
      */
     void checkPaths(const std::vector<std::string>& t_paths) const;
 
-    ptree m_registerTree;
-    ptree m_valueTree;
+    TranslationMap m_translationMap;    ///< map used for translation (analog, digital, tds, ...)
+    ptree m_registerTree;               ///< register-based ptree
+    ptree m_valueTree;                  ///< value-based ptree
 };
 
 #endif

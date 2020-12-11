@@ -114,7 +114,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildPartialConfig(const ptree& co
         const std::string address = pair.first;
         const unsigned int value = config.get<unsigned int>(address);
         // FIXME: Size?
-        std::bitset<8> bs(value);
+        const std::bitset<8> bs(value);
         return {address, bs.to_string()};
     });
     return bitstreams;

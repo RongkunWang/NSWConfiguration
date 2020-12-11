@@ -14,7 +14,7 @@ struct TranslationUnit
 
 using TranslationMap = std::map<std::string, std::vector<TranslationUnit>>;
 
-static const TranslationMap TRANSLATION_MAP = {
+static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
     {"ePllVmm0.ePllPhase40MHz_0", {
         TranslationUnit{"reg064ePllVmm0.ePllPhase40MHz_0", 0b0111'1111}
     }},
@@ -479,6 +479,304 @@ static const TranslationMap TRANSLATION_MAP = {
     }},
     {"FIXME.vmmTpInv", {
         TranslationUnit{"reg124vmmTpInv.vmmTpInv"}
+    }}
+};
+
+static const TranslationMap TRANSLATION_MAP_ROC_DIGITAL = {
+    {"rocId.l1_first", {
+        TranslationUnit{"reg000rocId.l1_first", 0b1000'0000}
+    }},
+    {"rocId.even_parity", {
+        TranslationUnit{"reg000rocId.even_parity", 0b0100'0000}
+    }},
+    {"rocId.roc_id", {
+        TranslationUnit{"reg000rocId.roc_id", 0b0011'1111}
+    }},
+    {"elinkSpeed.sRoc0", {
+        TranslationUnit{"reg001rocId.sroc0", 0b0000'0011}
+    }},
+    {"elinkSpeed.sRoc1", {
+        TranslationUnit{"reg001rocId.sroc1", 0b0000'1100}
+    }},
+    {"elinkSpeed.sRoc2", {
+        TranslationUnit{"reg001rocId.sroc2", 0b0011'0000}
+    }},
+    {"elinkSpeed.sRoc3", {
+        TranslationUnit{"reg001rocId.sroc3", 0b1100'0000}
+    }},
+    {"sRoc0VmmConnections.vmm0", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc0VmmConnections.vmm1", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc0VmmConnections.vmm2", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc0VmmConnections.vmm3", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc0VmmConnections.vmm4", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc0VmmConnections.vmm5", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc0VmmConnections.vmm6", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc0VmmConnections.vmm7", {
+        TranslationUnit{"reg002sRoc0VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc1VmmConnections.vmm0", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc1VmmConnections.vmm1", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc1VmmConnections.vmm2", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc1VmmConnections.vmm3", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc1VmmConnections.vmm4", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc1VmmConnections.vmm5", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc1VmmConnections.vmm6", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc1VmmConnections.vmm7", {
+        TranslationUnit{"reg003sRoc1VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc2VmmConnections.vmm0", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc2VmmConnections.vmm1", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc2VmmConnections.vmm2", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc2VmmConnections.vmm3", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc2VmmConnections.vmm4", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc2VmmConnections.vmm5", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc2VmmConnections.vmm6", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc2VmmConnections.vmm7", {
+        TranslationUnit{"reg004sRoc2VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc3VmmConnections.vmm0", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc3VmmConnections.vmm1", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc3VmmConnections.vmm2", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc3VmmConnections.vmm3", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc3VmmConnections.vmm4", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc3VmmConnections.vmm5", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc3VmmConnections.vmm6", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc3VmmConnections.vmm7", {
+        TranslationUnit{"reg005sRoc3VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"eopEnable.sRoc0", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc0_eop_enable", 0b0001'0000}
+    }},
+    {"eopEnable.sRoc1", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc1_eop_enable", 0b0010'0000}
+    }},
+    {"eopEnable.sRoc2", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc2_eop_enable", 0b0100'0000}
+    }},
+    {"eopEnable.sRoc3", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc3_eop_enable", 0b1000'0000}
+    }},
+    {"nullEventEnable.sRoc0", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc0_nullevt_enable", 0b0001'0000}
+    }},
+    {"nullEventEnable.sRoc1", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc1_nullevt_enable", 0b0010'0000}
+    }},
+    {"nullEventEnable.sRoc2", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc2_nullevt_enable", 0b0100'0000}
+    }},
+    {"nullEventEnable.sRoc3", {
+        TranslationUnit{"reg006eopAndNullEventEnable.sroc3_nullevt_enable", 0b1000'0000}
+    }},
+    {"sRocEnable.bypass", {
+        TranslationUnit{"reg007sRocEnable.bypass", 0b1000'0000}
+    }},
+    {"sRocEnable.timeoutEnable", {
+        TranslationUnit{"reg007sRocEnable.timeoutEnable", 0b0100'0000}
+    }},
+    {"sRocEnable.TTCStartBits", {
+        TranslationUnit{"reg007sRocEnable.TTCStartBits", 0b0011'0000}
+    }},
+    {"sRocEnable.sRoc0", {
+        TranslationUnit{"reg007sRocEnable.enableSROC0", 0b0000'0001}
+    }},
+    {"sRocEnable.sRoc1", {
+        TranslationUnit{"reg007sRocEnable.enableSROC1", 0b0000'0010}
+    }},
+    {"sRocEnable.sRoc2", {
+        TranslationUnit{"reg007sRocEnable.enableSROC2", 0b0000'0100}
+    }},
+    {"sRocEnable.sRoc3", {
+        TranslationUnit{"reg007sRocEnable.enableSROC3", 0b0000'1000}
+    }},
+    {"vmmEnable.vmm0", {
+        TranslationUnit{"reg008vmmEnable.vmm0", 0b0000'0001}
+    }},
+    {"vmmEnable.vmm1", {
+        TranslationUnit{"reg008vmmEnable.vmm1", 0b0000'0010}
+    }},
+    {"vmmEnable.vmm2", {
+        TranslationUnit{"reg008vmmEnable.vmm2", 0b0000'0100}
+    }},
+    {"vmmEnable.vmm3", {
+        TranslationUnit{"reg008vmmEnable.vmm3", 0b0000'1000}
+    }},
+    {"vmmEnable.vmm4", {
+        TranslationUnit{"reg008vmmEnable.vmm4", 0b0001'0000}
+    }},
+    {"vmmEnable.vmm5", {
+        TranslationUnit{"reg008vmmEnable.vmm5", 0b0010'0000}
+    }},
+    {"vmmEnable.vmm6", {
+        TranslationUnit{"reg008vmmEnable.vmm6", 0b0100'0000}
+    }},
+    {"vmmEnable.vmm7", {
+        TranslationUnit{"reg008vmmEnable.vmm7", 0b1000'0000}
+    }},
+    {"FIXME.timeout", {
+        TranslationUnit{"reg009timeout.timeout"}
+    }},
+    {"FIXME.tx_csel", {
+        TranslationUnit{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
+    }},
+    {"FIXME.bc_offset", {
+        TranslationUnit{"reg010bcOffset0_txcSel.tx_csel", 0b0000'1111},
+        TranslationUnit{"reg011bcOffset1.bc_offset[7:0]"}
+    }},
+    {"FIXME.bc_rollover", {
+        TranslationUnit{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111},
+        TranslationUnit{"reg013bcRollover1.bc_rollover[7:0]"}
+    }},
+    {"eportEnable.sRoc0", {
+        TranslationUnit{"reg014eportEnable.sroc0", 0b0000'0011}
+    }},
+    {"eportEnable.sRoc1", {
+        TranslationUnit{"reg014eportEnable.sroc1", 0b0000'1100}
+    }},
+    {"eportEnable.sRoc2", {
+        TranslationUnit{"reg014eportEnable.sroc2", 0b0011'0000}
+    }},
+    {"eportEnable.sRoc3", {
+        TranslationUnit{"reg014eportEnable.sroc3", 0b1100'0000}
+    }},
+    {"fakeVmmFailure.vmm0", {
+        TranslationUnit{"reg063timeoutStatus.vmm0", 0b0000'0001}
+    }},
+    {"fakeVmmFailure.vmm1", {
+        TranslationUnit{"reg063timeoutStatus.vmm1", 0b0000'0010}
+    }},
+    {"fakeVmmFailure.vmm2", {
+        TranslationUnit{"reg063timeoutStatus.vmm2", 0b0000'0100}
+    }},
+    {"fakeVmmFailure.vmm3", {
+        TranslationUnit{"reg063timeoutStatus.vmm3", 0b0000'1000}
+    }},
+    {"fakeVmmFailure.vmm4", {
+        TranslationUnit{"reg063timeoutStatus.vmm4", 0b0001'0000}
+    }},
+    {"fakeVmmFailure.vmm5", {
+        TranslationUnit{"reg063timeoutStatus.vmm5", 0b0010'0000}
+    }},
+    {"fakeVmmFailure.vmm6", {
+        TranslationUnit{"reg063timeoutStatus.vmm6", 0b0100'0000}
+    }},
+    {"fakeVmmFailure.vmm7", {
+        TranslationUnit{"reg063timeoutStatus.vmm7", 0b1000'0000}
+    }},
+    {"busyEnable.sRoc0", {
+        TranslationUnit{"reg020busyAndTdcEnable.busy_enable_sroc0", 0b0000'0001}
+    }},
+    {"busyEnable.sRoc1", {
+        TranslationUnit{"reg020busyAndTdcEnable.busy_enable_sroc1", 0b0000'0010}
+    }},
+    {"busyEnable.sRoc2", {
+        TranslationUnit{"reg020busyAndTdcEnable.busy_enable_sroc2", 0b0000'0100}
+    }},
+    {"busyEnable.sRoc3", {
+        TranslationUnit{"reg020busyAndTdcEnable.busy_enable_sroc3", 0b0000'1000}
+    }},
+    {"tdcEnable.sRoc0", {
+        TranslationUnit{"reg020busyAndTdcEnable.tdc_enable_sroc0", 0b0001'0000}
+    }},
+    {"tdcEnable.sRoc1", {
+        TranslationUnit{"reg020busyAndTdcEnable.tdc_enable_sroc1", 0b0010'0000}
+    }},
+    {"tdcEnable.sRoc2", {
+        TranslationUnit{"reg020busyAndTdcEnable.tdc_enable_sroc2", 0b0100'0000}
+    }},
+    {"tdcEnable.sRoc3", {
+        TranslationUnit{"reg020busyAndTdcEnable.tdc_enable_sroc3", 0b1000'0000}
+    }},
+    {"FIXME.busyOnLimit", {
+        TranslationUnit{"reg021busyOnLimit0.busy_on_limit[10:8]", 0b0000'0111, 0b0111'0000'0000},
+        TranslationUnit{"reg022busyOnLimit1.busy_on_limit[7:0]", 0b1111'1111, 0b0000'1111'1111}
+    }},
+    {"FIXME.busyOffLimit", {
+        TranslationUnit{"reg023busyOffLimit0.busy_off_limit[10:8]", 0b0000'0111},
+        TranslationUnit{"reg024busyOffLimit1.busy_off_limit[7:0]"}
+    }},
+    {"FIXME.l1EventsWithoutComma", {
+        TranslationUnit{"reg031l1EventsWithoutComma.l1_events_no_comma"}
+    }},
+    {"timeoutStatus.vmm0", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm0", 0b0000'0001}
+    }},
+    {"timeoutStatus.vmm1", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm1", 0b0000'0010}
+    }},
+    {"timeoutStatus.vmm2", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm2", 0b0000'0100}
+    }},
+    {"timeoutStatus.vmm3", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm3", 0b0000'1000}
+    }},
+    {"timeoutStatus.vmm4", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm4", 0b0001'0000}
+    }},
+    {"timeoutStatus.vmm5", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm5", 0b0010'0000}
+    }},
+    {"timeoutStatus.vmm6", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm6", 0b0100'0000}
+    }},
+    {"timeoutStatus.vmm7", {
+        TranslationUnit{"reg019fakeVmmFailure.vmm7", 0b1000'0000}
     }}
 };
 

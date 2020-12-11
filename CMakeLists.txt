@@ -107,7 +107,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
                  src/TPConfig.cpp src/RouterConfig.cpp
-                 src/ConfigTranslation.cpp
+                 src/ConfigConverter.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
@@ -152,8 +152,13 @@ tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMa
   NOINSTALL
   LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
 
+tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
+
 ### Tests
-set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig)
+set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)
+
 foreach(testname IN LISTS NSWCONFIG_TESTS)
   message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
   add_test(NAME ${testname} COMMAND test_${testname})

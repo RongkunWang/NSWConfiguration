@@ -106,27 +106,8 @@ class I2cMasterConfig {
 
  public:
     explicit I2cMasterConfig(const ptree& config, const std::string& name, const i2c::AddressRegisterMap & reg, const bool partial=false):
-        m_config(config), m_name(name), m_codec(reg)  { //FIXME why is buildConfig public? can I make it private and put it in the initializer list?
-            if (not partial)
-            {
-                buildConfig(config);
-            }
-            else
-            {
-                buildPartialConfig(config);
-            }   
+        m_config(config), m_name(name), m_codec(reg), m_address_bitstream(buildConfig(config, partial)) {
         }
-
-    ~I2cMasterConfig() {}
-
-    void buildConfig(const ptree& config) {
-      m_address_bitstream = m_codec.buildConfig(config);
-    }
-
-    // FIXME: Change name. Maybe buildTransaction?
-    void buildPartialConfig(const ptree& config) {
-      m_address_bitstream = m_codec.buildPartialConfig(config);
-    }
 
     std::string getName() const { return m_name;}
 
@@ -155,6 +136,18 @@ class I2cMasterConfig {
     // I2cMasterConfig(const I2cMasterConfig&) = delete;
 
     void dump() const;
+
+protected:
+    i2c::AddressBitstreamMap buildConfig(const ptree& config, const bool partialConfig) {
+      if (not partialConfig)
+      {
+        return m_codec.buildConfig(config);
+      }
+      else
+      {
+        return m_codec.buildPartialConfig(config);
+      }
+    }
 };
 }  // namespace nsw
 
