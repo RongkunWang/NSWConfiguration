@@ -86,6 +86,4 @@ macro(build_UaoClientForOpcUaSca)
   set(uaoclientforopcuasca_SOURCE_DIR  ${uaoclientforopcuasca_SOURCE_DIR}  PARENT_SCOPE)
   set(uaoclientforopcuasca_BINARY_DIR  ${uaoclientforopcuasca_BINARY_DIR}  PARENT_SCOPE)
   set(uaoclientforopcuasca_INSTALL_DIR ${uaoclientforopcuasca_INSTALL_DIR} PARENT_SCOPE)
-
-  set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 endmacro()
