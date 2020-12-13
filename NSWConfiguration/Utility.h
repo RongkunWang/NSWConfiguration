@@ -85,6 +85,10 @@ ptree buildPtreeFromVector(const std::vector<unsigned>& channelarray);
 /// Strips string "_READONLY" from end of string, used for i2c addresses
 std::string stripReadonly(std::string str);
 
+/// Guesses the sector name from a string
+/// e.g., guessSector("191A-A06-MM-Calib") should return "A06"
+std::string nsw::guessSector(const std::string& str);
+
 /// Return name of all elements that match the regular expression in ptree
 /// \param regexp Regular expression to match
 /// \param pt input ptree
