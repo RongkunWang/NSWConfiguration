@@ -64,7 +64,7 @@ std::string getElementType(const std::string& element_name);
 void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
 
 std::vector<uint8_t> stringToByteVector(const std::string& bitstr);
-std::vector<uint8_t> hexStringToByteVector(const std::string& hexstr, int length, bool littleEndian);
+std::vector<uint8_t> hexStringToByteVector(const std::string& hexstr, int length = 4, bool littleEndian = true);
 
 /// Converts string of bits to string of bytes in hexadecimal
 std::string bitstringToHexString(const std::string& bitstr);
