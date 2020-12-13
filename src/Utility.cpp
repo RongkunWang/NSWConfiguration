@@ -80,8 +80,9 @@ std::vector<uint8_t> nsw::stringToByteVector(const std::string& bitstr) {
     return vec;
 }
 
-std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int length = 4, bool littleEndian = true) {
-    std::vector<uint8_t> vec(length);
+std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int length, bool littleEndian) {
+    std::vector<uint8_t> vec;
+    vec.reserve(length);
     std::string substr;
     uint8_t byte;
     // Go 8 bit at a time and convert it to hex
@@ -89,11 +90,12 @@ std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int l
         substr = hexstr.substr(pos, 2);
         ERS_DEBUG(6, std::string("substr: ") << substr);
         byte = static_cast<uint8_t> (std::strtoul(substr.c_str(), 0, 16));
-        if (littleEndian)
-            vec.insert(vec.begin(), byte);
-        else
-            vec.push_back(byte);
+        vec.push_back(byte);
         ERS_DEBUG(6, std::hex << "0x" << unsigned(byte));
+    }
+
+    if (littleEndian) {
+        std::reverse(vec.begin(), vec.end());
     }
     std::vector<uint8_t> vecFront(vec.begin(), vec.begin()+length);
     ERS_DEBUG(6, "Vector size: " << std::dec << vecFront.size());
