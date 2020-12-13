@@ -223,8 +223,8 @@ std::string nsw::guessSector(const std::string& str) {
                                     "09", "10", "11", "12",
                                     "13", "14", "15", "16",
                                     };
-  for (const auto & side: sides) {
-    for (const auto & sector: sectors) {
+  for (const auto & side : sides) {
+    for (const auto & sector : sects) {
       auto name = std::string(side + sector);
       if (str.find(name) != std::string::npos) {
         return name;
