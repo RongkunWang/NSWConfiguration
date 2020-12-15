@@ -217,3 +217,21 @@ std::set<std::string> nsw::matchRegexpInPtree(const std::string& regexp, const p
     }
     return names;
 }
+
+std::string nsw::guessSector(const std::string& str) {
+  std::vector<std::string> sides = {"A", "C"};
+  std::vector<std::string> sects = {"01", "02", "03", "04",
+                                    "05", "06", "07", "08",
+                                    "09", "10", "11", "12",
+                                    "13", "14", "15", "16",
+                                    };
+  for (const auto & side : sides) {
+    for (const auto & sector : sects) {
+      auto name = std::string(side + sector);
+      if (str.find(name) != std::string::npos) {
+        return name;
+      }
+    }
+  }
+  return "";
+}
