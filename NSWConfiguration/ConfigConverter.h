@@ -11,17 +11,15 @@
 
 using boost::property_tree::ptree;
 
-/// Converts between register-based and value-based configurations
-/** FIXME
- * 
+
+/** \brief Converts between register-based and value-based configurations
  */
 class ConfigConverter
 {
 public:
-    /// Struct holding ptree and mask
-    /** Conversion without sub-registers needs to save both the new ptree as well as
+    /** \brief Struct holding ptree and mask
+     *  Conversion without sub-registers needs to save both the new ptree as well as
      *  keeping track of the parts (sub-registers) which were set.
-     * 
      */
     struct TranslatedConfig
     {
@@ -29,14 +27,16 @@ public:
         std::map<std::string, unsigned int> m_mask; ///< map holding mask of values set in ptree
     };
 
-    /// Type of configuration
+    /** \brief Type of configuration
+     */
     enum class ConfigType
     {
         REGISTER_BASED,
         VALUE_BASED
     };
 
-    /// Type of register Address space
+    /** \brief Type of register Address space
+     */
     enum class RegisterAddressSpace
     {
         ROC_ANALOG,
@@ -45,8 +45,8 @@ public:
         VMM
     };
 
-    /// Create object from ptree
-    /** Constructor to initialize object
+    /** \brief Create object from ptree
+     * Constructor to initialize object
      *  \param t_config configuration to be converted
      *  \param t_addressSpace ROC analog, digital,...
      *  \param t_type type of configuration (register or value-based)
@@ -54,43 +54,47 @@ public:
     explicit ConfigConverter(const ptree &t_config, const ConfigType t_type);
     explicit ConfigConverter(const ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type);
 
-    /// Obtain value-based ptree of configuration
-    /** The value-based ptree does not contain register values but configuration
+    /** \brief Obtain value-based ptree of configuration
+     * The value-based ptree does not contain register values but configuration
      *  values. For example, clock phases are a single value and not split across
      *  registers. Values belonging to similar things, e.g. a single VMM, are grouped.
      *  \return value-based ptree
      */
-    [[nodiscard]] ptree getValueBasedConfig() const;
+    [[nodiscard]]
+    ptree getValueBasedConfig() const;
 
-    /// Obtain register-based ptree of configuration with subregisters
-    /** The register-based ptree with sub-registers corresponds to the traditional
+    /** \brief Obtain register-based ptree of configuration with subregisters
+     *  The register-based ptree with sub-registers corresponds to the traditional
      *  representation of the configuration. Every register contains named
      *  sub-registers with their corresponding value.
      *  \return register-based ptree
      */
-    [[nodiscard]] ptree getRegisterBasedConfig() const;
+    [[nodiscard]]
+    ptree getRegisterBasedConfig() const;
 
-    /// Obtain register-based ptree of configuration without subregisters
-    /** The register-based ptree without sub-registers has a single value per register.
+    /** \brief Obtain register-based ptree of configuration without subregisters
+     *  The register-based ptree without sub-registers has a single value per register.
      *  Missing values per register are read back from the hardware.
      *  \param t_opcIp IP of the OPC server
      *  \param t_scaAddress FIXME
      *  \return register-based ptree
      */
-    [[nodiscard]] ptree getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
-                                                                  const std::string &t_scaAddress) const;
+    [[nodiscard]]
+    ptree getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
+                                                    const std::string &t_scaAddress) const;
 
-    /// Obtain register-based ptree of configuration without subregisters
-    /** The register-based ptree without sub-registers has a single value per register.
+    /** \brief Obtain register-based ptree of configuration without subregisters
+     *  The register-based ptree without sub-registers has a single value per register.
      *  Missing values per register are read from the supplied ptree.
      *  \param t_config reference ptree for missing values
      *  \return register-based ptree
      */
-    [[nodiscard]] ptree getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const;
+    [[nodiscard]]
+    ptree getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const;
 
 private:
-    /// Convert register-based configuration ptree to value-based ptree
-    /** The conversion in this direction is slower as it should not be used while configuring
+    /** \brief Convert register-based configuration ptree to value-based ptree
+     *  The conversion in this direction is slower as it should not be used while configuring
      * 
      *  1. Get all paths from ptree
      *  2. Iterate through paths of ptree and
@@ -104,10 +108,11 @@ private:
      *  \param t_config register-based configuration
      *  \return value-based configuration
      */
-    [[nodiscard]] ptree convertOldToNew(const ptree &t_config) const;
+    [[nodiscard]]
+    ptree convertRegisterToValue(const ptree &t_config) const;
 
-    /// Convert value-based configuration ptree to register-based ptree
-    /** The returned register-based ptree contains sub-registers.
+    /** \brief Convert value-based configuration ptree to register-based ptree
+     *  The returned register-based ptree contains sub-registers.
      * 
      *  1. Get all paths from input ptree
      *  2. Validate that all paths are in TRANSLATION_MAP
@@ -118,10 +123,11 @@ private:
      *  \param t_config value-based configuration
      *  \return register-based configuration with sub-registers
      */
-    [[nodiscard]] ptree convertNewToOld(const ptree &t_config) const;
+    [[nodiscard]]
+    ptree convertValueToRegister(const ptree &t_config) const;
 
-    /// Convert value-based configuration ptree to register-based ptree
-    /** The returned register-based ptree contains no sub-registers. The total mask per register keeps
+    /** \brief Convert value-based configuration ptree to register-based ptree
+     *  The returned register-based ptree contains no sub-registers. The total mask per register keeps
      *  track which part of the register are set.
      * 
      *  1. Get all paths from input ptree
@@ -136,16 +142,18 @@ private:
      *  \param t_config value-based configuration
      *  \return register-based configuration without sub-registers and total mask per register 
      */
-    [[nodiscard]] TranslatedConfig convertNewToOldNoSubRegister(const ptree &t_config) const;
+    [[nodiscard]]
+    TranslatedConfig convertValueToRegisterNoSubRegister(const ptree &t_config) const;
 
-    /// Get all paths in a ptree
-    /** \param t_tree input ptree
+    /** \brief Get all paths in a ptree
+     *  \param t_tree input ptree
      *  \return vector of all paths
      */
-    [[nodiscard]] std::vector<std::string> getAllPaths(const ptree &t_tree) const;
+    [[nodiscard]]
+    std::vector<std::string> getAllPaths(const ptree &t_tree) const;
 
-    /// Check that all paths exist in translation map
-    /** \param t_paths vector of all paths in ptree
+    /** \brief Check that all paths exist in translation map
+     *  \param t_paths vector of all paths in ptree
      *  \throw std::runtime_error not all paths present in translation map 
      */
     void checkPaths(const std::vector<std::string>& t_paths) const;

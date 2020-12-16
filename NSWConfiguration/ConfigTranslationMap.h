@@ -5,10 +5,24 @@
 #include <vector>
 #include <string>
 
+
+/** \brief Defines translation between register and value based configuration entries
+ *  Every value has a list of translation units which define how the value is mapped to
+ *  registers.
+ */
 struct TranslationUnit
 {
-    std::string m_registerName{""};
+    std::string m_registerName{""}; ///< <register>.<subregister>
+
+    /** Mask defining which bits of the register belong to this value. Needed for translation
+     *  intoa register based map without sub-registers.
+     */
     unsigned int m_maskRegister{static_cast<unsigned int>(-1)};
+
+    /** Mask defining which part of a value is set by the value of the (sub)-register.
+     *  If a value is distributed over multiple registers one has to define which bits
+     *  correspond to the value (e.g. reg064ePllVmm0.ePllPhase160MHz_0[4] to the 4th bit).
+     */
     unsigned int m_maskValue{static_cast<unsigned int>(-1)};
 };
 

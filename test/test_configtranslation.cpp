@@ -1,12 +1,10 @@
-/// Test suite for testing ConfigReaderApi methods
-
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <vector>
 #include <set>
 
-#define BOOST_TEST_MODULE translationtest
+#define BOOST_TEST_MODULE ConfigConverter
 #define BOOST_TEST_DYN_LINK
 #include "boost/test/unit_test.hpp"
 
@@ -53,12 +51,13 @@ nsw::FEBConfig getReferenceConfig()
     const std::string file_path = "test_jsonapi.json";
     nsw::ConfigReader reader("json://" + file_path);
     const std::string name = "MMFE8-0001";
+    reader.getAllElementNames(); // I need to call this!?
     return nsw::FEBConfig(reader.readConfig(name));
 }
 
 
 
-BOOST_AUTO_TEST_CASE(getRegisterBasedConfigAnalog) {
+BOOST_AUTO_TEST_CASE(GetRegisterBasedConfig_ROCAnalogValueTree_ReturnsCorrectRegisterTree) {
     const auto valueTree = createDummyAnalog();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getRegisterBasedConfig();
@@ -76,25 +75,25 @@ BOOST_AUTO_TEST_CASE(getRegisterBasedConfigAnalog) {
 }
 
 
-BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackAnalog) {
+BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigNoSubregisterNoReadbackAnalog_ROCAnalogValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyAnalog();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getRegisterBasedConfigWithoutSubregisters(getReferenceConfig().getRocAnalog());
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase40MHz_0"), registerTree.get<int>("reg064ePllVmm0") & 0b0111'1111);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") / 16, registerTree.get<int>("reg064ePllVmm0") & 0b1000'0000);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") / 16, (registerTree.get<int>("reg064ePllVmm0") & 0b1000'0000) >> 7);
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") % 16, registerTree.get<int>("reg068ePllVmm0") & 0b0000'1111);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllInstantLock") +
-                      valueTree.get<int>("ePllVmm0.ePllReset") +
-                      valueTree.get<int>("ePllVmm0.bypassPLL") +
-                      valueTree.get<int>("ePllVmm0.ePllLockEn") +
-                      valueTree.get<int>("ePllVmm0.ePllReferenceFrequency") +
-                      valueTree.get<int>("ePllVmm0.ePllCap"), registerTree.get<int>("reg070ePllVmm0"));
+    BOOST_CHECK_EQUAL((valueTree.get<int>("ePllVmm0.ePllInstantLock") << 7) +
+                      (valueTree.get<int>("ePllVmm0.ePllReset") << 6) +
+                      (valueTree.get<int>("ePllVmm0.bypassPLL") << 5) +
+                      (valueTree.get<int>("ePllVmm0.ePllLockEn") << 4) +
+                      (valueTree.get<int>("ePllVmm0.ePllReferenceFrequency") << 2) +
+                      (valueTree.get<int>("ePllVmm0.ePllCap")), registerTree.get<int>("reg070ePllVmm0"));
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllEnablePhase"), registerTree.get<int>("reg072ePllVmm0"));
 }
 
 
-BOOST_AUTO_TEST_CASE(translationNewToOldToNewAnalog) {
+BOOST_AUTO_TEST_CASE(TranslationNewToOldToNewAnalog_ROCAnalogValueAndRegisterTree_ReturnsInitialTree) {
     const auto valueTree = createDummyAnalog();
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE(translationNewToOldToNewAnalog) {
 }
 
 
-BOOST_AUTO_TEST_CASE(getRegisterBasedConfigDigital) {
+BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigDigital_ROCDigitalValueTree_ReturnsCorrectRegisterTree) {
     const auto valueTree = createDummyDigital();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getRegisterBasedConfig();
@@ -126,20 +125,20 @@ BOOST_AUTO_TEST_CASE(getRegisterBasedConfigDigital) {
 }
 
 
-BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital) {
+BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital_ROCDigitalValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyDigital();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getRegisterBasedConfigWithoutSubregisters(getReferenceConfig().getRocDigital());
 
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), registerTree.get<int>("reg000rocId") & 0b1000'0000);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), registerTree.get<int>("reg000rocId") & 0b0100'0000);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), (registerTree.get<int>("reg000rocId") & 0b1000'0000) >> 7);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), (registerTree.get<int>("reg000rocId") & 0b0100'0000) >> 6);
     BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.roc_id"), registerTree.get<int>("reg000rocId") & 0b0011'1111);
     BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") / 256, registerTree.get<int>("reg021busyOnLimit0") & 0b0000'0111);
     BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") % 256, registerTree.get<int>("reg022busyOnLimit1"));
 }
 
 
-BOOST_AUTO_TEST_CASE(translationNewToOldToNewDigital) {
+BOOST_AUTO_TEST_CASE(translationNewToOldToNewDigital_ROCDigitalValueAndRegisterTree_ReturnsInitialTree) {
     const auto valueTree = createDummyDigital();
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
@@ -153,29 +152,31 @@ BOOST_AUTO_TEST_CASE(translationNewToOldToNewDigital) {
 }
 
 
-BOOST_AUTO_TEST_CASE(translationFailuresAnalog) {
+BOOST_AUTO_TEST_CASE(translationFailuresAnalog_ConfigConverterAnalog_ThrowsErrors) {
     const auto valueTree = createDummyAnalog();
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
+    const auto checkFunc = [] (const std::runtime_error& t_ex, const std::string& t_pred) {return t_ex.what() == t_pred;};
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node ePllVmm0.ePllPhase40MHz_0 in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node ePllVmm0.ePllPhase40MHz_0 in translation map");});
     
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node reg064ePllVmm0.ePllPhase40MHz_0 in translation map");});
 }
 
 
-BOOST_AUTO_TEST_CASE(translationFailuresDgital) {
+BOOST_AUTO_TEST_CASE(translationFailuresDigital_ConfigConverterDigital_ThrowsErrors) {
     const auto valueTree = createDummyDigital();
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
+    const auto checkFunc = [] (const std::runtime_error& t_ex, const std::string& t_pred) {return t_ex.what() == t_pred;};
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node rocId.l1_first in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node rocId.l1_first in translation map");});
     
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
     const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::exception);
-    BOOST_CHECK_THROW(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::exception);
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
+    BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node reg000rocId.l1_first in translation map");});
 }

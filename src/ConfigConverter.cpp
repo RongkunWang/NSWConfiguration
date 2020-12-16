@@ -24,14 +24,14 @@ ConfigConverter::ConfigConverter(const ptree &t_config, const RegisterAddressSpa
                                                                                                                                    {
                                                                                                                                        return t_config;
                                                                                                                                    }
-                                                                                                                                   return convertNewToOld(t_config);
+                                                                                                                                   return convertValueToRegister(t_config);
                                                                                                                                }()),
                                                                                                                                m_valueTree([this, t_type, &t_config]() {
                                                                                                                                    if (t_type == ConfigType::VALUE_BASED)
                                                                                                                                    {
                                                                                                                                        return t_config;
                                                                                                                                    }
-                                                                                                                                   return convertOldToNew(t_config);
+                                                                                                                                   return convertRegisterToValue(t_config);
                                                                                                                                }())
 {
 }
@@ -74,7 +74,7 @@ void ConfigConverter::checkPaths(const std::vector<std::string> &t_paths) const
     }
 }
 
-ptree ConfigConverter::convertNewToOld(const ptree &t_config) const
+ptree ConfigConverter::convertValueToRegister(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
     checkPaths(allPaths);
@@ -92,13 +92,13 @@ ptree ConfigConverter::convertNewToOld(const ptree &t_config) const
     return newTree;
 }
 
-ConfigConverter::TranslatedConfig ConfigConverter::convertNewToOldNoSubRegister(const ptree &t_config) const
+ConfigConverter::TranslatedConfig ConfigConverter::convertValueToRegisterNoSubRegister(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
     checkPaths(allPaths);
 
     const auto calcValue = [](const auto t_val, const auto t_maskRegister, const auto t_maskValue) {
-        return (t_val & t_maskValue) >> __builtin_ctz(t_maskValue) << __builtin_ctz(t_maskRegister);
+        return ((t_val & t_maskValue) >> __builtin_ctz(t_maskValue)) << __builtin_ctz(t_maskRegister);
     };
 
     ptree newTree;
@@ -123,7 +123,7 @@ ConfigConverter::TranslatedConfig ConfigConverter::convertNewToOldNoSubRegister(
     return {newTree, mask};
 }
 
-ptree ConfigConverter::convertOldToNew(const ptree &t_config) const
+ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
 
@@ -138,7 +138,7 @@ ptree ConfigConverter::convertOldToNew(const ptree &t_config) const
                 return std::make_pair(newName, *item);
             }
         }
-        throw std::runtime_error("Did not find node in translation map");
+        throw std::runtime_error("Did not find node " + t_name + " in translation map");
     };
 
     const auto calcValue = [](const auto t_val, const auto t_maskValue) {
@@ -169,7 +169,7 @@ ptree ConfigConverter::convertOldToNew(const ptree &t_config) const
 
 [[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const
 {
-    const auto tmp = convertNewToOldNoSubRegister(m_valueTree);
+    const auto tmp = convertValueToRegisterNoSubRegister(m_valueTree);
     auto config = tmp.m_ptree;
     const auto &masks = tmp.m_mask;
     const auto bitstreamMap = t_config.getBitstreamMap();
