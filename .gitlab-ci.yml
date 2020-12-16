@@ -7,8 +7,8 @@ variables:
     GIT_SSL_NO_VERIFY: "true"
     TDAQ_RELEASE: tdaq-09-02-01
     COMPILER_PROFILE: x86_64-centos7-gcc8-opt
-    MAKE_OPTIONS: -j2
-    CMAKE_JOB_OPTIONS: -DBUILD_NSW_STANDALONE=ON
+    MAKE_OPTIONS: -j3
+    CMAKE_JOB_OPTIONS: -DBUILD_NSW_STANDALONE=OFF
 
 stages:
   - build
@@ -17,9 +17,10 @@ stages:
   - reports
 
 include:
-  - .gitlab/ci/build.yml
-  - .gitlab/ci/test.yml
-  - .gitlab/ci/code-quality.yml
+  - project: 'atlas-muon-nsw-daq/nsw-build-scripts'
+    ref: master
+    file: '.gitlab/ci/code-quality.yml'
+  - .gitlab/ci/build-and-test.yml
 
 workflow:
   rules:
