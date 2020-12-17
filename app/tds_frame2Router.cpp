@@ -98,7 +98,7 @@ int main(int argc, const char *argv[]) {
     if (mode == "BCID_Offset")
       value = bcid;
     else
-      value = (int)(enable);
+      value = static_cast<int>(enable);
     std::cout << std::endl;
     std::cout << "Setting registers in the TDS:" << std::endl;
     std::cout << std::endl;
@@ -180,7 +180,7 @@ bool readRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_nam
       std::cout << sca_address << " " << tds.getName() << std::endl;
       std::string address_to_read(reg);
       std::string tds_i2c_address;
-      if (reg=="register14" || reg=="register15")
+      if (reg == "register14" || reg == "register15")
           tds_i2c_address = std::string(reg + "_READONLY");
       else
           tds_i2c_address = std::string(reg);
