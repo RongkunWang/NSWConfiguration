@@ -118,6 +118,10 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
+tdaq_add_executable(convert_json app/convert_json.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
 tdaq_add_schema(schema/NSWConfig.schema.xml)
 
 # Testing
