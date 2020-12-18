@@ -14,7 +14,7 @@ namespace po = boost::program_options;
 std::set<std::string> split(std::string str);
 std::pair<std::string, std::string> name2gpio(std::string name);
 bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names,
-                      std::string subreg, bool enable, bool dry);
+                      std::string subreg, int value, bool dry);
 bool readRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names,
                        std::string reg, bool dry);
 bool sendReset(const nsw::FEBConfig & feb, std::set<std::string> tds_names, bool dry);
@@ -25,13 +25,15 @@ int main(int argc, const char *argv[]) {
   std::string vs_filename = config_files + "config_json/VS/VS_sFEB_frame2Router.json";
   std::string config, sfeb_name, tds_name, mode;
   bool enable, disable, reset, read, dry;
+  int bcid;
   po::options_description desc(std::string("TDS frame2Router script"));
   desc.add_options()
       ("help,h", "produce help message")
       ("config,c", po::value<std::string>(&config)->default_value(std::string(vs_filename)), "Configuration file")
       ("sfeb,s",   po::value<std::string>(&sfeb_name)->default_value(""), "Name of sFEB")
       ("tds,t",    po::value<std::string>(&tds_name)->default_value(""), "Name of TDS")
-      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Mode: bypass_trigger, test_frame2Router_enable, PRBS_e")
+      ("mode,m",   po::value<std::string>(&mode)->default_value(""), "Mode: bypass_trigger, test_frame2Router_enable, PRBS_e, BCID_Offset")
+      ("bcid,b",   po::value<    int    >(&bcid)->default_value(-1), "BCID offset value")
       ("enable",  po::bool_switch()->default_value(false), "Enable frame2Router")
       ("disable", po::bool_switch()->default_value(false), "Disable frame2Router")
       ("read",    po::bool_switch()->default_value(false), "Read register 14")
@@ -62,14 +64,22 @@ int main(int argc, const char *argv[]) {
     }
     if (mode != "bypass_trigger" &&
         mode != "test_frame2Router_enable" &&
-        mode != "PRBS_e") {
+        mode != "PRBS_e" &&
+        mode != "BCID_Offset") {
       std::cout << "Error: --mode must be "
                 << "bypass_trigger or "
                 << "test_frame2Router_enable or "
-                << "PRBS_e"
+                << "PRBS_e or "
+                << "BCID_Offset"
                 << std::endl;
       std::cout << "You gave: " << (mode == "" ? "(empty)" : mode) << std::endl;
       return 1;
+    }
+    if (mode == "BCID_Offset" && bcid == -1) {
+        std::cout << "Error: when --mode=BCID_Offset, "
+                  << "you must give --bcid=OFFSET"
+                  << std::endl;
+        return 1;
     }
   }
 
@@ -84,20 +94,25 @@ int main(int argc, const char *argv[]) {
 
   // send the TDS config commands
   if (enable || disable) {
+    int value = 0;
+    if (mode == "BCID_Offset")
+      value = bcid;
+    else
+      value = static_cast<int>(enable);
     std::cout << std::endl;
     std::cout << "Setting registers in the TDS:" << std::endl;
     std::cout << std::endl;
     for (auto & feb : sfebNs)
-      setRegisterValue(feb, tds_names, mode, enable, dry);
+      setRegisterValue(feb, tds_names, mode, value, dry);
     for (auto & feb : sfeb6s)
-      setRegisterValue(feb, tds_names, mode, enable, dry);
+      setRegisterValue(feb, tds_names, mode, value, dry);
     for (auto & feb : sfeb8s)
-      setRegisterValue(feb, tds_names, mode, enable, dry);
+      setRegisterValue(feb, tds_names, mode, value, dry);
   }
 
   // read the monitoring register
   if (read) {
-    for (auto & reg : {"register14", "register15"}) {
+    for (auto & reg : {"register0", "register14", "register15"}) {
       for (auto & feb : sfebNs)
         readRegisterValue(feb, tds_names, reg, dry);
       for (auto & feb : sfeb6s)
@@ -123,21 +138,30 @@ int main(int argc, const char *argv[]) {
 }
 
 bool setRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_names,
-                      std::string subreg, bool enable, bool dry) {
+                      std::string subreg, int value, bool dry) {
   auto cs = std::make_unique<nsw::ConfigSender>();
   auto opc_ip = feb.getOpcServerIp();
   auto sca_address = feb.getAddress();
-  std::string reg = "register12";
+
+  // decide the register
+  std::string reg;
+  if (subreg == "BCID_Offset")
+      reg = std::string("register0");
+  else
+      reg = std::string("register12");
+
+  // set the register value
   for (auto tds : feb.getTdss()) {
     for (auto name : tds_names) {
       if (tds.getName() != name)
         continue;
       std::cout << " " << sca_address
                 << " " << name
+                << " " << reg
                 << " " << subreg
-                << " = " << (enable ? 1 : 0)
+                << " = " << value
                 << std::endl;
-      tds.setRegisterValue(reg, subreg, enable ? 1 : 0);
+      tds.setRegisterValue(reg, subreg, value);
       if (!dry)
         cs->sendI2cMasterSingle(opc_ip, sca_address, tds, reg);
     }
@@ -155,7 +179,11 @@ bool readRegisterValue(const nsw::FEBConfig & feb, std::set<std::string> tds_nam
         continue;
       std::cout << sca_address << " " << tds.getName() << std::endl;
       std::string address_to_read(reg);
-      std::string tds_i2c_address(reg + "_READONLY");
+      std::string tds_i2c_address;
+      if (reg == "register14" || reg == "register15")
+          tds_i2c_address = std::string(reg + "_READONLY");
+      else
+          tds_i2c_address = std::string(reg);
       auto size_in_bytes = tds.getTotalSize(tds_i2c_address) / 8;
       std::string full_node_name = sca_address + "." + tds.getName()  + "." + address_to_read;
       std::vector<uint8_t> dataread(size_in_bytes);
