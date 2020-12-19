@@ -38,7 +38,7 @@ static const i2c::AddressRegisterMap CUSTOM_REGISTER_SIZE_3 = {
     { "i2caddress3", { {"reg0", 8} } }  // total: 8
 };
 
-#define BOOST_TEST_MODULE my test module
+#define BOOST_TEST_MODULE I2cMasterConfig_tests
 #define BOOST_TEST_DYN_LINK
 #include "boost/test/unit_test.hpp"
 

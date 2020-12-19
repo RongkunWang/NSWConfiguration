@@ -1,0 +1,137 @@
+## GitLab CI template for NSW DAQ build and test jobs
+## Must be a single file because aliases and job names
+## aren't shared between templates...
+
+variables:
+  ARTIFACTS_DIR: ${CI_PROJECT_DIR}/artifacts
+  CMAKE_DIR: ${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE}/ci-build
+  BUILD_TYPE: Debug
+
+.build_setup: &build_setup |-
+  git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.cern.ch/atlas-muon-nsw-daq/nsw-build-scripts.git ${CMAKE_DIR}
+  yum install -y ninja-build python3
+  source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
+  mkdir -p ${ARTIFACTS_DIR}
+  export INSTALL_DIR=${ARTIFACTS_DIR}/${TDAQ_RELEASE}/installed
+  export TESTS_BIN_DIR=${ARTIFACTS_DIR}/tests/${TDAQ_RELEASE}/${COMPILER_PROFILE}
+
+.cmake_prep: &cmake_prep |-
+  pushd ${CMAKE_DIR}
+  cp -rfp CMakeLists.txt.in CMakeLists.txt
+  ln -sf ../${CI_PROJECT_NAME} .
+  export TDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}')
+
+#### Build jobs #####################################################################
+# Base template for all build jobs
+.build:
+  image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+  tags:
+    - cvmfs
+  stage: build
+  before_script:
+    - echo 'Build job ${CI_JOB_NAME} started'
+    - *build_setup
+    - *cmake_prep
+  script:
+    - |
+        cmake -GNinja -B${TDAQ_RELEASE} -S. \
+              -DTDAQ_VERSION=${TDAQ_VERSION} \
+              -DENABLE_NSW_STATIC_CHECKS=ON \
+              -DENABLE_NSW_ASAN=ON \
+              -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+              ${CMAKE_JOB_OPTIONS}
+    - cmake --build ${TDAQ_RELEASE} -- ${MAKE_OPTIONS}
+    - cmake --build ${TDAQ_RELEASE} --target install
+    - mkdir -p ${TESTS_BIN_DIR}
+    - rsync -ahXc ${TDAQ_RELEASE}/${CI_PROJECT_NAME}/test* ${TESTS_BIN_DIR}/
+    - popd
+    - |
+        rm -rf artifacts/${TDAQ_RELEASE}/cmake
+        rm -rf artifacts/${TDAQ_RELEASE}/CMakeLists.txt
+        rm -rf artifacts/${TDAQ_RELEASE}/${CI_PROJECT_NAME} || true
+
+  after_script:
+    - echo 'Build job ${CI_JOB_NAME} finished'
+    - ls -l artifacts/*
+  artifacts:
+    expire_in: 4 hours
+    paths:
+      - artifacts
+
+#
+# Build jobs
+#
+
+## Current stable TDAQ release
+build:stable:
+  extends: .build
+  allow_failure: false
+  rules:
+    - when: always
+  parallel:
+    matrix:
+      - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
+
+## Unstable TDAQ releases, allowed to fail
+build:legacy:
+  extends: build:stable
+  allow_failure: true
+  parallel:
+    matrix:
+      - TDAQ_RELEASE: [tdaq-08-03-01, tdaq-09-01-00]
+
+## Nightly TDAQ releases, allowed to fail
+build:nightly:
+  extends: build:stable
+  allow_failure: true
+  variables:
+    TDAQ_RELEASE: tdaq-99-00-00
+
+#### Unit test jobs #################################################################
+.test:
+  image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
+  stage: test
+  before_script:
+    - yum install -y python3
+    - *build_setup
+  script:
+    - unset PYTHONPATH
+    - unset PYTHONHOME
+    - export LD_LIBRARY_PATH=${INSTALL_DIR}/${COMPILER_PROFILE}/lib:${LD_LIBRARY_PATH}
+    - /usr/bin/python3 ./test/run_unit_tests.py -d ${TESTS_BIN_DIR}/ -o junit.xml
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
+
+## Current stable TDAQ release
+test:stable:
+  extends: .test
+  allow_failure: false
+  needs:
+    - build:stable
+  parallel:
+    matrix:
+      - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
+
+## Unstable TDAQ releases, allowed to fail
+test:legacy:
+  extends: .test
+  allow_failure: true
+  needs:
+    - build:legacy
+  parallel:
+    matrix:
+      - TDAQ_RELEASE: [tdaq-08-03-01, tdaq-09-01-00]
+
+## Nightly TDAQ releases, allowed to fail
+test:nightly:
+  extends: test:stable
+  allow_failure: true
+  needs:
+    - build:nightly
+  variables:
+    TDAQ_RELEASE: tdaq-99-00-00

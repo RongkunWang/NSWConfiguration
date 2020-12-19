@@ -121,30 +121,38 @@ tdaq_add_schema(schema/NSWConfig.schema.xml)
 
 # Testing
 
-configure_file(test/test_vmm.json test_vmm.json COPYONLY)
-configure_file(test/test_configreader.json test_configreader.json COPYONLY)
+set(NSWCONFIG_TEST_DATA test_vmm.json test_configreader.json TP_testRegisterConfig.json)
+foreach(datafile IN LISTS NSWCONFIG_TEST_DATA)
+  configure_file(test/${datafile} ${datafile} COPYONLY)
+
+  # ## goes to share/${TDAQ_PACKAGE_NAME}/
+  # tdaq_add_data(test/${datafile})
+  ## goes to share/${TDAQ_PACKAGE_NAME}/tests
+  tdaq_add_data(test/${datafile} DESTINATION tests)
+endforeach()
 
 tdaq_add_executable(test_vmmconfig test/test_vmmconfig.cpp
+  NOINSTALL
   LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers nswconfig)
 
 tdaq_add_executable(test_configreader test/test_configreader.cpp
+  NOINSTALL
   LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
 
+tdaq_add_executable(test_utility test/test_utility.cpp src/Utility.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
+
+tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
 
 ### Tests
-set(NSWCONFIG_TESTS vmmconfig configreader utility)
+set(NSWCONFIG_TESTS configreader i2cmasterconfig utility vmmconfig)
 foreach(testname IN LISTS NSWCONFIG_TESTS)
   message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
   add_test(NAME ${testname} COMMAND test_${testname})
 endforeach()
-
-tdaq_add_executable(nsw_test_utility test/test_utility.cpp src/Utility.cpp
-      LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
-
-tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
-      LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
-
-add_test(NAME test_i2cmasterconfig COMMAND test_i2cmasterconfig)
 
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
