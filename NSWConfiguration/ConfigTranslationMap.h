@@ -125,7 +125,7 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
         TranslationUnit{"reg076ePllVmm0.ctrl_bypass_1", 0b0000'1000},
     }},
     {"ePllVmm0.ctrl_bypass_2", {
-        TranslationUnit{"reg075ePllVmm0.ctrl_bypass_2", 0b0000'1000},
+        TranslationUnit{"reg077ePllVmm0.ctrl_bypass_2", 0b0000'1000},
     }},
     {"ePllVmm0.ctrl_bypass_3", {
         TranslationUnit{"reg078ePllVmm0.ctrl_bypass_3", 0b0000'1000},
@@ -258,7 +258,7 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
         TranslationUnit{"reg092ePllVmm1.ctrl_bypass_1", 0b0000'1000},
     }},
     {"ePllVmm1.ctrl_bypass_2", {
-        TranslationUnit{"reg091ePllVmm1.ctrl_bypass_2", 0b0000'1000},
+        TranslationUnit{"reg093ePllVmm1.ctrl_bypass_2", 0b0000'1000},
     }},
     {"ePllVmm1.ctrl_bypass_3", {
         TranslationUnit{"reg094ePllVmm1.ctrl_bypass_3", 0b0000'1000},
@@ -282,16 +282,16 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
         TranslationUnit{"reg095ePllVmm1.tx_csel", 0b0000'1111},
     }},
     {"ePllTdc.ePllPhase40MHz_0", {
-        TranslationUnit{"reg096ePllTdc.ePllPhase160MHz_0", 0b0111'1111},
+        TranslationUnit{"reg096ePllTdc.ePllPhase40MHz_0", 0b0111'1111},
     }},
     {"ePllTdc.ePllPhase40MHz_1", {
-        TranslationUnit{"reg097ePllTdc.ePllPhase160MHz_1", 0b0111'1111},
+        TranslationUnit{"reg097ePllTdc.ePllPhase40MHz_1", 0b0111'1111},
     }},
     {"ePllTdc.ePllPhase40MHz_2", {
-        TranslationUnit{"reg098ePllTdc.ePllPhase160MHz_2", 0b0111'1111},
+        TranslationUnit{"reg098ePllTdc.ePllPhase40MHz_2", 0b0111'1111},
     }},
     {"ePllTdc.ePllPhase40MHz_3", {
-        TranslationUnit{"reg099ePllTdc.ePllPhase160MHz_3", 0b0111'1111},
+        TranslationUnit{"reg099ePllTdc.ePllPhase40MHz_3", 0b0111'1111},
     }},
     {"ePllTdc.ePllPhase160MHz_0", {
         TranslationUnit{"reg096ePllTdc.ePllPhase160MHz_0[4]", 0b1000'0000, 0b0001'0000},
@@ -299,7 +299,7 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
     }},
     {"ePllTdc.ePllPhase160MHz_1", {
         TranslationUnit{"reg097ePllTdc.ePllPhase160MHz_1[4]", 0b1000'0000, 0b0001'0000},
-        TranslationUnit{"reg100ePllTdc.ePllPhase160MHz_1[3:0]", 0b0000'1111, 0b1111'0000}
+        TranslationUnit{"reg100ePllTdc.ePllPhase160MHz_1[3:0]", 0b1111'0000, 0b0000'1111}
     }},
     {"ePllTdc.ePllPhase160MHz_2", {
         TranslationUnit{"reg098ePllTdc.ePllPhase160MHz_2[4]", 0b1000'0000, 0b0001'0000},
@@ -307,25 +307,25 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
     }},
     {"ePllTdc.ePllPhase160MHz_3", {
         TranslationUnit{"reg099ePllTdc.ePllPhase160MHz_3[4]", 0b1000'0000, 0b0001'0000},
-        TranslationUnit{"reg101ePllTdc.ePllPhase160MHz_3[3:0]", 0b0000'1111, 0b1111'0000}
+        TranslationUnit{"reg101ePllTdc.ePllPhase160MHz_3[3:0]", 0b1111'0000, 0b0000'1111}
     }},
     {"ePllTdc.ePllInstantLock", {
-        TranslationUnit{"reg120ePllTdc.ePllInstantLock", 0b1000'0000},
+        TranslationUnit{"reg102ePllTdc.ePllInstantLock", 0b1000'0000},
     }},
     {"ePllTdc.ePllReset", {
-        TranslationUnit{"reg120ePllTdc.ePllReset", 0b0100'0000},
+        TranslationUnit{"reg102ePllTdc.ePllReset", 0b0100'0000},
     }},
     {"ePllTdc.bypassPLL", {
-        TranslationUnit{"reg120ePllTdc.bypassPLL", 0b0010'0000},
+        TranslationUnit{"reg102ePllTdc.bypassPLL", 0b0010'0000},
     }},
     {"ePllTdc.ePllLockEn", {
-        TranslationUnit{"reg120ePllTdc.ePllLockEn", 0b0001'0000},
+        TranslationUnit{"reg102ePllTdc.ePllLockEn", 0b0001'0000},
     }},
     {"ePllTdc.ePllReferenceFrequency", {
-        TranslationUnit{"reg120ePllTdc.ePllReferenceFrequency", 0b0000'1100},
+        TranslationUnit{"reg102ePllTdc.ePllReferenceFrequency", 0b0000'1100},
     }},
     {"ePllTdc.ePllCap", {
-        TranslationUnit{"reg120ePllTdc.ePllCap", 0b0000'0011},
+        TranslationUnit{"reg102ePllTdc.ePllCap", 0b0000'0011},
     }},
     {"ePllTdc.ePllRes", {
         TranslationUnit{"reg103ePllTdc.ePllRes", 0b1111'0000},
@@ -379,7 +379,7 @@ static const TranslationMap TRANSLATION_MAP_ROC_ANALOG = {
         TranslationUnit{"reg108ePllTdc.ctrl_bypass_1", 0b0000'1000},
     }},
     {"ePllTdc.ctrl_bypass_2", {
-        TranslationUnit{"reg107ePllTdc.ctrl_bypass_2", 0b0000'1000},
+        TranslationUnit{"reg109ePllTdc.ctrl_bypass_2", 0b0000'1000},
     }},
     {"ePllTdc.ctrl_bypass_3", {
         TranslationUnit{"reg110ePllTdc.ctrl_bypass_3", 0b0000'1000},
@@ -493,16 +493,16 @@ static const TranslationMap TRANSLATION_MAP_ROC_DIGITAL = {
         TranslationUnit{"reg000rocId.roc_id", 0b0011'1111}
     }},
     {"elinkSpeed.sRoc0", {
-        TranslationUnit{"reg001rocId.sroc0", 0b0000'0011}
+        TranslationUnit{"reg001elinkSpeed.sroc0", 0b0000'0011}
     }},
     {"elinkSpeed.sRoc1", {
-        TranslationUnit{"reg001rocId.sroc1", 0b0000'1100}
+        TranslationUnit{"reg001elinkSpeed.sroc1", 0b0000'1100}
     }},
     {"elinkSpeed.sRoc2", {
-        TranslationUnit{"reg001rocId.sroc2", 0b0011'0000}
+        TranslationUnit{"reg001elinkSpeed.sroc2", 0b0011'0000}
     }},
     {"elinkSpeed.sRoc3", {
-        TranslationUnit{"reg001rocId.sroc3", 0b1100'0000}
+        TranslationUnit{"reg001elinkSpeed.sroc3", 0b1100'0000}
     }},
     {"sRoc0VmmConnections.vmm0", {
         TranslationUnit{"reg002sRoc0VmmConnections.vmm0", 0b0000'0001}
@@ -676,7 +676,7 @@ static const TranslationMap TRANSLATION_MAP_ROC_DIGITAL = {
         TranslationUnit{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
     }},
     {"FIXME.bc_offset", {
-        TranslationUnit{"reg010bcOffset0_txcSel.tx_csel", 0b0000'1111},
+        TranslationUnit{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111},
         TranslationUnit{"reg011bcOffset1.bc_offset[7:0]"}
     }},
     {"FIXME.bc_rollover", {
@@ -695,28 +695,28 @@ static const TranslationMap TRANSLATION_MAP_ROC_DIGITAL = {
     {"eportEnable.sRoc3", {
         TranslationUnit{"reg014eportEnable.sroc3", 0b1100'0000}
     }},
-    {"fakeVmmFailure.vmm0", {
+    {"timeoutStatus.vmm0", {
         TranslationUnit{"reg063timeoutStatus.vmm0", 0b0000'0001}
     }},
-    {"fakeVmmFailure.vmm1", {
+    {"timeoutStatus.vmm1", {
         TranslationUnit{"reg063timeoutStatus.vmm1", 0b0000'0010}
     }},
-    {"fakeVmmFailure.vmm2", {
+    {"timeoutStatus.vmm2", {
         TranslationUnit{"reg063timeoutStatus.vmm2", 0b0000'0100}
     }},
-    {"fakeVmmFailure.vmm3", {
+    {"timeoutStatus.vmm3", {
         TranslationUnit{"reg063timeoutStatus.vmm3", 0b0000'1000}
     }},
-    {"fakeVmmFailure.vmm4", {
+    {"timeoutStatus.vmm4", {
         TranslationUnit{"reg063timeoutStatus.vmm4", 0b0001'0000}
     }},
-    {"fakeVmmFailure.vmm5", {
+    {"timeoutStatus.vmm5", {
         TranslationUnit{"reg063timeoutStatus.vmm5", 0b0010'0000}
     }},
-    {"fakeVmmFailure.vmm6", {
+    {"timeoutStatus.vmm6", {
         TranslationUnit{"reg063timeoutStatus.vmm6", 0b0100'0000}
     }},
-    {"fakeVmmFailure.vmm7", {
+    {"timeoutStatus.vmm7", {
         TranslationUnit{"reg063timeoutStatus.vmm7", 0b1000'0000}
     }},
     {"busyEnable.sRoc0", {
@@ -754,28 +754,28 @@ static const TranslationMap TRANSLATION_MAP_ROC_DIGITAL = {
     {"FIXME.l1EventsWithoutComma", {
         TranslationUnit{"reg031l1EventsWithoutComma.l1_events_no_comma"}
     }},
-    {"timeoutStatus.vmm0", {
+    {"fakeVmmFailure.vmm0", {
         TranslationUnit{"reg019fakeVmmFailure.vmm0", 0b0000'0001}
     }},
-    {"timeoutStatus.vmm1", {
+    {"fakeVmmFailure.vmm1", {
         TranslationUnit{"reg019fakeVmmFailure.vmm1", 0b0000'0010}
     }},
-    {"timeoutStatus.vmm2", {
+    {"fakeVmmFailure.vmm2", {
         TranslationUnit{"reg019fakeVmmFailure.vmm2", 0b0000'0100}
     }},
-    {"timeoutStatus.vmm3", {
+    {"fakeVmmFailure.vmm3", {
         TranslationUnit{"reg019fakeVmmFailure.vmm3", 0b0000'1000}
     }},
-    {"timeoutStatus.vmm4", {
+    {"fakeVmmFailure.vmm4", {
         TranslationUnit{"reg019fakeVmmFailure.vmm4", 0b0001'0000}
     }},
-    {"timeoutStatus.vmm5", {
+    {"fakeVmmFailure.vmm5", {
         TranslationUnit{"reg019fakeVmmFailure.vmm5", 0b0010'0000}
     }},
-    {"timeoutStatus.vmm6", {
+    {"fakeVmmFailure.vmm6", {
         TranslationUnit{"reg019fakeVmmFailure.vmm6", 0b0100'0000}
     }},
-    {"timeoutStatus.vmm7", {
+    {"fakeVmmFailure.vmm7", {
         TranslationUnit{"reg019fakeVmmFailure.vmm7", 0b1000'0000}
     }}
 };
