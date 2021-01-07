@@ -121,7 +121,7 @@ tdaq_add_schema(schema/NSWConfig.schema.xml)
 
 # Testing
 
-set(NSWCONFIG_TEST_DATA test_vmm.json test_configreader.json TP_testRegisterConfig.json)
+set(NSWCONFIG_TEST_DATA test_vmm.json test_jsonapi.json TP_testRegisterConfig.json)
 foreach(datafile IN LISTS NSWCONFIG_TEST_DATA)
   configure_file(test/${datafile} ${datafile} COPYONLY)
 
@@ -130,6 +130,10 @@ foreach(datafile IN LISTS NSWCONFIG_TEST_DATA)
   ## goes to share/${TDAQ_PACKAGE_NAME}/tests
   tdaq_add_data(test/${datafile} DESTINATION tests)
 endforeach()
+
+tdaq_add_executable(test_jsonapi test/test_jsonapi.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
 
 tdaq_add_executable(test_vmmconfig test/test_vmmconfig.cpp
   NOINSTALL
@@ -148,7 +152,7 @@ tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMa
   LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
 
 ### Tests
-set(NSWCONFIG_TESTS configreader i2cmasterconfig utility vmmconfig)
+set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig)
 foreach(testname IN LISTS NSWCONFIG_TESTS)
   message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
   add_test(NAME ${testname} COMMAND test_${testname})
