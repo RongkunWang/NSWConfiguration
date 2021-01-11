@@ -199,6 +199,22 @@ BOOST_AUTO_TEST_CASE(HexStringToByteVector_BigEndian_ReturnsBigEndianByteVector)
     BOOST_TEST(nsw::hexStringToByteVector("1337", 2, false) == expected);
 }
 
+BOOST_AUTO_TEST_CASE(HexStringToByteVector_LittleEndianSizeMismatch_ResizesVector) {
+    std::vector<uint8_t> expected = { 0xcd, 0xab, 0, 0 };
+    BOOST_TEST(nsw::hexStringToByteVector("abcd", 4, true) == expected);
+
+    expected = { 0xef, 0xbe };
+    BOOST_TEST(nsw::hexStringToByteVector("deadbeef", 2, true) == expected);
+}
+
+BOOST_AUTO_TEST_CASE(HexStringToByteVector_BigEndianSizeMismatch_ResizesVector) {
+    std::vector<uint8_t> expected = { 0, 0, 0xab, 0xcd };
+    BOOST_TEST(nsw::hexStringToByteVector("abcd", 4, false) == expected);
+    
+    expected = { 0xde, 0xad };
+    BOOST_TEST(nsw::hexStringToByteVector("deadbeef", 2, false) == expected);
+}
+
 /* WILLFAIL
 BOOST_AUTO_TEST_CASE(HexStringToByteVector_SizeBiggerThanPossible_ThrowsRuntimeError) {
     BOOST_CHECK_THROW(nsw::hexStringToByteVector("1337", 3, true), std::runtime_error);

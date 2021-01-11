@@ -96,10 +96,19 @@ std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int l
 
     if (littleEndian) {
         std::reverse(vec.begin(), vec.end());
+        vec.resize(length);
+    } else {
+        // big endian, need to insert zeros at beginning
+        if (vec.size() < length) {
+            vec.insert(vec.begin(), length - vec.size(), 0);
+        } else {
+            // trim the vector
+            vec.resize(length);
+        }
     }
-    std::vector<uint8_t> vecFront(vec.begin(), vec.begin()+length);
-    ERS_DEBUG(6, "Vector size: " << std::dec << vecFront.size());
-    return vecFront;
+
+    ERS_DEBUG(6, "Vector size: " << std::dec << vec.size());
+    return vec;
 }
 
 std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
