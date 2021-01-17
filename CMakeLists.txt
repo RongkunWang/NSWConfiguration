@@ -62,6 +62,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   tp_comm_test
   mmtp_loopback_test
   configure_tp
+  write_tp_bram
   )
 
 ## Executables linked against nswconfig and Boost::program_options, but renamed to nsw_<X>
@@ -107,6 +108,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
                  src/TPConfig.cpp src/RouterConfig.cpp
+                 src/MemfileReader.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
