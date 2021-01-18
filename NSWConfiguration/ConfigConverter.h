@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <type_traits>
 
 #include "boost/property_tree/ptree.hpp"
 
@@ -95,7 +96,7 @@ public:
 private:
     /** \brief Convert register-based configuration ptree to value-based ptree
      *  The conversion in this direction is slower as it should not be used while configuring
-     * 
+     *
      *  1. Get all paths from ptree
      *  2. Iterate through paths of ptree and
      *     a) Find the correct entry in TRANSLATION_MAP
@@ -113,7 +114,7 @@ private:
 
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains sub-registers.
-     * 
+     *
      *  1. Get all paths from input ptree
      *  2. Validate that all paths are in TRANSLATION_MAP
      *  3. Iterate through paths of input ptree and caluclate for each translation unit
@@ -129,7 +130,7 @@ private:
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains no sub-registers. The total mask per register keeps
      *  track which part of the register are set.
-     * 
+     *
      *  1. Get all paths from input ptree
      *  2. Validate that all paths are in TRANSLATION_MAP
      *  3. a) Iterate through paths of input ptree and caluclate for each translation unit
@@ -138,9 +139,9 @@ private:
      *     b) Check if register (TranslationUnit.m_RegisterName) already exists in new ptree:
      *        yes: Add it to the existing value
      *        no:  Put this value into TranslationUnit.m_RegisterName into the new ptree
-     *     c) Keep track of the total mask applied per register 
+     *     c) Keep track of the total mask applied per register
      *  \param t_config value-based configuration
-     *  \return register-based configuration without sub-registers and total mask per register 
+     *  \return register-based configuration without sub-registers and total mask per register
      */
     [[nodiscard]]
     TranslatedConfig convertValueToRegisterNoSubRegister(const ptree &t_config) const;
@@ -154,9 +155,46 @@ private:
 
     /** \brief Check that all paths exist in translation map
      *  \param t_paths vector of all paths in ptree
-     *  \throw std::runtime_error not all paths present in translation map 
+     *  \throw std::runtime_error not all paths present in translation map
      */
     void checkPaths(const std::vector<std::string>& t_paths) const;
+
+    /** \brief Internal function to read back missing parts of registers
+     *  Loops over converted configuration and calls t_func to obtain the reference value if a
+     *  part of the register is missing.
+     *  \tparam Func callable function parameter
+     *  \param t_paths t_func callable which takes a string as parameter and returns an uint8_t
+     *  \throw std::runtime_error not all paths present in translation map
+     */
+    template<typename Func>
+    [[nodiscard]] ptree readMissingRegisterParts(const Func& t_func) const
+    {
+        // TODO: Concept when available
+        static_assert(std::is_invocable_r<uint8_t, Func, std::string>::value, "Uh oh! the function is not invokable as we want it");
+        const auto tmp = convertValueToFlatRegister(m_valueTree);
+        auto config = tmp.m_ptree;
+        const auto &masks = tmp.m_mask;
+
+        for (const auto &[registerName, mask] : masks)
+        {
+            //const auto registerSize = static_cast<int>(t_config.getTotalSize(registerName));
+            const int registerSize = 8; // FIXME
+            const auto numberBitsSet = __builtin_popcount(mask);
+
+            if (registerSize == numberBitsSet)
+            {
+                if (__builtin_ctz(~mask) != registerSize)
+                {
+                    throw std::runtime_error("Number of bits match register size, but not all values are consecutive for register " + registerName);
+                }
+                continue;
+            }
+
+            config.put(registerName, config.get<unsigned int>(registerName) | (t_func(registerName) & (~mask)));
+        }
+
+        return config;
+    }
 
     TranslationMap m_translationMap;    ///< map used for translation (analog, digital, tds, ...)
     ptree m_registerTree;               ///< register-based ptree

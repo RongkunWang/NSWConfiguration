@@ -1,6 +1,7 @@
 #include "NSWConfiguration/ConfigConverter.h"
 
 #include "NSWConfiguration/ConfigTranslationMap.h"
+#include "NSWConfiguration/ConfigSender.h"
 
 #include <algorithm>
 
@@ -169,33 +170,36 @@ ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
 
 [[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const
 {
-    const auto tmp = convertValueToRegisterNoSubRegister(m_valueTree);
-    auto config = tmp.m_ptree;
-    const auto &masks = tmp.m_mask;
     const auto bitstreamMap = t_config.getBitstreamMap();
+    const auto func = [&bitstreamMap] (const std::string& t_registerName) {
+        return static_cast<unsigned int>(std::stoul(bitstreamMap.at(t_registerName), nullptr, 2));
+    };
 
-    for (const auto &[registerName, mask] : masks)
-    {
-        const auto registerSize = static_cast<int>(t_config.getTotalSize(registerName));
-        const auto numberBitsSet = __builtin_popcount(mask);
-
-        if (registerSize == numberBitsSet)
-        {
-            if (__builtin_ctz(~mask) != registerSize)
-            {
-                throw std::runtime_error("Number of bits match register size, but not all values are consecutive for register " + registerName);
-            }
-            continue;
-        }
-
-        config.put(registerName, config.get<unsigned int>(registerName) | (static_cast<unsigned int>(std::stoul(bitstreamMap.at(registerName), nullptr, 2)) & (~mask)));
-    }
-
-    return config;
+    return readMissingRegisterParts(func);
 }
 
 [[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
                                                                                const std::string &t_scaAddress) const
 {
-    throw std::runtime_error("Not implemented");
+    nsw::ConfigSender configSender;
+    const auto func = [&t_opcIp, &t_scaAddress, &configSender] (const std::string& t_registerName) {
+        const auto regNumber = std::stoi(t_registerName.substr(3, 3));
+
+        configSender.readBackRoc(t_opcIp,
+                                 t_scaAddress + ".gpio.bitBanger",
+                                 19,                                   // scl line
+                                 20,                                   // sda line
+                                 static_cast<uint8_t>(regNumber),      // reg number
+                                 2);
+
+        // TODO: Create a wrapper for this in NSWConfiguration and call that
+        return configSender.readBackRoc(t_opcIp,
+                                        t_scaAddress + ".gpio.bitBanger",
+                                        19,                                   // scl line
+                                        20,                                   // sda line
+                                        static_cast<uint8_t>(regNumber),      // reg number
+                                        2);
+    };
+
+    return readMissingRegisterParts(func);
 }
