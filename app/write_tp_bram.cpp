@@ -45,6 +45,10 @@ int main(int argc, char** argv) {
         std::cout << ex.what() << std::endl;
         return 1;
     }
+    
+    // TODO Boost's PO is filtering out the "json://" from the provided string for some reason;
+    // have to find a way to do this better
+    config_filename = "json://" + config_filename;
 
     std::cout << "Parsing memory file..." << std::endl;
     const auto memory = parse_memfile(mem_filename);
@@ -84,9 +88,9 @@ void write_bram(const std::map<uint16_t, std::vector<uint32_t>>& contents, const
 }
 
 nsw::TPConfig get_tp_config(const std::string& config_file, const std::string& tp_name) {
-    nsw::ConfigReader config_reader{ config_file };
     boost::property_tree::ptree tp_config_tree{};
     try {
+        nsw::ConfigReader config_reader{ config_file };
         config_reader.readConfig();
         tp_config_tree = config_reader.readConfig(tp_name);
     }
