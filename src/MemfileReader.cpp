@@ -28,7 +28,7 @@ void MemfileReader::parse() {
     // Get initial address
     std::getline(m_file, value_str, m_delimiter);
     if (value_str.at(0) != '@') {
-        throw std::runtime_error{ "Missing addres specifier at beginning of file!" };
+        throw std::runtime_error{ "Missing address specifier at beginning of file!" };
     }
 
     uint16_t address = extract_address(value_str);
