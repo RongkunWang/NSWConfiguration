@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "Parsing memory file..." << std::endl;
-    const auto memory = parse_memfile(config_filename);
+    const auto memory = parse_memfile(mem_filename);
     std::cout << "Parsing configuration file..." << std::endl;
     auto tp_config = get_tp_config(config_filename, tp_name);
 
