@@ -62,13 +62,14 @@ def main():
     for tp in lut_tree:
         print(f"[+] Now configuring {tp}")
         for lut in lut_tree[tp]:
-            command = f"write_tp_bram -m {lut} -t {tp} -c ../data/integration_config.json --dryrun"
+            dryrun = "--dryrun" if args.dryRun else ""
+            command = f"write_tp_bram -m {lut} -t {tp} -c {args.configFile} {dryrun}"
             print(command)
             try:
                 subprocess.check_output(command, shell=True)
             except subprocess.CalledProcessError as ex:
                 print(f"[x] Error: write_tp_bram exited with error code {ex.returncode}. Program stdout:")
-                print(ex.output)
+                print(ex.output.decode())
                 print("[x] Exiting...")
                 sys.exit(1)
 
