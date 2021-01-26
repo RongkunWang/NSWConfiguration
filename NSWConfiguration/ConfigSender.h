@@ -102,6 +102,16 @@ class ConfigSender {
     uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node,
         unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay);
                                   
+    /// Wrapper to read back from the digital ROC section
+    /// DO NOT CALL IT ON ANYTHING BUT MMFE8
+    [[nodiscard]]
+    uint8_t readBackRocDigital(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress);
+
+    /// Wrapper to read back from the analog ROC section
+    /// DO NOT CALL IT ON ANYTHING BUT MMFE8
+    [[nodiscard]]
+    uint8_t readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress);
+
     /// Low level Spi send function
     void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t *data, size_t data_size);
 

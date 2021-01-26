@@ -42,6 +42,25 @@ uint8_t nsw::ConfigSender::readBackRoc(const std::string& opcserver_ipport, cons
   return m_clients[opcserver_ipport]->readRocRaw(node, sclLine, sdaLine, registerAddress, delay);
 }
 
+uint8_t nsw::ConfigSender::readBackRocDigital(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
+    // FIXME: Why do we have to call it twice?
+    const unsigned int sclLine{17};
+    const unsigned int sdaLine{18};
+    const unsigned int delay{2};
+    const auto fullNode = node + ".gpio.bitBanger";
+    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+}
+
+uint8_t nsw::ConfigSender::readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
+    // FIXME: Why do we have to call it twice?
+    const unsigned int sclLine{19};
+    const unsigned int sdaLine{20};
+    const unsigned int delay{2};
+    const auto fullNode = node + ".gpio.bitBanger";
+    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+}
 
 void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
