@@ -175,9 +175,12 @@ ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
         return static_cast<unsigned int>(std::stoul(bitstreamMap.at(t_registerName), nullptr, 2));
     };
 
-    return readMissingRegisterParts(func);
+    const auto registerSize = t_config.getTotalSize(bitstreamMap.begin()->first);
+
+    return readMissingRegisterParts(func, registerSize);
 }
 
+template<ConfigConverter::RegisterAddressSpace DeviceType>
 [[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
                                                                                const std::string &t_scaAddress) const
 {
@@ -185,21 +188,19 @@ ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
     const auto func = [&t_opcIp, &t_scaAddress, &configSender] (const std::string& t_registerName) {
         const auto regNumber = std::stoi(t_registerName.substr(3, 3));
 
-        configSender.readBackRoc(t_opcIp,
-                                 t_scaAddress + ".gpio.bitBanger",
-                                 19,                                   // scl line
-                                 20,                                   // sda line
-                                 static_cast<uint8_t>(regNumber),      // reg number
-                                 2);
-
-        // TODO: Create a wrapper for this in NSWConfiguration and call that
-        return configSender.readBackRoc(t_opcIp,
-                                        t_scaAddress + ".gpio.bitBanger",
-                                        19,                                   // scl line
-                                        20,                                   // sda line
-                                        static_cast<uint8_t>(regNumber),      // reg number
-                                        2);
+        if (DeviceType == RegisterAddressSpace::ROC_DIGITAL)
+        {
+            return configSender.readBackRocDigital(t_opcIp, t_scaAddress, static_cast<uint8_t>(regNumber));
+        }
+        if (DeviceType == RegisterAddressSpace::ROC_ANALOG)
+        {
+            return configSender.readBackRocAnalog(t_opcIp, t_scaAddress, static_cast<uint8_t>(regNumber));
+        }
+        throw std::runtime_error("Only translation of ROC_DIGITAL and ROC_ANALOG are implemented for now.");
     };
 
-    return readMissingRegisterParts(func);
+    return readMissingRegisterParts(func, m_registerSizeMapping.at(DeviceType));
 }
+
+template ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters<ConfigConverter::RegisterAddressSpace::ROC_ANALOG>(const std::string&, const std::string&) const;
+template ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters<ConfigConverter::RegisterAddressSpace::ROC_DIGITAL>(const std::string&, const std::string&) const;

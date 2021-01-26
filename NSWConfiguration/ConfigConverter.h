@@ -77,9 +77,10 @@ public:
      *  The register-based ptree without sub-registers has a single value per register.
      *  Missing values per register are read back from the hardware.
      *  \param t_opcIp IP of the OPC server
-     *  \param t_scaAddress FIXME
+     *  \param t_scaAddress SCA address of FE item in Opc address space
      *  \return register-based ptree
      */
+    template<ConfigConverter::RegisterAddressSpace DeviceType>
     [[nodiscard]]
     ptree getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
                                                     const std::string &t_scaAddress) const;
@@ -163,11 +164,12 @@ private:
      *  Loops over converted configuration and calls t_func to obtain the reference value if a
      *  part of the register is missing.
      *  \tparam Func callable function parameter
-     *  \param t_paths t_func callable which takes a string as parameter and returns an uint8_t
+     *  \param t_func callable which takes a string as parameter and returns an uint8_t
+     *  \param t_registerSize Size of the registers
      *  \throw std::runtime_error not all paths present in translation map
      */
     template<typename Func>
-    [[nodiscard]] ptree readMissingRegisterParts(const Func& t_func) const
+    [[nodiscard]] ptree readMissingRegisterParts(const Func& t_func, const std::size_t t_registerSize) const
     {
         // TODO: Concept when available
         static_assert(std::is_invocable_r<uint8_t, Func, std::string>::value, "Uh oh! the function is not invokable as we want it");
@@ -177,13 +179,11 @@ private:
 
         for (const auto &[registerName, mask] : masks)
         {
-            //const auto registerSize = static_cast<int>(t_config.getTotalSize(registerName));
-            const int registerSize = 8; // FIXME
             const auto numberBitsSet = __builtin_popcount(mask);
 
-            if (registerSize == numberBitsSet)
+            if (static_cast<int>(t_registerSize) == numberBitsSet)
             {
-                if (__builtin_ctz(~mask) != registerSize)
+                if (__builtin_ctz(~mask) != static_cast<int>(t_registerSize))
                 {
                     throw std::runtime_error("Number of bits match register size, but not all values are consecutive for register " + registerName);
                 }
@@ -199,6 +199,10 @@ private:
     TranslationMap m_translationMap;    ///< map used for translation (analog, digital, tds, ...)
     ptree m_registerTree;               ///< register-based ptree
     ptree m_valueTree;                  ///< value-based ptree
+    std::map<RegisterAddressSpace, std::size_t> m_registerSizeMapping{
+        {RegisterAddressSpace::ROC_ANALOG, 8},
+        {RegisterAddressSpace::ROC_DIGITAL, 8}
+    };///< map of device type to register size
 };
 
 #endif
