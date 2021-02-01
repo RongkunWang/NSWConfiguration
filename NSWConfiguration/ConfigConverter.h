@@ -71,7 +71,7 @@ public:
      *  \return register-based ptree
      */
     [[nodiscard]]
-    ptree getRegisterBasedConfig() const;
+    ptree getSubRegisterBasedConfig() const;
 
     /** \brief Obtain register-based ptree of configuration without subregisters
      *  The register-based ptree without sub-registers has a single value per register.
@@ -82,8 +82,8 @@ public:
      */
     template<ConfigConverter::RegisterAddressSpace DeviceType>
     [[nodiscard]]
-    ptree getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
-                                                    const std::string &t_scaAddress) const;
+    ptree getFlatRegisterBasedConfig(const std::string &t_opcIp,
+                                     const std::string &t_scaAddress) const;
 
     /** \brief Obtain register-based ptree of configuration without subregisters
      *  The register-based ptree without sub-registers has a single value per register.
@@ -92,7 +92,7 @@ public:
      *  \return register-based ptree
      */
     [[nodiscard]]
-    ptree getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const;
+    ptree getFlatRegisterBasedConfig(const nsw::I2cMasterConfig &t_config) const;
 
 private:
     /** \brief Convert register-based configuration ptree to value-based ptree
@@ -111,7 +111,7 @@ private:
      *  \return value-based configuration
      */
     [[nodiscard]]
-    ptree convertRegisterToValue(const ptree &t_config) const;
+    ptree convertSubRegisterToValue(const ptree &t_config) const;
 
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains sub-registers.
@@ -126,7 +126,7 @@ private:
      *  \return register-based configuration with sub-registers
      */
     [[nodiscard]]
-    ptree convertValueToRegister(const ptree &t_config) const;
+    ptree convertValueToSubRegister(const ptree &t_config) const;
 
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains no sub-registers. The total mask per register keeps
@@ -145,7 +145,7 @@ private:
      *  \return register-based configuration without sub-registers and total mask per register
      */
     [[nodiscard]]
-    TranslatedConfig convertValueToRegisterNoSubRegister(const ptree &t_config) const;
+    TranslatedConfig convertValueToFlatRegister(const ptree &t_config) const;
 
     /** \brief Get all paths in a ptree
      *  \param t_tree input ptree

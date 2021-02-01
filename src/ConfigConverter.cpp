@@ -9,31 +9,32 @@
 
 using boost::property_tree::ptree;
 
-ConfigConverter::ConfigConverter(const ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type) : m_translationMap([this, t_addressSpace] () {
-                                                                                                                                   if (t_addressSpace == RegisterAddressSpace::ROC_ANALOG)
-                                                                                                                                   {
-                                                                                                                                       return TRANSLATION_MAP_ROC_ANALOG;
-                                                                                                                                   }
-                                                                                                                                   if (t_addressSpace == RegisterAddressSpace::ROC_DIGITAL)
-                                                                                                                                   {
-                                                                                                                                       return TRANSLATION_MAP_ROC_DIGITAL;
-                                                                                                                                   }
-                                                                                                                                   throw std::runtime_error("Not implemented");
-                                                                                                                               }()),
-                                                                                                                               m_registerTree([this, t_type, &t_config]() {
-                                                                                                                                   if (t_type == ConfigType::REGISTER_BASED)
-                                                                                                                                   {
-                                                                                                                                       return t_config;
-                                                                                                                                   }
-                                                                                                                                   return convertValueToRegister(t_config);
-                                                                                                                               }()),
-                                                                                                                               m_valueTree([this, t_type, &t_config]() {
-                                                                                                                                   if (t_type == ConfigType::VALUE_BASED)
-                                                                                                                                   {
-                                                                                                                                       return t_config;
-                                                                                                                                   }
-                                                                                                                                   return convertRegisterToValue(t_config);
-                                                                                                                               }())
+ConfigConverter::ConfigConverter(const ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type) :
+    m_translationMap([t_addressSpace] () {
+       if (t_addressSpace == ConfigConverter::RegisterAddressSpace::ROC_ANALOG)
+       {
+           return TRANSLATION_MAP_ROC_ANALOG;
+       }
+       if (t_addressSpace == RegisterAddressSpace::ROC_DIGITAL)
+       {
+           return TRANSLATION_MAP_ROC_DIGITAL;
+       }
+       throw std::runtime_error("Not implemented");
+   }()),
+   m_registerTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::REGISTER_BASED)
+       {
+           return t_config;
+       }
+       return convertValueToSubRegister(t_config);
+   }()),
+   m_valueTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::VALUE_BASED)
+       {
+           return t_config;
+       }
+       return convertSubRegisterToValue(t_config);
+   }())
 {
 }
 
@@ -75,7 +76,7 @@ void ConfigConverter::checkPaths(const std::vector<std::string> &t_paths) const
     }
 }
 
-ptree ConfigConverter::convertValueToRegister(const ptree &t_config) const
+ptree ConfigConverter::convertValueToSubRegister(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
     checkPaths(allPaths);
@@ -93,7 +94,7 @@ ptree ConfigConverter::convertValueToRegister(const ptree &t_config) const
     return newTree;
 }
 
-ConfigConverter::TranslatedConfig ConfigConverter::convertValueToRegisterNoSubRegister(const ptree &t_config) const
+ConfigConverter::TranslatedConfig ConfigConverter::convertValueToFlatRegister(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
     checkPaths(allPaths);
@@ -124,7 +125,7 @@ ConfigConverter::TranslatedConfig ConfigConverter::convertValueToRegisterNoSubRe
     return {newTree, mask};
 }
 
-ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
+ptree ConfigConverter::convertSubRegisterToValue(const ptree &t_config) const
 {
     const auto allPaths = getAllPaths(t_config);
 
@@ -163,12 +164,12 @@ ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
     return m_valueTree;
 }
 
-[[nodiscard]] ptree ConfigConverter::getRegisterBasedConfig() const
+[[nodiscard]] ptree ConfigConverter::getSubRegisterBasedConfig() const
 {
     return m_registerTree;
 }
 
-[[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const nsw::I2cMasterConfig &t_config) const
+[[nodiscard]] ptree ConfigConverter::getFlatRegisterBasedConfig(const nsw::I2cMasterConfig &t_config) const
 {
     const auto bitstreamMap = t_config.getBitstreamMap();
     const auto func = [&bitstreamMap] (const std::string& t_registerName) {
@@ -181,8 +182,8 @@ ptree ConfigConverter::convertRegisterToValue(const ptree &t_config) const
 }
 
 template<ConfigConverter::RegisterAddressSpace DeviceType>
-[[nodiscard]] ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters(const std::string &t_opcIp,
-                                                                               const std::string &t_scaAddress) const
+[[nodiscard]] ptree ConfigConverter::getFlatRegisterBasedConfig(const std::string &t_opcIp,
+                                                                const std::string &t_scaAddress) const
 {
     nsw::ConfigSender configSender;
     const auto func = [&t_opcIp, &t_scaAddress, &configSender] (const std::string& t_registerName) {
@@ -202,5 +203,5 @@ template<ConfigConverter::RegisterAddressSpace DeviceType>
     return readMissingRegisterParts(func, m_registerSizeMapping.at(DeviceType));
 }
 
-template ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters<ConfigConverter::RegisterAddressSpace::ROC_ANALOG>(const std::string&, const std::string&) const;
-template ptree ConfigConverter::getRegisterBasedConfigWithoutSubregisters<ConfigConverter::RegisterAddressSpace::ROC_DIGITAL>(const std::string&, const std::string&) const;
+template ptree ConfigConverter::getFlatRegisterBasedConfig<ConfigConverter::RegisterAddressSpace::ROC_ANALOG>(const std::string&, const std::string&) const;
+template ptree ConfigConverter::getFlatRegisterBasedConfig<ConfigConverter::RegisterAddressSpace::ROC_DIGITAL>(const std::string&, const std::string&) const;

@@ -60,7 +60,7 @@ nsw::FEBConfig getReferenceConfig()
 BOOST_AUTO_TEST_CASE(GetRegisterBasedConfig_ROCAnalogValueTree_ReturnsCorrectRegisterTree) {
     const auto valueTree = createDummyAnalog();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getRegisterBasedConfig();
+    const auto registerTree = converter.getSubRegisterBasedConfig();
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase40MHz_0"), registerTree.get<int>("reg064ePllVmm0.ePllPhase40MHz_0"));
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") / 16, registerTree.get<int>("reg064ePllVmm0.ePllPhase160MHz_0[4]"));
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfig_ROCAnalogValueTree_ReturnsCorrectReg
 BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigNoSubregisterNoReadbackAnalog_ROCAnalogValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyAnalog();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getRegisterBasedConfigWithoutSubregisters(getReferenceConfig().getRocAnalog());
+    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocAnalog());
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase40MHz_0"), registerTree.get<int>("reg064ePllVmm0") & 0b0111'1111);
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") / 16, (registerTree.get<int>("reg064ePllVmm0") & 0b1000'0000) >> 7);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigNoSubregisterNoReadbackAnalog_ROCAnal
 BOOST_AUTO_TEST_CASE(TranslationNewToOldToNewAnalog_ROCAnalogValueAndRegisterTree_ReturnsInitialTree) {
     const auto valueTree = createDummyAnalog();
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
+    const auto registerTree = converterValueToRegister.getSubRegisterBasedConfig();
     const auto converterRegisterToValue = ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED);
     const auto valueTreeNew = converterRegisterToValue.getValueBasedConfig();
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(TranslationNewToOldToNewAnalog_ROCAnalogValueAndRegisterTre
 BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigDigital_ROCDigitalValueTree_ReturnsCorrectRegisterTree) {
     const auto valueTree = createDummyDigital();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getRegisterBasedConfig();
+    const auto registerTree = converter.getSubRegisterBasedConfig();
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), registerTree.get<int>("reg000rocId.l1_first"));
     BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), registerTree.get<int>("reg000rocId.even_parity"));
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigDigital_ROCDigitalValueTree_ReturnsCo
 BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital_ROCDigitalValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyDigital();
     const auto converter = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getRegisterBasedConfigWithoutSubregisters(getReferenceConfig().getRocDigital());
+    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocDigital());
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), (registerTree.get<int>("reg000rocId") & 0b1000'0000) >> 7);
     BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), (registerTree.get<int>("reg000rocId") & 0b0100'0000) >> 6);
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital_ROCDig
 BOOST_AUTO_TEST_CASE(translationNewToOldToNewDigital_ROCDigitalValueAndRegisterTree_ReturnsInitialTree) {
     const auto valueTree = createDummyDigital();
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
+    const auto registerTree = converterValueToRegister.getSubRegisterBasedConfig();
     const auto converterRegisterToValue = ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED);
     const auto valueTreeNew = converterRegisterToValue.getValueBasedConfig();
 
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(translationFailuresAnalog_ConfigConverterAnalog_ThrowsError
     BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node ePllVmm0.ePllPhase40MHz_0 in translation map");});
     
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
+    const auto registerTree = converterValueToRegister.getSubRegisterBasedConfig();
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node reg064ePllVmm0.ePllPhase40MHz_0 in translation map");});
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(translationFailuresDigital_ConfigConverterDigital_ThrowsErr
     BOOST_CHECK_EXCEPTION(ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node rocId.l1_first in translation map");});
     
     const auto converterValueToRegister = ConfigConverter(valueTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED);
-    const auto registerTree = converterValueToRegister.getRegisterBasedConfig();
+    const auto registerTree = converterValueToRegister.getSubRegisterBasedConfig();
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
     BOOST_CHECK_EXCEPTION(ConfigConverter(registerTree, ConfigConverter::RegisterAddressSpace::ROC_ANALOG, ConfigConverter::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node reg000rocId.l1_first in translation map");});

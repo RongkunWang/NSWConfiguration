@@ -52,7 +52,7 @@ ptree convert(const ptree& t_tree, ConfigConverter::RegisterAddressSpace t_space
     try
     {
         const auto converter = ConfigConverter(t_tree, t_space, ConfigConverter::ConfigType::VALUE_BASED);
-        return converter.getRegisterBasedConfig();
+        return converter.getSubRegisterBasedConfig();
     }
     catch(const std::runtime_error& e1)
     {
