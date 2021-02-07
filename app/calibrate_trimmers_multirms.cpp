@@ -7,6 +7,7 @@
 #include <set>
 #include <numeric>
 
+
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
@@ -17,7 +18,7 @@ namespace po = boost::program_options;
 
 int NCH_PER_VMM = 64;
 int RMS_CUTOFF = 10;      // in mV
-int BASELINE_CUTOFF = 10; // in mV
+int BASELINE_CUTOFF = 7; // in mV
 int TRIM_HI = 31;
 int TRIM_LO = 0;
 int TRIM_MID = 14;
@@ -313,7 +314,7 @@ std::pair<float,int> find_linear_region_slope(nsw::ConfigSender & cs,
 }
 
 std::vector<short unsigned int> vector_without_outliers(const std::vector<short unsigned int> & input, std::string tag,
-                                                        float bulk = 0.9, int nrms = 5) {
+                                                        float bulk = 0.9, int nrms = 3) {
 
     // need a minimum number of entries to have outliers
     if (input.size() < 10) {
@@ -332,7 +333,7 @@ std::vector<short unsigned int> vector_without_outliers(const std::vector<short 
         if (position > margin && position < 1 - margin)
             bulk_distribution.push_back(sorted_input.at(entry));
     }
-
+    
     // take median and RMS of the bulk
     auto bulk_median = take_median(bulk_distribution);
     auto bulk_rms    = take_rms(bulk_distribution, bulk_median);
@@ -546,6 +547,16 @@ int main(int ac, const char *av[]) {
       float mean   = sum / results.size();
       float stdev  = take_rms(results, mean);
       float median = take_median(results);
+
+      fe_samples_pruned.clear();
+      for (auto sample: results)
+        if (fabs(sample_to_mV(sample - median)) < BASELINE_CUTOFF)
+          fe_samples_pruned.push_back(sample);
+      
+      sum    = std::accumulate(fe_samples_pruned.begin(), fe_samples_pruned.end(), 0.0);
+      mean   = sum / fe_samples_pruned.size();
+      stdev  = take_rms(fe_samples_pruned, mean);
+      median = take_median(fe_samples_pruned);
 
       std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
       // add medians, baseline to (MMFE8, CH) map
