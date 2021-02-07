@@ -397,6 +397,7 @@ int main(int ac, const char *av[]) {
     // VMM-level calculations
 
     fe_samples_tmp.clear();
+    fe_samples_pruned.clear();
     for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){// channel loop
 
       // Read pdo of the certain channel n_samples times.
@@ -410,6 +411,15 @@ int main(int ac, const char *av[]) {
       float stdev  = take_rms(results, mean);
       float median = take_median(results);
 
+      // for (auto sample: results)
+      //   if (fabs(sample_to_mV(sample - median)) < BASELINE_CUTOFF)
+      //     fe_samples_pruned.push_back(sample);
+      
+      // sum    = std::accumulate(fe_samples_pruned.begin(), fe_samples_pruned.end(), 0.0);
+      // mean   = vmm_sum / fe_samples_pruned.size();
+      // stdev  = take_rms(fe_samples_pruned, vmm_mean);
+      // median = take_median(fe_samples_pruned);
+      
       std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
       // add medians, baseline to (MMFE8, CH) map
       channel_baseline_med[feb_ch] = median;

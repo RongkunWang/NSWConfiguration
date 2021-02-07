@@ -228,9 +228,9 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
     }
 
     // reset the MO for all channels
-    for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
+    /*for (int vmm_id = 0; vmm_id < VMMS; vmm_id++)
       vmms[vmm_id].setChannelRegisterAllChannels("channel_smx", 0);
-
+    */
     if (cfg.dump)
       myfile.close();
 
