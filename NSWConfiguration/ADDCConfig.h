@@ -33,7 +33,7 @@ class ADDCConfig: public SCAConfig {
 
     void dump();
 
-    ARTConfig & getART(size_t i) {return m_arts[i];}
+    const ARTConfig & getART(size_t i) const {return m_arts[i];}
     const std::vector<ARTConfig> & getARTs() const {return m_arts;}
 
     std::vector<uint8_t> ARTCoreregisters()       const {return m_ARTCoreregisters;}
