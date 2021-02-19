@@ -209,6 +209,9 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
     int CHS   = 64;
     int tpdac = -1;
 
+    //  in 191 NodeID is SFEB everywhere, so here it needs this.
+    if (VMMS == 6) VMM_START = 2;
+/*
     if(feb.getAddress().find("SFEB6") != std::string::npos){
       VMMS = 6;
       VMM_START = 2;
@@ -217,6 +220,7 @@ int read_channel_monitor(nsw::FEBConfig feb, ThreadConfig cfg) {
       VMMS = 8;
       VMM_START= 0;
     }
+*/
 
     std::cout << "Read monitor VMM Start Value: " << VMM_START <<std::endl;
     

@@ -11,7 +11,7 @@ FELIX_COMMAND = "openFELIX_wedge"
 # FELIX_COMMAND = "openFELIX_bt"
 #OPC_PATH = "~/public/Opcxml/1sFEB_felix2.xml"
 #OPC_PATH = "/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/"
-OPC_PATH = "/afs/cern.ch/user/s/stgcic/public/Opcxml/flx1wedge_SFEB8_6.xml"
+OPC_PATH = "/afs/cern.ch/user/s/stgcic/public/Opcxml/flx1wedge_Q3L3_SFEB6_othersSFEB8.xml"
 
 def auto_test_template():
     # Open felix
@@ -23,14 +23,9 @@ def auto_test_template():
     #json_file = "/afs/cern.ch/user/s/stgcic/public/benchtest/felix2/3pFEB/baseline.json"
    # json_file = "/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge5_A10_S_P/wedge5layer1234_SFEB8_6.json"
     #json_file = "/afs/cern.ch/work/s/stgcic/public/sTGC_quick_and_dirty_baselines/trimmers_sTGC/2020_03_12_14h14m04s_DebugNoBaseline/trimmers_x30.json"
-    json_file = "/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge7_20MNIWSAP00008_A10_S_P/wedge7layer1234_SFEB8_6.json"
+    json_file = "/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge4_20MNIWSAC00003_A14_S_C/wedge4layer1234_Q3L3_SFEB6_othersSFEB8.json"
     config_cmd = "json:{}".format(json_file)
     config_fail=felix_config.config(config_cmd,felix=1)
-
-
-    
-
-
 
 if __name__ == "__main__":
     auto_test_template()

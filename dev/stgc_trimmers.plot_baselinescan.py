@@ -107,7 +107,7 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
         style(tex)
 
     # legend
-    legend = ROOT.TLegend(0.39, 0.33, 0.51, 0.51)
+    legend = ROOT.TLegend(0.8, 0.8, 0.9, 0.9)
     style(legend)
     legend.AddEntry(h1_bl,      "Baseline",                            "pe")
 
@@ -182,46 +182,56 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
     # STDEV versus channel 
 
     if(ispFEB==False):
-    
+
         h1_bl_stdev_strip = h1_bl_stdev.Clone("h1_bl_stdev_strip")
-    
-        # legend for stdev of baseline versus channel 
-        
+
+        strip_hist_blstdev_name = "h1_bl_stdev_strip_"+feb
+        h1_bl_stdev_strip.SetName(strip_hist_blstdev_name)
+
+        # legend for stdev of baseline versus channel                                                                                   
+
         legend_only_stdev_strip = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
         style(legend_only_stdev_strip)
         legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip,      "Strip- stdev on Baseline",                            "p")
-        canv = ROOT.TCanvas("strip_only_stdev_%s" % (feb_name),
-                            "strip_only_stdev_%s" % (feb_name), 800, 800)
+        #h1_bl_stdev_strip.SetMaximum(5)                                                                                                
+        canv = ROOT.TCanvas("strip_only_stdev_%s" % (feb),
+                            "strip_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
-        
+
         grid_strip = ROOT.TPad("grid_strip","",0,0,1,1);
         grid_strip.Draw("SAME");
         grid_strip.cd();
         grid_strip.SetFillStyle(4000);
-        
-        hgrid_strip = ROOT.TH2C("hgrid_strip","",512,-0.5,511.5,5,0.,h1_bl_stdev_strip.GetMaximum()*1.5);
+
+        hgrid_strip = ROOT.TH1C("hgrid_strip","",512,-0.5,511.5);
+        hgrid_strip.GetYaxis().SetRangeUser(0.,h1_bl_stdev_strip.GetMaximum()*1.5);
+
+        h1_bl_stdev_strip.GetYaxis().SetRangeUser(0.,h1_bl_stdev_strip.GetMaximum()*1.5);
         hgrid_strip.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_strip.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_strip.GetXaxis().SetTitleOffset(1)
         hgrid_strip.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_strip.GetYaxis().SetTitleOffset(1)
-        hgrid_strip.Draw("SAME");
-        h1_bl_stdev_strip     .Draw("pesame")
-        hgrid_strip.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_strip.GetXaxis().SetBinLabel(1,"0"); 
-        for chan in range(1,17): 
-            label_name = "%d" %(chan*32-1) 
-            hgrid_strip.GetXaxis().SetBinLabel(chan*32,label_name)
-        hgrid_strip.GetXaxis().SetNdivisions(-8);
-        hgrid_strip.GetYaxis().SetNdivisions(-10);
+        h1_bl_stdev_strip.GetYaxis().SetTitleOffset(0.5)
+
+        hgrid_strip.Draw("SAME")
+        h1_bl_stdev_strip.Draw("L SAME")
+
+        h1_bl_stdev_strip.SetLineWidth(3)
+        h1_bl_stdev_strip.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori)
+        h1_bl_stdev_strip.GetXaxis().SetBinLabel(1,"0")
+        for chan in range(1,17):
+            label_name = "%d" %(chan*32-1)
+            h1_bl_stdev_strip.GetXaxis().SetBinLabel(chan*32,label_name)
+        h1_bl_stdev_strip.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_strip.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(8)
         for chan2 in range(0,8):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_strip.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_strip.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
             myline[chan2].Draw("same")
         legend_only_stdev_strip.Draw()
-        
+
         for tex in texs:
             tex.Draw()
         outdir = outfile.Get("only_stdev")
@@ -229,12 +239,15 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
         canv.Write()
-        
+
     elif(ispFEB):
         h1_bl_stdev_wire = h1_bl_stdev.Clone("h1_bl_stdev_wire")
 
+        wire_hist_blstdev_name = "h1_bl_stdev_wire_"+feb
+        h1_bl_stdev_wire.SetName(wire_hist_blstdev_name)
+
         # legend for stdev of baseline versus channel for wires
-        
+
         legend_only_stdev_wire = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
         style(legend_only_stdev_wire)
         legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire,      "Wire - stdev on Baseline",                            "p")
@@ -245,36 +258,42 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
         elif(feb[-2:]=="Q3"):
             legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 470 pF", "p")
         h1_bl_stdev_wire.GetXaxis().SetRangeUser(-0.5,63.5)
-        canv = ROOT.TCanvas("wire_only_stdev_%s" % (feb_name),
-                            "wire_only_stdev_%s" % (feb_name), 800, 800)
+        canv = ROOT.TCanvas("wire_only_stdev_%s" % (feb),
+                            "wire_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
-        
+
         grid_wire = ROOT.TPad("grid_wire","",0,0,1,1);
         grid_wire.Draw("SAME");
         grid_wire.cd();
         grid_wire.SetFillStyle(4000);
-        
-        hgrid_wire = ROOT.TH2C("hgrid_wire","",64,-0.5,63.5,5,0.,h1_bl_stdev_wire.GetMaximum()*1.5);
+
+        hgrid_wire = ROOT.TH1C("hgrid_wire","",64,-0.5,63.5);
+        hgrid_wire.GetYaxis().SetRangeUser(0.,h1_bl_stdev_wire.GetMaximum()*1.5);
+
+        h1_bl_stdev_wire.GetYaxis().SetRangeUser(0.,h1_bl_stdev_wire.GetMaximum()*1.5);
         hgrid_wire.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_wire.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_wire.GetXaxis().SetTitleOffset(1)
         hgrid_wire.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_wire.GetYaxis().SetTitleOffset(1)
-        hgrid_wire.Draw("SAME");
-        h1_bl_stdev_wire.Draw("pesame")
-        hgrid_wire.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_wire.GetXaxis().SetBinLabel(1,"0");
+        h1_bl_stdev_wire.GetYaxis().SetTitleOffset(0.5)
+
+        hgrid_wire.Draw("SAME")
+        h1_bl_stdev_wire.Draw("L SAME");
+
+        h1_bl_stdev_wire.SetLineWidth(3)
+        h1_bl_stdev_wire.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
+        h1_bl_stdev_wire.GetXaxis().SetBinLabel(1,"0");
         for chan in range(1,3):
             label_name = "%d" %(chan*32-1)
-            hgrid_wire.GetXaxis().SetBinLabel(chan*32,label_name)
-        hgrid_wire.GetXaxis().SetNdivisions(-8);
-        hgrid_wire.GetYaxis().SetNdivisions(-10);
+            h1_bl_stdev_wire.GetXaxis().SetBinLabel(chan*32,label_name)
+        h1_bl_stdev_wire.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_wire.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(2)
         for chan2 in range(0,2):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_wire.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_wire.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
-            myline[chan2].Draw("same")    
+            myline[chan2].Draw("same")
         legend_only_stdev_wire.Draw()
 
         for tex in texs:
@@ -285,9 +304,12 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
         outdir.cd()
         canv.Write()
 
-        # legend for stdev of baseline versus channel for pads
-
+        # legend for stdev of baseline versus channel for pads   
+        
         h1_bl_stdev_pad = h1_bl_stdev.Clone("h1_bl_stdev_pad")
+
+        pad_hist_blstdev_name = "h1_bl_stdev_pad_"+feb
+        h1_bl_stdev_pad.SetName(pad_hist_blstdev_name)
 
         legend_only_stdev_pad = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
         style(legend_only_stdev_pad)
@@ -298,40 +320,46 @@ def plot(feb, feb_name, outfile, tr_bl, tr_bl_summ):
             legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 330 pF", "p")
         elif(feb[-2:]=="Q3"):
             legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 470 pF", "p")
-        h1_bl_stdev_pad.GetXaxis().SetRangeUser(63.5,191.5)
-        canv = ROOT.TCanvas("pad_only_stdev_%s" % (feb_name),
-                            "pad_only_stdev_%s" % (feb_name), 800, 800)
+            h1_bl_stdev_pad.GetXaxis().SetRangeUser(63.5,191.5)
+        canv = ROOT.TCanvas("pad_only_stdev_%s" % (feb),
+                            "pad_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
-        
+
         grid_pad = ROOT.TPad("grid_pad","",0,0,1,1);
         grid_pad.Draw("SAME");
         grid_pad.cd();
         grid_pad.SetFillStyle(4000);
-        
-        hgrid_pad = ROOT.TH2C("hgrid_pad","",128,63.5,191.5,5,0.,h1_bl_stdev_pad.GetMaximum()*1.5);
+
+        hgrid_pad = ROOT.TH1C("hgrid_pad","",128,63.5,191.5);
+        hgrid_pad.GetYaxis().SetRangeUser(0.,h1_bl_stdev_pad.GetMaximum()*1.5);
+
+        h1_bl_stdev_pad.GetYaxis().SetRangeUser(0.,h1_bl_stdev_pad.GetMaximum()*1.5);
         hgrid_pad.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_pad.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_pad.GetXaxis().SetTitleOffset(1)
         hgrid_pad.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_pad.GetYaxis().SetTitleOffset(1)
+        h1_bl_stdev_pad.GetYaxis().SetTitleOffset(0.5)
+        
         hgrid_pad.Draw("SAME");
-        h1_bl_stdev_pad.Draw("pesame")
-        hgrid_pad.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_pad.GetXaxis().SetBinLabel(1,"64")
+        h1_bl_stdev_pad.Draw("L SAME");
+
+        h1_bl_stdev_pad.SetLineWidth(3)
+        h1_bl_stdev_pad.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
+        h1_bl_stdev_pad.GetXaxis().SetBinLabel(1,"64")
         for chan in range(3,7):
             label_name = "%d" %(chan*32-1)
             print label_name
-            hgrid_pad.GetXaxis().SetBinLabel((chan-2)*32,label_name)
-        hgrid_pad.GetXaxis().SetNdivisions(-8);
-        hgrid_pad.GetYaxis().SetNdivisions(-10);
+            h1_bl_stdev_pad.GetXaxis().SetBinLabel((chan-2)*32,label_name)
+        h1_bl_stdev_pad.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_pad.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(4)
         for chan2 in range(0,4):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_pad.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_pad.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
             myline[chan2].Draw("same")
         legend_only_stdev_pad.Draw()
-        
+
         for tex in texs:
             tex.Draw()
         outdir = outfile.Get("only_stdev")

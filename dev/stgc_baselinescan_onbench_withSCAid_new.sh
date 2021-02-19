@@ -1,8 +1,8 @@
 # TODO: sTGC 
 #FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L1Q3,SFEB_L1Q1,SFEB_L1Q2,SFEB_L1Q3,PFEB_L2Q1,PFEB_L2Q2,PFEB_L2Q3,SFEB_L2Q1,SFEB_L2Q2,SFEB_L2Q3,PFEB_L3Q1,PFEB_L3Q2,PFEB_L3Q3,SFEB_L3Q1,SFEB_L3Q2,SFEB_L3Q3,PFEB_L4Q1,PFEB_L4Q2,PFEB_L4Q3,SFEB_L4Q1,SFEB_L4Q2,SFEB_L4Q3"
 #FEBs="SFEB6_L0Q0"
-FEBs="SFEB8_L0Q0,SFEB6_L0Q1,SFEB6_L0Q2"
-#FEBs="SFEB8_L0Q0,SFEB8_L0Q1,SFEB8_L0Q2"
+#FEBs="SFEB8_L0Q0,SFEB6_L0Q1,SFEB6_L0Q2"
+FEBs="SFEB8_L1Q1,SFEB6_L1Q2,SFEB6_L1Q3"
 #export PYTHONHOME=/usr/local/lib64/python3.6
 #FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L1Q3"
 
@@ -11,12 +11,12 @@ PATTERN_baseline="?FEB*VMM*"
 
 FILES="/afs/cern.ch/work/n/nswdaq/public/sTGC_quick_and_dirty_baselines"
 #CONFIG="/afs/cern.ch/user/s/stgcic/public/baselinetemp.json"
-#CONFIG="/afs/cern.ch/user/s/stgcic/public/baseline3sFEBfelix2.json"
+CONFIG="/afs/cern.ch/user/s/stgcic/public/baselineflx2bench.json"
 #CONFIG="/afs/cern.ch/user/s/stgcic/public/baseline_1sFEB_6VMMs_felix2_22093.json"
 #CONFIG="/afs/cern.ch/user/s/stgcic/public/baseline_1sFEB_8VMMs_felix2.json"
-#CONFIG="/afs/cern.ch/user/s/stgcic/public/benchtest/felix2/3pFEB/baseline.json"
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/benchreadout/felix2/3pFEB/baseline.json"
 #CONFIG="/afs/cern.ch/user/s/stgcic/public/benchtest/felix2/3sFEB6/baseline3sFEBfelix2.json"
-CONFIG="/afs/cern.ch/user/s/stgcic/public/benchreadout/felix2/baseline3sFEBbench.json"
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/benchreadout/felix2/baseline3sFEBbench.json"
 #CONFIG="/afs/cern.ch/user/s/stgcic/public/baseline_3sFEB_8VMMs_felix2.json"
 
 NSAMPS="10000"
@@ -92,7 +92,7 @@ python NSWConfiguration/dev/stgc_trimmers.plot_baselinescan.py -o $newOUT/baseli
 ## copy to the web                                                                                                                                                                                      
 $ROOT2HTML $newOUT/baselines_${NOW_NEW}.root
 mv $newOUT/baselines_${NOW_NEW} ${WEB}
-echo "<a href='${NOW_NEW}'> ${NOW_NEW} </a> :: On-bench Reception Test sFEBs - 6 VMMs<br/>" >> $LOG
+echo "<a href='${NOW_NEW}'> ${NOW_NEW} </a> :: On-bench Reception Test sFEBs repair Dec 16 <br/>" >> $LOG
 echo "Update the log, please: $LOG"
 echo "www.cern.ch/stgc-threshold-on-bench/"
 
