@@ -6,6 +6,7 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/ConfigConverter.h"
 
 #include "boost/property_tree/ptree.hpp"
 using boost::property_tree::ptree;
@@ -1102,4 +1103,22 @@ void nsw::ConfigSender::sendFPGA(const std::string& opcserver_ipport, const std:
                                  const std::string& bitfile_path) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeXilinxFpga(node, bitfile_path);
+}
+
+void nsw::ConfigSender::enableVmmCaptureInputs(const nsw::FEBConfig& feb)
+{
+    ptree tree;
+    tree.put_child("reg008vmmEnable", feb.getConfig().get_child("rocCoreDigital.reg008vmmEnable"));
+    const auto configConverter = ConfigConverter(tree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED);
+    const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(feb.getRocDigital());
+    const auto partialConfig = nsw::I2cMasterConfig(translatedPtree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
+    sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);
+}
+
+void nsw::ConfigSender::disableVmmCaptureInputs(const nsw::FEBConfig& feb)
+{
+    ptree tree;
+    tree.put("reg008vmmEnable", 0);
+    const auto partialConfig = nsw::I2cMasterConfig(tree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
+    sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);
 }

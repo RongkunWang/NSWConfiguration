@@ -35,11 +35,13 @@ void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd& cmd) {
 
 void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
+    m_NSWConfig->startRc();
     ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("Start");
+    m_NSWConfig->stopRc();
     ERS_LOG("End");
 }
 

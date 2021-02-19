@@ -174,6 +174,14 @@ class ConfigSender {
     /// Program FPGA from bitfile
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
     void sendFPGA(const std::string& opcserver_ipport, const std::string& node, const std::string& bitfile_path);
+
+    /// Set vmm enable register to 0
+    /// \param feb Config needed for OPC IP
+    void disableVmmCaptureInputs(const nsw::FEBConfig& feb);
+
+    /// Set vmm enable register to value in passed config
+    /// \param feb Reference config
+    void enableVmmCaptureInputs(const nsw::FEBConfig& feb);
 };
 
 }  // namespace nsw
