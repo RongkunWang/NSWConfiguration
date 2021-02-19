@@ -1,9 +1,9 @@
 # TODO: sTGC 
-FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L1Q3,SFEB8_L1Q1,SFEB6_L1Q2,SFEB6_L1Q3,PFEB_L2Q1,PFEB_L2Q2,PFEB_L2Q3,SFEB8_L2Q1,SFEB6_L2Q2,SFEB6_L2Q3,PFEB_L3Q1,PFEB_L3Q2,PFEB_L3Q3,SFEB8_L3Q1,SFEB6_L3Q2,SFEB6_L3Q3,PFEB_L4Q1,PFEB_L4Q2,PFEB_L4Q3,SFEB8_L4Q1,SFEB6_L4Q2,SFEB6_L4Q3"
-#FEBs="SFEB8_L2Q1"
-#FEBs="SFEB_L1Q1_IPL,SFEB_L1Q2_IPL,SFEB_L1Q3_IPL,PFEB_L1Q1_IPR,PFEB_L1Q2_IPR,PFEB_L1Q3_IPR"
-#FEBs="SFEB_L2Q1_IPR,SFEB_L2Q2_IPR,SFEB_L2Q3_IPR,PFEB_L2Q1_IPL,PFEB_L2Q2_IPL,PFEB_L2Q3_IPL"
-#FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L1Q3,PFEB_L2Q1,PFEB_L2Q2,PFEB_L2Q3,PFEB_L3Q1,PFEB_L3Q2,PFEB_L3Q3,PFEB_L4Q1,PFEB_L4Q2,PFEB_L4Q3"
+#FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L2Q1,PFEB_L2Q2,PFEB_L2Q3,PFEB_L3Q1,PFEB_L3Q2,PFEB_L3Q3,PFEB_L4Q1,PFEB_L4Q2,PFEB_L4Q3,SFEB8_L1Q1,SFEB6_L1Q2,SFEB8_L2Q1,SFEB6_L2Q2,SFEB6_L2Q3,SFEB8_L3Q1,SFEB6_L3Q2,SFEB6_L3Q3,SFEB8_L4Q1,SFEB6_L4Q2,SFEB6_L4Q3"
+
+#FEBs="PFEB_L1Q1,PFEB_L1Q2,PFEB_L1Q3,PFEB_L2Q1,PFEB_L2Q2,PFEB_L2Q3,PFEB_L3Q1,PFEB_L3Q2,PFEB_L3Q3,PFEB_L4Q1,PFEB_L4Q2,PFEB_L4Q3,SFEB8_L1Q1,SFEB6_L1Q2,SFEB6_L1Q3,SFEB8_L2Q1,SFEB6_L2Q2,SFEB6_L2Q3,SFEB8_L3Q1,SFEB6_L3Q2,SFEB6_L3Q3,SFEB8_L4Q1,SFEB6_L4Q2,SFEB6_L4Q3"
+FEBs="PFEB_L1Q2"
+#FEBs="PFEB_L1Q3"
 
 PATTERN_baseline="?FEB*VMM*"
 PATTERN_threshold="?FEB*vmm*"
@@ -12,22 +12,16 @@ PATTERN_threshold="?FEB*vmm*"
 # How to choose only a single board:
 # FEBs="MMFE8_ML1P4_IPR"
 #
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge16_20MNIWLAP00002/wedge16layer1234_SFEB8_6_flx1.json"
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge14_20MNIWSAC00007_A6_S_P/wedge14layer1234_SFEB8_6.json"
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge19_20MNIWLAP00005/wedge19layer1234_SFEB8_6.json"
 
-#FILES="/afs/cern.ch/user/x/xuwa/public/"
-FILES="/afs/cern.ch/work/n/nswdaq/public/sTGC_quick_and_dirty_baselines"
-#CONFIG="${FILES}/flx2L2Q3.json"
-#CONFIG="/afs/cern.ch/user/n/nswdaq/public/config-files-sTGC/wedge1B191layer1234_L2.json"
-#CONFIG="${FILES}/wedge3gain3noise/baseline+30.json"
-#CONFIG="${FILES}/test.json"
-#CONFIG="/afs/cern.ch/user/n/nswdaq/public/wedge3flx2layer1234_final.json"
-#CONFIG="/afs/cern.ch/work/n/nswdaq/public/sTGC_quick_and_dirty_baselines/test_wedge4.json"
-#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge6_A10_S_C/wedge6layer1234.json"
-#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge6_A10_S_C/wedge6layer1234_SFEB8_6.json"
-#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge7_A16_S_P/wedge7layer1234_SFEB8_6.json"
-CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180//Wedge8_20MNIWSAC00004_A10_S_C/wedge8layer1234_SFEB8_6.json"
+CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge19_20MNIWLAP00005/debugL1Q2pFEB.json"
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge4_20MNIWSAC00003_A14_S_C/wedge4layer1234_Q3L3_SFEB6_othersSFEB8.json"
+
+#CONFIG="/afs/cern.ch/user/s/stgcic/public/configFiles_WedgeTestsB180/Wedge17_20MNIWLAC00001/wedge17layer1234_SFEB8_6.json"
 
 NSAMPS="100"
-
 # NOW="2019_08_07_12h41m24s"
 # RMS="12,10,8,6,4"
 RMS="30"
@@ -36,7 +30,7 @@ OUT=trimmers_sTGC/$NOW
 THREADS=32
 
 WEB=/eos/atlas/atlascerngroupdisk/det-nsw-stgc/trimmers/${NOW}
-LOG=/eos/atlas/atlascerngroupdisk/det-nsw-stgc/trimmers/index.html
+LOG=/eos/atlas/atlascerngroupdisk/det-nsw-stgc/trimmers/180.html
 ROOT2HTML="/eos/atlas/atlascerngroupdisk/det-nsw-stgc/baseline_on_bench/root2html.py"
 
 BIN="./x86_64-centos7-gcc8-opt/NSWConfiguration"
@@ -63,7 +57,7 @@ mkdir -p ${OUT}
 #
 # ALWAYS CONFIGURE
 #
-#$BIN/configure_frontend -c $CONFIG -v -t -r #-m $THREADS 
+$BIN/configure_frontend -c $CONFIG -v -t -r -m $THREADS 
 #/afs/cern.ch/work/r/rowang/public/FELIX/NSWConfiguration_workspace/x86_64-centos7-gcc8-opt/NSWConfiguration/configure_frontend -c $CONFIG -v -r -t
 
 # calibrate thresholds
@@ -79,25 +73,27 @@ done
 # baselines
 grep -h "^DATA" baselines_$PATTERN_baseline > $OUT/baselines.txt
 grep -h "^SUMMARY" summary_baselines_$PATTERN_baseline > $OUT/summary_baselines.txt
-#grep -h "^BASELINE_OUTSIDE_150_200_MV" baseline_outside_150to200mV_$PATTERN_baseline > $OUT/baseline_outside_150_200mV.txt
+grep -h "^BASELINE_OUTSIDE_150_200_MV" baseline_outside_150_200mV_$PATTERN_baseline > $OUT/baseline_outside_150_200mV.txt
 
 # mv
 mkdir -p $OUT/log/
 #mv thresholds_$PATTERN_threshold    $OUT/log/
 mv baselines_$PATTERN_baseline $OUT/log/
 mv summary_baselines_$PATTERN_baseline $OUT/log/
+mv baseline_outside_150_200mV_$PATTERN_baseline $OUT/log/
 
 for R in $(echo ${RMS} | tr "," "\n"); do
     
-    ## plotting script                                                                                                                                                                                      
+    ## plotting script                                       
     python NSWConfiguration/dev/stgc_trimmers.plot_baselinescan.py -o $OUT/trimmers_${NOW}_x${R}.root \
         --bl           $OUT/baselines.txt \
         --bl_summ      $OUT/summary_baselines.txt \
 
-    ## copy to the web                                                                                                                                                                                      
+    ## copy to the web                                            
+
     $ROOT2HTML $OUT/trimmers_${NOW}_x${R}.root
     mv $OUT/trimmers_${NOW}_x${R} ${WEB}_x${R}
-    echo "<a href='${NOW}_x${R}'> ${NOW}_x${R} </a> :: BaselineScan Wedge 8 Confirm <br/>" >> $LOG
+    echo "<a href='${NOW}_x${R}'> ${NOW}_x${R} </a> :: BaselineScan Wedge 19 L1Q2 PFEB: <br/>" >> $LOG
     echo "Update the log, please: $LOG"
     echo "www.cern.ch/stgc-trimmer/"
 
@@ -108,7 +104,7 @@ for R in $(echo ${RMS} | tr "," "\n"); do
 
     $ROOT2HTML $OUT/baseline_stdev_eachlayer_strip_pad.root
     mv $OUT/baseline_stdev_eachlayer_strip_pad ${WEB}_x${R}_stdev_baseline_perlayerPlots
-    echo "<a href='${NOW}_x${R}_stdev_baseline_perlayerPlots'> ${NOW}_x${R}_stdev_baseline_perlayerPlots </a> :: INSERT DESCRIPTION HERE<br/>" >> $LOG
+    echo "<a href='${NOW}_x${R}_stdev_baseline_perlayerPlots'> ${NOW}_x${R}_stdev_baseline_perlayerPlots </a> :: BaselineScan Wedge 19 L1Q2 PFEB: <br/>" >> $LOG
     echo "Update the log, please: $LOG"
     echo "www.cern.ch/stgc-trimmer/"
 

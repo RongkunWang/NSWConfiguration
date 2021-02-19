@@ -80,7 +80,7 @@ def process_vmms(cfg, feb):
     
     #for i in range(VMM_NUM):
     # if i == 0: continue
-    #i = 4
+    i = 4
     this_cfg = copy.deepcopy(cfg)
     this_cfg["feb"] = feb
     this_cfg["vmm"] = i

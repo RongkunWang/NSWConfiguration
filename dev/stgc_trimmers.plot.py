@@ -10,7 +10,7 @@ def options():
     parser.add_argument("--th_untrimmed", help="txt file of untrimmed thresholds")
     parser.add_argument("--th_trimmed",   help="txt file of trimmed thresholds")
     return parser.parse_args()
-
+    
 def fatal(msg):
     sys.exit("Fatal: %s" % msg)
 
@@ -37,10 +37,10 @@ def main():
     tr_bl_summ = ROOT.TTree("DATA", "")
     tr_th_pre  = ROOT.TTree("DATA", "")
     tr_th_post = ROOT.TTree("DATA", "")
-    tr_bl      .ReadFile(ops.bl,           "data/C:MMFE8:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
+    tr_bl      .ReadFile(ops.bl,           "data/C:sTGC_Board:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
     tr_bl_summ .ReadFile(ops.bl_summ,      "data/C:sTGC_Board:vmm_str/C:vmm_id/D:channel_str/C:channel_id/D:mean_str/C:mean/D:stdev_str/C:stdev/D:median_str/C:median/D", " ")
-    tr_th_pre  .ReadFile(ops.th_untrimmed, "data/C:MMFE8:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
-    tr_th_post .ReadFile(ops.th_trimmed,   "data/C:MMFE8:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
+    tr_th_pre  .ReadFile(ops.th_untrimmed, "data/C:sTGC_Board:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
+    tr_th_post .ReadFile(ops.th_trimmed,   "data/C:sTGC_Board:vmm_id/D:channel_id:tpdac:thdac:trim:ADCsample", " ")
 
     # plot
     for feb in febs:
@@ -67,8 +67,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
 
     # loop
     cmd = "ADCsample*1000.0/4095.0 : channel_id + vmm_id*64"
-    req = "strstr(MMFE8,\"%s\")" % (feb)
-    # req = "MMFE8 == %s" % (feb)
+    req = "strstr(sTGC_Board,\"%s\")" % (feb)
+    # req = "sTGC_Board == %s" % (feb)
     tr_bl      .Draw(cmd + " >> h2_bl",      req, "colz")
     tr_th_pre  .Draw(cmd + " >> h2_th_pre",  req, "colz")
     tr_th_post .Draw(cmd + " >> h2_th_post", req, "colz")
@@ -131,7 +131,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         style(tex)
 
     # legend
-    legend = ROOT.TLegend(0.39, 0.33, 0.51, 0.51)
+    legend = ROOT.TLegend(0.39, 0.33, 0.51, 0.51, "", "brNDC")
     style(legend)
     legend.AddEntry(h1_th_pre,  "Threshold (+ arb. offset)",           "pe")
     legend.AddEntry(h1_th_post, "Threshold, with trimmers",            "pe")
@@ -201,7 +201,7 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
     canv.Write()
 
     # legend for only baseline                                                                                                                                                                                                
-    legend_only_bl = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
+    legend_only_bl = ROOT.TLegend(0.80, 0.80, 0.90, 0.90, "", "brNDC")
     style(legend_only_bl)
     legend_only_bl.AddEntry(h1_bl,      "Baseline",                            "pe")
 
@@ -248,22 +248,18 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
     if(ispFEB==False):
     
         h1_bl_stdev_strip = h1_bl_stdev.Clone("h1_bl_stdev_strip")
-        #h1_bl_stdev_strip = h1_bl_stdev
+
+        strip_hist_blstdev_name = "h1_bl_stdev_strip_"+feb
+        h1_bl_stdev_strip.SetName(strip_hist_blstdev_name)
     
         # legend for stdev of baseline versus channel 
         
-        legend_only_stdev_strip = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
+        legend_only_stdev_strip = ROOT.TLegend(0.70, 0.70, 0.90, 0.90, "", "brNDC")
         style(legend_only_stdev_strip)
-        legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip,      "Strip- stdev on Baseline",                            "p")
-        #if(feb[-2:]=="Q1"):
-        #    legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip, "CPi = 200 pF", "p")
-        #elif(feb[-2:]=="Q2"):
-        #    legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip, "CPi = 330 pF", "p")
-        #elif(feb[-2:]=="Q3"):
-        #    legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip, "CPi = 470 pF", "p")
+        legend_only_stdev_strip.AddEntry(h1_bl_stdev_strip,      "Strip- stdev on Baseline",                            "l")
         #h1_bl_stdev_strip.SetMaximum(5)
         canv = ROOT.TCanvas("strip_only_stdev_%s" % (feb),
-                            "strip_only_stdev_%s" % (feb), 800, 800)
+                            "strip_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
         
         grid_strip = ROOT.TPad("grid_strip","",0,0,1,1);
@@ -271,23 +267,29 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         grid_strip.cd();
         grid_strip.SetFillStyle(4000);
         
-        hgrid_strip = ROOT.TH2C("hgrid_strip","",512,-0.5,511.5,5,0.,h1_bl_stdev_strip.GetMaximum()*1.5);
+        hgrid_strip = ROOT.TH1C("hgrid_strip","",512,-0.5,511.5);
+        hgrid_strip.GetYaxis().SetRangeUser(0.,h1_bl_stdev_strip.GetMaximum()*1.5);
+        
+        h1_bl_stdev_strip.GetYaxis().SetRangeUser(0.,h1_bl_stdev_strip.GetMaximum()*1.5);
         hgrid_strip.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_strip.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_strip.GetXaxis().SetTitleOffset(1)
         hgrid_strip.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_strip.GetYaxis().SetTitleOffset(1)
-        hgrid_strip.Draw("SAME");
-        h1_bl_stdev_strip     .Draw("pesame")
-        hgrid_strip.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_strip.GetXaxis().SetBinLabel(1,"0"); 
+        h1_bl_stdev_strip.GetYaxis().SetTitleOffset(0.5)
+        
+        hgrid_strip.Draw("SAME")
+        h1_bl_stdev_strip.Draw("L SAME")
+        
+        h1_bl_stdev_strip.SetLineWidth(3)
+        h1_bl_stdev_strip.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori)
+        h1_bl_stdev_strip.GetXaxis().SetBinLabel(1,"0")
         for chan in range(1,17): 
             label_name = "%d" %(chan*32-1) 
-            hgrid_strip.GetXaxis().SetBinLabel(chan*32,label_name)
-        hgrid_strip.GetXaxis().SetNdivisions(-8);
-        hgrid_strip.GetYaxis().SetNdivisions(-10);
+            h1_bl_stdev_strip.GetXaxis().SetBinLabel(chan*32,label_name)
+        h1_bl_stdev_strip.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_strip.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(8)
         for chan2 in range(0,8):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_strip.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_strip.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
@@ -300,26 +302,28 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
-        h1_bl_stdev_strip.Write()
         canv.Write()
         
     elif(ispFEB):
         h1_bl_stdev_wire = h1_bl_stdev.Clone("h1_bl_stdev_wire")
 
+        wire_hist_blstdev_name = "h1_bl_stdev_wire_"+feb
+        h1_bl_stdev_wire.SetName(wire_hist_blstdev_name)
+
         # legend for stdev of baseline versus channel for wires
         
-        legend_only_stdev_wire = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
+        legend_only_stdev_wire = ROOT.TLegend(0.70, 0.70, 0.90, 0.90, "", "brNDC")
         style(legend_only_stdev_wire)
-        legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire,      "Wire - stdev on Baseline",                            "p")
+        legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire,      "Wire - stdev on Baseline",                            "l")
         if(feb[-2:]=="Q1"):
-            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 200 pF", "p")
+            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 200 pF", "l")
         elif(feb[-2:]=="Q2"):
-            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 330 pF", "p")
+            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 330 pF", "l")
         elif(feb[-2:]=="Q3"):
-            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 470 pF", "p")
+            legend_only_stdev_wire.AddEntry(h1_bl_stdev_wire, "CPi = 470 pF", "l")
         h1_bl_stdev_wire.GetXaxis().SetRangeUser(-0.5,63.5)
         canv = ROOT.TCanvas("wire_only_stdev_%s" % (feb),
-                            "wire_only_stdev_%s" % (feb), 800, 800)
+                            "wire_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
         
         grid_wire = ROOT.TPad("grid_wire","",0,0,1,1);
@@ -327,23 +331,29 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         grid_wire.cd();
         grid_wire.SetFillStyle(4000);
         
-        hgrid_wire = ROOT.TH2C("hgrid_wire","",64,-0.5,63.5,5,0.,h1_bl_stdev_wire.GetMaximum()*1.5);
+        hgrid_wire = ROOT.TH1C("hgrid_wire","",64,-0.5,63.5);
+        hgrid_wire.GetYaxis().SetRangeUser(0.,h1_bl_stdev_wire.GetMaximum()*1.5);
+        
+        h1_bl_stdev_wire.GetYaxis().SetRangeUser(0.,h1_bl_stdev_wire.GetMaximum()*1.5);
         hgrid_wire.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_wire.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_wire.GetXaxis().SetTitleOffset(1)
         hgrid_wire.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_wire.GetYaxis().SetTitleOffset(1)
-        hgrid_wire.Draw("SAME");
-        h1_bl_stdev_wire.Draw("pesame")
-        hgrid_wire.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_wire.GetXaxis().SetBinLabel(1,"0");
+        h1_bl_stdev_wire.GetYaxis().SetTitleOffset(0.5)
+        
+        hgrid_wire.Draw("SAME")
+        h1_bl_stdev_wire.Draw("L SAME");
+        
+        h1_bl_stdev_wire.SetLineWidth(3)
+        h1_bl_stdev_wire.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
+        h1_bl_stdev_wire.GetXaxis().SetBinLabel(1,"0");
         for chan in range(1,3):
             label_name = "%d" %(chan*32-1)
-            hgrid_wire.GetXaxis().SetBinLabel(chan*32,label_name)
-        hgrid_wire.GetXaxis().SetNdivisions(-8);
-        hgrid_wire.GetYaxis().SetNdivisions(-10);
+            h1_bl_stdev_wire.GetXaxis().SetBinLabel(chan*32,label_name)
+        h1_bl_stdev_wire.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_wire.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(2)
         for chan2 in range(0,2):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_wire.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_wire.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
@@ -356,25 +366,27 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
-        h1_bl_stdev_wire.Write()
         canv.Write()
 
         # legend for stdev of baseline versus channel for pads
 
         h1_bl_stdev_pad = h1_bl_stdev.Clone("h1_bl_stdev_pad")
 
-        legend_only_stdev_pad = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
+        pad_hist_blstdev_name = "h1_bl_stdev_pad_"+feb
+        h1_bl_stdev_pad.SetName(pad_hist_blstdev_name)
+
+        legend_only_stdev_pad = ROOT.TLegend(0.70, 0.70, 0.90, 0.90, "", "brNDC")
         style(legend_only_stdev_pad)
-        legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad,      "Pad - stdev on Baseline",                            "p")
+        legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad,      "Pad - stdev on Baseline",                            "l")
         if(feb[-2:]=="Q1"):
-            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 200 pF", "p")
+            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 200 pF", "l")
         elif(feb[-2:]=="Q2"):
-            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 330 pF", "p")
+            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 330 pF", "l")
         elif(feb[-2:]=="Q3"):
-            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 470 pF", "p")
+            legend_only_stdev_pad.AddEntry(h1_bl_stdev_pad, "CPi = 470 pF", "l")
         h1_bl_stdev_pad.GetXaxis().SetRangeUser(63.5,191.5)
         canv = ROOT.TCanvas("pad_only_stdev_%s" % (feb),
-                            "pad_only_stdev_%s" % (feb), 800, 800)
+                            "pad_only_stdev_%s" % (feb), 1200, 800)
         canv.Draw()
         
         grid_pad = ROOT.TPad("grid_pad","",0,0,1,1);
@@ -382,24 +394,30 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         grid_pad.cd();
         grid_pad.SetFillStyle(4000);
         
-        hgrid_pad = ROOT.TH2C("hgrid_pad","",128,63.5,191.5,5,0.,h1_bl_stdev_pad.GetMaximum()*1.5);
+        hgrid_pad = ROOT.TH1C("hgrid_pad","",128,63.5,191.5);
+        hgrid_pad.GetYaxis().SetRangeUser(0.,h1_bl_stdev_pad.GetMaximum()*1.5);
+
+        h1_bl_stdev_pad.GetYaxis().SetRangeUser(0.,h1_bl_stdev_pad.GetMaximum()*1.5);
         hgrid_pad.GetXaxis().SetTitle("VMM*64 + Channel")
-        hgrid_pad.GetXaxis().SetTitleOffset(1)
+        h1_bl_stdev_pad.GetXaxis().SetTitleOffset(1)
         hgrid_pad.GetYaxis().SetTitle("Stdev on noise ADC Sample [mV]")
-        hgrid_pad.GetYaxis().SetTitleOffset(1)
+        h1_bl_stdev_pad.GetYaxis().SetTitleOffset(0.5)
+        
         hgrid_pad.Draw("SAME");
-        h1_bl_stdev_pad.Draw("pesame")
-        hgrid_pad.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
-        hgrid_pad.GetXaxis().SetBinLabel(1,"64")
+        h1_bl_stdev_pad.Draw("L SAME");
+        
+        h1_bl_stdev_pad.SetLineWidth(3)
+        h1_bl_stdev_pad.GetXaxis().SetBit(ROOT.TAxis.kLabelsHori);
+        h1_bl_stdev_pad.GetXaxis().SetBinLabel(1,"64")
         for chan in range(3,7):
             label_name = "%d" %(chan*32-1)
             print label_name
-            hgrid_pad.GetXaxis().SetBinLabel((chan-2)*32,label_name)
-        hgrid_pad.GetXaxis().SetNdivisions(-8);
-        hgrid_pad.GetYaxis().SetNdivisions(-10);
+            h1_bl_stdev_pad.GetXaxis().SetBinLabel((chan-2)*32,label_name)
+        h1_bl_stdev_pad.GetXaxis().SetNdivisions(-8);
+        h1_bl_stdev_pad.GetYaxis().SetNdivisions(-10);
         myline = ROOT.std.vector("TLine")(4)
         for chan2 in range(0,4):
-            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_pad.GetMaximum()*1.5)
+            myline[chan2]=ROOT.TLine((chan2+1)*64-0.5,0,(chan2+1)*64-0.5,h1_bl_stdev_pad.GetMaximum())
             myline[chan2].SetLineColor(ROOT.kRed)
             myline[chan2].SetLineWidth(1)
             myline[chan2].SetLineStyle(10)
@@ -412,12 +430,8 @@ def plot(feb, outfile, tr_bl, tr_bl_summ, tr_th_pre, tr_th_post):
         if not outdir:
             outdir = outfile.mkdir("only_stdev")
         outdir.cd()
-        h1_bl_stdev_pad.Write()
         canv.Write()
 
-        #h2_bl_stdev_pad=ROOT.TH2D("h2_bl_stdev",title, 64, -0.5, 63.5, 100000,   0, 1000)
-        #h2_bl_stdev_pad=ROOT.TH2D("h2_bl_stdev",title, 128, 63.5, 191.5, 100000,   0, 1000) 
-        
 
 def plot_gaussian(feb, outfile, tr_bl, tr_bl_summ):
 
@@ -442,7 +456,7 @@ def plot_gaussian(feb, outfile, tr_bl, tr_bl_summ):
     nEntries = tr_bl.GetEntries()
     for i in range(0, nEntries): 
         tr_bl.GetEntry(i) 
-        #print "Branch MMFE8 Value ",tr_bl.MMFE8
+        #print "Branch sTGC_Board Value ",tr_bl.sTGC_Board
         
         h1_baseline_Gauss[tr_bl.vmm_id*64+tr_bl.channel_id].Fill(tr_bl.ADCsample*1000.0/4095.0)
 
@@ -456,9 +470,9 @@ def plot_gaussian(feb, outfile, tr_bl, tr_bl_summ):
      for channel in range(512):    
            # legend for baseline gaussian
            
-           legend_baseline_gaus = ROOT.TLegend(0.70, 0.70, 0.90, 0.90)
+           legend_baseline_gaus = ROOT.TLegend(0.70, 0.70, 0.90, 0.90, "", "brNDC")
            style(legend_baseline_gaus)
-           legend_baseline_gaus.AddEntry(h1_baseline_Gauss[channel],      "Baseline Gaussian Fit",                            "p")
+           legend_baseline_gaus.AddEntry(h1_baseline_Gauss[channel],      "Baseline Gaussian Fit",                            "l")
        
            # draw only_baseline 
            h1_baseline_Gauss[channel].SetMaximum(5)
@@ -474,7 +488,7 @@ def plot_gaussian(feb, outfile, tr_bl, tr_bl_summ):
        outdir = outfile.Get("Baseline_GaussianFits")
        if not outdir:
            outdir = outfile.mkdir("Baseline_GaussianFits")
-       FEB_dir = "Baseline_GaussianFits/"+tr_bl.MMFE8
+       FEB_dir = "Baseline_GaussianFits/"+tr_bl.sTGC_Board
 
        #print FEB_dir
 

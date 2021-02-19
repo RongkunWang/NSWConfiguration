@@ -406,7 +406,7 @@ int main(int ac, const char *av[]) {
         "The name of frontend to configure (must contain MMFE8, SFEB or PFEB).\n"
         "If this option is left empty, all front end elements in the config file will be scanned.")
       ("vmm,V", po::value<int>(&vmm_id)->default_value(0), "VMM id (0-7)")
-      ("samples,s", po::value<int>(&n_samples)->default_value(1000), "Number of samples to read")
+      ("samples,s", po::value<int>(&n_samples)->default_value(100), "Number of samples to read")
       ("rms_factor", po::value<std::string>(&rms_str)->default_value("-1"), "RMS Factor")
       ("isSTGC", po::bool_switch()->default_value(false), "Use the sTGC configuration")
     ;
