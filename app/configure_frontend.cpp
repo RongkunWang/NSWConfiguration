@@ -49,7 +49,6 @@ int main(int ac, const char *av[]) {
     bool reset_tds;
     int vmm_to_unmask;
     int channel_to_unmask;
-    int vmm_channel_to_monitor;
     int max_threads;
     std::string config_filename;
     std::string fe_name;
@@ -77,8 +76,6 @@ int main(int ac, const char *av[]) {
         default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
         ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
         default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
-        ("vmmchanneltomonitor,M", po::value<int>(&vmm_channel_to_monitor)->
-         default_value(-1), "VMM channel to Monitor on MO (0-63) (Used for Scope Testing)")
         ("max_threads,m", po::value<int>(&max_threads)->
         default_value(-1), "Maximum number of threads to run")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
@@ -235,16 +232,6 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
             std::cout << "Unmasking channel " << cfg.channel_to_unmask << " in vmm " << cfg.vmm_to_unmask << std::endl;
             vmms[cfg.vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, cfg.channel_to_unmask);
             vmms[cfg.vmm_to_unmask].setGlobalRegister("sm", cfg.channel_to_unmask);
-        }
-
-        if ( cfg.vmm_channel_to_monitor != -1 ) {
-            for (auto & vmm : vmms) {
-                vmm.setGlobalRegister("sbmx", 0);  // Disable Route analog monitor to pdo output
-                vmm.setGlobalRegister("sbfp", 0);  // Disable PDO output buffers (more stable reading)
-
-                vmm.setMonitorOutput(cfg.vmm_channel_to_monitor, nsw::vmm::ChannelMonitor);      // set Global Monitor Register to channel and not common
-                vmm.setChannelMOMode(cfg.vmm_channel_to_monitor, nsw::vmm::ChannelAnalogOutput); // set channel's SMX to 0 for analog monitoring
-            }
         }
 
         if (cfg.reset_vmm)
