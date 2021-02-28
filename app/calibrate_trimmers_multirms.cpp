@@ -26,6 +26,8 @@ float SLOPE_CHECK = 1/1.5/1000. * 4095.0;
 int NCH_ABOVE_THRESH_CUTOFF = 63;
 bool isMM = 1;
 bool debug = true;
+int sum_best_trim;
+float mean_best_trim;
 
 float take_median(std::vector<float> &v) {
   size_t n = v.size() / 2;
@@ -117,7 +119,8 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
                           int vmm_id,
                           int n_samples,
                           int thdac_central_guess,
-                          std::vector<int> & thdac_guess_variations){
+                          std::vector<int> & thdac_guess_variations,
+                          float mean_best_trim){
   std::vector<float> thdac_guesses_vars_okay;
   std::vector<float> thdac_guesses_sample;
 
@@ -169,7 +172,7 @@ int calculate_thdac_value(nsw::ConfigSender & cs,
   float thdac_intercept = thdac_guess_sample_mean - thdac_slope * thdac_guess_mean;
 
   // (y-b) / m = x
-  int thdac = (mV_to_sample(thdac_central_guess) - thdac_intercept)/thdac_slope;
+  int thdac = (mV_to_sample(thdac_central_guess) - thdac_intercept + mean_best_trim)/thdac_slope;
 
   return thdac;
 }
@@ -483,6 +486,9 @@ int main(int ac, const char *av[]) {
   std::map< std::pair< std::string,int>, float> channel_trimmer_max;
 
   std::cout << "\nTaking baselines\n" << std::endl;
+  
+  sum_best_trim = 0;
+  mean_best_trim = 0;
 
   for (auto & feb : frontend_configs) { // big feb loop
 
@@ -519,6 +525,7 @@ int main(int ac, const char *av[]) {
       // Read pdo of the certain channel n_samples times.
       feb.getVmm(vmm_id).setMonitorOutput(channel_id, nsw::vmm::ChannelMonitor);
       feb.getVmm(vmm_id).setChannelMOMode(channel_id, nsw::vmm::ChannelAnalogOutput);
+      //      if (cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10) < 100 || cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10) > 250) continue;
       auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples*10);
 
       // option to remove outliers
@@ -670,7 +677,7 @@ int main(int ac, const char *av[]) {
       thdac_guess_variations.push_back(thdac_central_guess + 40);
       thdac_guess_variations.push_back(thdac_central_guess + 50);
       thdac_guess_variations.push_back(thdac_central_guess + 60);
-      int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations);
+      int thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations,mean_best_trim);
 
       thdacs[feb.getAddress()] = thdac;
 
@@ -888,30 +895,59 @@ int main(int ac, const char *av[]) {
             best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
           }
 
+          sum_best_trim += best_channel_trim[feb_ch];
+
           int thdac = thdacs[feb.getAddress()];
           feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
           feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
           feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
           feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
           auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
+        }
+        mean_best_trim = sum_best_trim/NCH_PER_VMM;
+        thdac = calculate_thdac_value(cs,feb,vmm_id,n_samples,thdac_central_guess,thdac_guess_variations,mean_best_trim);
+        std::cout << "Sum of best trimmers for " << feb.getAddress() <<" is:" << sum_best_trim << " with mean "<< mean_best_trim << std::endl;
+        std::cout << "NEW thdac " << thdac << std::endl;
+        for (int channel_id = 0; channel_id < NCH_PER_VMM; channel_id++){
+            std::pair<std::string,int> feb_ch(feb.getAddress(),channel_id);
+            // again check if channel sensible
+            if (fabs(channel_eff_thresh_slope[feb_ch]) < pow(10,-9.)) {
+               continue;
+            }
 
-          // unused for now
-          // float sum = std::accumulate(results.begin(), results.end(), 0.0);
-          // float mean = sum / results.size();
-          // float stdev = take_rms(results,mean);
+            float ch_baseline_rms = channel_baseline_rms[feb_ch];
+            float ch_baseline_med = channel_baseline_med[feb_ch];
+            if (!check_channel(ch_baseline_med, ch_baseline_rms, vmm_baseline_med[feb.getAddress()])){
+               continue;
+            }
 
-          float median = take_median(results);
-          float eff_thresh = median - channel_baseline_med[feb_ch];
-          std::cout << "DATA_x" << rms_factor
-                    << " " << feb.getAddress()
-                    << " " << vmm_id
-                    << " " << channel_id
-                    << " " << tpdac
-                    << " " << thdac
-                    << " " << TRIM_MID
-                    << " " << channel_mid_eff_thresh[feb_ch]
-                    << " " << best_channel_trim[feb_ch]
-                    << " " << eff_thresh << std::endl;
+            if (first) {
+               float delta = channel_mid_eff_thresh[feb_ch] - vmm_mid_eff_thresh[feb.getAddress()];
+               int trim_guess = TRIM_MID + std::round(delta / channel_eff_thresh_slope[feb_ch]);
+
+               best_channel_trim[feb_ch] = trim_guess > channel_trimmer_max[feb_ch] ? channel_trimmer_max[feb_ch] : trim_guess;
+               best_channel_trim[feb_ch] = best_channel_trim[feb_ch] < 0            ? 0 : best_channel_trim[feb_ch];
+            }
+
+            feb.getVmm(vmm_id).setMonitorOutput  (channel_id, nsw::vmm::ChannelMonitor);
+            feb.getVmm(vmm_id).setChannelMOMode  (channel_id, nsw::vmm::ChannelTrimmedThreshold);
+            feb.getVmm(vmm_id).setChannelTrimmer (channel_id, (size_t)(best_channel_trim[feb_ch]));
+            feb.getVmm(vmm_id).setGlobalThreshold((size_t)(thdac));
+            auto results = cs.readVmmPdoConsecutiveSamples(feb, vmm_id, n_samples);
+
+
+            float median = take_median(results);
+            float eff_thresh = median - channel_baseline_med[feb_ch];
+            std::cout << "DATA_x" << rms_factor
+                      << " " << feb.getAddress()
+                      << " " << vmm_id
+                      << " " << channel_id
+                      << " " << tpdac
+                      << " " << thdac
+                      << " " << TRIM_MID
+                      << " " << channel_mid_eff_thresh[feb_ch]
+                      << " " << best_channel_trim[feb_ch]
+                      << " " << eff_thresh << std::endl;
         }
       }
 

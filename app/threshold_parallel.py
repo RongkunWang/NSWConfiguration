@@ -45,6 +45,7 @@ def main():
     else:
         print("No limit on maximum number of parallel threads")
 
+
     # dictionary for multiprocessing
     cfg = {}
     cfg["rms"] = ops.rms
@@ -95,9 +96,7 @@ def process_baselines(cfg):
         isSTGC = True
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -s %(sample)s --baseline --dump | tee %(out)s" % (cfg)
     # cmd = "%(script)s -c %(config)s -n MMFE8_%(feb)s -V %(vmm)s --rms_factor %(rms)s | tee %(out)s" % (cfg)
-    cmd = "%(script)s -c %(config)s -n        %(feb)s -V %(vmm)s --rms_factor %(rms)s %(remove_outliers)s " % (cfg) +\
-          (" --isSTGC " if isSTGC else "") +\
-          " | tee %(out)s" % (cfg)
+    cmd = "%(script)s -c %(config)s -n        %(feb)s -V %(vmm)s --rms_factor %(rms)s %(remove_outliers)s  " % (cfg) + (" --isSTGC " if isSTGC else "") + " | tee %(out)s" % (cfg)
     os.system(cmd)
 
 def fatal(message):

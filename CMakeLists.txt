@@ -37,9 +37,9 @@ tdaq_add_executable(calibrate_trimmers app/calibrate_trimmers.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
 
-tdaq_add_executable(calibrate_trimmers_threaded app/calibrate_trimmers_threaded.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
+#tdaq_add_executable(calibrate_trimmers_threaded app/calibrate_trimmers_threaded.cpp
+#  LINK_LIBRARIES nswconfig Boost::program_options
+#)
 
 tdaq_add_executable(calibrate_trimmers_multirms app/calibrate_trimmers_multirms.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
@@ -48,6 +48,18 @@ tdaq_add_executable(calibrate_trimmers_multirms app/calibrate_trimmers_multirms.
 tdaq_add_executable(calibrate_trimmers_multirms_BB5 app/calibrate_trimmers_multirms_BB5.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
 )
+
+tdaq_add_executable(calibrate_trimmers_multirms_maria app/calibrate_trimmers_multirms_maria.cpp
+  LINK_LIBRARIES nswconfig Boost::program_options
+)
+
+# tdaq_add_executable(calibrate_trimmers_multirms_maria app/calibrate_trimmers_multirms_new.cpp
+#   LINK_LIBRARIES nswconfig Boost::program_options
+# )
+
+# tdaq_add_executable(calibrate_trimmers_multirms_maria app/calibrate_trimmers_multirms_old.cpp
+#   LINK_LIBRARIES nswconfig Boost::program_options
+# )
 
 tdaq_add_executable(calibrate_trimmers_multirms_191 app/calibrate_trimmers_multirms_191.cpp
   LINK_LIBRARIES nswconfig Boost::program_options
