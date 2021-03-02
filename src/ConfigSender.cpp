@@ -1071,7 +1071,8 @@ void nsw::ConfigSender::configVmmForPdoConsecutiveSamples(FEBConfig& feb,
 
   int vmm_start = 0;
   std::string FEBName = feb.getAddress();
-  if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+  //if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+  if(feb.getVmms().size() == 6) vmm_start = 2;
 
   auto opc_ip      = feb.getOpcServerIp();
   auto feb_address = feb.getAddress();
@@ -1116,7 +1117,8 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
 
     int vmm_start = 0;
     std::string FEBName = feb.getAddress();
-    if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+    //if(FEBName.find("SFEB6") != std::string::npos) vmm_start = 2;
+    if(feb.getVmms().size() == 6) vmm_start = 2;
 
     std::cout << "Read VMM Pdo vmm_start: " << vmm_start << std::endl;
 
