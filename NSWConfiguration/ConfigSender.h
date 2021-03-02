@@ -80,8 +80,9 @@ class ConfigSender {
     void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
     void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
-    /// High level send function
+    /// High level send functions
     void sendTpConfig(nsw::TPConfig& tp);
+    void maskTp      (nsw::TPConfig& tp, bool sim);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,
@@ -101,7 +102,7 @@ class ConfigSender {
     /// \return result 8 bit register value
     uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node,
         unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay);
-                                  
+
     /// Wrapper to read back from the digital ROC section
     /// DO NOT CALL IT ON ANYTHING BUT MMFE8
     [[nodiscard]]
@@ -162,13 +163,13 @@ class ConfigSender {
                                                                  size_t vmm_id,
                                                                  size_t n_samples);
 
-    // Read SCA ID 
+    // Read SCA ID
     int readSCAID(FEBConfig& feb);
 
-    // Read SCA Address 
+    // Read SCA Address
     std::string readSCAAddress(FEBConfig& feb);
 
-    // Read SCA Online Status 
+    // Read SCA Online Status
     bool readSCAOnline(FEBConfig& feb);
 
     /// Program FPGA from bitfile

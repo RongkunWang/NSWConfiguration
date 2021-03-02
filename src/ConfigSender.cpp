@@ -675,6 +675,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
                 if (total_glitches > 0)
                     reset += 1 << (uint32_t)(ipll);
             }
+            usleep(1e6);
             ERS_INFO("alignAddcGbtxTp Reset word = " << reset);
 
             // the moment of truth
@@ -793,6 +794,93 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
 //             sendI2cRaw(opc_ip, address, data.data(), data.size());
 //         }
 //     }
+}
+
+void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
+
+  auto opc_ip = tp.getOpcServerIp();
+  auto tp_address = tp.getAddress();
+
+  const uint32_t fiber_hot_mux    = 0x0d;
+  const uint32_t fiber_hot_read   = 0x0e;
+  const uint32_t fiber_mask_mux   = 0x1c;
+  const uint32_t fiber_mask_write = 0x1d;
+  const uint32_t fiber_n          = 32;
+  const uint32_t sleep_us         = 1e3;
+  auto hot_read_vec = nsw::intToByteVector(fiber_hot_read, 4, true);
+
+  auto build = [](uint32_t tmp_addr, int tmp_message) {
+    std::vector<uint8_t> tmp_data = nsw::intToByteVector(tmp_message, 4, true );
+    std::vector<uint8_t> tmp_addrVec = nsw::intToByteVector(tmp_addr, 4, true);
+    std::vector<uint8_t> tmp_entirePayload(tmp_addrVec);
+    tmp_entirePayload.insert(tmp_entirePayload.end(), tmp_data.begin(), tmp_data.end() );
+    return tmp_entirePayload;
+  };
+
+  // loop over input fibers
+  for (uint32_t fiber = 0; fiber < fiber_n; fiber++) {
+
+    // setting the fiber of interest
+    auto msg_hot_mux  = build(fiber_hot_mux,  fiber);
+    auto msg_mask_mux = build(fiber_mask_mux, fiber);
+    if (!sim) {
+      sendI2c(opc_ip, tp_address, msg_hot_mux);
+      sendI2c(opc_ip, tp_address, msg_mask_mux);
+    }
+    std::cout << "Fiber " << fiber << std::endl;
+
+    // unmask all VMM
+    auto msg_mask_none = build(fiber_mask_write, 0x0);
+    if (!sim)
+      sendI2c(opc_ip, tp_address, msg_mask_none);
+
+    // mask until none are hot
+    uint32_t attempts   = 0;
+    uint32_t fiber_mask = 0;
+    uint32_t fiber_hot  = 0xffff;
+    while (fiber_hot > 0) {
+
+      // read hot
+      std::vector<uint8_t> readback;
+      if (!sim) {
+        readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
+        fiber_hot = ((uint32_t)(readback[0]) <<  0) +   \
+                    ((uint32_t)(readback[1]) <<  8) + \
+                    ((uint32_t)(readback[2]) << 16) + \
+                    ((uint32_t)(readback[3]) << 24);
+      } else {
+        readback  = std::vector<uint8_t>(4);
+        fiber_hot = pow(2, attempts*8);
+      }
+      std::cout << "Hot VMM (before): " << std::bitset<fiber_n>(fiber_hot) << std::endl;
+
+      // mask some
+      fiber_mask |= fiber_hot;
+      auto msg_mask_some = build(fiber_mask_write, fiber_mask);
+      if (!sim)
+        sendI2c(opc_ip, tp_address, msg_mask_some);
+      usleep(sleep_us);
+      std::cout << "Mask VMM        : " << std::bitset<fiber_n>(fiber_mask) << std::endl;
+
+      // read hot again
+      if (!sim) {
+        readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
+        fiber_hot = ((uint32_t)(readback[0]) <<  0) +   \
+                    ((uint32_t)(readback[1]) <<  8) + \
+                    ((uint32_t)(readback[2]) << 16) + \
+                    ((uint32_t)(readback[3]) << 24);
+      } else {
+        readback = std::vector<uint8_t>(4);
+        fiber_hot = pow(2, (attempts+1)*8);
+      }
+      std::cout << "Hot VMM (after) : " << std::bitset<fiber_n>(fiber_hot) << std::endl;
+      std::cout << "Done with attempt " << attempts << std::endl;
+
+      attempts++;
+    }
+
+  }
+
 }
 
 uint32_t nsw::ConfigSender::readPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig & obj) {
