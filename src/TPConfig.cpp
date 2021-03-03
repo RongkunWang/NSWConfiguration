@@ -109,6 +109,9 @@ int nsw::TPConfig::GlobalInputPhase() const {
 int nsw::TPConfig::GlobalInputOffset() const {
     return m_config.get<int>("GlobalInputOffset");
 }
+int nsw::TPConfig::SelfTriggerDelay() const {
+    return m_config.get<int>("SelfTriggerDelay");
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -127,6 +130,9 @@ void nsw::TPConfig::setGlobalInputPhase(int val) {
 }
 void nsw::TPConfig::setGlobalInputOffset(int val) {
   m_config.put("GlobalInputOffset", val);
+}
+void nsw::TPConfig::setSelfTriggerDelay(int val) {
+  m_config.put("SelfTriggerDelay", val);
 }
 
 nsw::TPConfig::~TPConfig() {

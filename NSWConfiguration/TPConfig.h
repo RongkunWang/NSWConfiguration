@@ -50,6 +50,7 @@ class TPConfig: public SCAConfig {
     uint32_t FiberBCOffset() const;
     int GlobalInputPhase() const;
     int GlobalInputOffset() const;
+    int SelfTriggerDelay() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
@@ -57,6 +58,7 @@ class TPConfig: public SCAConfig {
     void setFiberBCOffset(uint32_t val);
     void setGlobalInputPhase(int val);
     void setGlobalInputOffset(int val);
+    void setSelfTriggerDelay(int val);
 };
 
 }  // namespace nsw
