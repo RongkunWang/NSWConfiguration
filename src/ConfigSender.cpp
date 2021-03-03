@@ -849,7 +849,7 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
   } else {
     readback = std::vector<uint8_t>(4);
   }
-  overflow_word = (uint32_t)(readback.at(0));
+  overflow_word = static_cast<uint32_t>(readback.at(0));
   std::cout << "Overflow word: 0b" << std::bitset<8>(overflow_word) << std::endl;
 
   // loop over input fibers
@@ -880,10 +880,10 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
       std::vector<uint8_t> readback;
       if (!sim) {
         readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
-        fiber_hot = ((uint32_t)(readback[0]) <<  0) +   \
-                    ((uint32_t)(readback[1]) <<  8) + \
-                    ((uint32_t)(readback[2]) << 16) + \
-                    ((uint32_t)(readback[3]) << 24);
+        fiber_hot = (static_cast<uint32_t>(readback[0]) <<  0) + \
+                    (static_cast<uint32_t>(readback[1]) <<  8) + \
+                    (static_cast<uint32_t>(readback[2]) << 16) + \
+                    (static_cast<uint32_t>(readback[3]) << 24);
       } else {
         readback  = std::vector<uint8_t>(4);
         fiber_hot = pow(2, attempts*8);
@@ -901,10 +901,10 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
       // read hot again
       if (!sim) {
         readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
-        fiber_hot = ((uint32_t)(readback[0]) <<  0) +   \
-                    ((uint32_t)(readback[1]) <<  8) + \
-                    ((uint32_t)(readback[2]) << 16) + \
-                    ((uint32_t)(readback[3]) << 24);
+        fiber_hot = (static_cast<uint32_t>(readback[0]) <<  0) + \
+                    (static_cast<uint32_t>(readback[1]) <<  8) + \
+                    (static_cast<uint32_t>(readback[2]) << 16) + \
+                    (static_cast<uint32_t>(readback[3]) << 24);
       } else {
         readback = std::vector<uint8_t>(4);
         fiber_hot = pow(2, (attempts+1)*8);
@@ -933,7 +933,7 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
     } else {
       readback = std::vector<uint8_t>(4);
     }
-    overflow_word = (uint32_t)(readback.at(0));
+    overflow_word = static_cast<uint32_t>(readback.at(0));
     std::cout << "Overflow word: 0b" << std::bitset<8>(overflow_word) << std::endl;
     usleep(sleep_us * 10);
   }
