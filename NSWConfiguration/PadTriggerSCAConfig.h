@@ -1,4 +1,4 @@
-/// ADDC Configuration class
+/// Pad Trigger Configuration class
 
 #ifndef NSWCONFIGURATION_PADTRIGGERSCA_H_
 #define NSWCONFIGURATION_PADTRIGGERSCA_H_
@@ -26,41 +26,34 @@ class PadTriggerSCAConfig: public SCAConfig {
     void dump();
     bool ConfigRepeaters() const;
     bool ConfigVTTx() const;
-    int UserControlRegister() const;
-    int UserL1AReadoutLatency() const;
-    int UserL1AReadoutNBC() const;
-    int UserL1AReadoutNBCMode() const;
-    int UserL1AReadoutEnable() const;
-    int UserpFEBBCIDOffset() const;
-    void SetUserL1AReadoutLatency(int val) {m_UserL1AReadoutLatency = val;}
-    void SetUserL1AReadoutNBC(int val)     {m_UserL1AReadoutNBC     = val;}
-    void SetUserL1AReadoutEnable(int val)  {m_UserL1AReadoutEnable  = val;}
-    void SetUserpFEBBCIDOffset(int val)    {m_UserpFEBBCIDOffset    = val;}
-    void SetUserL1AReadoutEnable()  {m_UserL1AReadoutEnable  = 1;}
-    void SetUserL1AReadoutDisable() {m_UserL1AReadoutEnable  = 0;}
-
-    int RealControlRegister() const {return m_RealControlRegister;}
-    int RealL1AReadoutLatency() const {return m_RealL1AReadoutLatency;}
-    int RealL1AReadoutNBC() const;
-    int RealL1AReadoutNBCMode() const {return m_RealL1AReadoutNBCMode;}
-    int RealL1AReadoutEnable() const {return m_RealL1AReadoutEnable;}
-    int RealpFEBBCIDOffset() const {return m_RealpFEBBCIDOffset;}
-    void SetRealControlRegister(int val);
-    void SetRealL1AReadoutLatency(int val) {m_RealL1AReadoutLatency = val;}
-    void SetRealL1AReadoutNBCMode(int val) {m_RealL1AReadoutNBCMode = val;}
-    void SetRealL1AReadoutEnable(int val)  {m_RealL1AReadoutEnable  = val;}
-    void SetRealpFEBBCIDOffset(int val)    {m_RealpFEBBCIDOffset    = val;}
+    bool ConfigControlRegister() const;
+    int ControlRegister() const;
+    int L1AReadoutLatency() const;
+    int L1AReadoutNBC() const;
+    int L1AReadoutNBCMode() const;
+    int L1AReadoutEnable() const;
+    int pFEBBCIDOffset() const;
+    int StartIdleState() const;
+    int OCREnable() const;
+    int TTCCalib() const;
+    void SetL1AReadoutLatency(int val) {m_L1AReadoutLatency = val;}
+    void SetL1AReadoutNBC(int val)     {m_L1AReadoutNBC     = val;}
+    void SetL1AReadoutEnable(int val)  {m_L1AReadoutEnable  = val;}
+    void SetpFEBBCIDOffset(int val)    {m_pFEBBCIDOffset    = val;}
+    void SetStartIdleState(int val)    {m_StartIdleState = val;}
+    void SetOCREnable(int val)         {m_OCREnable = val;}
+    void SetTTCCalib(int val)          {m_TTCCalib = val;}
+    void SetL1AReadoutEnable()  {m_L1AReadoutEnable  = 1;}
+    void SetL1AReadoutDisable() {m_L1AReadoutEnable  = 0;}
 
  private:
-    int m_UserL1AReadoutLatency;
-    int m_UserL1AReadoutNBC;
-    int m_UserL1AReadoutEnable;
-    int m_UserpFEBBCIDOffset;
-    int m_RealControlRegister;
-    int m_RealL1AReadoutLatency;
-    int m_RealL1AReadoutNBCMode;
-    int m_RealL1AReadoutEnable;
-    int m_RealpFEBBCIDOffset;
+    int m_L1AReadoutLatency;
+    int m_L1AReadoutNBC;
+    int m_L1AReadoutEnable;
+    int m_pFEBBCIDOffset;
+    int m_StartIdleState;
+    int m_OCREnable;
+    int m_TTCCalib;
 
 };
 
