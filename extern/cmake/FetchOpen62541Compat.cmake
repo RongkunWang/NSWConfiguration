@@ -52,16 +52,25 @@ macro(build_open62541_compat)
   endif()
 
   ## Add -fPIC for shared lib inclusion
-  set_target_properties(open62541 LogIt open62541-compat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(open62541 LogIt open62541-compat
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      C_CLANG_TIDY ""
+      CXX_CLANG_TIDY ""
+      C_CPPCHECK ""
+      CXX_CPPCHECK ""
+      C_INCLUDE_WHAT_YOU_USE ""
+      CXX_INCLUDE_WHAT_YOU_USE ""
+    )
 
-  target_include_directories(open62541-compat BEFORE INTERFACE
+  target_include_directories(open62541-compat SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/include>
     )
-  target_include_directories(open62541  BEFORE INTERFACE
+  target_include_directories(open62541  SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541>
     )
-  target_include_directories(LogIt BEFORE INTERFACE
+  target_include_directories(LogIt SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include>
     )
 
