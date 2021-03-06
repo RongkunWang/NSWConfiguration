@@ -46,15 +46,24 @@ macro(build_UaoClientForOpcUaSca)
   add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
 
   ## Add -fPIC for inclusion in shared libs
-  set_target_properties(UaoClientForOpcUaSca PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(UaoClientForOpcUaSca
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      C_CLANG_TIDY ""
+      CXX_CLANG_TIDY ""
+      C_CPPCHECK ""
+      CXX_CPPCHECK ""
+      C_INCLUDE_WHAT_YOU_USE ""
+      CXX_INCLUDE_WHAT_YOU_USE ""
+    )
 
   target_sources(UaoClientForOpcUaSca PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/src/BitBangProtocol.pb.cc
   )
-  target_include_directories(UaoClientForOpcUaSca BEFORE PUBLIC
+  target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE PUBLIC
     ${Protobuf_INCLUDE_DIRS}
   )
-  target_include_directories(UaoClientForOpcUaSca BEFORE INTERFACE
+  target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include>
   )
   target_link_directories(UaoClientForOpcUaSca BEFORE INTERFACE

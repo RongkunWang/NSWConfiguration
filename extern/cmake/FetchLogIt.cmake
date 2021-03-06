@@ -38,9 +38,18 @@ macro(build_LogIt)
   endif()
 
   ## Add -fPIC for inclusion in shared libs
-  set_target_property(LogIt PROPERTIES POSITION_INDEPENDENT_CODE True)
+  set_target_properties(LogIt
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      C_CLANG_TIDY ""
+      CXX_CLANG_TIDY ""
+      C_CPPCHECK ""
+      CXX_CPPCHECK ""
+      C_INCLUDE_WHAT_YOU_USE ""
+      CXX_INCLUDE_WHAT_YOU_USE ""
+    )
 
-  target_include_directories(LogIt BEFORE INTERFACE
+  target_include_directories(LogIt SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/LogIt/include>
     )
   target_link_directories(LogIt BEFORE INTERFACE
