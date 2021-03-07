@@ -16,7 +16,13 @@
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
     SCAConfig(config)
 {
-    // std::cout << std::endl;
+  m_L1AReadoutLatency = -1;
+  m_L1AReadoutNBC = -1;
+  m_L1AReadoutEnable = -1;
+  m_pFEBBCIDOffset = -1;
+  m_StartIdleState = -1;
+  m_OCREnable = -1;
+  m_TTCCalib = -1;
 }
 
 void nsw::PadTriggerSCAConfig::dump() {
@@ -36,11 +42,15 @@ int nsw::PadTriggerSCAConfig::ControlRegister() const {
 }
 
 int nsw::PadTriggerSCAConfig::L1AReadoutLatency() const {
-  return m_config.get<int>("L1AReadoutLatency");
+  if (m_L1AReadoutLatency == -1)
+    return m_config.get<int>("L1AReadoutLatency");
+  return m_L1AReadoutLatency;
 }
 
 int nsw::PadTriggerSCAConfig::L1AReadoutNBC() const {
-  return m_config.get<int>("L1AReadoutNBC");
+  if (m_L1AReadoutNBC == -1)
+    return m_config.get<int>("L1AReadoutNBC");
+  return m_L1AReadoutNBC;
 }
 
 int nsw::PadTriggerSCAConfig::L1AReadoutNBCMode() const {
@@ -57,23 +67,33 @@ int nsw::PadTriggerSCAConfig::L1AReadoutNBCMode() const {
 }
 
 int nsw::PadTriggerSCAConfig::L1AReadoutEnable() const {
-  return m_config.get<int>("L1AReadoutEnable");
+  if (m_L1AReadoutEnable == -1)
+    return m_config.get<int>("L1AReadoutEnable");
+  return m_L1AReadoutEnable;
 }
 
 int nsw::PadTriggerSCAConfig::pFEBBCIDOffset() const {
-  return m_config.get<int>("pFEBBCIDOffset");
+  if (m_pFEBBCIDOffset == -1)
+    return m_config.get<int>("pFEBBCIDOffset");
+  return m_pFEBBCIDOffset;
 }
 
 int nsw::PadTriggerSCAConfig::StartIdleState() const {
-  return m_config.get<int>("StartIdleState");
+  if (m_StartIdleState == -1)
+    return m_config.get<int>("StartIdleState");
+  return m_StartIdleState;
 }
 
 int nsw::PadTriggerSCAConfig::OCREnable() const {
-  return m_config.get<int>("OCREnable");
+  if (m_OCREnable == -1)
+    return m_config.get<int>("OCREnable");
+  return m_OCREnable;
 }
 
 int nsw::PadTriggerSCAConfig::TTCCalib() const {
-  return m_config.get<int>("TTCCalib");
+  if (m_TTCCalib == -1)
+    return m_config.get<int>("TTCCalib");
+  return m_TTCCalib;
 }
 
 bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {

@@ -40,11 +40,11 @@ class PadTriggerSCAConfig: public SCAConfig {
     void SetL1AReadoutNBC(int val)     {m_L1AReadoutNBC     = val;}
     void SetL1AReadoutEnable(int val)  {m_L1AReadoutEnable  = val;}
     void SetpFEBBCIDOffset(int val)    {m_pFEBBCIDOffset    = val;}
-    void SetStartIdleState(int val)    {m_StartIdleState = val;}
-    void SetOCREnable(int val)         {m_OCREnable = val;}
-    void SetTTCCalib(int val)          {m_TTCCalib = val;}
-    void SetL1AReadoutEnable()  {m_L1AReadoutEnable  = 1;}
-    void SetL1AReadoutDisable() {m_L1AReadoutEnable  = 0;}
+    void SetStartIdleState(int val)    {m_StartIdleState    = val;}
+    void SetOCREnable(int val)         {m_OCREnable         = val;}
+    void SetTTCCalib(int val)          {m_TTCCalib          = val;}
+    void SetL1AReadoutEnable()  {m_L1AReadoutEnable = 1;}
+    void SetL1AReadoutDisable() {m_L1AReadoutEnable = 0;}
 
  private:
     int m_L1AReadoutLatency;
