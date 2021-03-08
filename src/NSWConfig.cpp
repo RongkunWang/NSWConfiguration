@@ -88,6 +88,7 @@ void nsw::NSWConfig::configureFEBs() {
             thread.get();
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
+            // TODO: This should be an error
             ers::warning(issue);
         }
     }
@@ -104,6 +105,7 @@ void nsw::NSWConfig::configureFEB(const std::string& name) {
     auto configuration = m_frontends.at(name);
     if (!m_simulation) {
         local_sender->sendRocConfig(configuration);
+        local_sender->disableVmmCaptureInputs(configuration);
         if (m_resetvmm) {
             std::vector <unsigned> reset_ori;
             for (auto & vmm : configuration.getVmms()) {
@@ -272,4 +274,62 @@ bool nsw::NSWConfig::too_many_threads() {
                   << m_max_threads << std::endl;
     }
     return decision;
+}
+
+void nsw::NSWConfig::enableVmmCaptureInputs() {
+    const auto func = [this] (const std::string& t_name) {
+        const auto configuration = m_frontends.at(t_name);
+        nsw::ConfigSender configSender;
+        configSender.enableVmmCaptureInputs(configuration);
+    };
+    m_threads->clear();
+    for (const auto& kv : m_frontends) {
+        while (too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        func,
+                                        kv.first));
+    }
+    // wait
+    for (auto& thread : *m_threads) {
+        try {  // If configureFEB throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            nsw::NSWConfigIssue issue(ERS_HERE, "Enabling of VMMs failed due to : " + std::string(ex.what()));
+            ers::error(issue);
+        }
+    }
+}
+
+void nsw::NSWConfig::disableVmmCaptureInputs() {
+    const auto func = [this] (const std::string& t_name) {
+        const auto configuration = m_frontends.at(t_name);
+        nsw::ConfigSender configSender;
+        configSender.disableVmmCaptureInputs(configuration);
+    };
+    m_threads->clear();
+    for (const auto& kv : m_frontends) {
+        while (too_many_threads())
+            usleep(500000);
+        m_threads->push_back(std::async(std::launch::async,
+                                        func,
+                                        kv.first));
+    }
+    // wait
+    for (auto& thread : *m_threads) {
+        try {  // If configureFEB throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            nsw::NSWConfigIssue issue(ERS_HERE, "Disabling of VMMs failed due to : " + std::string(ex.what()));
+            ers::warning(issue);
+        }
+    }
+}
+
+void nsw::NSWConfig::startRc() {
+    enableVmmCaptureInputs();
+}
+
+void nsw::NSWConfig::stopRc() {
+    disableVmmCaptureInputs();
 }
