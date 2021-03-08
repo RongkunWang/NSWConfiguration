@@ -82,7 +82,7 @@ class ConfigSender {
 
     /// High level send functions
     void sendTpConfig(nsw::TPConfig& tp);
-    void maskTp      (nsw::TPConfig& tp, bool sim);
+    void maskTp      (nsw::TPConfig& tp, bool sim = false);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,

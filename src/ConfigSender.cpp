@@ -807,6 +807,7 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
 
   auto opc_ip = tp.getOpcServerIp();
   auto tp_address = tp.getAddress();
+  ERS_INFO("maskTp: " << opc_ip);
 
   const uint32_t fiber_hot_mux     = 0x0d;
   const uint32_t fiber_hot_read    = 0x0e;
@@ -863,6 +864,7 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
       sendI2c(opc_ip, tp_address, msg_hot_mux);
       sendI2c(opc_ip, tp_address, msg_mask_mux);
     }
+    ERS_INFO("maskTp: " << opc_ip << " fiber " << fiber);
     std::cout << "Fiber " << fiber << std::endl;
 
     // unmask all VMM
@@ -937,6 +939,7 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
     std::cout << "Overflow word: 0b" << std::bitset<8>(overflow_word) << std::endl;
     usleep(sleep_us * 10);
   }
+  ERS_INFO("maskTp: " << opc_ip << " done");
 
 }
 

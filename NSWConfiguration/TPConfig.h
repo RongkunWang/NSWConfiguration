@@ -51,6 +51,7 @@ class TPConfig: public SCAConfig {
     int GlobalInputPhase() const;
     int GlobalInputOffset() const;
     int SelfTriggerDelay() const;
+    bool EnableVmmMasking() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
@@ -59,6 +60,7 @@ class TPConfig: public SCAConfig {
     void setGlobalInputPhase(int val);
     void setGlobalInputOffset(int val);
     void setSelfTriggerDelay(int val);
+    void setEnableVmmMasking(bool val);
 };
 
 }  // namespace nsw

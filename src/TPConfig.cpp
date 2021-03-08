@@ -112,6 +112,9 @@ int nsw::TPConfig::GlobalInputOffset() const {
 int nsw::TPConfig::SelfTriggerDelay() const {
     return m_config.get<int>("SelfTriggerDelay");
 }
+bool nsw::TPConfig::EnableVmmMasking() const {
+    return m_config.get<bool>("EnableVmmMasking");
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -133,6 +136,9 @@ void nsw::TPConfig::setGlobalInputOffset(int val) {
 }
 void nsw::TPConfig::setSelfTriggerDelay(int val) {
   m_config.put("SelfTriggerDelay", val);
+}
+void nsw::TPConfig::setEnableVmmMasking(bool val) {
+  m_config.put("EnableVmmMasking", val);
 }
 
 nsw::TPConfig::~TPConfig() {
