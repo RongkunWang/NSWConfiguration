@@ -6,6 +6,7 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/ConfigConverter.h"
 
 #include "boost/property_tree/ptree.hpp"
 using boost::property_tree::ptree;
@@ -42,6 +43,25 @@ uint8_t nsw::ConfigSender::readBackRoc(const std::string& opcserver_ipport, cons
   return m_clients[opcserver_ipport]->readRocRaw(node, sclLine, sdaLine, registerAddress, delay);
 }
 
+uint8_t nsw::ConfigSender::readBackRocDigital(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
+    // FIXME: Why do we have to call it twice?
+    const unsigned int sclLine{17};
+    const unsigned int sdaLine{18};
+    const unsigned int delay{2};
+    const auto fullNode = node + ".gpio.bitBanger";
+    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+}
+
+uint8_t nsw::ConfigSender::readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
+    // FIXME: Why do we have to call it twice?
+    const unsigned int sclLine{19};
+    const unsigned int sdaLine{20};
+    const unsigned int delay{2};
+    const auto fullNode = node + ".gpio.bitBanger";
+    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+}
 
 void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
@@ -1098,4 +1118,22 @@ void nsw::ConfigSender::sendFPGA(const std::string& opcserver_ipport, const std:
                                  const std::string& bitfile_path) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeXilinxFpga(node, bitfile_path);
+}
+
+void nsw::ConfigSender::enableVmmCaptureInputs(const nsw::FEBConfig& feb)
+{
+    ptree tree;
+    tree.put_child("reg008vmmEnable", feb.getConfig().get_child("rocCoreDigital.reg008vmmEnable"));
+    const auto configConverter = ConfigConverter(tree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED);
+    const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(feb.getRocDigital());
+    const auto partialConfig = nsw::I2cMasterConfig(translatedPtree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
+    sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);
+}
+
+void nsw::ConfigSender::disableVmmCaptureInputs(const nsw::FEBConfig& feb)
+{
+    ptree tree;
+    tree.put("reg008vmmEnable", 0);
+    const auto partialConfig = nsw::I2cMasterConfig(tree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
+    sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);
 }

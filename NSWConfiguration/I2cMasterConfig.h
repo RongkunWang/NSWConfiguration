@@ -62,8 +62,21 @@ class I2cMasterCodec {
     explicit I2cMasterCodec(const i2c::AddressRegisterMap & ar_map);
     ~I2cMasterCodec() {}
 
-    // Method that creates bitstreams from config tree.
+    /** \brief Method that creates bitstreams from config tree
+     *  Iterates through m_addr_reg and creates a bitstream. Throws if the ptree does
+     *  not contain all registers.
+     *  \param config Configuration ptree
+     *  \return Bitstream map register name : bitstream
+     */
     i2c::AddressBitstreamMap buildConfig(const ptree& config) const;
+
+    /** \brief Method to create a bitstream from a partial config tree
+     *  Iterates through the ptree and creates a bitstream. Throws if it contains
+     *  unknown registers.
+     *  \param config Configuration ptree
+     *  \return Bitstream map register name : bitstream
+     */
+    i2c::AddressBitstreamMap buildPartialConfig(const ptree& config) const;
 
     /// Map of i2c addresses, to a map of registers to positions in the bitstream
     i2c::AddressRegisterSizeMap m_addr_reg_pos;
@@ -102,16 +115,16 @@ class I2cMasterConfig {
     i2c::AddressBitstreamMap m_address_bitstream;  /// Map of I2c addresses(string) and bitstreams(string)
 
  public:
-    explicit I2cMasterConfig(const ptree& config, const std::string& name, const i2c::AddressRegisterMap & reg):
-        m_config(config), m_name(name), m_codec(reg) {
-            buildConfig(config);
+    /** \brief Constructor
+     *  Constructs I2cMasterConfig object and builds the bitstream
+     *  \param config Configuration ptree
+     *  \param name Register address space name (e.g. rocPllCoreAnalog). See I2cRegisterMappings.h
+     *  \param reg Register address map (e.g. ROC_ANALOG_REGISTERS). See I2cRegisterMappings.h
+     *  \param partial Switch if the config argument is a full configuration or a partial transaction
+     */
+    explicit I2cMasterConfig(const ptree& config, const std::string& name, const i2c::AddressRegisterMap & reg, const bool partial=false):
+        m_config(config), m_name(name), m_codec(reg), m_address_bitstream(buildConfig(config, partial)) {
         }
-
-    ~I2cMasterConfig() {}
-
-    void buildConfig(const ptree& config) {
-      m_address_bitstream = m_codec.buildConfig(config);
-    }
 
     std::string getName() const { return m_name;}
 
@@ -140,6 +153,25 @@ class I2cMasterConfig {
     // I2cMasterConfig(const I2cMasterConfig&) = delete;
 
     void dump() const;
+
+protected:
+    /** \brief Build the bitstream map
+     *  Calls the corresponding buildConfig function of the codec.
+     *  \param config configuration ptree
+     *  \param partialConfig Switch if the ptree represents a full configuration object ("old buildConfig")
+     *                       or a partial transaction
+     *  \return map of register name to bitstream
+     */
+    i2c::AddressBitstreamMap buildConfig(const ptree& config, const bool partialConfig) {
+      if (not partialConfig)
+      {
+        return m_codec.buildConfig(config);
+      }
+      else
+      {
+        return m_codec.buildPartialConfig(config);
+      }
+    }
 };
 }  // namespace nsw
 

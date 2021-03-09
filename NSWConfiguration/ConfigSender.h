@@ -102,6 +102,16 @@ class ConfigSender {
     uint8_t readBackRoc(const std::string& opcserver_ipport, const std::string& node,
         unsigned int sclLine, unsigned int sdaLine, uint8_t registerAddress, unsigned int delay);
                                   
+    /// Wrapper to read back from the digital ROC section
+    /// DO NOT CALL IT ON ANYTHING BUT MMFE8
+    [[nodiscard]]
+    uint8_t readBackRocDigital(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress);
+
+    /// Wrapper to read back from the analog ROC section
+    /// DO NOT CALL IT ON ANYTHING BUT MMFE8
+    [[nodiscard]]
+    uint8_t readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress);
+
     /// Low level Spi send function
     void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t *data, size_t data_size);
 
@@ -164,6 +174,14 @@ class ConfigSender {
     /// Program FPGA from bitfile
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
     void sendFPGA(const std::string& opcserver_ipport, const std::string& node, const std::string& bitfile_path);
+
+    /// Set vmm enable register to 0
+    /// \param feb Config needed for OPC IP
+    void disableVmmCaptureInputs(const nsw::FEBConfig& feb);
+
+    /// Set vmm enable register to value in passed config
+    /// \param feb Reference config
+    void enableVmmCaptureInputs(const nsw::FEBConfig& feb);
 };
 
 }  // namespace nsw

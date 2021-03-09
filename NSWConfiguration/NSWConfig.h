@@ -72,6 +72,11 @@ class NSWConfig {
 
     void unconfigureRc();
 
+    //! Prepare for run transition. Enable VMMs
+    void startRc();
+
+    //! Stop recording transition. Disable VMMs (symmetry)
+    void stopRc();
  private:
     //! Configure ROCs in all FEBs in m_frontends
     void configureROCs();
@@ -121,6 +126,12 @@ class NSWConfig {
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;
+
+    //! Enable VMMs (after VMM config)
+    void enableVmmCaptureInputs();
+
+    //! Disable VMMs (setting register 8 to 0)
+    void disableVmmCaptureInputs();
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIG_H_
