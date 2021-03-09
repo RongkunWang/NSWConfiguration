@@ -96,6 +96,18 @@ int nsw::PadTriggerSCAConfig::TTCCalib() const {
   return m_TTCCalib;
 }
 
+int nsw::PadTriggerSCAConfig::LatencyScanStart() const {
+  if (m_LatencyScanStart == -1)
+    return m_config.get<int>("LatencyScanStart");
+  return m_LatencyScanStart;
+}
+
+int nsw::PadTriggerSCAConfig::LatencyScanNBC() const {
+  if (m_LatencyScanNBC == -1)
+    return m_config.get<int>("LatencyScanNBC");
+  return m_LatencyScanNBC;
+}
+
 bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
   return m_config.get<bool>("ConfigRepeaters");
 }

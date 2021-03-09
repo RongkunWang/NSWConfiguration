@@ -36,6 +36,8 @@ class PadTriggerSCAConfig: public SCAConfig {
     int StartIdleState() const;
     int OCREnable() const;
     int TTCCalib() const;
+    int LatencyScanStart() const;
+    int LatencyScanNBC() const;
     void SetL1AReadoutLatency(int val) {m_L1AReadoutLatency = val;}
     void SetL1AReadoutNBC(int val)     {m_L1AReadoutNBC     = val;}
     void SetL1AReadoutEnable(int val)  {m_L1AReadoutEnable  = val;}
@@ -43,6 +45,8 @@ class PadTriggerSCAConfig: public SCAConfig {
     void SetStartIdleState(int val)    {m_StartIdleState    = val;}
     void SetOCREnable(int val)         {m_OCREnable         = val;}
     void SetTTCCalib(int val)          {m_TTCCalib          = val;}
+    void SetLatencyScanStart(int val)  {m_LatencyScanStart  = val;}
+    void SetLatencyScanNBC(int val)    {m_LatencyScanNBC    = val;}
     void SetL1AReadoutEnable()  {m_L1AReadoutEnable = 1;}
     void SetL1AReadoutDisable() {m_L1AReadoutEnable = 0;}
 
@@ -54,6 +58,8 @@ class PadTriggerSCAConfig: public SCAConfig {
     int m_StartIdleState;
     int m_OCREnable;
     int m_TTCCalib;
+    int m_LatencyScanStart;
+    int m_LatencyScanNBC;
 
 };
 
