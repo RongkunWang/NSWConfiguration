@@ -23,6 +23,8 @@ nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
   m_StartIdleState = -1;
   m_OCREnable = -1;
   m_TTCCalib = -1;
+  m_LatencyScanStart = -1;
+  m_LatencyScanNBC = -1;
 }
 
 void nsw::PadTriggerSCAConfig::dump() {
