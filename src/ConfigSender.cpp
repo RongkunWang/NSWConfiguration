@@ -809,15 +809,15 @@ void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
   auto tp_address = tp.getAddress();
   ERS_INFO("maskTp: " << opc_ip);
 
-  const uint32_t fiber_hot_mux     = 0x0d;
-  const uint32_t fiber_hot_read    = 0x0e;
-  const uint32_t fiber_mask_mux    = 0x1c;
-  const uint32_t fiber_mask_write  = 0x1d;
-  const uint32_t pipeline_overflow = 0x20;
-  const uint32_t fiber_n           = 32;
-  const uint32_t vmm_n             = 32;
-  const uint32_t sleep_us          = 5e4;
-  const uint32_t attempts_min      = 5;
+  constexpr uint32_t fiber_hot_mux     = 0x0d;
+  constexpr uint32_t fiber_hot_read    = 0x0e;
+  constexpr uint32_t fiber_mask_mux    = 0x1c;
+  constexpr uint32_t fiber_mask_write  = 0x1d;
+  constexpr uint32_t pipeline_overflow = 0x20;
+  constexpr uint32_t fiber_n           = 32;
+  constexpr uint32_t vmm_n             = 32;
+  constexpr uint32_t sleep_us          = 5e4;
+  constexpr uint32_t attempts_min      = 5;
   auto hot_read_vec = nsw::intToByteVector(fiber_hot_read,    4, true);
   auto overflow_vec = nsw::intToByteVector(pipeline_overflow, 4, true);
   std::vector<uint8_t> readback;
