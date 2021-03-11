@@ -118,7 +118,7 @@ class JsonApi: public ConfigReaderApi {
 
  public:
   explicit JsonApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read();
+  ptree & read() override;
 };
 
 class XmlApi: public ConfigReaderApi {
@@ -127,7 +127,7 @@ class XmlApi: public ConfigReaderApi {
 
  public:
   explicit XmlApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read();
+  ptree & read() override;
 };
 
 class OracleApi: public ConfigReaderApi {
@@ -137,7 +137,7 @@ class OracleApi: public ConfigReaderApi {
  public:
   explicit OracleApi(const std::string& db_connection) {}
   ~OracleApi() {}
-  ptree & read();
+  ptree & read() override;
 };
 
 class OksApi: public ConfigReaderApi {
@@ -146,7 +146,7 @@ class OksApi: public ConfigReaderApi {
 
  public:
   explicit OksApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read();
+  ptree & read() override;
 };
 
 class PtreeApi: public ConfigReaderApi {
@@ -154,7 +154,7 @@ class PtreeApi: public ConfigReaderApi {
   explicit PtreeApi(ptree tree) {
     m_config = tree;
   }
-  ptree & read();
+  ptree & read() override;
 };
 
 #endif  // NSWCONFIGURATION_CONFIGREADERAPI_H_
