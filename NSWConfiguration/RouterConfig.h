@@ -3,10 +3,11 @@
 #ifndef NSWCONFIGURATION_ROUTER_H_
 #define NSWCONFIGURATION_ROUTER_H_
 
-#include <vector>
-#include <iostream>
-#include "boost/property_tree/ptree.hpp"
+#include <string>
+
 #include "NSWConfiguration/SCAConfig.h"
+
+#include "boost/property_tree/ptree.hpp"
 
 using boost::property_tree::ptree;
 

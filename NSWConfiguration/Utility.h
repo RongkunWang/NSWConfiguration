@@ -17,6 +17,8 @@
 
 #include "ers/ers.h"
 
+#include "NSWConfiguration/Constants.h"
+
 using boost::property_tree::ptree;
 
 ERS_DECLARE_ISSUE(nsw,
@@ -52,7 +54,7 @@ std::string reversedBitString(unsigned value, size_t nbits);
 template<size_t N>
 std::string bitsetToHexString(const std::bitset<N>& b) {
     std::ostringstream ss;
-    for (int i=N-8; i >= 0; i=i-8) {
+    for (int i=N-NUM_BITS_IN_BYTE; i >= 0; i=i-NUM_BITS_IN_BYTE) {
         auto val = std::bitset<N>(0xff) & (b >> i);
         ss << std::hex << std::setfill('0') << std::setw(2) << val.to_ulong();
     }

@@ -6,6 +6,7 @@
 
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/Constants.h"
 
 using boost::property_tree::ptree;
 
@@ -79,10 +80,10 @@ bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     if (vec.size() != 4)
         throw std::runtime_error("Need a vector of bytes of size=4, but got size = " + std::to_string(vec.size()));
 
-    uint32_t reg32 = ((uint32_t)(vec[0]) <<  0) +
-                     ((uint32_t)(vec[1]) <<  8) +
-                     ((uint32_t)(vec[2]) << 16) +
-                     ((uint32_t)(vec[3]) << 24);
+    uint32_t reg32 = ((uint32_t)(vec[0]) << 0*nsw::NUM_BITS_IN_BYTE) +
+                     ((uint32_t)(vec[1]) << 1*nsw::NUM_BITS_IN_BYTE) +
+                     ((uint32_t)(vec[2]) << 2*nsw::NUM_BITS_IN_BYTE) +
+                     ((uint32_t)(vec[3]) << 3*nsw::NUM_BITS_IN_BYTE);
     return reg32 & (uint32_t)(pow(2, boi));
 }
 

@@ -14,6 +14,8 @@
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 
+#include "NSWConfiguration/Constants.h"
+
 #include "ers/ers.h"
 
 using boost::property_tree::ptree;
@@ -85,28 +87,28 @@ class ConfigReaderApi {
       size_t vmm_start = 0, size_t tds_start = 0) const;
 
   ptree readMMFE8(const std::string& element) const {
-    return readFEB(element, 8, 0);
+    return readFEB(element, nsw::NUM_VMM_PER_MMFE8, nsw::NUM_TDS_PER_MMFE8);
   }
 
   ptree readPFEB(const std::string& element) const {
-    return readFEB(element, 3, 1);
+    return readFEB(element, nsw::NUM_VMM_PER_PFEB, nsw::NUM_TDS_PER_PFEB);;
   }
 
   ptree readSFEB(const std::string& element, int nTDS) const {
     // return readFEB(element, 8, 4);
-    return readFEB(element, 8, nTDS);
+    return readFEB(element, nsw::NUM_VMM_PER_SFEB, nTDS);
   }
 
   ptree readSFEB6(const std::string& element) const {
     // return readFEB(element, 8, 4);
-    return readFEB(element, 8, 4, 2, 1);
+    return readFEB(element, nsw::NUM_VMM_PER_SFEB, nsw::NUM_TDS_PER_SFEB, nsw::SFEB6_FIRST_VMM, nsw::SFEB6_FIRST_TDS);;
   }
 
   virtual ptree readADDC(const std::string& element, size_t nart) const;
   virtual ptree readPadTriggerSCA(const std::string& element) const;
   virtual ptree readRouter(const std::string& element) const;
   virtual ptree readTP(const std::string& element) const;
-  
+
   virtual ~ConfigReaderApi() {}
 };
 

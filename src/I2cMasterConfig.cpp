@@ -10,6 +10,7 @@
 
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Types.h"
 
 nsw::I2cMasterCodec::I2cMasterCodec(const i2c::AddressRegisterMap & ar_map): m_addr_reg(ar_map) {
@@ -96,7 +97,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
             ERS_DEBUG(5, " -- " << register_name << " -> " << value);
 
             // TODO(cyildiz): Large enough to take any register
-            std::bitset<32> bs(value);
+            std::bitset<MAX_I2C_REGISTER_SIZE> bs(value);
             auto stringbs = bs.to_string();
             stringbs = stringbs.substr(stringbs.size()-size, stringbs.size());
             ERS_DEBUG(6, " --- substr:" << stringbs);
@@ -185,9 +186,9 @@ void nsw::I2cMasterConfig::decodeVector(const std::string& address, const std::v
         return;
     }
 
-    if (vec.size() * 8 != getTotalSize(address)) {
-        auto vecsize = vec.size()*8;
-        auto i2csize = getTotalSize(address);
+    if (vec.size() * I2C_ADDRESS_BYTE_SIZE != getTotalSize(address)) {
+        const auto vecsize = vec.size()*I2C_ADDRESS_BYTE_SIZE;
+        const auto i2csize = getTotalSize(address);
         nsw::I2cSizeMismatch issue(ERS_HERE, address, vecsize, i2csize);
         ers::error(issue);
         return;

@@ -153,7 +153,7 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
 
     // VMM
     // If the configuation has more than expected vmms, remove them
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < nsw::MAX_NUMBER_OF_VMM; i++) {
         if (i >= vmm_start && i < nvmm) continue;
         std::string vmmname = "vmm" + std::to_string(i);
         if (feb.get_child_optional(vmmname)) {  // If node exists
@@ -177,7 +177,7 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
 
     // TDS
     // If the configuation has more than expected tds, remove them
-    for (size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < nsw::MAX_NUMBER_OF_TDS; i++) {
         if (i >= tds_start && i < ntds) continue;
         std::string tdsname = "tds" + std::to_string(i);
         if (feb.get_child_optional(tdsname)) {  // If node exists
