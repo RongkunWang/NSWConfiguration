@@ -1,12 +1,11 @@
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "boost/property_tree/ptree.hpp"
-
 #include "NSWConfiguration/ARTConfig.h"
+
+#include <utility>
+#include <iostream>
+
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 using boost::property_tree::ptree;
 

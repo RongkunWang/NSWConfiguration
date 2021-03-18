@@ -1,20 +1,14 @@
-
 #ifndef NSWCONFIGURATION_NSWCONFIGRC_H_
 #define NSWCONFIGURATION_NSWCONFIGRC_H_
 
-#include <string>
-#include <vector>
 #include <memory>
-#include <map>
-#include <future>
-
-#include "ers/ers.h"
 
 #include "RunControl/RunControl.h"
-#include "RunControl/Common/RunControlCommands.h"
 #include "NSWConfiguration/NSWConfig.h"
 
-using boost::property_tree::ptree;
+class daq::rc::SubTransitionCmd;
+class daq::rc::TransitionCmd;
+class daq::rc::UserCmd;
 
 namespace nsw {
 class NSWConfigRc: public daq::rc::Controllable {

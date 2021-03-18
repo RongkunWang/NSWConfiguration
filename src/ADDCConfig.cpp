@@ -1,9 +1,13 @@
-#include <string>
-#include "boost/optional.hpp"
 #include "NSWConfiguration/ADDCConfig.h"
+
 #include "NSWConfiguration/Constants.h"
 
-#include "boost/property_tree/json_parser.hpp"
+#include <string>
+#include <iostream>
+
+#include "ers/ers.h"
+
+using boost::property_tree::ptree;
 
 nsw::ADDCConfig::ADDCConfig(const ptree& config):
     SCAConfig(config) {

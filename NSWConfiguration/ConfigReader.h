@@ -10,14 +10,10 @@
 #include <vector>
 #include <set>
 
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-#include "boost/property_tree/xml_parser.hpp"
-
 #include "NSWConfiguration/ConfigReaderApi.h"
 #include "NSWConfiguration/Utility.h"
 
-using boost::property_tree::ptree;
+#include "boost/property_tree/ptree_fwd.hpp"
 
 namespace nsw {
 class ConfigReader {
@@ -29,16 +25,16 @@ class ConfigReader {
  public:
   ConfigReader(const std::string& connection_string, const std::vector<std::string>& components);
   explicit ConfigReader(const std::string& connection_string);
-  explicit ConfigReader(const ptree& tree);
+  explicit ConfigReader(const boost::property_tree::ptree& tree);
   ~ConfigReader();
 
-  ptree readConfig() {
+  boost::property_tree::ptree readConfig() {
     return m_api->read();
     // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
     // TODO(cyildiz): if (!m_components.empty()) Get Only relevant components config
   }
 
-  ptree readConfig(const std::string& element_name) {
+  boost::property_tree::ptree readConfig(const std::string& element_name) {
     return m_api->read(element_name);
   }
 

@@ -1,16 +1,19 @@
+#include "NSWConfiguration/ConfigReaderApi.h"
+
+#include "NSWConfiguration/Utility.h"
+
 #include <memory>
 #include <vector>
 #include <exception>
-#include <string>
 #include <regex>
-#include <set>
-
-#include "boost/foreach.hpp"
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/ConfigReaderApi.h"
-#include "NSWConfiguration/Utility.h"
+#include "boost/foreach.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/xml_parser.hpp"
+
+using boost::property_tree::ptree;
 
 ptree ConfigReaderApi::read(const std::string& element) {
     if (nsw::getElementType(element) == "MMFE8") {

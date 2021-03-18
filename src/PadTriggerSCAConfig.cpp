@@ -8,10 +8,9 @@
 // conf_ttc_calib      <= control_reg(29 downto 26); -- DEFAULT VALUE ‘0000' HYPOTHESIS
 //
 
-#include <string>
-#include "boost/optional.hpp"
-#include "boost/property_tree/json_parser.hpp"
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
+
+using boost::property_tree::ptree;
 
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
     SCAConfig(config)

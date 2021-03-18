@@ -1,17 +1,18 @@
+#include "NSWConfiguration/I2cMasterConfig.h"
+
 #include <map>
 #include <cmath>
-#include <string>
-#include <vector>
 #include <iostream>
 #include <utility>
 #include <numeric>
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Types.h"
+
+using boost::property_tree::ptree;
 
 nsw::I2cMasterCodec::I2cMasterCodec(const i2c::AddressRegisterMap & ar_map): m_addr_reg(ar_map) {
     calculateSizesAndPositions();

@@ -1,15 +1,16 @@
-#include <string>
+#include "NSWConfiguration/Utility.h"
+
 #include <exception>
 #include <cmath>
-#include <vector>
-#include <utility>
 #include <regex>
-#include <set>
-#include <bitset>
+
+#include "ers/ers.h"
 
 #include "boost/foreach.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/exceptions.hpp"
 
-#include "NSWConfiguration/Utility.h"
+using boost::property_tree::ptree;
 
 // template<size_t N1, size_t N2>
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);

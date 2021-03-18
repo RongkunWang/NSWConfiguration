@@ -5,22 +5,16 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "boost/property_tree/ptree.hpp"
 
-#include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
-#include "NSWConfiguration/I2cRegisterMappings.h"
-
-using boost::property_tree::ptree;
 
 namespace nsw {
 
 class ARTConfig {
  protected:
-    ptree m_config;
+    boost::property_tree::ptree m_config;
 
  private:
     std::string name;
@@ -31,10 +25,10 @@ class ARTConfig {
     nsw::I2cMasterConfig core;
     nsw::I2cMasterConfig ps;
 
-    explicit ARTConfig(const ptree& config);
-    ~ARTConfig() {}
+    explicit ARTConfig(const boost::property_tree::ptree& config);
+    ~ARTConfig() = default;
 
-    ptree getConfig() const {return m_config;}
+    boost::property_tree::ptree getConfig() const {return m_config;}
     void dump() const {}
     void dump_core() const { core.dump(); }
     void dump_ps()   const { ps  .dump(); }

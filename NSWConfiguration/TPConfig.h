@@ -4,23 +4,14 @@
 #ifndef NSWCONFIGURATION_TPCONFIG_H_
 #define NSWCONFIGURATION_TPCONFIG_H_
 
-#include <bitset>
+#include "NSWConfiguration/SCAConfig.h"
+
 #include <string>
 #include <vector>
-#include <iostream>
 #include <map>
-#include <utility>
-
-#include "boost/property_tree/ptree.hpp"
-
-#include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/SCAConfig.h"
-#include "NSWConfiguration/I2cMasterConfig.h"
-#include "NSWConfiguration/TP_I2cRegisterMappings.h"
-
-using boost::property_tree::ptree;
 
 namespace nsw {
+class I2cMasterConfig;
 
 class TPConfig: public SCAConfig {
  private:
@@ -32,7 +23,7 @@ class TPConfig: public SCAConfig {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit TPConfig(const ptree& config);
+    explicit TPConfig(const boost::property_tree::ptree& config);
     ~TPConfig();
 
     uint32_t getRegisterValue(const std::string& master, const std::string& slave,

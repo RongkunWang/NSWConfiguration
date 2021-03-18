@@ -1,10 +1,13 @@
-#include <utility>  // make_pair
+#include "NSWConfiguration/NSWConfig.h"
+
+#include <utility>
 #include <string>
 #include <memory>
 
 // Header to the RC online services
 #include "RunControl/Common/OnlineServices.h"
-#include "NSWConfiguration/NSWConfig.h"
+
+using boost::property_tree::ptree;
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfig instance");

@@ -17,6 +17,7 @@
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
+using boost::property_tree::ptree;
 
 ptree createDummyAnalog()
 {

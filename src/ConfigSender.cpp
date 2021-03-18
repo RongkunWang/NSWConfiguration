@@ -1,16 +1,14 @@
-#include <memory>
-#include <string>
-#include <vector>
+#include "NSWConfiguration/ConfigSender.h"
+
+#include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/ConfigConverter.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/ConfigConverter.h"
-
 #include "boost/property_tree/ptree.hpp"
-using boost::property_tree::ptree;
 
+using boost::property_tree::ptree;
 
 nsw::ConfigSender::ConfigSender() {
 }

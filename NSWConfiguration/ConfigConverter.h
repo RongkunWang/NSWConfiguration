@@ -10,8 +10,6 @@
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/ConfigTranslationMap.h"
 
-using boost::property_tree::ptree;
-
 
 /** \brief Converts between register-based and value-based configurations
  */
@@ -24,7 +22,7 @@ public:
      */
     struct TranslatedConfig
     {
-        ptree m_ptree;                              ///< translated ptree
+        boost::property_tree::ptree m_ptree;        ///< translated ptree
         std::map<std::string, unsigned int> m_mask; ///< map holding mask of values set in ptree
     };
 
@@ -52,8 +50,8 @@ public:
      *  \param t_addressSpace ROC analog, digital,...
      *  \param t_type type of configuration (register or value-based)
      */
-    explicit ConfigConverter(const ptree &t_config, const ConfigType t_type);
-    explicit ConfigConverter(const ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type);
+    explicit ConfigConverter(const boost::property_tree::ptree &t_config, const ConfigType t_type);
+    explicit ConfigConverter(const boost::property_tree::ptree &t_config, const RegisterAddressSpace &t_addressSpace, const ConfigType t_type);
 
     /** \brief Obtain value-based ptree of configuration
      * The value-based ptree does not contain register values but configuration
@@ -62,7 +60,7 @@ public:
      *  \return value-based ptree
      */
     [[nodiscard]]
-    ptree getValueBasedConfig() const;
+    boost::property_tree::ptree getValueBasedConfig() const;
 
     /** \brief Obtain register-based ptree of configuration with subregisters
      *  The register-based ptree with sub-registers corresponds to the traditional
@@ -71,7 +69,7 @@ public:
      *  \return register-based ptree
      */
     [[nodiscard]]
-    ptree getSubRegisterBasedConfig() const;
+    boost::property_tree::ptree getSubRegisterBasedConfig() const;
 
     /** \brief Obtain register-based ptree of configuration without subregisters
      *  The register-based ptree without sub-registers has a single value per register.
@@ -82,8 +80,8 @@ public:
      */
     template<ConfigConverter::RegisterAddressSpace DeviceType>
     [[nodiscard]]
-    ptree getFlatRegisterBasedConfig(const std::string &t_opcIp,
-                                     const std::string &t_scaAddress) const;
+    boost::property_tree::ptree getFlatRegisterBasedConfig(const std::string &t_opcIp,
+                                                           const std::string &t_scaAddress) const;
 
     /** \brief Obtain register-based ptree of configuration without subregisters
      *  The register-based ptree without sub-registers has a single value per register.
@@ -92,7 +90,7 @@ public:
      *  \return register-based ptree
      */
     [[nodiscard]]
-    ptree getFlatRegisterBasedConfig(const nsw::I2cMasterConfig &t_config) const;
+    boost::property_tree::ptree getFlatRegisterBasedConfig(const nsw::I2cMasterConfig &t_config) const;
 
 private:
     /** \brief Convert register-based configuration ptree to value-based ptree
@@ -111,7 +109,7 @@ private:
      *  \return value-based configuration
      */
     [[nodiscard]]
-    ptree convertSubRegisterToValue(const ptree &t_config) const;
+    boost::property_tree::ptree convertSubRegisterToValue(const boost::property_tree::ptree &t_config) const;
 
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains sub-registers.
@@ -126,7 +124,7 @@ private:
      *  \return register-based configuration with sub-registers
      */
     [[nodiscard]]
-    ptree convertValueToSubRegister(const ptree &t_config) const;
+    boost::property_tree::ptree convertValueToSubRegister(const boost::property_tree::ptree &t_config) const;
 
     /** \brief Convert value-based configuration ptree to register-based ptree
      *  The returned register-based ptree contains no sub-registers. The total mask per register keeps
@@ -145,14 +143,14 @@ private:
      *  \return register-based configuration without sub-registers and total mask per register
      */
     [[nodiscard]]
-    TranslatedConfig convertValueToFlatRegister(const ptree &t_config) const;
+    TranslatedConfig convertValueToFlatRegister(const boost::property_tree::ptree &t_config) const;
 
     /** \brief Get all paths in a ptree
      *  \param t_tree input ptree
      *  \return vector of all paths
      */
     [[nodiscard]]
-    std::vector<std::string> getAllPaths(const ptree &t_tree) const;
+    std::vector<std::string> getAllPaths(const boost::property_tree::ptree &t_tree) const;
 
     /** \brief Check that all paths exist in translation map
      *  \param t_paths vector of all paths in ptree
@@ -169,7 +167,8 @@ private:
      *  \throw std::runtime_error not all paths present in translation map
      */
     template<typename Func>
-    [[nodiscard]] ptree readMissingRegisterParts(const Func& t_func, const std::size_t t_registerSize) const
+    [[nodiscard]]
+    boost::property_tree::ptree readMissingRegisterParts(const Func& t_func, const std::size_t t_registerSize) const
     {
         // TODO: Concept when available
         static_assert(std::is_invocable_r<uint8_t, Func, std::string>::value, "Uh oh! the function is not invokable as we want it");
@@ -196,9 +195,9 @@ private:
         return config;
     }
 
-    TranslationMap m_translationMap;    ///< map used for translation (analog, digital, tds, ...)
-    ptree m_registerTree;               ///< register-based ptree
-    ptree m_valueTree;                  ///< value-based ptree
+    TranslationMap m_translationMap;            ///< map used for translation (analog, digital, tds, ...)
+    boost::property_tree::ptree m_registerTree; ///< register-based ptree
+    boost::property_tree::ptree m_valueTree;    ///< value-based ptree
     std::map<RegisterAddressSpace, std::size_t> m_registerSizeMapping{
         {RegisterAddressSpace::ROC_ANALOG, 8},
         {RegisterAddressSpace::ROC_DIGITAL, 8}

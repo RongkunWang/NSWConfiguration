@@ -1,4 +1,3 @@
-
 #ifndef NSWCONFIGURATION_NSWCONFIG_H_
 #define NSWCONFIGURATION_NSWCONFIG_H_
 
@@ -8,12 +7,12 @@
 #include <map>
 #include <future>
 
-#include "ers/ers.h"
-
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ConfigReader.h"
 
-using boost::property_tree::ptree;
+#include "boost/property_tree/ptree.hpp"
+
+#include "ers/ers.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   NSWConfigIssue,
@@ -30,7 +29,7 @@ class NSWConfig {
  public:
     // override only the needed methods
     explicit NSWConfig(bool simulation);
-    ~NSWConfig() {}
+    ~NSWConfig() = default;
 
     //! Connects to configuration database/ or reads file based config database
     //! Reads the names of front ends that should be configured and constructs
@@ -56,7 +55,7 @@ class NSWConfig {
 
       m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
       m_sender  = std::make_unique<nsw::ConfigSender>();
-      m_threads = std::make_unique<std::vector< std::future<void> > >();
+      m_threads = std::make_unique<std::vector<std::future<void> > >();
 
       auto config = m_reader->readConfig();
     }
@@ -65,10 +64,10 @@ class NSWConfig {
     void configureRc();
 
     //! Retrieve the ptree configuration
-    ptree getConf();
+    boost::property_tree::ptree getConf();
 
     //! Substitute the configuration ptree
-    void substituteConf(const ptree& tree);
+    void substituteConf(const boost::property_tree::ptree& tree);
 
     void unconfigureRc();
 
@@ -123,7 +122,7 @@ class NSWConfig {
 
     // thread management
     size_t m_max_threads;
-    std::unique_ptr< std::vector< std::future<void> > > m_threads;
+    std::unique_ptr<std::vector<std::future<void> > > m_threads;
 
     // Run the program in simulation mode, don't send any configuration
     bool m_simulation;

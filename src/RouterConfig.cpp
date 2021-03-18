@@ -1,6 +1,10 @@
 #include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
 
+#include <stdexcept>
+
+using boost::property_tree::ptree;
+
 nsw::RouterConfig::RouterConfig(const ptree& config):
     SCAConfig(config)
 {

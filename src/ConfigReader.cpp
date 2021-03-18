@@ -1,10 +1,15 @@
-#include <memory>
-#include <vector>
-#include <exception>
-#include <string>
-
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigReaderApi.h"
+
+#include <exception>
+
+#include "ers/ers.h"
+
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/xml_parser.hpp"
+
+using boost::property_tree::ptree;
 
 nsw::ConfigReader::ConfigReader(const std::string& connection_string, const std::vector<std::string>& components):
     m_connection_string(connection_string),

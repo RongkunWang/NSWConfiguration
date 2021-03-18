@@ -11,14 +11,10 @@
 #include <set>
 
 #include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-#include "boost/property_tree/xml_parser.hpp"
 
 #include "NSWConfiguration/Constants.h"
 
-#include "ers/ers.h"
-
-using boost::property_tree::ptree;
+#include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   ROCConfigBadNode,
@@ -50,24 +46,24 @@ class ConfigReaderApi {
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
   /// \param common ptree that is fully populated with all fields required by I2cMasterConfig
   /// \param specific ptree that is partially populated.
-  virtual void mergeI2cMasterTree(ptree & specific, ptree & common) const;
+  virtual void mergeI2cMasterTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
   /// \param common ptree that is fully populated with all fields required by VMMConfig
   /// \param specific ptree that is partially populated.
-  virtual void mergeVMMTree(ptree & specific, ptree & common) const;
+  virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
  protected:
-  ptree m_config;  /// Ptree that holds all configuration
+  boost::property_tree::ptree m_config;  /// Ptree that holds all configuration
 
  public:
   // Problematic (yzach): this triggers reading from file in to m_api's m_config,
   // but but read(const std::string&) doesn't.
   /// Read the whole config db and dump it in the m_config tree
-  virtual ptree & read() = 0;
+  virtual boost::property_tree::ptree & read() = 0;
 
   /// Read configuration of a single front end element into a ptree
-  virtual ptree read(const std::string& element);
+  virtual boost::property_tree::ptree read(const std::string& element);
 
   /// Get names of all Front end elements in the configuration
   /// The base class method iterates through config ptree and finds all
@@ -82,34 +78,34 @@ class ConfigReaderApi {
   std::set<std::string> getElementNames(const std::string& regexp);
 
   /// Read configuration of front end, specifying number of vmm and tds in the FE
-  virtual ptree readFEB(
+  virtual boost::property_tree::ptree readFEB(
       const std::string& element, size_t nvmm, size_t ntds,
       size_t vmm_start = 0, size_t tds_start = 0) const;
 
-  ptree readMMFE8(const std::string& element) const {
+  boost::property_tree::ptree readMMFE8(const std::string& element) const {
     return readFEB(element, nsw::NUM_VMM_PER_MMFE8, nsw::NUM_TDS_PER_MMFE8);
   }
 
-  ptree readPFEB(const std::string& element) const {
+  boost::property_tree::ptree readPFEB(const std::string& element) const {
     return readFEB(element, nsw::NUM_VMM_PER_PFEB, nsw::NUM_TDS_PER_PFEB);;
   }
 
-  ptree readSFEB(const std::string& element, int nTDS) const {
+  boost::property_tree::ptree readSFEB(const std::string& element, int nTDS) const {
     // return readFEB(element, 8, 4);
     return readFEB(element, nsw::NUM_VMM_PER_SFEB, nTDS);
   }
 
-  ptree readSFEB6(const std::string& element) const {
+  boost::property_tree::ptree readSFEB6(const std::string& element) const {
     // return readFEB(element, 8, 4);
     return readFEB(element, nsw::NUM_VMM_PER_SFEB, nsw::NUM_TDS_PER_SFEB, nsw::SFEB6_FIRST_VMM, nsw::SFEB6_FIRST_TDS);;
   }
 
-  virtual ptree readADDC(const std::string& element, size_t nart) const;
-  virtual ptree readPadTriggerSCA(const std::string& element) const;
-  virtual ptree readRouter(const std::string& element) const;
-  virtual ptree readTP(const std::string& element) const;
+  virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const;
+  virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const;
+  virtual boost::property_tree::ptree readRouter(const std::string& element) const;
+  virtual boost::property_tree::ptree readTP(const std::string& element) const;
 
-  virtual ~ConfigReaderApi() {}
+  virtual ~ConfigReaderApi() = default;
 };
 
 class JsonApi: public ConfigReaderApi {
@@ -118,7 +114,7 @@ class JsonApi: public ConfigReaderApi {
 
  public:
   explicit JsonApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read() override;
+  boost::property_tree::ptree & read() override;
 };
 
 class XmlApi: public ConfigReaderApi {
@@ -127,7 +123,7 @@ class XmlApi: public ConfigReaderApi {
 
  public:
   explicit XmlApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read() override;
+  boost::property_tree::ptree & read() override;
 };
 
 class OracleApi: public ConfigReaderApi {
@@ -136,8 +132,8 @@ class OracleApi: public ConfigReaderApi {
 
  public:
   explicit OracleApi(const std::string& db_connection) {}
-  ~OracleApi() {}
-  ptree & read() override;
+  ~OracleApi() = default;
+  boost::property_tree::ptree & read() override;
 };
 
 class OksApi: public ConfigReaderApi {
@@ -146,15 +142,15 @@ class OksApi: public ConfigReaderApi {
 
  public:
   explicit OksApi(const std::string& file_path): m_file_path(file_path) {}
-  ptree & read() override;
+  boost::property_tree::ptree & read() override;
 };
 
 class PtreeApi: public ConfigReaderApi {
  public:
-  explicit PtreeApi(ptree tree) {
+  explicit PtreeApi(boost::property_tree::ptree tree) {
     m_config = tree;
   }
-  ptree & read() override;
+  boost::property_tree::ptree & read() override;
 };
 
 #endif  // NSWCONFIGURATION_CONFIGREADERAPI_H_

@@ -1,9 +1,12 @@
-#include <string>
-
-#include "boost/optional.hpp"
-
 #include "NSWConfiguration/FEBConfig.h"
 
+#include <iostream>
+
+#include "NSWConfiguration/I2cRegisterMappings.h"
+
+#include "ers/ers.h"
+
+using boost::property_tree::ptree;
 
 nsw::FEBConfig::FEBConfig(const ptree& config):
         SCAConfig(config),

@@ -3,23 +3,17 @@
 #ifndef NSWCONFIGURATION_ROUTER_H_
 #define NSWCONFIGURATION_ROUTER_H_
 
-#include <string>
-
 #include "NSWConfiguration/SCAConfig.h"
-
-#include "boost/property_tree/ptree.hpp"
-
-using boost::property_tree::ptree;
 
 namespace nsw {
 
 class RouterConfig: public SCAConfig {
  private:
-    bool dummy;
+    bool dummy = false;
 
  public:
-    explicit RouterConfig(const ptree& config);
-    ~RouterConfig() {}
+    explicit RouterConfig(const boost::property_tree::ptree& config);
+    ~RouterConfig() = default;
 
     bool CrashOnClkReadyFailure() const;
     bool CrashOnConfigFailure() const;

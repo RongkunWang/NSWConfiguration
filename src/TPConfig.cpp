@@ -1,11 +1,16 @@
-#include <string>
-
-#include "boost/optional.hpp"
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-
 #include "NSWConfiguration/TPConfig.h"
 
+#include <iostream>
+
+#include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/TP_I2cRegisterMappings.h"
+
+#include "ers/ers.h"
+
+#include "boost/property_tree/json_parser.hpp"
+
+using boost::property_tree::ptree;
 
 nsw::TPConfig::TPConfig(const ptree& config) :
 SCAConfig(config),

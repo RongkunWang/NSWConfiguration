@@ -1,6 +1,7 @@
 // Program to set Pad Trigger configuration
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 

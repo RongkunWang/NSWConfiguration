@@ -12,7 +12,10 @@
 #include "boost/test/unit_test.hpp"
 
 #include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/exceptions.hpp"
 #include "boost/property_tree/json_parser.hpp"
+
+using boost::property_tree::ptree;
 
 BOOST_AUTO_TEST_CASE(IntToByteVector_LittleEndian_ReturnsLittleEndianByteVector) {
     const std::vector<uint8_t> expected4 = {0xef, 0xbe, 0xad, 0xde};
@@ -37,7 +40,7 @@ BOOST_AUTO_TEST_CASE(IntToByteVector_BigEndian_ReturnsBigEndianByteVector) {
 
     const std::vector<uint8_t> expected2 = {0xfb, 0xad};
     BOOST_TEST(nsw::intToByteVector(0xdecafbad, 2, false) == expected2);
-    
+
     const std::vector<uint8_t> expected1 = { 0x0d };
     BOOST_TEST(nsw::intToByteVector(0xcafed00d, 1, false) == expected1);
 }
@@ -210,7 +213,7 @@ BOOST_AUTO_TEST_CASE(HexStringToByteVector_LittleEndianSizeMismatch_ResizesVecto
 BOOST_AUTO_TEST_CASE(HexStringToByteVector_BigEndianSizeMismatch_ResizesVector) {
     std::vector<uint8_t> expected = { 0, 0, 0xab, 0xcd };
     BOOST_TEST(nsw::hexStringToByteVector("abcd", 4, false) == expected);
-    
+
     expected = { 0xde, 0xad };
     BOOST_TEST(nsw::hexStringToByteVector("deadbeef", 2, false) == expected);
 }
@@ -254,7 +257,7 @@ BOOST_AUTO_TEST_CASE(BitstringToHexString_InputLengthNotMultipleOf8_ThrowsRuntim
 */
 
 BOOST_AUTO_TEST_CASE(BuildBitstream_ValidInput_ReturnsCorrectBitstream) {
-    boost::property_tree::ptree pt;
+    ptree pt;
     pt.put("register0.value0", 0x10);
     pt.put("register0.value1", 0x13);
     pt.put("register1", 0x41411337);
@@ -264,7 +267,7 @@ BOOST_AUTO_TEST_CASE(BuildBitstream_ValidInput_ReturnsCorrectBitstream) {
 }
 
 BOOST_AUTO_TEST_CASE(BuildBitstream_OverflowInRegister_ThrowsRegisterOverflow) {
-    boost::property_tree::ptree pt;
+    ptree pt;
     pt.put("0v3rfl0w", 0x111);
     std::vector<std::pair<std::string, size_t>> name_size_mapping = { {"0v3rfl0w", 8} };
     BOOST_CHECK_EXCEPTION(nsw::buildBitstream(name_size_mapping, pt), nsw::RegisterOverflow,
@@ -275,7 +278,7 @@ BOOST_AUTO_TEST_CASE(BuildBitstream_OverflowInRegister_ThrowsRegisterOverflow) {
 }
 
 BOOST_AUTO_TEST_CASE(BuildBitstream_NodeNotFoundInPtree_ThrowsPtreeBadPath) {
-    boost::property_tree::ptree pt;
+    ptree pt;
     pt.put("some_register", 0x0);
     std::vector<std::pair<std::string, size_t>> name_size_mapping = { {"not_present", 8} };
     BOOST_CHECK_THROW(nsw::buildBitstream(name_size_mapping, pt), boost::property_tree::ptree_bad_path);
@@ -283,14 +286,14 @@ BOOST_AUTO_TEST_CASE(BuildBitstream_NodeNotFoundInPtree_ThrowsPtreeBadPath) {
 
 BOOST_AUTO_TEST_CASE(BuildPtreeFromVector_ValidInput_CreatesArrayInPtree) {
     std::vector<unsigned int> input = { 10, 94, 795, 585 };
-    const boost::property_tree::ptree pt = nsw::buildPtreeFromVector(input);
-    
+    const ptree pt = nsw::buildPtreeFromVector(input);
+
     // Convert ptree back to vector
     std::vector<unsigned int> converted;
     for (const auto& pair : pt) {
         converted.push_back(pair.second.get_value<unsigned int>());
     }
-    
+
     BOOST_TEST(input == converted);
 }
 

@@ -5,14 +5,9 @@
 
 #include <array>
 #include <vector>
-#include <iostream>
-
-#include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
-
-using boost::property_tree::ptree;
 
 namespace nsw {
   namespace addc {
@@ -75,8 +70,8 @@ namespace nsw {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit ADDCConfig(const ptree& config);
-    ~ADDCConfig() {}
+    explicit ADDCConfig(const boost::property_tree::ptree& config);
+    ~ADDCConfig() = default;
 
     void dump();
 
