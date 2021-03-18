@@ -18,7 +18,7 @@ nsw::ARTConfig::ARTConfig(const ptree& config):
     // std::cout << "ART Constructor!" << std::endl;
 }
 
-int nsw::ARTConfig::register0_test_00() const { 
+int nsw::ARTConfig::register0_test_00() const {
     return m_config.get_child("register0").get<int>("test_00");
 }
 
@@ -35,7 +35,7 @@ std::string nsw::ARTConfig::getOpcNodeId_TP() const {
 }
 
 bool nsw::ARTConfig::failsafe() const {
-    return (bool)(m_config.get<int>("failsafe"));
+    return static_cast<bool>(m_config.get<int>("failsafe"));
 }
 
 int nsw::ARTConfig::TP_GBTxAlignmentBit() const {
@@ -43,7 +43,7 @@ int nsw::ARTConfig::TP_GBTxAlignmentBit() const {
 }
 
 bool nsw::ARTConfig::TP_GBTxAlignmentSkip() const {
-    return (bool)(m_config.get<int>("TP_GBTxAlignmentSkip"));
+    return static_cast<bool>(m_config.get<int>("TP_GBTxAlignmentSkip"));
 }
 
 std::vector<uint> nsw::ARTConfig::TP_GBTxAlignmentCommonPhases() const {
@@ -75,16 +75,16 @@ bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     int boi = TP_GBTxAlignmentBit();
     if (boi < 0)
         throw std::runtime_error("Alignment bit is less than 0: " + std::to_string(boi));
-    if (boi >= (int)(NPhase()))
+    if (boi >= static_cast<int>(NPhase()))
         throw std::runtime_error("Alignment bit is greater than or equal to " + std::to_string(NPhase()) + ": " + std::to_string(boi));
     if (vec.size() != 4)
         throw std::runtime_error("Need a vector of bytes of size=4, but got size = " + std::to_string(vec.size()));
 
-    uint32_t reg32 = ((uint32_t)(vec[0]) << 0*nsw::NUM_BITS_IN_BYTE) +
-                     ((uint32_t)(vec[1]) << 1*nsw::NUM_BITS_IN_BYTE) +
-                     ((uint32_t)(vec[2]) << 2*nsw::NUM_BITS_IN_BYTE) +
-                     ((uint32_t)(vec[3]) << 3*nsw::NUM_BITS_IN_BYTE);
-    return reg32 & (uint32_t)(pow(2, boi));
+    uint32_t reg32 = (static_cast<uint32_t>(vec[0]) << 0*nsw::NUM_BITS_IN_BYTE) +
+                     (static_cast<uint32_t>(vec[1]) << 1*nsw::NUM_BITS_IN_BYTE) +
+                     (static_cast<uint32_t>(vec[2]) << 2*nsw::NUM_BITS_IN_BYTE) +
+                     (static_cast<uint32_t>(vec[3]) << 3*nsw::NUM_BITS_IN_BYTE);
+    return reg32 & static_cast<uint32_t>(pow(2, boi));
 }
 
 std::string nsw::ARTConfig::PhaseToString(uint phase) const {
