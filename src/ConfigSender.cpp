@@ -701,7 +701,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     }
 }
 
-void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
+void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp, bool quiet) {
     auto opc_ip = tp.getOpcServerIp();
     auto tp_address = tp.getAddress();
 
@@ -740,25 +740,29 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
 
     std::vector<uint8_t> entirePayload;
     for (auto header_ele : header) {
-        ERS_LOG("... writing initialization of L1a packet builder options, " <<\
-            header_ele.first << ", " << header_ele.second);
+        if (!quiet)
+            ERS_LOG("... writing initialization of L1a packet builder options, " << \
+                    header_ele.first << ", " << header_ele.second);
         entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
         sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
     }
 
     // Fiber BC Offset. Each bit corresponds to a delay of 1 BC for each fiber.
-    ERS_LOG("... writing fiber BC offset value to reg 0x08: " << tp.FiberBCOffset());
+    if (!quiet)
+        ERS_LOG("... writing fiber BC offset value to reg 0x08: " << tp.FiberBCOffset());
     entirePayload = buildEntireMessageInt("08", tp.FiberBCOffset());
     sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
 
     // Global 0xB knob. An overall global delay for all inputs w.r.t. the TP's FELIX-derived clock
-    ERS_LOG("... writing global input phase value to reg 0x0B: " << tp.GlobalInputPhase());
+    if (!quiet)
+        ERS_LOG("... writing global input phase value to reg 0x0B: " << tp.GlobalInputPhase());
     entirePayload = buildEntireMessageInt("0B", tp.GlobalInputPhase());
     sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
 
     // Global 0xC knob. An overall global delay for half of inputs, in addition to 0xB
     if (tp.GlobalInputOffset() != -1) {
-      ERS_LOG("... writing global input offset value to reg 0x0C: " << tp.GlobalInputOffset());
+      if (!quiet)
+        ERS_LOG("... writing global input offset value to reg 0x0C: " << tp.GlobalInputOffset());
       entirePayload = buildEntireMessageInt("0C", tp.GlobalInputOffset());
       sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
     }

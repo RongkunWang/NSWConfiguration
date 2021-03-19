@@ -81,7 +81,7 @@ class ConfigSender {
     void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
     /// High level send functions
-    void sendTpConfig(nsw::TPConfig& tp);
+    void sendTpConfig(nsw::TPConfig& tp, bool quiet = false);
     void maskTp      (nsw::TPConfig& tp, bool sim = false);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
