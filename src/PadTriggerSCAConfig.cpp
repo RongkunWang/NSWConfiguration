@@ -1,116 +1,120 @@
 //
-// "User": information which is supplied by the user via config file/db
-// "Real": information which is gathered from the board itself
-//
-// July edition
-// conf_ro_bc_offset   <= control_reg(6 downto 0);   -- DEFAULT VALUE "0001000"
-// conf_ro_window_size <= control_reg(10 downto 7);  -- DEFAULT VALUE "0010"
-// conf_bcid_offset    <= control_reg(14 downto 11); -- DEFAULT VALUE "0111"
-//
-// November edition
 // conf_ro_bc_offset   <= control_reg(6 downto 0);   -- DEFAULT VALUE "000 1000"
 // conf_ro_window_size <= control_reg(10 downto 7);  -- DEFAULT VALUE "0010"
 // conf_ro_en          <= control_reg(11);           -- DEFAULT VALUE '0'
 // conf_bcid_offset    <= control_reg(23 downto 12); -- DEFAULT VALUE "0000 0000 0111"
 // conf_startIdleState <= control_reg(24);           -- DEFAULT VALUE '1'
 // conf_ocr_en         <= control_reg(25);           -- DEFAULT VALUE ‘0'
+// conf_ttc_calib      <= control_reg(29 downto 26); -- DEFAULT VALUE ‘0000' HYPOTHESIS
 //
 
 #include <string>
 #include "boost/optional.hpp"
-#include "NSWConfiguration/PadTriggerSCAConfig.h"
-
 #include "boost/property_tree/json_parser.hpp"
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
 
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
     SCAConfig(config)
 {
-    m_UserL1AReadoutLatency = -1;
-    m_UserL1AReadoutNBC     = -1;
-    m_UserL1AReadoutEnable  = -1;
-    m_UserpFEBBCIDOffset    = -1;
-    m_RealControlRegister   = -1;
-    m_RealL1AReadoutLatency = -1;
-    m_RealL1AReadoutNBCMode = -1;
-    m_RealL1AReadoutEnable  = -1;
-    m_RealpFEBBCIDOffset    = -1;
+  m_L1AReadoutLatency = -1;
+  m_L1AReadoutNBC = -1;
+  m_L1AReadoutEnable = -1;
+  m_pFEBBCIDOffset = -1;
+  m_StartIdleState = -1;
+  m_OCREnable = -1;
+  m_TTCCalib = -1;
+  m_LatencyScanStart = -1;
+  m_LatencyScanNBC = -1;
 }
 
 void nsw::PadTriggerSCAConfig::dump() {
     // std::cout << std::endl;
 }
 
-int nsw::PadTriggerSCAConfig::UserControlRegister() const {
-  if (UserL1AReadoutLatency() == -1 ||
-      UserL1AReadoutNBCMode() == -1 ||
-      UserL1AReadoutEnable()  == -1 ||
-      UserpFEBBCIDOffset()    == -1)
-      return -1;
+int nsw::PadTriggerSCAConfig::ControlRegister() const {
   int reg = 0;
-  reg += (UserL1AReadoutLatency() <<  0);
-  reg += (UserL1AReadoutNBCMode() <<  7);
-  // July
-  reg += (UserpFEBBCIDOffset()    << 11);
-  reg += (UserL1AReadoutEnable()  << 15);
-  // November
-  // reg += (UserL1AReadoutEnable()  << 11);
-  // reg += (UserpFEBBCIDOffset()    << 12);
+  if (firmware() == "Pad_ro_ilaro_20200610.bit") {
+    reg += (L1AReadoutLatency() <<  0);
+    reg += (L1AReadoutNBCMode() <<  7);
+    reg += (pFEBBCIDOffset()    << 11);
+    reg += (L1AReadoutEnable()  << 15);
+  } else {
+    reg += (L1AReadoutLatency() <<  0);
+    reg += (L1AReadoutNBCMode() <<  7);
+    reg += (L1AReadoutEnable()  << 11);
+    reg += (pFEBBCIDOffset()    << 12);
+    reg += (StartIdleState()    << 24);
+    reg += (OCREnable()         << 25);
+    reg += (TTCCalib()          << 26);
+  }
   return reg;
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutLatency() const {
-  return (m_UserL1AReadoutLatency != -1) ? m_UserL1AReadoutLatency : m_config.get<int>("L1AReadoutLatency");
+int nsw::PadTriggerSCAConfig::L1AReadoutLatency() const {
+  if (m_L1AReadoutLatency == -1)
+    return m_config.get<int>("L1AReadoutLatency");
+  return m_L1AReadoutLatency;
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutNBC() const {
-  return (m_UserL1AReadoutNBC != -1) ? m_UserL1AReadoutNBC : m_config.get<int>("L1AReadoutNBC");
+int nsw::PadTriggerSCAConfig::L1AReadoutNBC() const {
+  if (m_L1AReadoutNBC == -1)
+    return m_config.get<int>("L1AReadoutNBC");
+  return m_L1AReadoutNBC;
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutNBCMode() const {
-  if (UserL1AReadoutNBC() == -1)
+int nsw::PadTriggerSCAConfig::L1AReadoutNBCMode() const {
+  if (L1AReadoutNBC() == -1)
     return -1;
-  else if (UserL1AReadoutNBC() == 1)
+  else if (L1AReadoutNBC() == 1)
     return 0;
-  else if (UserL1AReadoutNBC() == 2)
+  else if (L1AReadoutNBC() == 2)
     return 1;
-  else if (UserL1AReadoutNBC() == 3)
+  else if (L1AReadoutNBC() == 3)
     return 2;
-  auto msg = "UserL1AReadoutNBCMode is confused by NBC = " + std::to_string(UserL1AReadoutNBC());
+  auto msg = "L1AReadoutNBCMode is confused by NBC = " + std::to_string(L1AReadoutNBC());
   throw std::runtime_error(msg);
 }
 
-int nsw::PadTriggerSCAConfig::UserL1AReadoutEnable() const {
-  return (m_UserL1AReadoutEnable != -1) ? m_UserL1AReadoutEnable : m_config.get<int>("L1AReadoutEnable");
+int nsw::PadTriggerSCAConfig::L1AReadoutEnable() const {
+  if (m_L1AReadoutEnable == -1)
+    return m_config.get<int>("L1AReadoutEnable");
+  return m_L1AReadoutEnable;
 }
 
-int nsw::PadTriggerSCAConfig::UserpFEBBCIDOffset() const {
-  return (m_UserpFEBBCIDOffset != -1) ? m_UserpFEBBCIDOffset : m_config.get<int>("pFEBBCIDOffset");
+int nsw::PadTriggerSCAConfig::pFEBBCIDOffset() const {
+  if (m_pFEBBCIDOffset == -1)
+    return m_config.get<int>("pFEBBCIDOffset");
+  return m_pFEBBCIDOffset;
 }
 
-void nsw::PadTriggerSCAConfig::SetRealControlRegister(int val) {
-  m_RealControlRegister = val;
-  SetRealL1AReadoutLatency( (val >>  0) & 0x7f);
-  SetRealL1AReadoutNBCMode( (val >>  7) & 0x0f);
-  // July
-  SetRealpFEBBCIDOffset(    (val >> 11) & 0x0f);
-  SetRealL1AReadoutEnable(  (val >> 15) & 0x01);
-  // November
-  // SetRealL1AReadoutEnable(  (val >> 11) & 0x01);
-  // SetRealpFEBBCIDOffset(    (val >> 12) & 0xfff);
+int nsw::PadTriggerSCAConfig::StartIdleState() const {
+  if (m_StartIdleState == -1)
+    return m_config.get<int>("StartIdleState");
+  return m_StartIdleState;
 }
 
+int nsw::PadTriggerSCAConfig::OCREnable() const {
+  if (m_OCREnable == -1)
+    return m_config.get<int>("OCREnable");
+  return m_OCREnable;
+}
 
-int nsw::PadTriggerSCAConfig::RealL1AReadoutNBC() const {
-  if (RealL1AReadoutNBCMode() == -1)
-    return -1;
-  else if (RealL1AReadoutNBCMode() == 0)
-    return 1;
-  else if (RealL1AReadoutNBCMode() == 1)
-    return 2;
-  else if (RealL1AReadoutNBCMode() == 2)
-    return 3;
-  auto msg = "RealL1AReadoutNBCMode is confused by NBCMode = " + std::to_string(RealL1AReadoutNBCMode());
-  throw std::runtime_error(msg);
+int nsw::PadTriggerSCAConfig::TTCCalib() const {
+  if (m_TTCCalib == -1)
+    return m_config.get<int>("TTCCalib");
+  return m_TTCCalib;
+}
+
+int nsw::PadTriggerSCAConfig::LatencyScanStart() const {
+  if (m_LatencyScanStart == -1)
+    return m_config.get<int>("LatencyScanStart");
+  return m_LatencyScanStart;
+}
+
+int nsw::PadTriggerSCAConfig::LatencyScanNBC() const {
+  if (m_LatencyScanNBC == -1)
+    return m_config.get<int>("LatencyScanNBC");
+  return m_LatencyScanNBC;
 }
 
 bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
@@ -119,4 +123,12 @@ bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
 
 bool nsw::PadTriggerSCAConfig::ConfigVTTx() const {
   return m_config.get<bool>("ConfigVTTx");
+}
+
+bool nsw::PadTriggerSCAConfig::ConfigControlRegister() const {
+  return m_config.get<bool>("ConfigControlRegister");
+}
+
+std::string nsw::PadTriggerSCAConfig::firmware() const {
+  return m_config.get<std::string>("firmware");
 }
