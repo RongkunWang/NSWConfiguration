@@ -62,6 +62,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   tp_comm_test
   mmtp_loopback_test
   configure_tp
+  mask_tp
   )
 
 ## Executables linked against nswconfig and Boost::program_options, but renamed to nsw_<X>
