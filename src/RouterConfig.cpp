@@ -18,6 +18,10 @@ bool nsw::RouterConfig::CrashOnConfigFailure() const {
     return m_config.get<bool>("CrashOnConfigFailure");
 }
 
+std::string nsw::RouterConfig::Sector() const {
+    return m_config.get<std::string>("Sector");
+}
+
 uint8_t nsw::RouterConfig::id() const {
   //
   // Convert name to 8-bit ID
@@ -38,30 +42,32 @@ uint8_t nsw::RouterConfig::id() const {
 }
 
 uint8_t nsw::RouterConfig::id_endcap() const {
-  // Router_XYY_LZ -> X
-  auto addr = getAddress();
-  auto result = addr.substr(7, 1);
+  // XYY -> X
+  // A12 -> A, e.g.
+  auto sect = Sector();
+  auto result = sect.substr(0, 1);
   if (result != "A" && result != "C")
     id_crash();
   return result == "A" ? 0 : 1;
 }
 
 uint8_t nsw::RouterConfig::id_sector() const {
-  // Router_XYY_LZ -> YY
-  auto addr = getAddress();
-  auto result = std::stoi(addr.substr(8, 2));
+  // XYY -> YY
+  // A12 -> 12, e.g.
+  auto sect = Sector();
+  auto result = std::stoi(sect.substr(1, 2));
   if (result < 1 || result > 16)
     id_crash();
-  return (uint8_t)(result - 1);
+  return static_cast<uint8_t>(result - 1);
 }
 
 uint8_t nsw::RouterConfig::id_layer() const {
-  // Router_XYY_LZ -> Z
+  // Router_LZ -> Z
   auto addr = getAddress();
-  auto result = std::stoi(addr.substr(12, 1));
+  auto result = std::stoi(addr.substr(8, 1));
   if (result < 0 || result > 7)
     id_crash();
-  return (uint8_t)(result);
+  return static_cast<uint8_t>(result);
 }
 
 void nsw::RouterConfig::id_check() const {
@@ -70,7 +76,7 @@ void nsw::RouterConfig::id_check() const {
     id_crash();
   if (addr.substr(0, 7) != "Router_")
     id_crash();
-  if (addr.substr(11, 1) != "L")
+  if (addr.substr(7, 1) != "L")
     id_crash();
 }
 

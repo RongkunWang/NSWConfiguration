@@ -22,6 +22,7 @@ class RouterConfig: public SCAConfig {
 
     bool CrashOnClkReadyFailure() const;
     bool CrashOnConfigFailure() const;
+    std::string Sector() const;
     void dump() const;
 
     uint8_t id() const;
@@ -32,11 +33,14 @@ class RouterConfig: public SCAConfig {
     void id_crash() const;
 
  private:
-    // NAMING CONVENTION: Router_XYY_LZ
+    // NAMING CONVENTION:
+    // Name: Router_LZ
+    // Sector: XYY
+    // ---------------
     // Endcap: X = A,C
     // Sector: YY = 01, 02, ..., 16
     // Layer:  Z = 0, 1, ..., 7
-    std::string convention = "Router_XYY_LZ";
+    std::string convention = "Router_LZ";
     std::string name_error = "This Router doesnt follow the naming convention";
 
 };
