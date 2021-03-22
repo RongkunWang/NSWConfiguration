@@ -24,6 +24,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     ~PadTriggerSCAConfig() {}
 
     void dump();
+    std::string firmware() const;
     bool ConfigRepeaters() const;
     bool ConfigVTTx() const;
     bool ConfigControlRegister() const;

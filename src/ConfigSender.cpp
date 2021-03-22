@@ -675,6 +675,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
                 if (total_glitches > 0)
                     reset += 1 << (uint32_t)(ipll);
             }
+            usleep(1e6);
             ERS_INFO("alignAddcGbtxTp Reset word = " << reset);
 
             // the moment of truth
@@ -700,7 +701,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     }
 }
 
-void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
+void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp, bool quiet) {
     auto opc_ip = tp.getOpcServerIp();
     auto tp_address = tp.getAddress();
 
@@ -739,26 +740,37 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
 
     std::vector<uint8_t> entirePayload;
     for (auto header_ele : header) {
-        ERS_LOG("... writing initialization of L1a packet builder options, " <<\
-            header_ele.first << ", " << header_ele.second);
+        if (!quiet)
+            ERS_LOG("... writing initialization of L1a packet builder options, " << \
+                    header_ele.first << ", " << header_ele.second);
         entirePayload = buildEntireMessage(header_ele.first, header_ele.second);
         sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
     }
 
     // Fiber BC Offset. Each bit corresponds to a delay of 1 BC for each fiber.
-    ERS_LOG("... writing fiber BC offset value to reg 0x08: " << tp.FiberBCOffset());
+    if (!quiet)
+        ERS_LOG("... writing fiber BC offset value to reg 0x08: " << tp.FiberBCOffset());
     entirePayload = buildEntireMessageInt("08", tp.FiberBCOffset());
     sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
 
     // Global 0xB knob. An overall global delay for all inputs w.r.t. the TP's FELIX-derived clock
-    ERS_LOG("... writing global input phase value to reg 0x0B: " << tp.GlobalInputPhase());
+    if (!quiet)
+        ERS_LOG("... writing global input phase value to reg 0x0B: " << tp.GlobalInputPhase());
     entirePayload = buildEntireMessageInt("0B", tp.GlobalInputPhase());
     sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
 
     // Global 0xC knob. An overall global delay for half of inputs, in addition to 0xB
     if (tp.GlobalInputOffset() != -1) {
-      ERS_LOG("... writing global input offset value to reg 0x0C: " << tp.GlobalInputOffset());
+      if (!quiet)
+        ERS_LOG("... writing global input offset value to reg 0x0C: " << tp.GlobalInputOffset());
       entirePayload = buildEntireMessageInt("0C", tp.GlobalInputOffset());
+      sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
+    }
+
+    // Self-trigger delay
+    if (tp.SelfTriggerDelay() != -1) {
+      ERS_LOG("... writing self-trigger delay value to reg 0x21: " << tp.SelfTriggerDelay());
+      entirePayload = buildEntireMessageInt("21", tp.SelfTriggerDelay());
       sendI2cRaw(opc_ip, tp_address, entirePayload.data(), entirePayload.size() );
     }
 
@@ -793,6 +805,146 @@ void nsw::ConfigSender::sendTpConfig(nsw::TPConfig& tp) {
 //             sendI2cRaw(opc_ip, address, data.data(), data.size());
 //         }
 //     }
+}
+
+void nsw::ConfigSender::maskTp(nsw::TPConfig& tp, bool sim) {
+
+  auto opc_ip = tp.getOpcServerIp();
+  auto tp_address = tp.getAddress();
+  ERS_INFO("maskTp: " << opc_ip);
+
+  constexpr uint32_t fiber_hot_mux     = 0x0d;
+  constexpr uint32_t fiber_hot_read    = 0x0e;
+  constexpr uint32_t fiber_mask_mux    = 0x1c;
+  constexpr uint32_t fiber_mask_write  = 0x1d;
+  constexpr uint32_t pipeline_overflow = 0x20;
+  constexpr uint32_t fiber_n           = 32;
+  constexpr uint32_t vmm_n             = 32;
+  constexpr uint32_t sleep_us          = 5e4;
+  constexpr uint32_t attempts_min      = 5;
+  auto hot_read_vec = nsw::intToByteVector(fiber_hot_read,    4, true);
+  auto overflow_vec = nsw::intToByteVector(pipeline_overflow, 4, true);
+  std::vector<uint8_t> readback;
+  uint32_t overflow_word = 0;
+
+  auto build = [](uint32_t tmp_addr, int tmp_message) {
+    std::vector<uint8_t> tmp_data = nsw::intToByteVector(tmp_message, 4, true );
+    std::vector<uint8_t> tmp_addrVec = nsw::intToByteVector(tmp_addr, 4, true);
+    std::vector<uint8_t> tmp_entirePayload(tmp_addrVec);
+    tmp_entirePayload.insert(tmp_entirePayload.end(), tmp_data.begin(), tmp_data.end() );
+    return tmp_entirePayload;
+  };
+
+  // unmask all fibers, all VMM
+  std::cout << "Unmasking all VMM" << std::endl;
+  for (uint32_t fiber = 0; fiber < fiber_n; fiber++) {
+    auto msg_mask_none = build(fiber_mask_write, 0x0);
+    if (!sim)
+      sendI2c(opc_ip, tp_address, msg_mask_none);
+  }
+  usleep(sleep_us * 10);
+
+  // read L1A pipeline overflow register
+  // the write-command triggers register update
+  // only 4 LSB are relevant
+  auto msg_overflow_write = build(pipeline_overflow, 0x0);
+  if (!sim) {
+    sendI2c(opc_ip, tp_address, msg_overflow_write);
+    readback = readI2cAtAddress(opc_ip, tp_address, overflow_vec.data(), overflow_vec.size(), 4);
+  } else {
+    readback = std::vector<uint8_t>(4);
+  }
+  overflow_word = static_cast<uint32_t>(readback.at(0));
+  std::cout << "Overflow word: 0b" << std::bitset<8>(overflow_word) << std::endl;
+
+  // loop over input fibers
+  std::vector<uint32_t> final_mask;
+  for (uint32_t fiber = 0; fiber < fiber_n; fiber++) {
+
+    // setting the fiber of interest
+    auto msg_hot_mux  = build(fiber_hot_mux,  fiber);
+    auto msg_mask_mux = build(fiber_mask_mux, fiber);
+    if (!sim) {
+      sendI2c(opc_ip, tp_address, msg_hot_mux);
+      sendI2c(opc_ip, tp_address, msg_mask_mux);
+    }
+    ERS_INFO("maskTp: " << opc_ip << " fiber " << fiber);
+    std::cout << "Fiber " << fiber << std::endl;
+
+    // unmask all VMM
+    auto msg_mask_none = build(fiber_mask_write, 0x0);
+    if (!sim)
+      sendI2c(opc_ip, tp_address, msg_mask_none);
+
+    // mask until none are hot
+    uint32_t attempts     = 0;
+    uint32_t fiber_mask   = 0;
+    uint32_t fiber_hot    = 0xffff;
+    while (attempts < attempts_min || fiber_hot > 0) {
+
+      // read hot
+      std::vector<uint8_t> readback;
+      if (!sim) {
+        readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
+        fiber_hot = (static_cast<uint32_t>(readback[0]) <<  0) + \
+                    (static_cast<uint32_t>(readback[1]) <<  8) + \
+                    (static_cast<uint32_t>(readback[2]) << 16) + \
+                    (static_cast<uint32_t>(readback[3]) << 24);
+      } else {
+        readback  = std::vector<uint8_t>(4);
+        fiber_hot = pow(2, attempts*8);
+      }
+      std::cout << "Hot VMM (before): " << std::bitset<vmm_n>(fiber_hot) << std::endl;
+
+      // mask some
+      fiber_mask |= fiber_hot;
+      auto msg_mask_some = build(fiber_mask_write, fiber_mask);
+      if (!sim)
+        sendI2c(opc_ip, tp_address, msg_mask_some);
+      usleep(sleep_us);
+      std::cout << "Mask VMM        : " << std::bitset<vmm_n>(fiber_mask) << std::endl;
+
+      // read hot again
+      if (!sim) {
+        readback = readI2cAtAddress(opc_ip, tp_address, hot_read_vec.data(), hot_read_vec.size(), 4);
+        fiber_hot = (static_cast<uint32_t>(readback[0]) <<  0) + \
+                    (static_cast<uint32_t>(readback[1]) <<  8) + \
+                    (static_cast<uint32_t>(readback[2]) << 16) + \
+                    (static_cast<uint32_t>(readback[3]) << 24);
+      } else {
+        readback = std::vector<uint8_t>(4);
+        fiber_hot = pow(2, (attempts+1)*8);
+      }
+      std::cout << "Hot VMM (after) : " << std::bitset<vmm_n>(fiber_hot) << std::endl;
+      std::cout << "Done with attempt " << attempts << std::endl;
+
+      attempts++;
+    }
+
+    final_mask.push_back(fiber_mask);
+
+  }
+
+  // announce the chosen masks
+  for (uint32_t fiber = 0; fiber < fiber_n; fiber++) {
+    std::cout << "Mask = " << std::bitset<vmm_n>(final_mask.at(fiber)) << " for fiber " << fiber << std::endl;
+  }
+
+  // read L1A pipeline overflow register a few more times
+  // hopefully it is zero!
+  for (int it = 0; it < 5; it++) {
+    if (!sim) {
+      sendI2c(opc_ip, tp_address, msg_overflow_write);
+      readback = readI2cAtAddress(opc_ip, tp_address, overflow_vec.data(), overflow_vec.size(), 4);
+    } else {
+      readback = std::vector<uint8_t>(4);
+    }
+    overflow_word = static_cast<uint32_t>(readback.at(0));
+    std::cout << "Overflow word: 0b" << std::bitset<8>(overflow_word) << std::endl;
+    usleep(sleep_us * 10);
+  }
+  ERS_INFO("maskTp: " << opc_ip << " done");
+
 }
 
 uint32_t nsw::ConfigSender::readPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig & obj) {

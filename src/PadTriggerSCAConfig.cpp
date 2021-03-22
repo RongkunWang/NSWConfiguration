@@ -23,6 +23,8 @@ nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
   m_StartIdleState = -1;
   m_OCREnable = -1;
   m_TTCCalib = -1;
+  m_LatencyScanStart = -1;
+  m_LatencyScanNBC = -1;
 }
 
 void nsw::PadTriggerSCAConfig::dump() {
@@ -31,13 +33,20 @@ void nsw::PadTriggerSCAConfig::dump() {
 
 int nsw::PadTriggerSCAConfig::ControlRegister() const {
   int reg = 0;
-  reg += (L1AReadoutLatency() <<  0);
-  reg += (L1AReadoutNBCMode() <<  7);
-  reg += (L1AReadoutEnable()  << 11);
-  reg += (pFEBBCIDOffset()    << 12);
-  reg += (StartIdleState()    << 24);
-  reg += (OCREnable()         << 25);
-  reg += (TTCCalib()          << 26);
+  if (firmware() == "Pad_ro_ilaro_20200610.bit") {
+    reg += (L1AReadoutLatency() <<  0);
+    reg += (L1AReadoutNBCMode() <<  7);
+    reg += (pFEBBCIDOffset()    << 11);
+    reg += (L1AReadoutEnable()  << 15);
+  } else {
+    reg += (L1AReadoutLatency() <<  0);
+    reg += (L1AReadoutNBCMode() <<  7);
+    reg += (L1AReadoutEnable()  << 11);
+    reg += (pFEBBCIDOffset()    << 12);
+    reg += (StartIdleState()    << 24);
+    reg += (OCREnable()         << 25);
+    reg += (TTCCalib()          << 26);
+  }
   return reg;
 }
 
@@ -118,4 +127,8 @@ bool nsw::PadTriggerSCAConfig::ConfigVTTx() const {
 
 bool nsw::PadTriggerSCAConfig::ConfigControlRegister() const {
   return m_config.get<bool>("ConfigControlRegister");
+}
+
+std::string nsw::PadTriggerSCAConfig::firmware() const {
+  return m_config.get<std::string>("firmware");
 }
