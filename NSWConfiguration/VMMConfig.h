@@ -10,7 +10,7 @@
 
 #include "NSWConfiguration/VMMCodec.h"
 
-using boost::property_tree::ptree;
+#include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   NoSuchVmmRegister,
@@ -37,11 +37,11 @@ class VMMConfig {
     VMMCodec& codec = VMMCodec::Instance();
     std::string m_bitstring;  // Config information as a string of 0/1s
     std::string name;         // Name of the element (vmm0,vmm1,vmm2 ...)
-    ptree m_config;
+    boost::property_tree::ptree m_config;
 
  public:
-    explicit VMMConfig(const ptree& vmmconfig);
-    ~VMMConfig() {}
+    explicit VMMConfig(const boost::property_tree::ptree& vmmconfig);
+    ~VMMConfig() = default;
 
     std::vector<uint8_t> getByteVector() const;  /// Create a vector of bytes
 

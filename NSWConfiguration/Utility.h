@@ -13,11 +13,18 @@
 #include <utility>
 #include <set>
 
-#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/ptree_fwd.hpp"
+// https://stackoverflow.com/a/9433783
+// namespace boost::property_tree {
+//   template <class Key, class Data, class KeyCompare>
+//   class basic_ptree;
 
-#include "ers/ers.h"
+//   typedef basic_ptree<std::string, std::string, std::less<std::string> > ptree;
+// }
 
-using boost::property_tree::ptree;
+#include "NSWConfiguration/Constants.h"
+
+#include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   RegisterOverflow,
@@ -52,7 +59,7 @@ std::string reversedBitString(unsigned value, size_t nbits);
 template<size_t N>
 std::string bitsetToHexString(const std::bitset<N>& b) {
     std::ostringstream ss;
-    for (int i=N-8; i >= 0; i=i-8) {
+    for (int i=N-NUM_BITS_IN_BYTE; i >= 0; i=i-NUM_BITS_IN_BYTE) {
         auto val = std::bitset<N>(0xff) & (b >> i);
         ss << std::hex << std::setfill('0') << std::setw(2) << val.to_ulong();
     }
@@ -77,10 +84,10 @@ std::string vectorToBitString(std::vector<uint8_t> vec, bool littleEndian = fals
 
 
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
-std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const ptree& config);
+std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const boost::property_tree::ptree& config);
 
 /// Converts vector to ptree
-ptree buildPtreeFromVector(const std::vector<unsigned>& channelarray);
+boost::property_tree::ptree buildPtreeFromVector(const std::vector<unsigned>& channelarray);
 
 /// Strips string "_READONLY" from end of string, used for i2c addresses
 std::string stripReadonly(std::string str);
@@ -94,7 +101,7 @@ std::string guessSector(const std::string& str);
 /// \param pt input ptree
 /// \param current_node Current ptree node we are at, required for recursive calls
 /// \return set of matched elements. Each element has the full path of each node
-std::set<std::string> matchRegexpInPtree(const std::string& regexp, const ptree& pt,
+std::set<std::string> matchRegexpInPtree(const std::string& regexp, const boost::property_tree::ptree& pt,
     const std::string& current_node = "");
 
 }  // namespace nsw

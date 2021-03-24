@@ -1,13 +1,15 @@
-#include <map>
-#include <string>
+#include "NSWConfiguration/VMMCodec.h"
+
 #include <exception>
-#include <vector>
 #include <algorithm>
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/VMMCodec.h"
 #include "NSWConfiguration/Utility.h"
+
+#include "boost/property_tree/ptree.hpp"
+
+using boost::property_tree::ptree;
 
 constexpr size_t nsw::VMMCodec::NBITS_TOTAL;
 constexpr size_t nsw::VMMCodec::NBITS_GLOBAL;
@@ -117,6 +119,10 @@ nsw::VMMCodec::VMMCodec() {
     for (auto m : m_bitreversed_registers) {
         ERS_DEBUG(1, m);
     }
+}
+
+nsw::VMMCodec::~VMMCodec() {
+    ERS_DEBUG(1, "Destroying VMMCodec");
 }
 
 nsw::VMMCodec& nsw::VMMCodec::Instance() {

@@ -1,16 +1,14 @@
-#include <memory>
-#include <string>
-#include <vector>
+#include "NSWConfiguration/ConfigSender.h"
+
+#include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/ConfigConverter.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/ConfigConverter.h"
-
 #include "boost/property_tree/ptree.hpp"
-using boost::property_tree::ptree;
 
+using boost::property_tree::ptree;
 
 nsw::ConfigSender::ConfigSender() {
 }
@@ -45,22 +43,18 @@ uint8_t nsw::ConfigSender::readBackRoc(const std::string& opcserver_ipport, cons
 
 uint8_t nsw::ConfigSender::readBackRocDigital(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
     // FIXME: Why do we have to call it twice?
-    const unsigned int sclLine{17};
-    const unsigned int sdaLine{18};
     const unsigned int delay{2};
     const auto fullNode = node + ".gpio.bitBanger";
-    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
-    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    readBackRoc(opcserver_ipport, fullNode, nsw::roc::digital::SCL_LINE_PIN, nsw::roc::digital::SDA_LINE_PIN, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::digital::SCL_LINE_PIN, nsw::roc::digital::SDA_LINE_PIN, registerAddress, delay);
 }
 
 uint8_t nsw::ConfigSender::readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
     // FIXME: Why do we have to call it twice?
-    const unsigned int sclLine{19};
-    const unsigned int sdaLine{20};
     const unsigned int delay{2};
     const auto fullNode = node + ".gpio.bitBanger";
-    readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
-    return readBackRoc(opcserver_ipport, fullNode, sclLine, sdaLine, registerAddress, delay);
+    readBackRoc(opcserver_ipport, fullNode, nsw::roc::analog::SCL_LINE_PIN, nsw::roc::analog::SDA_LINE_PIN, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::analog::SCL_LINE_PIN, nsw::roc::analog::SDA_LINE_PIN, registerAddress, delay);
 }
 
 void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {
@@ -324,7 +318,7 @@ void nsw::ConfigSender::sendTdsConfig(const std::string& opc_ip, const std::stri
       std::string address_to_read("register14");
       std::string tds_i2c_address("register14_READONLY");
 
-      auto size_in_bytes = tdss.getTotalSize(tds_i2c_address) / 8;
+      auto size_in_bytes = tdss.getTotalSize(tds_i2c_address) / NUM_BITS_IN_BYTE;
       std::string full_node_name = sca_address + "." + tdss.getName()  + "." + address_to_read;
       auto dataread = readI2c(opc_ip, full_node_name , size_in_bytes);
       tdss.decodeVector(tds_i2c_address, dataread);
@@ -1203,7 +1197,7 @@ void nsw::ConfigSender::sendRouterSetSCAID(const nsw::RouterConfig& obj) {
              << " = 0b" << id_sector_str << id_layer_str << id_endcap_str
              << " = 0x" << std::hex << scaid << std::dec
              << " = "   << scaid);
-    for (int bit = 0; bit < 8; bit++) {
+    for (std::size_t bit = 0; bit < NUM_BITS_IN_BYTE; bit++) {
       bool this_bit = ((scaid >> bit) & 0b1);
       auto gpio = sca_addr + ".gpio.routerId" + std::to_string(bit);
       sendGPIO(opc_ip, gpio, this_bit);

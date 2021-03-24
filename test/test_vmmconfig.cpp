@@ -15,6 +15,8 @@
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/VMMCodec.h"
 
+using boost::property_tree::ptree;
+
 BOOST_AUTO_TEST_CASE(GetChannelRegisterOneChannel_CorrectChannelAndRegister_ReturnsChannelRegisterValue) {
     ptree config;
     boost::property_tree::read_json("test_vmm.json", config);

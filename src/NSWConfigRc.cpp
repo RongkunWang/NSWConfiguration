@@ -1,12 +1,16 @@
-#include <utility>  // make_pair
+#include "NSWConfiguration/NSWConfigRc.h"
+
+#include <utility>
 #include <string>
 #include <memory>
 
 // Header to the RC online services
 #include "RunControl/Common/OnlineServices.h"
+#include "RunControl/Common/RunControlCommands.h"
 
-#include "NSWConfiguration/NSWConfigRc.h"
 #include "NSWConfigurationDal/NSWConfigApplication.h"
+
+#include "ers/ers.h"
 
 nsw::NSWConfigRc::NSWConfigRc(bool simulation):m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfigRc instance");

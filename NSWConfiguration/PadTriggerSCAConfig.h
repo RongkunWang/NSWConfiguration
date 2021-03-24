@@ -5,10 +5,8 @@
 
 #include <vector>
 #include <iostream>
-#include "boost/property_tree/ptree.hpp"
-#include "NSWConfiguration/SCAConfig.h"
 
-using boost::property_tree::ptree;
+#include "NSWConfiguration/SCAConfig.h"
 
 namespace nsw {
 
@@ -20,8 +18,8 @@ class PadTriggerSCAConfig: public SCAConfig {
     //! Constructor.
     //! The ptree in the argument should contain
     //! - OpcServerIp, OpcNodeId
-    explicit PadTriggerSCAConfig(const ptree& config);
-    ~PadTriggerSCAConfig() {}
+    explicit PadTriggerSCAConfig(const boost::property_tree::ptree& config);
+    ~PadTriggerSCAConfig() = default;
 
     void dump();
     std::string firmware() const;

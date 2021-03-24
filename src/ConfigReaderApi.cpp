@@ -1,16 +1,19 @@
+#include "NSWConfiguration/ConfigReaderApi.h"
+
+#include "NSWConfiguration/Utility.h"
+
 #include <memory>
 #include <vector>
 #include <exception>
-#include <string>
 #include <regex>
-#include <set>
-
-#include "boost/foreach.hpp"
 
 #include "ers/ers.h"
 
-#include "NSWConfiguration/ConfigReaderApi.h"
-#include "NSWConfiguration/Utility.h"
+#include "boost/foreach.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/xml_parser.hpp"
+
+using boost::property_tree::ptree;
 
 ptree ConfigReaderApi::read(const std::string& element) {
     if (nsw::getElementType(element) == "MMFE8") {
@@ -153,7 +156,7 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
 
     // VMM
     // If the configuation has more than expected vmms, remove them
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < nsw::MAX_NUMBER_OF_VMM; i++) {
         if (i >= vmm_start && i < nvmm) continue;
         std::string vmmname = "vmm" + std::to_string(i);
         if (feb.get_child_optional(vmmname)) {  // If node exists
@@ -177,7 +180,7 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
 
     // TDS
     // If the configuation has more than expected tds, remove them
-    for (size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < nsw::MAX_NUMBER_OF_TDS; i++) {
         if (i >= tds_start && i < ntds) continue;
         std::string tdsname = "tds" + std::to_string(i);
         if (feb.get_child_optional(tdsname)) {  // If node exists

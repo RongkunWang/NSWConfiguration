@@ -10,6 +10,7 @@
 #include "ers/ers.h"
 
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/Constants.h"
 
 // Generated (UaoClientForOpcUaSca/include) files
 #include "SpiSlave.h"
@@ -29,7 +30,7 @@ nsw::OpcClient::OpcClient(const std::string& server_ip_port): m_server_ipport(se
     std::string opc_connection = "opc.tcp://" + server_ip_port;
 
     m_session = std::make_unique<UaClientSdk::UaSession>();
-    m_sessionConnectInfo.internalServiceCallTimeout = 60000;
+    m_sessionConnectInfo.internalServiceCallTimeout = OPC_SERVICE_TIMEOUT;
 
     // TODO(cyildiz): Handle connection exceptions
     UaStatus status = m_session->connect(
@@ -90,7 +91,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
     UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
 
     ioBatch.addSetPins( { { scl, true }, { sda, true } } );
-    ioBatch.addSetPinsDirections( { { scl, UaoClientForOpcUaSca::IoBatch::OUTPUT }, { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } }, 10 );
+    ioBatch.addSetPinsDirections( { { scl, UaoClientForOpcUaSca::IoBatch::OUTPUT }, { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } }, GPIO_PIN_DELAY );
 
     ioBatch.addSetPins( { { scl, true }, { sda, true } }, i2cDelay );
     ioBatch.addSetPins( { { sda, false } }, i2cDelay );
@@ -98,7 +99,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 
     uint8_t byte = 0xF1;
 
-    for (auto i = 0; i < 8; ++i) {
+    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
 
       if ( byte & 0x80 ) {
         ioBatch.addSetPins( { { sda, true } } );
@@ -119,7 +120,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
     ioBatch.addSetPins( { { scl, false } }, i2cDelay );
     ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
 
-    for (auto i = 0; i < 8; ++i) {
+    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
       if ( registerAddress & 0x80 ) {
         ioBatch.addSetPins( { { sda, true } } );
       } else {
@@ -141,7 +142,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 
     ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
 
-    for (auto i = 0; i < 8; ++i) {
+    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
         ioBatch.addSetPins( { { scl, true } }, i2cDelay );
         ioBatch.addGetPins();
         ioBatch.addSetPins( { { scl, false } }, i2cDelay );
@@ -157,15 +158,15 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
     ioBatch.addSetPins( { { scl, true } }, i2cDelay );
     ioBatch.addSetPins( { { sda, true } }, i2cDelay );
 
-    auto interestingPinSda = UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
+    const auto interestingPinSda = UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
 
-    std::bitset<8> registerValue;
+    std::bitset<ROC_REGISTER_SIZE> registerValue;
 
-    for ( auto i = 0; i < 8; ++i ) {
-        registerValue[7-i] = interestingPinSda[i+2];
+    for ( auto i = 0; i < ROC_REGISTER_SIZE; ++i ) {
+        registerValue[ROC_REGISTER_SIZE-1-i] = interestingPinSda[i+2];
     }
 
-    return (uint8_t)(registerValue.to_ulong());
+    return static_cast<uint8_t>(registerValue.to_ulong());
 }
 
 

@@ -1,14 +1,10 @@
-#include <string>
-#include <utility>
-#include <vector>
+#include "NSWConfiguration/VMMConfig.h"
 
-#include "boost/property_tree/ptree.hpp"
+#include "NSWConfiguration/Utility.h"
+
+#include <utility>
 
 #include "ers/ers.h"
-
-#include "NSWConfiguration/VMMCodec.h"
-#include "NSWConfiguration/VMMConfig.h"
-#include "NSWConfiguration/Utility.h"
 
 using boost::property_tree::ptree;
 

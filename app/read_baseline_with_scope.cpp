@@ -6,14 +6,15 @@
 #include <map>
 #include <set>
 #include <numeric>
-#include <ctime> 
-#include <chrono> 
+#include <ctime>
+#include <chrono>
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
 #include "boost/program_options.hpp"
+#include "boost/format.hpp"
 
 namespace po  = boost::program_options;
 namespace chr = std::chrono;
@@ -93,7 +94,7 @@ int main(int ac, const char *av[]) {
     for (auto & name : frontend_names) {
       try {
         frontend_configs.emplace_back(reader1.readConfig(name));
-      } 
+      }
       catch (std::exception & e) {
         std::cout << name << " - ERROR: Skipping this FE!"
                   << " - Problem constructing configuration due to : " << e.what() << std::endl;
@@ -153,7 +154,7 @@ int main(int ac, const char *av[]) {
                           << " " << channel_id
                           << " " << tpdac
                           << " " << thdac
-                          << " " << channel_trim 
+                          << " " << channel_trim
                           << " " << result
                           << std::endl;
             }
@@ -170,9 +171,9 @@ int main(int ac, const char *av[]) {
           std::string n_screens  = " -n " + std::to_string(scope_n);
           std::string sc_channel = " -c " + std::to_string(scope_channel);
           std::string overwrite  = scope_overwrite ? " -r " : "";
-          std::string outputfile = "scope_" + feb.getAddress() 
-            + "_VMM_" + std::to_string(vmm_id) 
-            + "_CH_"  + ch_fmt.str() 
+          std::string outputfile = "scope_" + feb.getAddress()
+            + "_VMM_" + std::to_string(vmm_id)
+            + "_CH_"  + ch_fmt.str()
             + ".dat";
           std::string output_ops = " -o " + outputfile;
           std::string ops        = n_screens + sc_channel + overwrite + output_ops;
@@ -203,4 +204,3 @@ int main(int ac, const char *av[]) {
 
     return 0;
 }
-

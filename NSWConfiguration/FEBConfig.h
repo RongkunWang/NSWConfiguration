@@ -3,22 +3,13 @@
 #ifndef NSWCONFIGURATION_FEBCONFIG_H_
 #define NSWCONFIGURATION_FEBCONFIG_H_
 
-#include <bitset>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <map>
-#include <utility>
-
-#include "boost/property_tree/ptree.hpp"
 
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
-#include "NSWConfiguration/I2cRegisterMappings.h"
-
-using boost::property_tree::ptree;
 
 namespace nsw {
 
@@ -44,8 +35,8 @@ class FEBConfig: public SCAConfig {
     //! - rocPllCoreAnalog, rocCoreDigital
     //! - Multiple vmm instances named vmm0 to vmmN
     //! - Multiple tds instances named tds0 to tdsN (optional)
-    explicit FEBConfig(const ptree& config);
-    ~FEBConfig() {}
+    explicit FEBConfig(const boost::property_tree::ptree& config);
+    ~FEBConfig() = default;
 
     void dump() const;
 

@@ -16,8 +16,6 @@
 // From UaoForQuasar (UaoClientForOpcUaSca/include)
 #include "ClientSessionFactory.h"
 
-#include "NSWConfiguration/OpcClient.h"
-
 // Throw this if constructor fails
 ERS_DECLARE_ISSUE(nsw,
                   OpcConnectionIssue,
@@ -36,6 +34,11 @@ ERS_DECLARE_ISSUE(nsw,
                   ((std::string) message)  // Describe the problem or forward the message that comes from downstream
                   )
 
+namespace nsw::gpio::roc {
+  enum class ROCGPIOPins {
+  };
+}
+
 namespace nsw {
 
 class OpcClient {
@@ -47,14 +50,23 @@ class OpcClient {
     UaClientSdk::SessionSecurityInfo m_security;
     UaClientSdk::SessionConnectInfo m_sessionConnectInfo;
 
- public:
+    /// Timeout set on internalServiceCallTimeout
+    static constexpr std::size_t OPC_SERVICE_TIMEOUT = 60000;
+
+    /// Delay for certain GPIO pin transactions
+    static constexpr std::size_t GPIO_PIN_DELAY = 10;
+
+    /// Used when looping over bytes
+    static constexpr std::size_t ROC_REGISTER_SIZE = 8;
+
+public:
     /// Initialize Opc Platform Layer and creates a UaSession
     explicit OpcClient(const std::string& server_ip_port);
     ~OpcClient();
 
     OpcClient(const OpcClient&) = delete;
 
-    static constexpr size_t MAX_RETRY  = 5;
+    static constexpr std::size_t MAX_RETRY  = 5;
 
     // vector may not be the best option...
 

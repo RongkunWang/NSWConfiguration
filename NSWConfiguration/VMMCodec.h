@@ -5,19 +5,14 @@
 #ifndef NSWCONFIGURATION_VMMCODEC_H_
 #define NSWCONFIGURATION_VMMCODEC_H_
 
-#include <iostream>
 #include <vector>
 #include <map>
 #include <string>
 #include <utility>
 
-#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/ptree_fwd.hpp"
 
-#include "ers/ers.h"
-
-#include "NSWConfiguration/Utility.h"
-
-using boost::property_tree::ptree;
+#include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   MissingVmmRegister,
@@ -45,24 +40,24 @@ class VMMCodec {
     static constexpr size_t NBITS_CHANNEL = 24 * NCHANNELS;  /// Size of channel registers
     static constexpr size_t NBITS_TOTAL = NBITS_CHANNEL + 2*NBITS_GLOBAL;  /// total number of bits
 
-    std::string buildConfig(const ptree& config) const;
+    std::string buildConfig(const boost::property_tree::ptree& config) const;
 
     bool globalRegisterExists(const std::string& register_name) const;
     bool channelRegisterExists(const std::string& register_name) const;
 
     /// Creates a vector for each channel register, such that element ["channel_sd"][4] is sd value for 4th channel
-    std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(ptree config) const;
+    std::map<std::string, std::vector<unsigned>> buildChannelRegisterMap(boost::property_tree::ptree config) const;
 
  private:
     /// Private VMMCodec for singleton class
     VMMCodec();
-    ~VMMCodec() { ERS_DEBUG(1, "Destroying VMMCodec");}
+   ~VMMCodec();
 
-    std::string buildGlobalConfig(const ptree& config, GlobalRegisters type) const;
+    std::string buildGlobalConfig(const boost::property_tree::ptree& config, GlobalRegisters type) const;
 
-    std::string buildGlobalConfig0(const ptree& config) const;
-    std::string buildGlobalConfig1(const ptree& config) const;
-    std::string buildChannelConfig(const ptree& config) const;
+    std::string buildGlobalConfig0(const boost::property_tree::ptree& config) const;
+    std::string buildGlobalConfig1(const boost::property_tree::ptree& config) const;
+    std::string buildChannelConfig(const boost::property_tree::ptree& config) const;
 
     // void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
 

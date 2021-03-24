@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <thread>
@@ -13,6 +14,7 @@
 #include "NSWConfiguration/Utility.h"
 #include "boost/program_options.hpp"
 #include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 #include "ALTI/AltiModule.h"
 #include "ALTI/AltiConfiguration.h"
 #include "RCDVme/RCDCmemSegment.h"
@@ -332,14 +334,14 @@ pt::ptree patterns(bool tracks, int vmm_of_interest) {
                             "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
                             "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
                             "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
-                    ptree febtree;
+                    pt::ptree febtree;
                     for (int vmmid = 0; vmmid < nvmm; vmmid++) {
                         if (vmm_of_interest >= 0 && vmmid != vmm_of_interest)
                             continue;
                         // this might seem stupid, and it is, but
                         //   it allows to write a vector of channels per VMM
-                        ptree vmmtree;
-                        ptree chantree;
+                        pt::ptree vmmtree;
+                        pt::ptree chantree;
                         chantree.put("", chan);
                         vmmtree.push_back(std::make_pair("", chantree));
                         febtree.add_child(std::to_string(vmmid), vmmtree);
@@ -377,11 +379,11 @@ pt::ptree patterns(bool tracks, int vmm_of_interest) {
                                 "MMFE8_L3P" + pcbstr + "_IP" + (even ? "L" : "R"),
                                 "MMFE8_L2P" + pcbstr + "_IP" + (even ? "R" : "L"),
                                 "MMFE8_L1P" + pcbstr + "_IP" + (even ? "L" : "R")}) {
-                        ptree febtree;
+                        pt::ptree febtree;
                         // this might seem stupid, and it is, but
                         //   it allows to write a vector of channels per VMM
-                        ptree vmmtree;
-                        ptree chantree;
+                        pt::ptree vmmtree;
+                        pt::ptree chantree;
                         chantree.put("", chan);
                         vmmtree.push_back(std::make_pair("", chantree));
                         febtree.add_child(std::to_string(vmmid), vmmtree);

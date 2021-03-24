@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
@@ -17,7 +16,6 @@
 #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/RouterConfig.h"
-
 
 namespace nsw {
 
@@ -35,7 +33,7 @@ class ConfigSender {
 
  public:
     ConfigSender();
-    ~ConfigSender() {}  // Disconnect from Opc Server(s)?
+    ~ConfigSender() = default;  // Disconnect from Opc Server(s)?
 
     /// Send configuration to roc
     void sendRocConfig(const std::string& opc_ip, const std::string& sca_address,
