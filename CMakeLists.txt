@@ -63,6 +63,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   mmtp_loopback_test
   configure_tp
   mask_tp
+  configure_rim_l1ddc
   )
 
 ## Executables linked against nswconfig and Boost::program_options, but renamed to nsw_<X>
