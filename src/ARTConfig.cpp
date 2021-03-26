@@ -86,6 +86,24 @@ bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     return reg32 & static_cast<uint32_t>(pow(2, boi));
 }
 
+uint8_t nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
+    const size_t boi = TP_GBTxAlignmentBit();
+    constexpr size_t num_bytes_for_32fibers_and_4bits_per_fiber = 16;
+    if (vec.size() != num_bytes_for_32fibers_and_4bits_per_fiber) {
+        throw std::runtime_error("Need a vector of bytes of size=16, but got size = " + std::to_string(vec.size()));
+    }
+    // TODO(AT): correct this char ordering
+    uint8_t bcid = 0;
+    constexpr uint8_t fourLSB = 0x0f;
+    const auto byte = vec.at(boi / 2);
+    if (boi % 2 == 0) {
+        bcid = (byte >> 0) & fourLSB;
+    } else {
+        bcid = (byte >> 4) & fourLSB;
+    }
+    return bcid;
+}
+
 std::string nsw::ARTConfig::PhaseToString(uint phase) const {
     std::stringstream zeropad;
     zeropad << std::hex << std::setfill('0') << std::setw(2) << phase;

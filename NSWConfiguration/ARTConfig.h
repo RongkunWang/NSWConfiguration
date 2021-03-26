@@ -55,6 +55,7 @@ class ARTConfig {
     std::string TP_GBTxAlignmentPhase() const;
     std::string getOpcServerIp_TP() const;
     std::string getOpcNodeId_TP() const;
+    uint8_t BcidFromTp(const std::vector<uint8_t>& vec) const;
     bool IsAlignedWithTP(const std::vector<uint8_t>& vec) const;
     bool IsMyTP(const std::string& ServerIp, const std::string& NodeId) const;
     bool failsafe() const;
