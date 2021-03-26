@@ -86,7 +86,7 @@ bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     return reg32 & (uint32_t)(pow(2, boi));
 }
 
-int nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
+uint8_t nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
     const size_t boi = TP_GBTxAlignmentBit();
     constexpr size_t num_bytes_for_32fibers_and_4bits_per_fiber = 16;
     if (vec.size() != num_bytes_for_32fibers_and_4bits_per_fiber) {
@@ -101,7 +101,7 @@ int nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
     } else {
         bcid = (byte >> 4) & fourLSB;
     }
-    return static_cast<int>(bcid);
+    return bcid;
 }
 
 std::string nsw::ARTConfig::PhaseToString(uint phase) const {
