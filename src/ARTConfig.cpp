@@ -95,10 +95,11 @@ int nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
     // TODO(AT): correct this char ordering
     auto byte = vec.at(boi / 2);
     uint8_t bcid = 0;
+    uint8_t fourLSB = 0x0f;
     if (boi % 2 == 0) {
-        bcid = (byte >> 0) & 0xf;
+        bcid = (byte >> 0) & fourLSB;
     } else {
-        bcid = (byte >> 4) & 0xf;
+        bcid = (byte >> 4) & fourLSB;
     }
     return static_cast<int>(bcid);
 }
