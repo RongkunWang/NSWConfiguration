@@ -6,9 +6,11 @@
 #include "RunControl/RunControl.h"
 #include "NSWConfiguration/NSWConfig.h"
 
-class daq::rc::SubTransitionCmd;
-class daq::rc::TransitionCmd;
-class daq::rc::UserCmd;
+namespace daq::rc {
+  class SubTransitionCmd;
+  class TransitionCmd;
+  class UserCmd;
+}
 
 namespace nsw {
 class NSWConfigRc: public daq::rc::Controllable {
