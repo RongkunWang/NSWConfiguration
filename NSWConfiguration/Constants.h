@@ -114,6 +114,8 @@ namespace nsw {
     constexpr std::size_t NUM_FIBERS_PER_QPLL     = 4;
     constexpr std::size_t NUM_FIBER_BCID_REGS     = 4;
     constexpr std::size_t NUM_VMMS_PER_FIBER      = 32;
+    constexpr std::size_t NUM_MMFE8_PER_FIBER     = 4;
+    constexpr std::size_t CHAN_RATE_USLEEP        = 1e6;
     constexpr std::uint8_t DUMMY_VAL              = 0x55;
     constexpr std::uint8_t REG_ADDC_EMU_DISABLE   = 0x01;
     constexpr std::uint8_t REG_FIBER_ALIGNMENT    = 0x02;
@@ -142,6 +144,9 @@ namespace nsw {
     constexpr std::uint8_t REG_FIBER_MASK_WRITE  = 0x1d;
     constexpr std::uint8_t REG_PIPELINE_OVERFLOW = 0x20;
     constexpr std::uint8_t REG_SELFTRIGGER_DELAY = 0x21;
+    constexpr std::uint8_t REG_CHAN_RATE_FIBER   = 0x25;
+    constexpr std::uint8_t REG_CHAN_RATE_MMFE8   = 0x26;
+    constexpr std::uint8_t REG_CHAN_RATE_CHAN    = 0x27;
 
   }
 
