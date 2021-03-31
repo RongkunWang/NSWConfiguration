@@ -3,7 +3,11 @@
 
 #include <memory>
 
-#include "RunControl/RunControl.h"
+#include <ipc/partition.h>
+#include <is/infodictionary.h>
+
+#include <RunControl/RunControl.h>
+
 #include "NSWConfiguration/NSWConfig.h"
 
 namespace daq::rc {
@@ -41,9 +45,16 @@ class NSWConfigRc: public daq::rc::Controllable {
     //! Used to syncronize ROC/VMM configuration
     void subTransition(const daq::rc::SubTransitionCmd&) override;
 
+    //! Handle Configuration
+    bool simulationFromIS();
+
  private:
     std::unique_ptr<NSWConfig> m_NSWConfig;
     bool m_simulation;
+    bool m_simulation_lock{false};
+
+    IPCPartition m_ipcpartition;
+    std::unique_ptr<ISInfoDictionary> is_dictionary;
 
 };
 }  // namespace nsw

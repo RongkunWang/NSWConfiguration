@@ -5,18 +5,35 @@
 #include <memory>
 
 // Header to the RC online services
-#include "RunControl/Common/OnlineServices.h"
-#include "RunControl/Common/RunControlCommands.h"
+#include <RunControl/Common/OnlineServices.h>
+#include <RunControl/Common/RunControlCommands.h>
+
+#include <is/infodynany.h>
 
 #include "NSWConfigurationDal/NSWConfigApplication.h"
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
-nsw::NSWConfigRc::NSWConfigRc(bool simulation):m_simulation {simulation} {
+nsw::NSWConfigRc::NSWConfigRc(bool simulation) : m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfigRc instance");
     if (m_simulation) {
         ERS_INFO("Running in simulation mode, no configuration will be sent");
+        m_simulation_lock = true;
     }
+}
+
+bool nsw::NSWConfigRc::simulationFromIS() {
+    // Grab the simulation bool from IS
+    // Can manually write to this variable from the command line:
+    // > is_write -p part-BB5-Calib -n Setup.NSW.simulation -t Boolean -v 1 -i 0
+    if (is_dictionary->contains("Setup.NSW.simulation") ){
+        ISInfoDynAny any;
+        is_dictionary->getValue("Setup.NSW.simulation", any);
+        auto val = any.getAttributeValue<bool>(0);
+        ERS_INFO("Simulation from IS: " << val);
+        return val;
+    }
+    return false;
 }
 
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
@@ -25,6 +42,16 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
     const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
     const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
+
+    // Retrieve the ipc partition
+    m_ipcpartition = rcSvc.getIPCPartition();
+
+    // Get the IS dictionary for the current partition
+    is_dictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+
+    if (!m_simulation_lock) {
+        m_simulation = simulationFromIS();
+    }
 
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
     m_NSWConfig->readConf(nswConfigApp);
