@@ -24,6 +24,9 @@ std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool li
     return byteVector;
 }
 
+std::vector<uint8_t> nsw::intToByteVector(uint8_t value, size_t nbytes, bool littleEndian) {
+  return nsw::intToByteVector(static_cast<uint32_t>(value), nbytes, littleEndian);
+}
 
 std::string nsw::reversedBitString(unsigned value, size_t nbits) {
     std::bitset<MAX_REGISTER_SIZE> b(value);
