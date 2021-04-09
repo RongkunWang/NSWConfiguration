@@ -130,23 +130,24 @@ namespace nsw {
       REG_FIBER_BCIDS_16_23,
       REG_FIBER_BCIDS_24_31,
     };
-    constexpr std::uint8_t REG_FIBER_BC_OFFSET   = 0x08;
-    constexpr std::uint8_t REG_L1A_CONTROL       = 0x10;
-    constexpr std::uint8_t REG_L1A_LATENCY       = 0x11;
-    constexpr std::uint8_t REG_L1A_WIN_UPPER     = 0x12;
-    constexpr std::uint8_t REG_L1A_WIN_LOWER     = 0x13;
-    constexpr std::uint8_t REG_L1A_STATUS        = 0x14;
-    constexpr std::uint8_t REG_INPUT_PHASE       = 0x0b;
-    constexpr std::uint8_t REG_INPUT_PHASEOFFSET = 0x0c;
-    constexpr std::uint8_t REG_FIBER_HOT_MUX     = 0x0d;
-    constexpr std::uint8_t REG_FIBER_HOT_READ    = 0x0e;
-    constexpr std::uint8_t REG_FIBER_MASK_MUX    = 0x1c;
-    constexpr std::uint8_t REG_FIBER_MASK_WRITE  = 0x1d;
-    constexpr std::uint8_t REG_PIPELINE_OVERFLOW = 0x20;
-    constexpr std::uint8_t REG_SELFTRIGGER_DELAY = 0x21;
-    constexpr std::uint8_t REG_CHAN_RATE_FIBER   = 0x25;
-    constexpr std::uint8_t REG_CHAN_RATE_MMFE8   = 0x26;
-    constexpr std::uint8_t REG_CHAN_RATE_CHAN    = 0x27;
+    constexpr std::uint8_t REG_FIBER_BC_OFFSET          = 0x08;
+    constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
+    constexpr std::uint8_t REG_L1A_LATENCY              = 0x11;
+    constexpr std::uint8_t REG_L1A_WIN_UPPER            = 0x12;
+    constexpr std::uint8_t REG_L1A_WIN_LOWER            = 0x13;
+    constexpr std::uint8_t REG_L1A_STATUS               = 0x14;
+    constexpr std::uint8_t REG_INPUT_PHASE              = 0x0b;
+    constexpr std::uint8_t REG_INPUT_PHASEOFFSET        = 0x0c;
+    constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
+    constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
+    constexpr std::uint8_t REG_FIBER_MASK_MUX           = 0x1c;
+    constexpr std::uint8_t REG_FIBER_MASK_WRITE         = 0x1d;
+    constexpr std::uint8_t REG_PIPELINE_OVERFLOW        = 0x20;
+    constexpr std::uint8_t REG_SELFTRIGGER_DELAY        = 0x21;
+    constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH      = 0x22;
+    constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH_HYST = 0x23;
+    constexpr std::uint8_t REG_VMM_MASK_DRAIN_PERIOD    = 0x24;
+    constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
 
   }
 

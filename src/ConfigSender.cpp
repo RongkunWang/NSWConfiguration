@@ -700,7 +700,7 @@ std::vector<uint8_t> nsw::ConfigSender::readTpConfigRegister(const nsw::TPConfig
     return data;
 }
 
-void nsw::ConfigSender::sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint8_t message, bool quiet) {
+void nsw::ConfigSender::sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint32_t message, bool quiet) {
     auto data = nsw::intToByteVector(message, nsw::NUM_BYTES_IN_WORD32, nsw::mmtp::SCAX_LITTLE_ENDIAN);
     auto addr = nsw::intToByteVector(address, nsw::NUM_BYTES_IN_WORD32, nsw::mmtp::SCAX_LITTLE_ENDIAN);
     std::vector<uint8_t> payload(addr);
@@ -715,26 +715,26 @@ void nsw::ConfigSender::sendTpConfig(const nsw::TPConfig& tp, bool quiet) {
     //
     // Collect registers to be written
     //
-    std::vector<std::pair<uint8_t, uint8_t> > list_of_messages = {
-      {nsw::mmtp::REG_ADDC_EMU_DISABLE, static_cast<uint8_t>(true)},
-      {nsw::mmtp::REG_L1A_LATENCY,      static_cast<uint8_t>(tp.ARTWindowCenter())},
-      {nsw::mmtp::REG_L1A_WIN_UPPER,    static_cast<uint8_t>(tp.ARTWindowLeft())},
-      {nsw::mmtp::REG_L1A_WIN_LOWER,    static_cast<uint8_t>(tp.ARTWindowRight())},
+    std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
+      {nsw::mmtp::REG_ADDC_EMU_DISABLE, static_cast<uint32_t>(true)},
+      {nsw::mmtp::REG_L1A_LATENCY,      static_cast<uint32_t>(tp.ARTWindowCenter())},
+      {nsw::mmtp::REG_L1A_WIN_UPPER,    static_cast<uint32_t>(tp.ARTWindowLeft())},
+      {nsw::mmtp::REG_L1A_WIN_LOWER,    static_cast<uint32_t>(tp.ARTWindowRight())},
       {nsw::mmtp::REG_L1A_CONTROL,      0xFF}, // Enable reset
       {nsw::mmtp::REG_L1A_CONTROL,      0x00}, // Disable reset
-      {nsw::mmtp::REG_FIBER_BC_OFFSET,  static_cast<uint8_t>(tp.FiberBCOffset())},
-      {nsw::mmtp::REG_INPUT_PHASE,      static_cast<uint8_t>(tp.GlobalInputPhase())},
+      {nsw::mmtp::REG_FIBER_BC_OFFSET,  static_cast<uint32_t>(tp.FiberBCOffset())},
+      {nsw::mmtp::REG_INPUT_PHASE,      static_cast<uint32_t>(tp.GlobalInputPhase())},
     };
-    if (tp.GlobalInputOffset() != -1) {
-      list_of_messages.push_back(
-        std::make_pair(nsw::mmtp::REG_INPUT_PHASEOFFSET, static_cast<uint8_t>(tp.GlobalInputOffset()))
-      );
-    }
-    if (tp.SelfTriggerDelay() != -1) {
-      list_of_messages.push_back(
-        std::make_pair(nsw::mmtp::REG_SELFTRIGGER_DELAY, static_cast<uint8_t>(tp.SelfTriggerDelay()))
-      );
-    }
+    if (tp.GlobalInputOffset() != -1)
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_INPUT_PHASEOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));
+    if (tp.SelfTriggerDelay() != -1)
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_SELFTRIGGER_DELAY,        static_cast<uint32_t>(tp.SelfTriggerDelay())));
+    if (tp.VmmMaskHotThresh() != -1)
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      static_cast<uint32_t>(tp.VmmMaskHotThresh())));
+    if (tp.VmmMaskHotThreshHyst() != -1)
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_HOT_THRESH_HYST, static_cast<uint32_t>(tp.VmmMaskHotThreshHyst())));
+    if (tp.VmmMaskDrainPeriod() != -1)
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    static_cast<uint32_t>(tp.VmmMaskDrainPeriod())));
 
     //
     // Write registers

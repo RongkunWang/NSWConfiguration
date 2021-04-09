@@ -117,6 +117,15 @@ int nsw::TPConfig::GlobalInputOffset() const {
 int nsw::TPConfig::SelfTriggerDelay() const {
     return m_config.get<int>("SelfTriggerDelay");
 }
+int nsw::TPConfig::VmmMaskHotThresh() const {
+    return m_config.get<int>("VmmMaskHotThresh");
+}
+int nsw::TPConfig::VmmMaskHotThreshHyst() const {
+    return m_config.get<int>("VmmMaskHotThreshHyst");
+}
+int nsw::TPConfig::VmmMaskDrainPeriod() const {
+    return m_config.get<int>("VmmMaskDrainPeriod");
+}
 bool nsw::TPConfig::EnableVmmMasking() const {
     return m_config.get<bool>("EnableVmmMasking");
 }
@@ -141,6 +150,15 @@ void nsw::TPConfig::setGlobalInputOffset(int val) {
 }
 void nsw::TPConfig::setSelfTriggerDelay(int val) {
   m_config.put("SelfTriggerDelay", val);
+}
+void nsw::TPConfig::setVmmMaskHotThresh(int val) {
+  m_config.put("VmmMaskHotThresh", val);
+}
+void nsw::TPConfig::setVmmMaskHotThreshHyst(int val) {
+  m_config.put("VmmMaskHotThreshHyst", val);
+}
+void nsw::TPConfig::setVmmMaskDrainPeriod(int val) {
+  m_config.put("VmmMaskDrainPeriod", val);
 }
 void nsw::TPConfig::setEnableVmmMasking(bool val) {
   m_config.put("EnableVmmMasking", val);

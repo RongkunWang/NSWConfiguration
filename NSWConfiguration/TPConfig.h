@@ -42,6 +42,9 @@ class TPConfig: public SCAConfig {
     int GlobalInputPhase() const;
     int GlobalInputOffset() const;
     int SelfTriggerDelay() const;
+    int VmmMaskHotThresh() const;
+    int VmmMaskHotThreshHyst() const;
+    int VmmMaskDrainPeriod() const;
     bool EnableVmmMasking() const;
 
     void setARTWindowCenter(int val);
@@ -51,6 +54,9 @@ class TPConfig: public SCAConfig {
     void setGlobalInputPhase(int val);
     void setGlobalInputOffset(int val);
     void setSelfTriggerDelay(int val);
+    void setVmmMaskHotThresh(int val);
+    void setVmmMaskHotThreshHyst(int val);
+    void setVmmMaskDrainPeriod(int val);
     void setEnableVmmMasking(bool val);
 };
 
