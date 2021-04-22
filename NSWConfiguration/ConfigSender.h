@@ -81,7 +81,6 @@ class ConfigSender {
     /// High level send/read functions
     void sendTpConfig        (const nsw::TPConfig& tp, bool quiet = false);
     void sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint32_t message, bool quiet = false);
-    void maskTp              (const nsw::TPConfig& tp, bool sim = false);
     std::vector<uint8_t> readTpConfigRegister(const nsw::TPConfig& tp, uint8_t address);
 
     /// High level send function to send configuration to all addresses under an I2cMaster

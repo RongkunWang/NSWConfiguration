@@ -57,7 +57,6 @@ void nsw::NSWConfig::configureRc() {
     configurePadTriggers();   // Configure all Pad Triggers
     configureTPs();           // Configure all Trigger processors
     alignADDCsToTP();         // Adjust MMTP serializers based on ART data
-    maskTPs();                // Enable MMTP masking of noisy VMM inputs
     ERS_LOG("End");
 }
 
@@ -174,16 +173,6 @@ void nsw::NSWConfig::alignADDCsToTP() {
         m_sender->alignAddcGbtxTp(m_addcs);
     }
     ERS_LOG("Finished checking alignment of ADDCs to TP");
-}
-
-void nsw::NSWConfig::maskTPs() {
-    ERS_LOG("Enabling TP masking");
-    for (auto& kv : m_tps) {
-        auto& tp = kv.second;
-        if (tp.EnableVmmMasking())
-            m_sender->maskTp(tp, m_simulation);
-    }
-    ERS_LOG("Finished masking TPs");
 }
 
 void nsw::NSWConfig::configureRouters() {

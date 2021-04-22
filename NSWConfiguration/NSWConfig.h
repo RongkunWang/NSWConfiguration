@@ -95,7 +95,6 @@ class NSWConfig {
     void configureADDCs();
     void configureADDC(const std::string& name);
     void alignADDCsToTP();
-    void maskTPs();
 
     //! Configure all Routers, Pad Triggers, and Trigger Processors
     void configureRouters();
