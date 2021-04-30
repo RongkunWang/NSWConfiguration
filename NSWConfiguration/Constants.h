@@ -63,6 +63,8 @@ namespace nsw {
 
   constexpr std::size_t MIN_LAYER_ID = 0;
   constexpr std::size_t MAX_LAYER_ID = 7;
+  constexpr std::size_t NUM_LAYERS_MM   = 8;
+  constexpr std::size_t NUM_LAYERS_STGC = 8;
 
   constexpr std::size_t MIN_SECTOR_ID = 1;
   constexpr std::size_t MAX_SECTOR_ID = 16;
@@ -88,6 +90,8 @@ namespace nsw {
     constexpr std::size_t MMFE8_PER_LAYER = 16; ///< 16 MMFE8s per single MM layer
     constexpr std::size_t NUM_CH_PER_MMFE8 = nsw::vmm::NUM_CH_PER_VMM*nsw::NUM_VMM_PER_MMFE8; ///< 512 channels per MMFE8
     constexpr std::size_t NUM_CH_PER_LAYER = MMFE8_PER_LAYER*NUM_CH_PER_MMFE8; ///< 8192 channels per single MM layer
+    constexpr std::size_t MMFE8_PER_SECTOR = MMFE8_PER_LAYER*NUM_LAYERS_MM; ///< 128 MMFE8s per sector
+    constexpr std::size_t NUM_CH_PER_SECTOR = MMFE8_PER_SECTOR*NUM_CH_PER_MMFE8; ///< 65536 channels per sector
   }
 
   namespace art {
