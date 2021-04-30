@@ -330,7 +330,6 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
 }
 
 void nsw::NSWConfig::startRc() {
-    enableVmmCaptureInputs();
 }
 
 void nsw::NSWConfig::stopRc() {

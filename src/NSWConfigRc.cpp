@@ -62,6 +62,10 @@ void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
 
 void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
   ERS_LOG("User command received: " << usrCmd.commandName());
+  if (usrCmd.commandName() == "enableVmmCaptureInputs")
+  {
+    m_NSWConfig->enableVmmCaptureInputs();
+  }
 }
 
 void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
