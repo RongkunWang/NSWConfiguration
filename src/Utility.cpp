@@ -244,3 +244,23 @@ std::string nsw::guessSector(const std::string& str) {
   }
   return "";
 }
+
+bool nsw::isLargeSector(const std::string& sector_name) {
+  //
+  // Large sectors are odd-numbered. Small are even.
+  // string("A13") -> static_cast<bool>(13 % 2)
+  //
+  if (sector_name.size() != 3) {
+    const std::string msg0 = "Sector name should be 3 characters. ";
+    const std::string msg1 = "e.g. A13 or C02. ";
+    const std::string msg2 = "You gave: " + sector_name;
+    throw std::runtime_error(msg0 + msg1 + msg2);
+  }
+  auto sector_str = sector_name.substr(1);
+  auto sector_int = std::stoi(sector_str);
+  return static_cast<bool>(sector_int % 2);
+}
+
+bool nsw::isSmallSector(const std::string& sector_name) {
+  return !(nsw::isLargeSector(sector_name));
+}

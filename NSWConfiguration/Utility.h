@@ -97,6 +97,11 @@ std::string stripReadonly(std::string str);
 /// e.g., guessSector("191A-A06-MM-Calib") should return "A06"
 std::string guessSector(const std::string& str);
 
+/// Guesses the sector size (small, large) from the name
+/// e.g., isLargeSector("A06") should return False
+bool isLargeSector(const std::string& sector_name);
+bool isSmallSector(const std::string& sector_name);
+
 /// Return name of all elements that match the regular expression in ptree
 /// \param regexp Regular expression to match
 /// \param pt input ptree
