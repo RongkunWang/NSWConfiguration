@@ -129,6 +129,9 @@ int nsw::TPConfig::VmmMaskDrainPeriod() const {
 bool nsw::TPConfig::EnableVmmMasking() const {
     return m_config.get<bool>("EnableVmmMasking");
 }
+bool nsw::TPConfig::EnableChannelRates() const {
+    return m_config.get<bool>("EnableChannelRates");
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -162,6 +165,9 @@ void nsw::TPConfig::setVmmMaskDrainPeriod(int val) {
 }
 void nsw::TPConfig::setEnableVmmMasking(bool val) {
   m_config.put("EnableVmmMasking", val);
+}
+void nsw::TPConfig::setEnableChannelRates(bool val) {
+  m_config.put("EnableChannelRates", val);
 }
 
 nsw::TPConfig::~TPConfig() {
