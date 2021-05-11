@@ -46,6 +46,7 @@ class TPConfig: public SCAConfig {
     int VmmMaskHotThreshHyst() const;
     int VmmMaskDrainPeriod() const;
     bool EnableVmmMasking() const;
+    bool EnableChannelRates() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
@@ -58,6 +59,7 @@ class TPConfig: public SCAConfig {
     void setVmmMaskHotThreshHyst(int val);
     void setVmmMaskDrainPeriod(int val);
     void setEnableVmmMasking(bool val);
+    void setEnableChannelRates(bool val);
 };
 
 }  // namespace nsw

@@ -83,6 +83,9 @@ class NSWConfig {
     //! Disable VMMs (setting register 8 to 0)
     void disableVmmCaptureInputs();
 
+    //! Enable MMTP channel rates reporting
+    void enableMmtpChannelRates(bool enable) const;
+
 private:
     //! Configure ROCs in all FEBs in m_frontends
     void configureROCs();
