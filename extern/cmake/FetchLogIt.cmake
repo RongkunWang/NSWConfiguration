@@ -1,5 +1,5 @@
 option(BUILD_LOGIT "Build LogIt from source" OFF)
-set(LOGIT_VERSION OPCUA-1710-install-target-for-LogIt CACHE STRING "Select version of LogIt to build")
+set(LOGIT_VERSION v0.1.3 CACHE STRING "Select version of LogIt to build")
 
 set(LOGIT_DIR ${CMAKE_CURRENT_BINARY_DIR}/LogIt)
 include(FetchContent)

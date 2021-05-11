@@ -182,6 +182,33 @@ class ConfigSender {
     /// Set vmm enable register to value in passed config
     /// \param feb Reference config
     void enableVmmCaptureInputs(const nsw::FEBConfig& feb);
+
+    // Read anytype SCA OPC UA's FreeVariable
+    // example use: ReadFreeVariable<bool>(...)
+    template <typename T>
+    inline T readFreeVariable(const std::string& opcserver_ipport, const std::string& node) {
+    
+        addOpcClientIfNew(opcserver_ipport);
+        return m_clients.at(opcserver_ipport)->readFreeVariable<T>(node);
+    
+    }
+
+    // Write anytype SCA OPC UA's FreeVariable
+    template<typename T>
+    inline void writeFreeVariable(const std::string& opcserver_ipport, const std::string& node, T value) {
+
+        addOpcClientIfNew(opcserver_ipport);
+        m_clients[opcserver_ipport]->writeFreeVariable(node, value);
+
+    }    
+
+    // Program to set VMMConfigurationStatusInfo FreeVariable parameter
+    // Used by SCA DCS for VMM boards (polyneikis)
+    // \param  feb Config needed for SCA OPC board
+    // \param  vmm Config needed for SCA OPC board
+    // 1 : VMM Temperature mode
+    // 0 : Baseline mode (No VMM temperature output)
+    void setVMMConfigurationStatusInfoDCS(const nsw::FEBConfig& feb, const nsw::VMMConfig& vmm);
 };
 
 }  // namespace nsw

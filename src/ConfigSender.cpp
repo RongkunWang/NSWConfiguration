@@ -159,6 +159,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
     for (auto vmm : feb.getVmms()) {
+        setVMMConfigurationStatusInfoDCS(feb, vmm);
         auto data = vmm.getByteVector();
         std::vector<uint8_t> dat;
         for (int i = 0; i < 216; i++) {
@@ -183,6 +184,7 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 
     auto vmm = feb.getVmms()[vmm_id];
+    setVMMConfigurationStatusInfoDCS(feb, vmm);
     auto vmmdata = vmm.getByteVector();
     ERS_DEBUG(1, "Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
@@ -1124,4 +1126,24 @@ void nsw::ConfigSender::disableVmmCaptureInputs(const nsw::FEBConfig& feb)
     tree.put("reg008vmmEnable", 0);
     const auto partialConfig = nsw::I2cMasterConfig(tree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
     sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);
+}
+
+void nsw::ConfigSender::setVMMConfigurationStatusInfoDCS(const nsw::FEBConfig& feb, const nsw::VMMConfig& vmm) {
+
+    ERS_DEBUG(1, "[" + feb.getAddress() + "," + vmm.getName() + "]" 
+    	+ " Write VMMConfigurationStatusInfo FreeVariable parameter for DCS Use");
+
+    auto opc_ip = feb.getOpcServerIp();
+
+    // VMM registers for temperature monitoring
+    const int scmx = vmm.getGlobalRegister("scmx");
+    const int sbmx = vmm.getGlobalRegister("sbmx");
+    const int sbfp = vmm.getGlobalRegister("sbfp");
+    const int sm = vmm.getGlobalRegister("sm");
+    const int reset = vmm.getGlobalRegister("reset");
+
+    const bool isVMMTemperatureModeEnabled = (scmx==0 && sbmx==1 && sbfp==1 && sm==4 && reset!=3)? true:false ;
+
+    writeFreeVariable(opc_ip, feb.getAddress() + ".spi." + vmm.getName() + ".configurationStatus", isVMMTemperatureModeEnabled);
+
 }
