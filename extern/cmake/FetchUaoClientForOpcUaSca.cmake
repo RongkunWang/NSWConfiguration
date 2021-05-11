@@ -1,5 +1,5 @@
 option(BUILD_UAOCLIENTFOROPCUASCA "Build UaoClientForOpcUaSca from source" ON)
-set(UAOCLIENTFOROPCUASCA_VERSION OPCUA-1714_deployable_as_INSTALL_target CACHE STRING "Select version of UaoClientForOpcUaSca to build")
+set(UAOCLIENTFOROPCUASCA_VERSION 1.5.0-rc0 CACHE STRING "Select version of UaoClientForOpcUaSca to build")
 
 set(UAOCLIENTFOROPCUASCA_DIR ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca)
 include(FetchContent)

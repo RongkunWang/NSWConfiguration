@@ -1,5 +1,5 @@
 option(BUILD_OPEN62541_COMPAT "Build open62541-compat from source" ON)
-set(OPEN62541_COMPAT_VERSION v1.1.3-rc0 CACHE STRING "Select version of open62541-compat to build")
+set(OPEN62541_COMPAT_VERSION v1.3.8 CACHE STRING "Select version of open62541-compat to build")
 
 set(OPEN62541_COMPAT_DIR ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat)
 include(FetchContent)
@@ -23,6 +23,7 @@ macro(build_open62541_compat)
   option(STANDALONE_BUILD CACHE ON)
   option(STANDALONE_BUILD_SHARED CACHE OFF)
   option(SKIP_TESTS CACHE ON)
+  option(PULL_OPEN62541 CACHE ON)
 
   ## Because tdaq_cmake turns this on globally, resulting in the above cache variable
   ## being ignored after a reconfiguration
