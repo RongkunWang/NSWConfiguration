@@ -32,6 +32,12 @@ ERS_DECLARE_ISSUE(nsw,
                   ((const char *)message)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  BadSectorName,
+                  message,
+                  ((const char *)message)
+                  )
+
 namespace nsw {
 
 template<size_t N1, size_t N2>
