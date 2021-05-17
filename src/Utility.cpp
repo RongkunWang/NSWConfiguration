@@ -266,7 +266,10 @@ bool nsw::isLargeSector(const std::string& sector_name) {
     const std::string msg0 = "Sector name should be 3 characters. ";
     const std::string msg1 = "e.g. A13 or C02. ";
     const std::string msg2 = "You gave: " + sector_name;
-    throw std::runtime_error(msg0 + msg1 + msg2);
+    const std::string msg = msg0 + msg1 + msg2;
+    nsw::BadSectorName issue(ERS_HERE, msg.c_str());
+    ers::error(issue);
+    throw issue;
   }
   auto sector_str = sector_name.substr(1);
   auto sector_int = std::stoi(sector_str);
