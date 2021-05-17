@@ -114,6 +114,18 @@ std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int l
     return vec;
 }
 
+uint32_t nsw::byteVectorToWord32(std::vector<uint8_t> vec, bool littleEndian) {
+  if (vec.size() != nsw::NUM_BYTES_IN_WORD32) {
+    throw std::runtime_error(
+      "Cannot convert std::vector<uint8_t> with " + std::to_string(vec.size()) + " elements to uint32_t"
+    );
+  }
+  if (littleEndian) {
+    std::reverse(vec.begin(), vec.end());
+  }
+  return *reinterpret_cast<uint32_t*>(vec.data());
+}
+
 std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
