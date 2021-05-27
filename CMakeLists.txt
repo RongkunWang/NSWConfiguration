@@ -176,6 +176,7 @@ tdaq_add_library(nswopcclient
         Boost::boost
         tdaq-common::ers
         UaoClient::UaoClientForOpcUaSca
+        Open62541Compat::LogIt
         rt
 )
 # LINK_LIBRARIES PRIVATE
