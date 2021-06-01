@@ -132,6 +132,12 @@ bool nsw::TPConfig::EnableVmmMasking() const {
 bool nsw::TPConfig::EnableChannelRates() const {
     return m_config.get<bool>("EnableChannelRates");
 }
+int nsw::TPConfig::L1ALatencyScanStart() const {
+    return m_config.get("L1ALatencyScanStart", int{0});
+}
+int nsw::TPConfig::L1ALatencyScanEnd() const {
+    return m_config.get("L1ALatencyScanEnd", int{50});
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -168,6 +174,12 @@ void nsw::TPConfig::setEnableVmmMasking(bool val) {
 }
 void nsw::TPConfig::setEnableChannelRates(bool val) {
   m_config.put("EnableChannelRates", val);
+}
+void nsw::TPConfig::setL1ALatencyScanStart(int val) {
+  m_config.put("L1ALatencyScanStart", val);
+}
+void nsw::TPConfig::setL1ALatencyScanEnd(int val) {
+  m_config.put("L1ALatencyScanEnd", val);
 }
 
 nsw::TPConfig::~TPConfig() {
