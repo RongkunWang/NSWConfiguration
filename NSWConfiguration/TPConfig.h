@@ -47,6 +47,8 @@ class TPConfig: public SCAConfig {
     int VmmMaskDrainPeriod() const;
     bool EnableVmmMasking() const;
     bool EnableChannelRates() const;
+    int L1ALatencyScanStart() const;
+    int L1ALatencyScanEnd() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
@@ -60,6 +62,8 @@ class TPConfig: public SCAConfig {
     void setVmmMaskDrainPeriod(int val);
     void setEnableVmmMasking(bool val);
     void setEnableChannelRates(bool val);
+    void setL1ALatencyScanStart(int val);
+    void setL1ALatencyScanEnd(int val);
 };
 
 }  // namespace nsw
