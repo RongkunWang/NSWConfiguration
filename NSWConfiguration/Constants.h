@@ -172,6 +172,8 @@ namespace nsw {
       "ADDC_L1P3_HOR",
       "ADDC_L1P6_HOL",
     };
+    constexpr std::uint32_t L1A_RESET_ENABLE  = 0xFF;
+    constexpr std::uint32_t L1A_RESET_DISABLE = 0x00;
   }
 
 }  // namespace nsw

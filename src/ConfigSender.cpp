@@ -722,8 +722,8 @@ void nsw::ConfigSender::sendTpConfig(const nsw::TPConfig& tp, bool quiet) {
       {nsw::mmtp::REG_L1A_LATENCY,      static_cast<uint32_t>(tp.ARTWindowCenter())},
       {nsw::mmtp::REG_L1A_WIN_UPPER,    static_cast<uint32_t>(tp.ARTWindowLeft())},
       {nsw::mmtp::REG_L1A_WIN_LOWER,    static_cast<uint32_t>(tp.ARTWindowRight())},
-      {nsw::mmtp::REG_L1A_CONTROL,      0xFF}, // Enable reset
-      {nsw::mmtp::REG_L1A_CONTROL,      0x00}, // Disable reset
+      {nsw::mmtp::REG_L1A_CONTROL,      nsw::mmtp::L1A_RESET_ENABLE},
+      {nsw::mmtp::REG_L1A_CONTROL,      nsw::mmtp::L1A_RESET_DISABLE},
       {nsw::mmtp::REG_FIBER_BC_OFFSET,  static_cast<uint32_t>(tp.FiberBCOffset())},
       {nsw::mmtp::REG_INPUT_PHASE,      static_cast<uint32_t>(tp.GlobalInputPhase())},
     };
