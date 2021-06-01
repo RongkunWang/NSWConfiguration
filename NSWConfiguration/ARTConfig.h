@@ -47,6 +47,7 @@ class ARTConfig {
     std::string PhaseToString(uint phase) const;
     int register0_test_00() const;
     int art_core_cfg_deser_flagmask() const;
+    bool MustConfigure() const;
     int TP_GBTxAlignmentBit() const;
     int TP_GBTxAlignmentSleepTime() const;
     bool TP_GBTxAlignmentSkip() const;

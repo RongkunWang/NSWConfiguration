@@ -142,7 +142,7 @@ void nsw::NSWConfig::configureADDCs() {
                                         kv.first));
     }
     for (auto& thread : *m_threads) {
-        try {  // If configureADDC throws exception, it will be caught here
+        try {
             thread.get();
         } catch (std::exception & ex) {
             std::string message = "Skipping ADDC due to : " + std::string(ex.what());
@@ -153,7 +153,7 @@ void nsw::NSWConfig::configureADDCs() {
 }
 
 void nsw::NSWConfig::configureADDC(const std::string& name) {
-    ERS_LOG("Configuring ADDC: " + name);
+    ERS_INFO("Configuring ADDC: " + name);
     if (m_addcs.count(name) == 0) {
         std::string err = "ADDC has bad name: " + name;
         nsw::NSWConfigIssue issue(ERS_HERE, err);
@@ -161,9 +161,25 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
     }
     auto local_sender = std::make_unique<nsw::ConfigSender>();
     auto configuration = m_addcs.at(name);
-    if (!m_simulation)
-        local_sender->sendAddcConfig(configuration);
-    usleep(10000);
+    for (size_t iart = 0; iart < nsw::NUM_ART_PER_ADDC; iart++) {
+      try {
+        if (!m_simulation) {
+          local_sender->sendAddcConfig(configuration, iart);
+        }
+        usleep(5000);
+      } catch (std::exception & ex) {
+        if (configuration.getART(iart).MustConfigure()) {
+          throw;
+        } else {
+          const std::string msg = "Allowed to fail: "
+            + name
+            + ".art" + std::to_string(iart)
+            + ": " + std::string(ex.what());
+          nsw::NSWConfigIssue issue(ERS_HERE, msg);
+          ers::warning(issue);
+        }
+      }
+    }
     ERS_LOG("Finished config to: " << name);
 }
 

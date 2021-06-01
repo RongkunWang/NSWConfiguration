@@ -425,7 +425,7 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
         if (i_art != -1 && i_art != art.index())
             continue;
         for (auto tup : {std::make_pair("Core", art.core),
-                        std::make_pair("Ps",   art.ps)}) {
+                         std::make_pair("Ps",   art.ps)}) {
             auto name = sca_addr + "." + art.getName() + tup.first + "." + art.getName() + tup.first;
             auto addr_bitstr = tup.second.getBitstreamMap();
             ERS_DEBUG(1, "ART common config " << name);

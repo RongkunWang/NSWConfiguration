@@ -25,6 +25,10 @@ int nsw::ARTConfig::art_core_cfg_deser_flagmask() const {
     return core.getRegisterValue("03", "cfg_deser_flagmask");
 }
 
+bool nsw::ARTConfig::MustConfigure() const {
+    return m_config.get("MustConfigure", true);
+}
+
 std::string nsw::ARTConfig::getOpcServerIp_TP() const {
     return m_config.get<std::string>("OpcServerIp_TP");
 }

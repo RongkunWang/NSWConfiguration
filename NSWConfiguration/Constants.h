@@ -106,6 +106,7 @@ namespace nsw {
     constexpr std::uint32_t REG_COUNTERS_END    = 256;
     constexpr std::uint32_t REG_COUNTERS_SIZE   = 4;
     constexpr std::uint32_t REG_COUNTERS_SIMULT = 16;
+    constexpr std::uint32_t NUM_PHASE_INPUT     = 16;
   }
 
   namespace mmtp {
@@ -115,6 +116,7 @@ namespace nsw {
     constexpr std::size_t FIBER_ALIGN_SLEEP       = 5e6;
     constexpr std::size_t FIBER_ALIGN_N_READS     = 100;
     constexpr std::size_t NUM_FIBERS              = 32;
+    constexpr std::size_t NUM_ADDCS               = 16;
     constexpr std::size_t NUM_FIBERS_PER_QPLL     = 4;
     constexpr std::size_t NUM_FIBER_BCID_REGS     = 4;
     constexpr std::size_t NUM_VMMS_PER_FIBER      = 32;
@@ -152,7 +154,24 @@ namespace nsw {
     constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH_HYST = 0x23;
     constexpr std::uint8_t REG_VMM_MASK_DRAIN_PERIOD    = 0x24;
     constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
-
+    constexpr std::array<std::string_view, NUM_ADDCS> ORDERED_ADDCS = {
+      "ADDC_L1P6_IPR",
+      "ADDC_L1P3_IPL",
+      "ADDC_L1P3_IPR",
+      "ADDC_L1P6_IPL",
+      "ADDC_L4P6_IPR",
+      "ADDC_L4P3_IPL",
+      "ADDC_L4P3_IPR",
+      "ADDC_L4P6_IPL",
+      "ADDC_L4P6_HOR",
+      "ADDC_L4P3_HOL",
+      "ADDC_L4P3_HOR",
+      "ADDC_L4P6_HOL",
+      "ADDC_L1P6_HOR",
+      "ADDC_L1P3_HOL",
+      "ADDC_L1P3_HOR",
+      "ADDC_L1P6_HOL",
+    };
   }
 
 }  // namespace nsw
