@@ -44,10 +44,11 @@ void nsw::NSWConfig::configureRc() {
       } catch (std::exception & e) {
         std::stringstream ss;
         ss << " Skipping FE: " << name
-                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
+           << " - Problem constructing configuration due to : "
+           << e.what() << std::endl;
         nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
-        ers::warning(issue);
-        ERS_LOG(ss.str());
+        ERS_INFO(ss.str());
+        ers::fatal(issue);
       }
     }
 
@@ -87,12 +88,12 @@ void nsw::NSWConfig::configureFEBs() {
     }
     // wait
     for (auto& thread : *m_threads) {
-        try {  // If configureFEB throws exception, it will be caught here
+        try {
             thread.get();
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
             // TODO: This should be an error
-            ers::warning(issue);
+            ers::fatal(issue);
         }
     }
 }
@@ -147,7 +148,7 @@ void nsw::NSWConfig::configureADDCs() {
         } catch (std::exception & ex) {
             std::string message = "Skipping ADDC due to : " + std::string(ex.what());
             nsw::NSWConfigIssue issue(ERS_HERE, message);
-            ers::warning(issue);
+            ers::fatal(issue);
         }
     }
 }
@@ -208,7 +209,7 @@ void nsw::NSWConfig::configureRouters() {
         } catch (std::exception & ex) {
             std::string message = "Skipping Router due to : " + std::string(ex.what());
             nsw::NSWConfigIssue issue(ERS_HERE, message);
-            ers::warning(issue);
+            ers::fatal(issue);
         }
     }
     ERS_LOG("Finished configuration of Routers");
@@ -311,11 +312,11 @@ void nsw::NSWConfig::enableVmmCaptureInputs() {
     }
     // wait
     for (auto& thread : *m_threads) {
-        try {  // If configureFEB throws exception, it will be caught here
+        try {
             thread.get();
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Enabling of VMMs failed due to : " + std::string(ex.what()));
-            ers::error(issue);
+            ers::fatal(issue);
         }
     }
 }
@@ -336,7 +337,7 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
     }
     // wait
     for (auto& thread : *m_threads) {
-        try {  // If configureFEB throws exception, it will be caught here
+        try {
             thread.get();
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Disabling of VMMs failed due to : " + std::string(ex.what()));
