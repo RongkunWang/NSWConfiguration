@@ -14,8 +14,8 @@ add_subdirectory(extern)
 tdaq_package() #This will make a package called NSWConfiguration
 set(TDAQ_DB_PROJECT muons)
 
-set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
-set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
+# set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
+# set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 
 remove_definitions(-DERS_NO_DEBUG)
 
@@ -173,18 +173,12 @@ endforeach()
 tdaq_add_library(nswopcclient
         src/OpcClient.cpp
   LINK_LIBRARIES
-        Boost::boost
         tdaq-common::ers
         UaoClient::UaoClientForOpcUaSca
-        Open62541Compat::LogIt
+        Open62541Compat::open62541-compat
+        Open62541Compat::open62541
         rt
 )
-# LINK_LIBRARIES PRIVATE
-
-## Link against static external dependencies
-# target_link_libraries(nswopcclient
-#   PRIVATE
-#   )
 
 if(IPO_SUPPORTED)
   message(STATUS "Enabling IPO")

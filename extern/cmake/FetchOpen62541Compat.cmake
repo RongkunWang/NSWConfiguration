@@ -5,7 +5,7 @@ set(OPEN62541_COMPAT_DIR ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat)
 include(FetchContent)
 
 function(fetch_open62541_compat)
-  message(STATUS "fetching open62541-compat from github. *NOTE* fetching version [${OPEN62541_COMPAT_VERSION}]")
+  message(STATUS "  Fetching open62541-compat from CERN GitLab. *NOTE* fetching version [${OPEN62541_COMPAT_VERSION}]")
   FetchContent_Declare(
     open62541-compat
     GIT_REPOSITORY https://github.com/quasar-team/open62541-compat.git
@@ -39,7 +39,14 @@ macro(build_open62541_compat)
   add_compile_options(-Wno-error -Wno-pedantic -Wno-cast-qual)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-discarded-qualifiers>)
 
-  FetchContent_MakeAvailable(open62541-compat)
+  # FetchContent_MakeAvailable(open62541-compat)
+  ## Done to disable the default header installation location
+  ## otherwise, use the above FetchContent_MakeAvailable
+  FetchContent_GetProperties(open62541-compat)
+  if(NOT uaoclientforopcuasca_POPULATED)
+    FetchContent_Populate(open62541-compat)
+    add_subdirectory(${open62541-compat_SOURCE_DIR} ${open62541-compat_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
 
   add_library(Open62541Compat INTERFACE)
   add_library(Open62541Compat::open62541-compat ALIAS open62541-compat)
@@ -48,13 +55,14 @@ macro(build_open62541_compat)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    message(STATUS "Enabling IPO for open62541-compat")
     # set_target_properties(open62541 LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+    # message(STATUS "  Enabling IPO for open62541-compat")
   endif()
 
   ## Add -fPIC for shared lib inclusion
   set_target_properties(open62541 LogIt open62541-compat
     PROPERTIES
+      EXCLUDE_FROM_ALL FALSE
       POSITION_INDEPENDENT_CODE ON
       C_CLANG_TIDY ""
       CXX_CLANG_TIDY ""
@@ -64,46 +72,91 @@ macro(build_open62541_compat)
       CXX_INCLUDE_WHAT_YOU_USE ""
     )
 
+  set_target_properties(open62541 PROPERTIES
+    PUBLIC_HEADER "${OPEN62541_COMPAT_DIR}/open62541/open62541.h")
+
   target_include_directories(open62541-compat SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/include>
+    $<INSTALL_INTERFACE:include>
     )
+
   target_include_directories(open62541  SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541>
+    $<INSTALL_INTERFACE:include>
     )
+
   target_include_directories(LogIt SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include>
-    )
+    $<INSTALL_INTERFACE:include>
+  )
 
-  target_link_directories(open62541-compat BEFORE INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat>
-    )
-  ## Should only be needed for a shared object, but CMake is putting -lopen62541 even when the library is static...
+  target_link_directories(open62541-compat BEFORE
+    PRIVATE
+        ## open62541 builds libopen62541.so in /bin for some reason...
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/bin>
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat>
+        $<INSTALL_INTERFACE:lib>
+  )
+
   target_link_directories(open62541 BEFORE INTERFACE
+    ## open62541 builds libopen62541.so in /bin for some reason
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/bin>
+    ## while it builds libopen62541.a here
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541>
+    $<INSTALL_INTERFACE:lib>
     )
 
-  ## This *should* be done by MakeAvailable... no?
+  target_link_directories(LogIt BEFORE INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt>
+    $<INSTALL_INTERFACE:lib>
+    )
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include/
+    DESTINATION include/LogIt
+    FILES_MATCHING PATTERN "*.h*"
+  )
+
+  install(TARGETS open62541-compat
+    DESTINATION lib
+  )
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/include/
+    DESTINATION include/Open62541Compat
+    FILES_MATCHING PATTERN "*.h*"
+  )
+
   install(TARGETS open62541-compat
     EXPORT Open62541Compat
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
-    )
+  )
+
+  install(TARGETS open62541
+    EXPORT open62541
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+  )
 
   install(TARGETS LogIt
     EXPORT Open62541Compat
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-    )
+    PUBLIC_HEADER DESTINATION include/LogIt
+    INCLUDES DESTINATION include/LogIt
+  )
 
   install(EXPORT Open62541Compat
-    FILE Open62541Compat.cmake
+    FILE Open62541Compat-extern.cmake
     NAMESPACE Open62541Compat::
-    DESTINATION lib/cmake/Open62541Compat)
+    DESTINATION lib/cmake/Open62541Compat
+  )
 
   set(open62541-compat_SOURCE_DIR  ${open62541-compat_SOURCE_DIR}  PARENT_SCOPE)
   set(open62541-compat_BINARY_DIR  ${open62541-compat_BINARY_DIR}  PARENT_SCOPE)

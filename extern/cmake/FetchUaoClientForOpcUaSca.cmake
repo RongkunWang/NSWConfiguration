@@ -5,7 +5,7 @@ set(UAOCLIENTFOROPCUASCA_DIR ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca)
 include(FetchContent)
 
 function(fetch_UaoClientForOpcUaSca)
-  message(STATUS "Fetching UaoClientForOpcUaSca from github. *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
+  message(STATUS "  Fetching UaoClientForOpcUaSca from CERN GitLab. *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
   FetchContent_Declare(
     UaoClientForOpcUaSca
     GIT_REPOSITORY https://:@gitlab.cern.ch:8443/atlas-dcs-opcua-servers/UaoClientForOpcUaSca.git
@@ -18,8 +18,18 @@ endfunction()
 
 macro(build_UaoClientForOpcUaSca)
   set(BUILD_CONFIG open62541_config.cmake CACHE STRING "")
-  set(OPEN62541_COMPAT_DIR  ${open62541-compat_BINARY_DIR} CACHE STRING "")
-  set(LOGIT_INCLUDE_DIR     ${open62541-compat_BINARY_DIR}/LogIt/include CACHE STRING "")
+  if(Open62541Compat_INCLUDE_DIR)
+    get_filename_component(Open62541Compat_PREFIX_DIR "${Open62541Compat_INCLUDE_DIR}" PATH)
+    set(OPEN62541_COMPAT_DIR  ${Open62541Compat_PREFIX_DIR} CACHE STRING "")
+  else()
+    set(OPEN62541_COMPAT_DIR  ${open62541-compat_BINARY_DIR} CACHE STRING "")
+  endif()
+
+  if(LogIt_INCLUDE_DIR)
+    set(LOGIT_INCLUDE_DIR     ${LogIt_INCLUDE_DIR} CACHE STRING "")
+  else()
+    set(LOGIT_INCLUDE_DIR     ${open62541-compat_BINARY_DIR}/LogIt/include CACHE STRING "")
+  endif()
   set(CMAKE_INSTALL_PREFIX  ${CMAKE_PROJECT_BINARY_DIR}/install/UaoClientForOpcUaSca CACHE STRING "")
   option(BUILD_STANDALONE CACHE ON)
 
@@ -31,23 +41,30 @@ macro(build_UaoClientForOpcUaSca)
   add_compile_options(-Wno-error -Wno-pedantic -Wno-cast-qual)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-discarded-qualifiers>)
 
-  FetchContent_MakeAvailable(UaoClientForOpcUaSca)
+  # FetchContent_MakeAvailable(UaoClientForOpcUaSca)
+  ## Done to disable the default header installation location
+  ## otherwise, use the above FetchContent_MakeAvailable
+  FetchContent_GetProperties(UaoClientForOpcUaSca)
+  if(NOT uaoclientforopcuasca_POPULATED)
+    FetchContent_Populate(UaoClientForOpcUaSca)
+    add_subdirectory(${uaoclientforopcuasca_SOURCE_DIR} ${uaoclientforopcuasca_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
 
   add_library(UaoClient INTERFACE)
   add_library(UaoClient::UaoClientForOpcUaSca ALIAS UaoClientForOpcUaSca)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    message(STATUS "Enabling IPO")
+    # message(STATUS "  Enabling IPO for UaoClientForOpcUaSca")
     # set_target_properties(UaoClientForOpcUaSca PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
   find_package(Protobuf REQUIRED COMPONENTS libprotobuf)
-  add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
 
   ## Add -fPIC for inclusion in shared libs
   set_target_properties(UaoClientForOpcUaSca
     PROPERTIES
+      EXCLUDE_FROM_ALL FALSE
       POSITION_INDEPENDENT_CODE ON
       C_CLANG_TIDY ""
       CXX_CLANG_TIDY ""
@@ -60,37 +77,54 @@ macro(build_UaoClientForOpcUaSca)
   target_sources(UaoClientForOpcUaSca PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/src/BitBangProtocol.pb.cc
   )
+
   target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE PUBLIC
     ${Protobuf_INCLUDE_DIRS}
   )
+
   target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include>
+    $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/include>
+    $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/open62541>
+    $<INSTALL_INTERFACE:include>
   )
+
   target_link_directories(UaoClientForOpcUaSca BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca>
+    $<INSTALL_INTERFACE:lib>
   )
 
   target_link_libraries(UaoClientForOpcUaSca
-    PUBLIC
+    PRIVATE
       Open62541Compat::open62541-compat
       Open62541Compat::open62541
-    PRIVATE
       ${Protobuf_LIBRARIES}
-      Open62541Compat::LogIt
   )
 
-  ## This *should* be done by MakeAvailable... no?
+  install(TARGETS UaoClientForOpcUaSca
+    DESTINATION lib
+  )
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include/
+    DESTINATION include/UaoClient
+    FILES_MATCHING PATTERN "*.h*"
+  )
+
   install(TARGETS UaoClientForOpcUaSca
     EXPORT UaoClient
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include)
+    PUBLIC_HEADER DESTINATION include/UaoClient
+    PRIVATE_HEADER DESTINATION include/UaoClient
+    INCLUDES DESTINATION include/UaoClient
+  )
 
   install(EXPORT UaoClient
-    FILE UaoClient.cmake
+    FILE UaoClientTargets.cmake
     NAMESPACE UaoClient::
-    DESTINATION lib/cmake/UaoClientForOpcUaSca)
+    DESTINATION lib/cmake/UaoClientForOpcUaSca
+  )
 
   set(uaoclientforopcuasca_SOURCE_DIR  ${uaoclientforopcuasca_SOURCE_DIR}  PARENT_SCOPE)
   set(uaoclientforopcuasca_BINARY_DIR  ${uaoclientforopcuasca_BINARY_DIR}  PARENT_SCOPE)
