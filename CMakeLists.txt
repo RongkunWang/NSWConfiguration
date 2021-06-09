@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 include(CheckIPOSupported)
 set(IPO_SUPPORTED)
 check_ipo_supported(RESULT IPO_SUPPORTED)
-message(STATUS "IPO_SUPPORTED::${IPO_SUPPORTED}")
+message(STATUS "  IPO_SUPPORTED::${IPO_SUPPORTED}")
 
 add_subdirectory(extern)
 
@@ -166,22 +166,25 @@ tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
 set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)
 
 foreach(testname IN LISTS NSWCONFIG_TESTS)
-  message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
+  message(STATUS "  Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
   add_test(NAME ${testname} COMMAND test_${testname})
 endforeach()
 
 tdaq_add_library(nswopcclient
-        src/OpcClient.cpp
+    src/OpcClient.cpp
   LINK_LIBRARIES
-        tdaq-common::ers
-        UaoClient::UaoClientForOpcUaSca
-        Open62541Compat::open62541-compat
-        rt
+    tdaq-common::ers
+    UaoClient::UaoClientForOpcUaSca
+    Open62541Compat::open62541-compat
+    rt
 )
 
 if(IPO_SUPPORTED)
-  message(STATUS "Enabling IPO")
-  set_target_properties(nswopcclient PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+  message(STATUS "  Enabling IPO for nswopcclient and nswconfig")
+  set_target_properties(nswopcclient nswconfig
+    PROPERTIES
+      INTERPROCEDURAL_OPTIMIZATION ON
+  )
 endif()
 
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
