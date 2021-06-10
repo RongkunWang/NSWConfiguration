@@ -86,8 +86,8 @@ macro(build_UaoClientForOpcUaSca)
 
   target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include>
-    $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/include>
-    $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/open62541>
+    # $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/include>
+    # $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/extern/open62541/include>
     $<INSTALL_INTERFACE:include>
   )
 
@@ -99,7 +99,6 @@ macro(build_UaoClientForOpcUaSca)
   target_link_libraries(UaoClientForOpcUaSca
     PRIVATE
       Open62541Compat::open62541-compat
-      Open62541Compat::open62541
       ${Protobuf_LIBRARIES}
   )
 

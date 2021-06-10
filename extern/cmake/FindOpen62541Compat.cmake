@@ -6,16 +6,12 @@
 #  Open62541Compat_INCLUDE_DIR - the Open62541Compat include directory
 #  Open62541Compat_LIBRARY - the Open62541Compat library
 #  open62541_INCLUDE_DIR - the open62541 include directory
-#  open62541_LIBRARY - the open62541 library
 #  LogIt_INCLUDE_DIR - the LogIt include directory, if present
 #  LogIt_LIBRARY - the LogIt library, if present
 
 #  Additionally, the following targets will be available
 #   -  Open62541Compat::open62541-compat
-#   -  Open62541Compat::open62541
 #   -  Open62541Compat::LogIt
-#   -  open62541-compat
-#   -  open62541
 #   -  LogIt
 #
 # To override the default search paths, point Open62541Compat_DIR to the location of your
@@ -63,16 +59,6 @@ find_path(open62541_INCLUDE_DIR
   HINTS ${Open62541Compat_DIR}
   PATHS ${Open62541Compat_SEARCH_PATHS}
   PATH_SUFFIXES include
- )
-
-find_path(open62541_LIBRARY
-  NAMES
-    open62541
-    libopen62541.so
-    libopen62541.a
-  HINTS ${Open62541Compat_DIR}
-  PATHS ${Open62541Compat_SEARCH_PATHS}
-  PATH_SUFFIXES lib
  )
 
 find_path(LogIt_INCLUDE_DIR
@@ -132,11 +118,11 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Open62541Compat
   FOUND_VAR Open62541Compat_FOUND
   REQUIRED_VARS
-    Open62541Compat_LIB_DIR
     Open62541Compat_INCLUDE_DIR
     Open62541Compat_LIBRARY
     open62541_INCLUDE_DIR
-    open62541_LIBRARY
+    LogIt_INCLUDE_DIR
+    Open62541Compat_LIB_DIR
   VERSION_VAR Open62541Compat_VERSION
 )
 
@@ -144,20 +130,6 @@ if(Open62541Compat_FOUND)
   if(NOT Open62541Compat_FIND_QUIETLY)
     # message(STATUS "Open62541Compat version: " ${Open62541Compat_VERSION})
   endif()
-
-  if(open62541_LIBRARY AND NOT TARGET Open62541Compat::open62541)
-      add_library(Open62541Compat::open62541 INTERFACE IMPORTED GLOBAL)
-      set_target_properties(Open62541Compat::open62541
-          PROPERTIES
-          IMPORTED_LIBNAME
-            open62541
-          INTERFACE_LINK_DIRECTORIES
-            "${Open62541Compat_LIB_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES
-            "${open62541_INCLUDE_DIR}"
-	  INTERFACE_LINK_LIBRARIES ""
-      )
-    endif()
 
   if(Open62541Compat_LIBRARY AND NOT TARGET Open62541Compat::open62541-compat)
       add_library(Open62541Compat::open62541-compat INTERFACE IMPORTED GLOBAL)
@@ -188,10 +160,6 @@ if(Open62541Compat_FOUND)
   endif()
 
   ## Alias targets
-  if(NOT TARGET open62541)
-      add_library(open62541 ALIAS Open62541Compat::open62541)
-  endif()
-
   if(NOT TARGET open62541-compat)
       add_library(open62541-compat ALIAS Open62541Compat::open62541-compat)
   endif()

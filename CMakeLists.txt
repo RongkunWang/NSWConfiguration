@@ -176,7 +176,6 @@ tdaq_add_library(nswopcclient
         tdaq-common::ers
         UaoClient::UaoClientForOpcUaSca
         Open62541Compat::open62541-compat
-        Open62541Compat::open62541
         rt
 )
 

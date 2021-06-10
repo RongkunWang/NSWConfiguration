@@ -32,7 +32,7 @@ macro(build_open62541_compat)
   option(STANDALONE_BUILD CACHE ON)
   option(STANDALONE_BUILD_SHARED CACHE OFF)
   option(SKIP_TESTS CACHE ON)
-  option(PULL_OPEN62541 CACHE ON)
+  option(PULL_OPEN62541 CACHE OFF)
 
   ## Because tdaq_cmake turns this on globally, resulting in the above cache variable
   ## being ignored after a reconfiguration
@@ -59,17 +59,16 @@ macro(build_open62541_compat)
 
   add_library(Open62541Compat INTERFACE)
   add_library(Open62541Compat::open62541-compat ALIAS open62541-compat)
-  add_library(Open62541Compat::open62541 ALIAS open62541)
   add_library(Open62541Compat::LogIt ALIAS LogIt)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    # set_target_properties(open62541 LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
     # message(STATUS "  Enabling IPO for open62541-compat")
+    # set_target_properties(LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
   ## Add -fPIC for shared lib inclusion
-  set_target_properties(open62541 LogIt open62541-compat
+  set_target_properties(LogIt open62541-compat
     PROPERTIES
       EXCLUDE_FROM_ALL FALSE
       POSITION_INDEPENDENT_CODE ON
@@ -79,43 +78,22 @@ macro(build_open62541_compat)
       CXX_CPPCHECK ""
       C_INCLUDE_WHAT_YOU_USE ""
       CXX_INCLUDE_WHAT_YOU_USE ""
-    )
+  )
 
-  set_target_properties(open62541 PROPERTIES
-    PUBLIC_HEADER "${OPEN62541_COMPAT_DIR}/open62541/open62541.h")
+  set_target_properties(open62541-compat PROPERTIES
+    PUBLIC_HEADER "${OPEN62541_COMPAT_DIR}/extern/open62541/include/open62541.h")
 
   target_include_directories(open62541-compat SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/include>
-    $<INSTALL_INTERFACE:include>
-    )
-
-  target_include_directories(open62541  SYSTEM BEFORE INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541>
-    $<INSTALL_INTERFACE:include>
-    )
-
-  target_include_directories(LogIt SYSTEM BEFORE INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/extern/open62541/include>
     $<INSTALL_INTERFACE:include>
   )
 
   target_link_directories(open62541-compat BEFORE
-    PRIVATE
-        ## open62541 builds libopen62541.so in /bin for some reason...
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/bin>
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat>
         $<INSTALL_INTERFACE:lib>
   )
-
-  target_link_directories(open62541 BEFORE INTERFACE
-    ## open62541 builds libopen62541.so in /bin for some reason
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/bin>
-    ## while it builds libopen62541.a here
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/open62541>
-    $<INSTALL_INTERFACE:lib>
-    )
 
   target_link_directories(LogIt BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt>
@@ -144,13 +122,6 @@ macro(build_open62541_compat)
     INCLUDES DESTINATION include
   )
 
-  install(TARGETS open62541
-    EXPORT open62541
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-  )
 
   install(TARGETS LogIt
     EXPORT Open62541Compat
