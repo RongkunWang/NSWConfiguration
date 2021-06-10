@@ -5,16 +5,25 @@ set(OPEN62541_COMPAT_DIR ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat)
 include(FetchContent)
 
 function(fetch_open62541_compat)
-  message(STATUS "  Fetching open62541-compat from CERN GitLab. *NOTE* fetching version [${OPEN62541_COMPAT_VERSION}]")
+  if(NOT NSWCONFIG_FETCH_METHOD STREQUAL "github")
+    message(STATUS "  Fetching open62541-compat from CERN GitLab.")
+    set(updateCommand UPDATE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-open62541-compat.sh")
+  else()
+    message(STATUS "  Fetching open62541-compat from github.")
+    unset(updateCommand)
+  endif()
+
+  message(STATUS "  *NOTE* fetching version [${OPEN62541_COMPAT_VERSION}]")
+
   FetchContent_Declare(
     open62541-compat
-    GIT_REPOSITORY https://github.com/quasar-team/open62541-compat.git
+    GIT_REPOSITORY ${GIT_URL_ENDPOINT}/quasar-team/open62541-compat.git
     GIT_TAG        ${OPEN62541_COMPAT_VERSION}
     GIT_SHALLOW    "1"
     SOURCE_DIR     ${OPEN62541_COMPAT_DIR}
     BINARY_DIR     ${OPEN62541_COMPAT_DIR}
-    )
-
+    ${updateCommand}
+  )
 endfunction()
 
 macro(build_open62541_compat)

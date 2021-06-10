@@ -5,15 +5,17 @@ set(UAOCLIENTFOROPCUASCA_DIR ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca)
 include(FetchContent)
 
 function(fetch_UaoClientForOpcUaSca)
-  message(STATUS "  Fetching UaoClientForOpcUaSca from CERN GitLab. *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
+  message(STATUS "  Fetching UaoClientForOpcUaSca from CERN GitLab.")
+  message(STATUS "  *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
+
   FetchContent_Declare(
     UaoClientForOpcUaSca
-    GIT_REPOSITORY https://:@gitlab.cern.ch:8443/atlas-dcs-opcua-servers/UaoClientForOpcUaSca.git
+    GIT_REPOSITORY ${GIT_URL_ENDPOINT}/atlas-dcs-opcua-servers/UaoClientForOpcUaSca.git
     GIT_TAG        ${UAOCLIENTFOROPCUASCA_VERSION}
     GIT_SHALLOW    "1"
     SOURCE_DIR	   ${UAOCLIENTFOROPCUASCA_DIR}
     BINARY_DIR     ${UAOCLIENTFOROPCUASCA_DIR}
-    )
+  )
 endfunction()
 
 macro(build_UaoClientForOpcUaSca)

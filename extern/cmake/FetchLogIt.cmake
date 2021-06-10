@@ -5,10 +5,17 @@ set(LOGIT_DIR ${CMAKE_CURRENT_BINARY_DIR}/LogIt)
 include(FetchContent)
 
 function(fetch_LogIt)
-  message(STATUS "  Fetching LogIt from CERN GitLab. *NOTE* fetching version [${LOGIT_VERSION}]")
+  if(NOT NSWCONFIG_FETCH_METHOD STREQUAL "github")
+    message(STATUS "  Fetching LogIt from CERN GitLab.")
+  else()
+    message(STATUS "  Fetching LogIt from github.")
+  endif()
+
+  message(STATUS "  *NOTE* fetching version [${LOGIT_VERSION}]")
+
   FetchContent_Declare(
     LogIt
-    GIT_REPOSITORY https://:@gitlab.cern.ch:8443/quasar-team/LogIt.git
+    GIT_REPOSITORY ${GIT_URL_ENDPOINT}/quasar-team/LogIt.git
     GIT_TAG        ${LOGIT_VERSION}
     GIT_SHALLOW    "1"
     SOURCE_DIR     ${LOGIT_DIR}
@@ -35,8 +42,8 @@ macro(build_LogIt)
     add_subdirectory(${logit_SOURCE_DIR} ${logit_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
 
-  add_library(LogIt INTERFACE)
-  add_library(LogIt::LogIt ALIAS LogIt)
+  # add_library(LogIt INTERFACE)
+  # add_library(LogIt::LogIt ALIAS LogIt)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
