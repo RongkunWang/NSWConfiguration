@@ -82,6 +82,7 @@ find_path(LogIt_LIBRARY
 
 if(Open62541Compat_LIBRARY)
   ### Somehow get the version?
+  ### This is hardcoded to the version we pull from GitLab...
   set(Open62541Compat_VERSION_MAJOR 1)
   set(Open62541Compat_VERSION_MINOR 3)
   set(Open62541Compat_VERSION_PATCH 9)
@@ -119,7 +120,6 @@ find_package_handle_standard_args(Open62541Compat
   FOUND_VAR Open62541Compat_FOUND
   REQUIRED_VARS
     Open62541Compat_INCLUDE_DIR
-    Open62541Compat_LIBRARY
     open62541_INCLUDE_DIR
     LogIt_INCLUDE_DIR
     Open62541Compat_LIB_DIR
@@ -128,51 +128,51 @@ find_package_handle_standard_args(Open62541Compat
 
 if(Open62541Compat_FOUND)
   if(NOT Open62541Compat_FIND_QUIETLY)
-    # message(STATUS "Open62541Compat version: " ${Open62541Compat_VERSION})
+    message(STATUS "Found Open62541Compat version: " ${Open62541Compat_VERSION})
   endif()
 
   if(Open62541Compat_LIBRARY AND NOT TARGET Open62541Compat::open62541-compat)
-      add_library(Open62541Compat::open62541-compat INTERFACE IMPORTED GLOBAL)
-      set_target_properties(Open62541Compat::open62541-compat
-          PROPERTIES
-          IMPORTED_LIBNAME
-            open62541-compat
-          INTERFACE_LINK_DIRECTORIES
-            "${Open62541Compat_LIB_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES
-            "${Open62541Compat_INCLUDE_DIR}"
-	  INTERFACE_LINK_LIBRARIES ""
-      )
-    endif()
+    add_library(Open62541Compat::open62541-compat INTERFACE IMPORTED GLOBAL)
+    set_target_properties(Open62541Compat::open62541-compat
+      PROPERTIES
+        IMPORTED_LIBNAME
+          open62541-compat
+        INTERFACE_LINK_DIRECTORIES
+          "${Open62541Compat_LIB_DIR}"
+        INTERFACE_INCLUDE_DIRECTORIES
+          "${Open62541Compat_INCLUDE_DIR};${open62541_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES ""
+    )
+  endif()
 
   if(LogIt_LIBRARY AND NOT TARGET Open62541Compat::LogIt)
-      add_library(Open62541Compat::LogIt INTERFACE IMPORTED GLOBAL)
-      set_target_properties(Open62541Compat::LogIt
-          PROPERTIES
-          IMPORTED_LIBNAME
-            LogIt
-          INTERFACE_LINK_DIRECTORIES
-            "${Open62541Compat_LIB_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES
-            "${LogIt_INCLUDE_DIR};${Open62541Compat_INCLUDE_DIR}"
-	  INTERFACE_LINK_LIBRARIES ""
-          )
+    add_library(Open62541Compat::LogIt INTERFACE IMPORTED GLOBAL)
+    set_target_properties(Open62541Compat::LogIt
+      PROPERTIES
+        IMPORTED_LIBNAME
+          LogIt
+        INTERFACE_LINK_DIRECTORIES
+          "${Open62541Compat_LIB_DIR}"
+        INTERFACE_INCLUDE_DIRECTORIES
+          "${LogIt_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES ""
+    )
   endif()
 
   ## Alias targets
   if(NOT TARGET open62541-compat)
-      add_library(open62541-compat ALIAS Open62541Compat::open62541-compat)
+    add_library(open62541-compat ALIAS Open62541Compat::open62541-compat)
   endif()
 
   if(NOT TARGET Open62541Compat::LogIt)
-      add_library(Open62541Compat::LogIt ALIAS Open62541Compat::open62541-compat)
-      if(NOT TARGET LogIt)
-          add_library(LogIt ALIAS Open62541Compat::open62541-compat)
-      endif()
+    add_library(Open62541Compat::LogIt ALIAS Open62541Compat::open62541-compat)
+    if(NOT TARGET LogIt)
+      add_library(LogIt ALIAS Open62541Compat::open62541-compat)
+    endif()
   else()
-      if(NOT TARGET LogIt)
-          add_library(LogIt ALIAS Open62541Compat::LogIt)
-      endif()
+    if(NOT TARGET LogIt)
+      add_library(LogIt ALIAS Open62541Compat::LogIt)
+    endif()
   endif()
 endif()
 

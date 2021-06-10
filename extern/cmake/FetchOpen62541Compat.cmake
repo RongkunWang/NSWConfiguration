@@ -34,6 +34,13 @@ macro(build_open62541_compat)
   option(SKIP_TESTS CACHE ON)
   option(PULL_OPEN62541 CACHE OFF)
 
+  if(LOGIT_BUILD_OPTION STREQUAL "LOGIT_AS_EXT_STATIC")
+    if(logit_BINARY_DIR)
+      set(LOGIT_INCLUDE_DIR ${logit_BINARY_DIR}/include CACHE INTERNAL "")
+      set(LOGIT_EXT_LIB_DIR ${logit_BINARY_DIR}/lib CACHE INTERNAL "")
+    endif()
+  endif()
+
   ## Because tdaq_cmake turns this on globally, resulting in the above cache variable
   ## being ignored after a reconfiguration
   if(NOT STANDALONE_BUILD_SHARED)
@@ -59,7 +66,10 @@ macro(build_open62541_compat)
 
   add_library(Open62541Compat INTERFACE)
   add_library(Open62541Compat::open62541-compat ALIAS open62541-compat)
-  add_library(Open62541Compat::LogIt ALIAS LogIt)
+
+  if(NOT LOGIT_BUILD_OPTION STREQUAL "LOGIT_AS_EXT_STATIC")
+    add_library(Open62541Compat::LogIt ALIAS LogIt)
+  endif()
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
@@ -95,16 +105,6 @@ macro(build_open62541_compat)
         $<INSTALL_INTERFACE:lib>
   )
 
-  target_link_directories(LogIt BEFORE INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt>
-    $<INSTALL_INTERFACE:lib>
-    )
-
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include/
-    DESTINATION include/LogIt
-    FILES_MATCHING PATTERN "*.h*"
-  )
-
   install(TARGETS open62541-compat
     DESTINATION lib
   )
@@ -122,15 +122,30 @@ macro(build_open62541_compat)
     INCLUDES DESTINATION include
   )
 
+  if(NOT LOGIT_BUILD_OPTION STREQUAL "LOGIT_AS_EXT_STATIC")
+    target_include_directories(LogIt SYSTEM BEFORE INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include>
+      $<INSTALL_INTERFACE:include>
+    )
 
-  install(TARGETS LogIt
-    EXPORT Open62541Compat
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include/LogIt
-    INCLUDES DESTINATION include/LogIt
-  )
+    target_link_directories(LogIt BEFORE INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt>
+      $<INSTALL_INTERFACE:lib>
+    )
+
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include/
+      DESTINATION include/LogIt
+      FILES_MATCHING PATTERN "*.h*"
+    )
+
+    install(TARGETS LogIt
+      EXPORT Open62541Compat
+      ARCHIVE DESTINATION lib
+      LIBRARY DESTINATION lib
+      RUNTIME DESTINATION bin
+      INCLUDES DESTINATION include/LogIt
+    )
+  endif()
 
   install(EXPORT Open62541Compat
     FILE Open62541Compat-extern.cmake

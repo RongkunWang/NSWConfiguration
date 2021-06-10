@@ -29,6 +29,8 @@ macro(build_UaoClientForOpcUaSca)
 
   if(LogIt_INCLUDE_DIR)
     set(LOGIT_INCLUDE_DIR     ${LogIt_INCLUDE_DIR} CACHE STRING "")
+  elseif(logit_BINARY_DIR)
+    set(LOGIT_INCLUDE_DIR     ${logit_BINARY_DIR}/include CACHE STRING "")
   else()
     set(LOGIT_INCLUDE_DIR     ${open62541-compat_BINARY_DIR}/LogIt/include CACHE STRING "")
   endif()
