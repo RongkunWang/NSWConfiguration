@@ -182,7 +182,7 @@ namespace nsw {
     constexpr std::uint32_t NUM_PFEB_DELAY_REGS = 3;
     constexpr std::uint32_t NUM_PFEB_BCID_REGS  = 3;
     constexpr std::uint32_t REG_CONTROL          = 0x00;
-    constexpr std::uint32_t REG_STATUS_00        = 0x01;
+    constexpr std::uint32_t REG_STATUS           = 0x01;
     constexpr std::uint32_t REG_L1ID             = 0x02;
     constexpr std::uint32_t REG_CONTROL2         = 0x03;
     constexpr std::uint32_t REG_PFEB_DELAY_23_16 = 0x04;
