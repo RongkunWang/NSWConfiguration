@@ -78,10 +78,14 @@ class ConfigSender {
     void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
     void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
-    /// High level send/read functions
+    /// High level send/read functions (TP)
     void sendTpConfig        (const nsw::TPConfig& tp, bool quiet = false);
     void sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint32_t message, bool quiet = false);
     std::vector<uint8_t> readTpConfigRegister(const nsw::TPConfig& tp, uint8_t address);
+
+    /// High level send/read functions (pad trigger)
+    void sendPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address, uint32_t message, bool quiet = false);
+    uint32_t readPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,

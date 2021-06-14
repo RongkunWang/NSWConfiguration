@@ -813,6 +813,30 @@ uint32_t nsw::ConfigSender::readPadTriggerSCAControlRegister(const nsw::PadTrigg
     return word;
 }
 
+uint32_t nsw::ConfigSender::readPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address) {
+  std::vector<uint8_t> addr = { address };
+  auto data = readI2cAtAddress(pt.getOpcServerIp(), pt.getAddress() + ".fpga.fpga",
+                               addr.data(), addr.size(), nsw::NUM_BYTES_IN_WORD32);
+  auto data32 = nsw::byteVectorToWord32(data, nsw::padtrigger::SCA_LITTLE_ENDIAN);
+  return data32;
+}
+
+void nsw::ConfigSender::sendPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address, uint32_t message, bool quiet) {
+  std::vector<uint8_t> payload = { address };
+  auto data = nsw::intToByteVector(message, nsw::NUM_BYTES_IN_WORD32, 
+                                   nsw::padtrigger::SCA_LITTLE_ENDIAN);
+  payload.insert(payload.end(), data.begin(), data.end());
+  if (!quiet) {
+    ERS_LOG("... writing to pad trigger "
+            << pt.getOpcServerIp() << " " << pt.getAddress()
+            << ": address, message =  0x" << static_cast<int>(address)
+            << " 0x" << std::hex << nsw::byteVectorToWord32(data, nsw::padtrigger::SCA_LITTLE_ENDIAN)
+            );
+  }
+  sendI2cRaw(pt.getOpcServerIp(), pt.getAddress() + ".fpga.fpga",
+             payload.data(), payload.size());
+}
+
 void nsw::ConfigSender::sendPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig & obj, bool write) {
     auto ip   = obj.getOpcServerIp();
     auto addr = obj.getAddress() + ".fpga.fpga";
