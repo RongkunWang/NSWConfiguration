@@ -176,6 +176,35 @@ namespace nsw {
     constexpr std::uint32_t L1A_RESET_DISABLE = 0x00;
   }
 
+  namespace padtrigger {
+    constexpr bool SCA_LITTLE_ENDIAN = false;
+    constexpr std::uint32_t NUM_INPUT_DELAYS = 16;
+    constexpr std::uint32_t NUM_PFEB_DELAY_REGS = 3;
+    constexpr std::uint32_t NUM_PFEB_BCID_REGS  = 3;
+    constexpr std::uint32_t REG_CONTROL          = 0x00;
+    constexpr std::uint32_t REG_STATUS           = 0x01;
+    constexpr std::uint32_t REG_L1ID             = 0x02;
+    constexpr std::uint32_t REG_CONTROL2         = 0x03;
+    constexpr std::uint32_t REG_PFEB_DELAY_23_16 = 0x04;
+    constexpr std::uint32_t REG_PFEB_DELAY_15_08 = 0x05;
+    constexpr std::uint32_t REG_PFEB_DELAY_07_00 = 0x06;
+    constexpr std::uint32_t REG_PFEB_BCID_23_16  = 0x07;
+    constexpr std::uint32_t REG_PFEB_BCID_15_08  = 0x08;
+    constexpr std::uint32_t REG_PFEB_BCID_07_00  = 0x09;
+    constexpr std::array<std::uint8_t, NUM_PFEB_DELAY_REGS>
+      REG_PFEB_DELAYS = {
+      REG_PFEB_DELAY_23_16,
+      REG_PFEB_DELAY_15_08,
+      REG_PFEB_DELAY_07_00,
+    };
+    constexpr std::array<std::uint8_t, NUM_PFEB_BCID_REGS>
+      REG_PFEB_BCIDS = {
+      REG_PFEB_BCID_23_16,
+      REG_PFEB_BCID_15_08,
+      REG_PFEB_BCID_07_00,
+    };
+  }
+
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_CONSTANTS_H_

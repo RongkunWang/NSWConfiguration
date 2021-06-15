@@ -120,7 +120,7 @@ uint32_t nsw::byteVectorToWord32(std::vector<uint8_t> vec, bool littleEndian) {
       "Cannot convert std::vector<uint8_t> with " + std::to_string(vec.size()) + " elements to uint32_t"
     );
   }
-  if (littleEndian) {
+  if (!littleEndian) {
     std::reverse(vec.begin(), vec.end());
   }
   return *reinterpret_cast<uint32_t*>(vec.data());
