@@ -7,15 +7,15 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 include(CheckIPOSupported)
 set(IPO_SUPPORTED)
 check_ipo_supported(RESULT IPO_SUPPORTED)
-message(STATUS "IPO_SUPPORTED::${IPO_SUPPORTED}")
+message(STATUS "  IPO_SUPPORTED::${IPO_SUPPORTED}")
 
 add_subdirectory(extern)
 
 tdaq_package() #This will make a package called NSWConfiguration
 set(TDAQ_DB_PROJECT muons)
 
-set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
-set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
+# set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
+# set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 
 remove_definitions(-DERS_NO_DEBUG)
 
@@ -166,29 +166,25 @@ tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
 set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)
 
 foreach(testname IN LISTS NSWCONFIG_TESTS)
-  message(STATUS "Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
+  message(STATUS "  Adding test::add_test(NAME ${testname} COMMAND test_${testname})")
   add_test(NAME ${testname} COMMAND test_${testname})
 endforeach()
 
 tdaq_add_library(nswopcclient
-        src/OpcClient.cpp
+    src/OpcClient.cpp
   LINK_LIBRARIES
-        Boost::boost
-        tdaq-common::ers
-        UaoClient::UaoClientForOpcUaSca
-        Open62541Compat::LogIt
-        rt
+    tdaq-common::ers
+    UaoClient::UaoClientForOpcUaSca
+    Open62541Compat::open62541-compat
+    rt
 )
-# LINK_LIBRARIES PRIVATE
-
-## Link against static external dependencies
-# target_link_libraries(nswopcclient
-#   PRIVATE
-#   )
 
 if(IPO_SUPPORTED)
-  message(STATUS "Enabling IPO")
-  set_target_properties(nswopcclient PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+  message(STATUS "  Enabling IPO for nswopcclient and nswconfig")
+  set_target_properties(nswopcclient nswconfig
+    PROPERTIES
+      INTERPROCEDURAL_OPTIMIZATION ON
+  )
 endif()
 
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
