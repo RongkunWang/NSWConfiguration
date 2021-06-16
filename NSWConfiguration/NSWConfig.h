@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_NSWCONFIG_H_
 #define NSWCONFIGURATION_NSWCONFIG_H_
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -9,9 +10,13 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/OKSDeviceHierarchy.h"
+#include "NSWConfiguration/Types.h"
 
-#include "boost/property_tree/ptree.hpp"
+#include <boost/property_tree/ptree.hpp>
 
+#include "dal/ResourceBase.h"
+#include "dal/util.h"
 #include "ers/ers.h"
 
 ERS_DECLARE_ISSUE(nsw,
@@ -37,11 +42,16 @@ class NSWConfig {
     //! Template class to allow the reading of both the Config and Calib configurations
     template <class U>
     void readConf(const U* nswApp) {
+      auto deviceHierarchy            = nsw::oks::initDeviceMap();
       try {
         m_dbcon = nswApp->get_dbConnection();
         m_resetvmm = nswApp->get_resetVMM();
         m_resettds = nswApp->get_resetTDS();
         m_max_threads = nswApp->get_maxThreads();
+        ERS_INFO("Read device hierarchy");
+        auto conf = Configuration("");
+        [[maybe_unused]] const auto val = nsw::oks::parseDeviceMap(
+          deviceHierarchy, nswApp->get_Contains(), nswApp->class_name(), daq::core::get_partition(conf, ""));
         ERS_INFO("DB Configuration: " << m_dbcon);
         ERS_INFO("Reset VMM: "   << m_resetvmm);
         ERS_INFO("Reset TDS: "   << m_resettds);

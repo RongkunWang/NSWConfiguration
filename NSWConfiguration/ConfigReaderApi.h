@@ -10,9 +10,10 @@
 #include <memory>
 #include <set>
 
-#include "boost/property_tree/ptree.hpp"
+#include <boost/property_tree/ptree.hpp>
 
 #include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/Types.h"
 
 #include "ers/Issue.h"
 
@@ -115,7 +116,7 @@ class JsonApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit JsonApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit JsonApi(const std::string& file_path, nsw::DeviceMap devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
@@ -124,17 +125,16 @@ class XmlApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit XmlApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit XmlApi(const std::string& file_path, [[maybe_unused]] const nsw::DeviceMap& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
 class OracleApi: public ConfigReaderApi {
  private:
-  std::string db_connection;
+  std::string m_db_connection;
 
  public:
-  explicit OracleApi(const std::string& db_connection) {}
-  ~OracleApi() = default;
+  explicit OracleApi(const std::string& db_connection, [[maybe_unused]] const nsw::DeviceMap& devices={}): m_db_connection(db_connection) {}
   boost::property_tree::ptree & read() override;
 };
 
@@ -143,13 +143,13 @@ class OksApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit OksApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit OksApi(const std::string& file_path, [[maybe_unused]] const nsw::DeviceMap& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
 class PtreeApi: public ConfigReaderApi {
  public:
-  explicit PtreeApi(boost::property_tree::ptree tree) {
+  explicit PtreeApi(boost::property_tree::ptree tree, [[maybe_unused]] const nsw::DeviceMap& devices={}) {
     m_config = tree;
   }
   boost::property_tree::ptree & read() override;

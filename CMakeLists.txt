@@ -116,7 +116,9 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/TPConfig.cpp src/TPCarrierConfig.cpp
                  src/RouterConfig.cpp
                  src/ConfigConverter.cpp
+                 src/OKSDeviceHierarchy.cpp
   LINK_LIBRARIES Boost::boost
+                 nswconfigdal
                  nswopcclient
                  tdaq-common::ers
                  ic_comms

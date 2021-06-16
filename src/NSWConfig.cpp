@@ -7,6 +7,10 @@
 // Header to the RC online services
 #include "RunControl/Common/OnlineServices.h"
 
+#include "dal/ResourceSet.h"
+#include "config/Configuration.h"
+#include "ers/ers.h"
+
 using boost::property_tree::ptree;
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
@@ -41,8 +45,9 @@ void nsw::NSWConfig::configureRc() {
         else if (element == "TP")            m_tps       .emplace(this_pair);
         else if (element == "TPCarrier")     m_tpcarriers.emplace(this_pair);
         else if (element == "L1DDC")         m_l1ddcs    .emplace(this_pair);
-        else
+        else {
           m_frontends.emplace(this_pair);
+        }
         std::cout << name << std::endl;
       } catch (std::exception & e) {
         std::stringstream ss;
