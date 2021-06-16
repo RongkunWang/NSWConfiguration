@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_NSWCONFIG_H_
 #define NSWCONFIGURATION_NSWCONFIG_H_
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -12,6 +13,7 @@
 
 #include "boost/property_tree/ptree.hpp"
 
+#include "dal/ResourceBase.h"
 #include "ers/ers.h"
 
 ERS_DECLARE_ISSUE(nsw,
@@ -42,10 +44,14 @@ class NSWConfig {
         m_resetvmm = nswApp->get_resetVMM();
         m_resettds = nswApp->get_resetTDS();
         m_max_threads = nswApp->get_maxThreads();
+        ERS_INFO("Read device hierarchy");
+        std::ostringstream stream;
+        [[maybe_unused]] const auto val = parseDeviceHierarchy(nswApp->get_Contains(), stream);
         ERS_INFO("DB Configuration: " << m_dbcon);
         ERS_INFO("Reset VMM: "   << m_resetvmm);
         ERS_INFO("Reset TDS: "   << m_resettds);
         ERS_INFO("max threads: " << m_max_threads);
+        ERS_INFO("tree: " << stream.str());
       } catch(std::exception& ex) {
           std::stringstream ss;
           ss << "Problem reading OKS configuration of NSWConfig: " << ex.what();
@@ -116,6 +122,9 @@ private:
     void configurePadTriggers();
     void configureTPs();
     void configureTPCarriers();
+
+    //! Parse device hierarchy from OKS
+    [[nodiscard]] boost::property_tree::ptree parseDeviceHierarchy(const std::vector<const daq::core::ResourceBase*>& contains, std::ostringstream& stream, int level=0) const;
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;

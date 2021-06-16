@@ -7,6 +7,10 @@
 // Header to the RC online services
 #include "RunControl/Common/OnlineServices.h"
 
+#include "dal/ResourceSet.h"
+#include "config/Configuration.h"
+#include "ers/ers.h"
+
 using boost::property_tree::ptree;
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
@@ -425,4 +429,22 @@ void nsw::NSWConfig::startRc() {
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     enableMmtpChannelRates(false);
+}
+
+boost::property_tree::ptree nsw::NSWConfig::parseDeviceHierarchy(const std::vector<const daq::core::ResourceBase*>& contains, std::ostringstream& stream, const int level) const {
+    ERS_INFO("STARTING parseDeviceHierarchy");
+    for (const auto * element: contains) {
+        ERS_INFO("LOOP " << element);
+        element->print(level, true, stream);
+        ERS_INFO("AFTER PRINT");
+        auto* tmp = element->cast<daq::core::ResourceSet>();
+        ERS_INFO("AFTER DYN CAST " << tmp);
+        if (tmp) {
+            const auto asd = tmp->get_Contains();
+            ERS_INFO("CONTAINS SIZE  " << asd.size());
+            [[maybe_unused]] const auto tmp2 = parseDeviceHierarchy(asd, stream, level + 2);
+        }
+    }
+    ERS_INFO("DONE");
+    return {};
 }
