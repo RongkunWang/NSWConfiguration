@@ -334,6 +334,43 @@ ptree & XmlApi::read() {
     return m_config;
 }
 
+OracleApi::OracleApi(const std::string& configuration) :
+  m_db_connection(getDbConnectionString(configuration)),
+  m_config_set(getConfigSet(configuration)),
+  m_occi_env(oracle::occi::Environment::createEnvironment()),
+  m_occi_con(m_occi_env->createConnection(m_db_user_name,
+                                          m_db_password,
+                                          m_db_connection),
+             OcciConnectionDeleter{m_occi_env}),
+  m_device_hierarchy(buildHierarchyTree()) {}
+
+void OracleApi::testConfigurationString(const std::string& configuration) {
+  if (configuration.find('|') == std::string::npos) {
+    nsw::ConfigIssue issue(
+      ERS_HERE,
+      "DB configuration string does not contain '|' seperator between DB "
+      "connection and config set. Format should be <connection>|<config set>.");
+    ers::fatal(issue);
+    throw issue;
+  }
+}
+
+std::string OracleApi::getDbConnectionString(const std::string& configuration) {
+  testConfigurationString(configuration);
+  return configuration.substr(0, configuration.find('|'));
+}
+
+std::string OracleApi::getConfigSet(const std::string& configuration) {
+  testConfigurationString(configuration);
+  return configuration.substr(configuration.find('|') + 1);
+}
+
+std::vector<OracleApi::DeviceHierarchyTable> OracleApi::getDevices(
+  const std::string& query) {
+      // TODO
+      return executeQuery<OracleApi::DeviceHierarchyTable>(query);
+}
+
 ptree & OracleApi::read() {
     return m_config;
 }

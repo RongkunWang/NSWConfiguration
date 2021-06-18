@@ -115,10 +115,13 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/RouterConfig.cpp
                  src/ConfigConverter.cpp
   LINK_LIBRARIES Boost::boost
+                 Oracle
                  nswopcclient
                  tdaq-common::ers
                  ic_comms
 )
+
+target_link_options(nswconfig PRIVATE LINKER:-L/cvmfs/sft.cern.ch/lcg/releases/LCG_98python3/oracle/19.3.0.0.0/x86_64-centos7-gcc8-opt/lib -locci)
 
 tdaq_add_library(nswhwinterface
                 #  src/hw/DeviceManager.cpp # Placeholder for future

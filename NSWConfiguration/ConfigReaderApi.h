@@ -10,11 +10,13 @@
 #include <memory>
 #include <set>
 
-#include "boost/property_tree/ptree.hpp"
+#include <boost/property_tree/ptree.hpp>
+#include <occi.h>
 
 #include "NSWConfiguration/Constants.h"
 
 #include "ers/Issue.h"
+#include "ers/ers.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   ROCConfigBadNode,
@@ -130,13 +132,96 @@ class XmlApi: public ConfigReaderApi {
 
 class OracleApi: public ConfigReaderApi {
  private:
-  std::string db_connection;
+  struct OcciEnvironmentDeleter {
+    void operator() (oracle::occi::Environment* env) const {
+      oracle::occi::Environment::terminateEnvironment(env);
+    }
+  };
+  using OcciEnv = std::unique_ptr<oracle::occi::Environment, OcciEnvironmentDeleter>;
+  struct OcciConnectionDeleter {
+    const OcciEnv& m_env;
+    void operator() (oracle::occi::Connection* con) const {
+      m_env->terminateConnection(con);
+    }
+  };
+  using OcciCon = std::unique_ptr<oracle::occi::Connection, OcciConnectionDeleter>;
+
+  struct ValueTable {
+    std::string device_identifier;
+    std::string param_name;
+    std::string param_value;
+    constexpr static std::size_t num_entries{3};
+  };
+
+  struct DeviceHierarchyTable {
+    std::string parent_id;
+    std::string parent_type;
+    std::string parent_subtype;
+    std::string parent_pseudodevice;
+    std::string child_id;
+    std::string child_type;
+    std::string child_subtype;
+    std::string child_pseudodevice;
+    constexpr static std::size_t num_entries{8};
+  };
+
+  [[nodiscard]] boost::property_tree::ptree buildHierarchyTree() {return {};};
+  [[nodiscard]] static std::string getDbConnectionString(const std::string& configuration);
+  static void testConfigurationString(const std::string& configuration);
+  [[nodiscard]] static std::string getConfigSet(const std::string& configuration);
+  [[nodiscard]] std::vector<DeviceHierarchyTable> getDevices(
+    const std::string& query);
+
+  template<typename Table>
+  [[nodiscard]] std::vector<Table> executeQuery(const std::string& query) {
+    auto* statement  = m_occi_con->createStatement(query);
+    auto* result_set = statement->executeQuery();
+    if (result_set->getColumnListMetaData().size() !=
+        Table::num_entries) {
+      nsw::ConfigIssue issue(
+        ERS_HERE,
+        ("Number of columns in query does not match expectation " +
+          std::to_string(Table::num_entries)).c_str());
+      ers::fatal(issue);
+      throw issue;
+    }
+    std::vector<Table> table;
+    while (result_set->next()) {
+      std::array<std::string, Table::num_entries> row;
+      for (std::size_t i=0; i<Table::num_entries; i++) {
+        row[i] = result_set->getString(i+1);
+      }
+      table.push_back(init_table<Table>(row));
+    }
+    statement->closeResultSet(result_set);
+    m_occi_con->terminateStatement(statement);
+    return table;
+  }
+
+  template<typename Result, typename Array, std::size_t... I>
+  static Result init_table_impl(const Array& values, std::index_sequence<I...>) {
+    return Result{values[I]...};
+  }
+
+  template<typename Result,
+           typename ValueType,
+           typename Indices = std::make_index_sequence<Result::num_entries>>
+  static Result init_table(const std::array<ValueType, Result::num_entries>& values) {
+    return init_table_impl<Result>(values, Indices{});
+  }
 
  public:
-  explicit OracleApi(const std::string& db_connection) {}
-  ~OracleApi() = default;
+  explicit OracleApi(const std::string& configuration);
   boost::property_tree::ptree & read() override;
-};
+
+  std::string m_db_user_name{""};
+  std::string m_db_password{""};
+  std::string m_db_connection;
+  std::string m_config_set;
+  OcciEnv m_occi_env;
+  OcciCon m_occi_con;
+  boost::property_tree::ptree m_device_hierarchy;
+  };
 
 class OksApi: public ConfigReaderApi {
  private:
