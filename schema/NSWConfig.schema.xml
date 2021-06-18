@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="ASCII"?>
 
-<!-- oks-schema version 2.0 -->
+<!-- oks-schema version 2.1 -->
 
 
 <!DOCTYPE oks-schema [
   <!ELEMENT oks-schema (info, (include)?, (comments)?, (class)+)>
   <!ELEMENT info EMPTY>
   <!ATTLIST info
-      name CDATA #REQUIRED
-      type CDATA #REQUIRED
+      name CDATA #IMPLIED
+      type CDATA #IMPLIED
       num-of-items CDATA #REQUIRED
       oks-format CDATA #FIXED "schema"
       oks-version CDATA #REQUIRED
-      created-by CDATA #REQUIRED
-      created-on CDATA #REQUIRED
-      creation-time CDATA #REQUIRED
-      last-modified-by CDATA #REQUIRED
-      last-modified-on CDATA #REQUIRED
-      last-modification-time CDATA #REQUIRED
+      created-by CDATA #IMPLIED
+      created-on CDATA #IMPLIED
+      creation-time CDATA #IMPLIED
+      last-modified-by CDATA #IMPLIED
+      last-modified-on CDATA #IMPLIED
+      last-modification-time CDATA #IMPLIED
   >
   <!ELEMENT include (file)+>
   <!ELEMENT file EMPTY>
@@ -78,7 +78,7 @@
 
 <oks-schema>
 
-<info name="" type="" num-of-items="1" oks-format="schema" oks-version="oks-06-10-11 built &quot;Nov  27 2017&quot;" created-by="cyildiz" created-on="pccenk-dev2.cern.ch" creation-time="20171127T191100" last-modified-by="cyildiz" last-modified-on="pccenk-dev2.cern.ch" last-modification-time="20171127T191100"/>
+<info name="" type="" num-of-items="14" oks-format="schema" oks-version="oks-08-03-02-01 built &quot;Mar  1 2021&quot;" created-by="cbeiraod" created-on="" creation-time="20210114T123458" last-modified-by="cbeiraod" last-modified-on="lxplus741.cern.ch" last-modification-time="20210330T103835"/>
 
 <include>
  <file path="daq/schema/core.schema.xml"/>
@@ -93,7 +93,142 @@
    <attribute name="maxThreads" description="Maximum number of threads for parallel FEB configuring." type="u32" init-value="99" is-not-null="yes"/>
    <attribute name="dbConnection" description="Database connection string, depending on the starting word(json, xml, oracle), different ConfigReader APIs are used" type="string" init-value="json:///afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/integration_config.json" is-not-null="yes"/>
   <relationship name="SwROD" description="Link to swROD applications" class-type="Application" low-cc="zero" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/>
- <!-- <relationship name="SwROD" description="Link to swROD applications" class-type="swROD" low-cc="one" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/> -->
+  <!-- <relationship name="SwROD" description="Link to swROD applications" class-type="swROD" low-cc="one" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/> -->
+ </class>
+
+ <class name="NSW_OPCServer" description="NSW OPC Server configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_L1DDC" description="NSW L1DDC Board configuration base class">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_L1DDC_MM" description="NSW L1DDC Board configuration for the MM">
+  <superclass name="NSW_L1DDC"/>
+ </class>
+
+ <class name="NSW_L1DDC_pFEB" description="NSW L1DDC Board configurationfor the pFEB">
+  <superclass name="NSW_L1DDC"/>
+ </class>
+
+ <class name="NSW_L1DDC_sFEB" description="NSW L1DDC Board configuration for the sFEB">
+  <superclass name="NSW_L1DDC"/>
+ </class>
+
+ <class name="NSW_ADDC" description="NSW ADDC Board configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_ART" description="NSW ART chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_MMFE8" description="NSW MMFE8 Board configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_pFEB" description="NSW pFEB Board configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_sFEB" description="NSW sFEB Board configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_TDS" description="NSW TDS chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_ROC" description="NSW ROC chip configuration">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+  <attribute name="VMM0_DeviceID" description="The Device ID of the ePLL VMM0" type="u64" is-not-null="yes"/>
+  <attribute name="VMM1_DeviceID" description="The Device ID of the ePLL VMM1" type="u64" is-not-null="yes"/>
+  <attribute name="TDC_DeviceID" description="The Device ID of the ePLL TDC" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_sROC" description="NSW sROC component of ROC chip configuration">
+  <superclass name="ResourceSetAND"/>
+ </class>
+
+ <class name="NSW_VMM" description="NSW VMM chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+
+  <attribute name="ch01_DeviceID" description="The Oracle DB Device ID of the channel 01 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch02_DeviceID" description="The Oracle DB Device ID of the channel 02 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch03_DeviceID" description="The Oracle DB Device ID of the channel 03 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch04_DeviceID" description="The Oracle DB Device ID of the channel 04 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch05_DeviceID" description="The Oracle DB Device ID of the channel 05 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch06_DeviceID" description="The Oracle DB Device ID of the channel 06 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch07_DeviceID" description="The Oracle DB Device ID of the channel 07 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch08_DeviceID" description="The Oracle DB Device ID of the channel 08 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch09_DeviceID" description="The Oracle DB Device ID of the channel 09 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch10_DeviceID" description="The Oracle DB Device ID of the channel 10 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch11_DeviceID" description="The Oracle DB Device ID of the channel 11 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch12_DeviceID" description="The Oracle DB Device ID of the channel 12 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch13_DeviceID" description="The Oracle DB Device ID of the channel 13 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch14_DeviceID" description="The Oracle DB Device ID of the channel 14 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch15_DeviceID" description="The Oracle DB Device ID of the channel 15 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch16_DeviceID" description="The Oracle DB Device ID of the channel 16 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch17_DeviceID" description="The Oracle DB Device ID of the channel 17 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch18_DeviceID" description="The Oracle DB Device ID of the channel 18 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch19_DeviceID" description="The Oracle DB Device ID of the channel 19 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch20_DeviceID" description="The Oracle DB Device ID of the channel 20 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch21_DeviceID" description="The Oracle DB Device ID of the channel 21 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch22_DeviceID" description="The Oracle DB Device ID of the channel 22 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch23_DeviceID" description="The Oracle DB Device ID of the channel 23 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch24_DeviceID" description="The Oracle DB Device ID of the channel 24 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch25_DeviceID" description="The Oracle DB Device ID of the channel 25 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch26_DeviceID" description="The Oracle DB Device ID of the channel 26 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch27_DeviceID" description="The Oracle DB Device ID of the channel 27 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch28_DeviceID" description="The Oracle DB Device ID of the channel 28 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch29_DeviceID" description="The Oracle DB Device ID of the channel 29 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch30_DeviceID" description="The Oracle DB Device ID of the channel 30 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch31_DeviceID" description="The Oracle DB Device ID of the channel 31 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch32_DeviceID" description="The Oracle DB Device ID of the channel 32 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch33_DeviceID" description="The Oracle DB Device ID of the channel 33 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch34_DeviceID" description="The Oracle DB Device ID of the channel 34 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch35_DeviceID" description="The Oracle DB Device ID of the channel 35 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch36_DeviceID" description="The Oracle DB Device ID of the channel 36 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch37_DeviceID" description="The Oracle DB Device ID of the channel 37 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch38_DeviceID" description="The Oracle DB Device ID of the channel 38 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch39_DeviceID" description="The Oracle DB Device ID of the channel 39 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch40_DeviceID" description="The Oracle DB Device ID of the channel 40 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch41_DeviceID" description="The Oracle DB Device ID of the channel 41 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch42_DeviceID" description="The Oracle DB Device ID of the channel 42 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch43_DeviceID" description="The Oracle DB Device ID of the channel 43 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch44_DeviceID" description="The Oracle DB Device ID of the channel 44 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch45_DeviceID" description="The Oracle DB Device ID of the channel 45 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch46_DeviceID" description="The Oracle DB Device ID of the channel 46 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch47_DeviceID" description="The Oracle DB Device ID of the channel 47 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch48_DeviceID" description="The Oracle DB Device ID of the channel 48 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch49_DeviceID" description="The Oracle DB Device ID of the channel 49 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch50_DeviceID" description="The Oracle DB Device ID of the channel 50 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch51_DeviceID" description="The Oracle DB Device ID of the channel 51 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch52_DeviceID" description="The Oracle DB Device ID of the channel 52 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch53_DeviceID" description="The Oracle DB Device ID of the channel 53 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch54_DeviceID" description="The Oracle DB Device ID of the channel 54 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch55_DeviceID" description="The Oracle DB Device ID of the channel 55 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch56_DeviceID" description="The Oracle DB Device ID of the channel 56 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch57_DeviceID" description="The Oracle DB Device ID of the channel 57 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch58_DeviceID" description="The Oracle DB Device ID of the channel 58 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch59_DeviceID" description="The Oracle DB Device ID of the channel 59 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch60_DeviceID" description="The Oracle DB Device ID of the channel 60 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch61_DeviceID" description="The Oracle DB Device ID of the channel 61 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch62_DeviceID" description="The Oracle DB Device ID of the channel 62 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch63_DeviceID" description="The Oracle DB Device ID of the channel 63 pseudodevice" type="u64" is-not-null="yes"/>
+  <attribute name="ch64_DeviceID" description="The Oracle DB Device ID of the channel 64 pseudodevice" type="u64" is-not-null="yes"/>
  </class>
 
 </oks-schema>
+
