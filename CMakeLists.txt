@@ -103,6 +103,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_ALTI)
 endforeach()
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
+                 src/ConfigReaderOracleApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/SCAConfig.cpp
                  src/I2cMasterConfig.cpp
@@ -116,6 +117,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigConverter.cpp
   LINK_LIBRARIES Boost::boost
                  Oracle
+                 nswconfigdal
                  nswopcclient
                  tdaq-common::ers
                  ic_comms

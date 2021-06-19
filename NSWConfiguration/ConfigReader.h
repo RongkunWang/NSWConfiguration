@@ -11,6 +11,7 @@
 #include <set>
 
 #include "NSWConfiguration/ConfigReaderApi.h"
+#include "NSWConfiguration/ConfigReaderOracleApi.h"
 #include "NSWConfiguration/Utility.h"
 
 #include "boost/property_tree/ptree_fwd.hpp"
@@ -26,7 +27,7 @@ class ConfigReader {
   ConfigReader(const std::string& connection_string, const std::vector<std::string>& components);
   explicit ConfigReader(const std::string& connection_string);
   explicit ConfigReader(const boost::property_tree::ptree& tree);
-  ~ConfigReader();
+  explicit ConfigReader(const std::string& connection_string, const DeviceHierarchy& devices);
 
   boost::property_tree::ptree readConfig() {
     return m_api->read();
@@ -103,6 +104,11 @@ class ConfigReader {
 
     return configs;
   }
+
+  private:
+  [[nodiscard]] static std::unique_ptr<ConfigReaderApi> getApi(
+    const std::string&     connection_string,
+    const DeviceHierarchy& devices);
 };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_CONFIGREADER_H_

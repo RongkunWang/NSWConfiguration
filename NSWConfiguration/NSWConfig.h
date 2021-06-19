@@ -10,8 +10,11 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/ConfigReaderOracleApi.h"
+#include "NSWConfiguration/Types.h"
 
 #include "boost/property_tree/ptree.hpp"
+#include <boost/property_tree/json_parser.hpp>
 
 #include "dal/ResourceBase.h"
 #include "ers/ers.h"
@@ -45,13 +48,23 @@ class NSWConfig {
         m_resettds = nswApp->get_resetTDS();
         m_max_threads = nswApp->get_maxThreads();
         ERS_INFO("Read device hierarchy");
-        std::ostringstream stream;
-        [[maybe_unused]] const auto val = parseDeviceHierarchy(nswApp->get_Contains(), stream);
+        auto deviceHierarchy            = OracleApi::initDeviceHierarchy();
+        [[maybe_unused]] const auto val = OracleApi::parseDeviceHierarchy(
+          deviceHierarchy, nswApp->get_Contains(), nswApp->class_name());
         ERS_INFO("DB Configuration: " << m_dbcon);
         ERS_INFO("Reset VMM: "   << m_resetvmm);
         ERS_INFO("Reset TDS: "   << m_resettds);
         ERS_INFO("max threads: " << m_max_threads);
-        ERS_INFO("tree: " << stream.str());
+        ERS_INFO("Hieracrhy");
+        for (const auto& [type, map] : deviceHierarchy) {
+          ERS_INFO("Type: " << type);
+          for (const auto& [name, tree] : map) {
+            ERS_INFO("Name: " << name);
+            std::stringstream stream;
+            boost::property_tree::json_parser::write_json(stream, tree);
+            ERS_INFO("Tree: " << stream.str());
+          }
+        }
       } catch(std::exception& ex) {
           std::stringstream ss;
           ss << "Problem reading OKS configuration of NSWConfig: " << ex.what();
@@ -122,9 +135,6 @@ private:
     void configurePadTriggers();
     void configureTPs();
     void configureTPCarriers();
-
-    //! Parse device hierarchy from OKS
-    [[nodiscard]] boost::property_tree::ptree parseDeviceHierarchy(const std::vector<const daq::core::ResourceBase*>& contains, std::ostringstream& stream, int level=0) const;
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;

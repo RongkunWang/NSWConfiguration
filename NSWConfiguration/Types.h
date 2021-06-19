@@ -8,10 +8,12 @@
 #define NSWCONFIGURATION_TYPES_H_
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <utility>
 
+#include <boost/property_tree/ptree.hpp>
 namespace i2c {
     using RegisterSizePair = std::pair<std::string, size_t>;
 
@@ -36,5 +38,10 @@ namespace gbtx{
     };
 
 }
+
+using DeviceHierarchy = std::unordered_map<
+  std::string,
+  std::unordered_map<std::string, boost::property_tree::ptree>>;
+
 
 #endif  // NSWCONFIGURATION_TYPES_H_

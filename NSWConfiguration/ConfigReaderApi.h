@@ -11,12 +11,11 @@
 #include <set>
 
 #include <boost/property_tree/ptree.hpp>
-#include <occi.h>
 
 #include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/Types.h"
 
 #include "ers/Issue.h"
-#include "ers/ers.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   ROCConfigBadNode,
@@ -29,6 +28,12 @@ ERS_DECLARE_ISSUE(nsw,
                   "No such node: " << node << " in common configuration of: " << fetype,
                   ((std::string)node)
                   ((std::string)fetype)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  ConfigBadNodeGeneral,
+                  "No such node : " << node << " in common configuration tree",
+                  ((std::string)node)
                   )
 
 ERS_DECLARE_ISSUE(nsw,
@@ -54,6 +59,11 @@ class ConfigReaderApi {
   /// \param common ptree that is fully populated with all fields required by VMMConfig
   /// \param specific ptree that is partially populated.
   virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
+
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  /// \param common ptree that is fully populated
+  /// \param specific ptree that is partially populated.
+  virtual void mergeTree(const boost::property_tree::ptree& specific, boost::property_tree::ptree& common) const;
 
  protected:
   boost::property_tree::ptree m_config;  /// Ptree that holds all configuration
@@ -108,8 +118,6 @@ class ConfigReaderApi {
   virtual boost::property_tree::ptree readRouter(const std::string& element) const;
   virtual boost::property_tree::ptree readTP(const std::string& element) const;
   virtual boost::property_tree::ptree readTPCarrier(const std::string& element) const;
-
-  virtual ~ConfigReaderApi() = default;
 };
 
 class JsonApi: public ConfigReaderApi {
@@ -117,7 +125,7 @@ class JsonApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit JsonApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit JsonApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
@@ -126,115 +134,22 @@ class XmlApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit XmlApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit XmlApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
-
-class OracleApi: public ConfigReaderApi {
- private:
-  struct OcciEnvironmentDeleter {
-    void operator() (oracle::occi::Environment* env) const {
-      oracle::occi::Environment::terminateEnvironment(env);
-    }
-  };
-  using OcciEnv = std::unique_ptr<oracle::occi::Environment, OcciEnvironmentDeleter>;
-  struct OcciConnectionDeleter {
-    const OcciEnv& m_env;
-    void operator() (oracle::occi::Connection* con) const {
-      m_env->terminateConnection(con);
-    }
-  };
-  using OcciCon = std::unique_ptr<oracle::occi::Connection, OcciConnectionDeleter>;
-
-  struct ValueTable {
-    std::string device_identifier;
-    std::string param_name;
-    std::string param_value;
-    constexpr static std::size_t num_entries{3};
-  };
-
-  struct DeviceHierarchyTable {
-    std::string parent_id;
-    std::string parent_type;
-    std::string parent_subtype;
-    std::string parent_pseudodevice;
-    std::string child_id;
-    std::string child_type;
-    std::string child_subtype;
-    std::string child_pseudodevice;
-    constexpr static std::size_t num_entries{8};
-  };
-
-  [[nodiscard]] boost::property_tree::ptree buildHierarchyTree() {return {};};
-  [[nodiscard]] static std::string getDbConnectionString(const std::string& configuration);
-  static void testConfigurationString(const std::string& configuration);
-  [[nodiscard]] static std::string getConfigSet(const std::string& configuration);
-  [[nodiscard]] std::vector<DeviceHierarchyTable> getDevices(
-    const std::string& query);
-
-  template<typename Table>
-  [[nodiscard]] std::vector<Table> executeQuery(const std::string& query) {
-    auto* statement  = m_occi_con->createStatement(query);
-    auto* result_set = statement->executeQuery();
-    if (result_set->getColumnListMetaData().size() !=
-        Table::num_entries) {
-      nsw::ConfigIssue issue(
-        ERS_HERE,
-        ("Number of columns in query does not match expectation " +
-          std::to_string(Table::num_entries)).c_str());
-      ers::fatal(issue);
-      throw issue;
-    }
-    std::vector<Table> table;
-    while (result_set->next()) {
-      std::array<std::string, Table::num_entries> row;
-      for (std::size_t i=0; i<Table::num_entries; i++) {
-        row[i] = result_set->getString(i+1);
-      }
-      table.push_back(init_table<Table>(row));
-    }
-    statement->closeResultSet(result_set);
-    m_occi_con->terminateStatement(statement);
-    return table;
-  }
-
-  template<typename Result, typename Array, std::size_t... I>
-  static Result init_table_impl(const Array& values, std::index_sequence<I...>) {
-    return Result{values[I]...};
-  }
-
-  template<typename Result,
-           typename ValueType,
-           typename Indices = std::make_index_sequence<Result::num_entries>>
-  static Result init_table(const std::array<ValueType, Result::num_entries>& values) {
-    return init_table_impl<Result>(values, Indices{});
-  }
-
- public:
-  explicit OracleApi(const std::string& configuration);
-  boost::property_tree::ptree & read() override;
-
-  std::string m_db_user_name{""};
-  std::string m_db_password{""};
-  std::string m_db_connection;
-  std::string m_config_set;
-  OcciEnv m_occi_env;
-  OcciCon m_occi_con;
-  boost::property_tree::ptree m_device_hierarchy;
-  };
 
 class OksApi: public ConfigReaderApi {
  private:
   std::string m_file_path;
 
  public:
-  explicit OksApi(const std::string& file_path): m_file_path(file_path) {}
+  explicit OksApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
 class PtreeApi: public ConfigReaderApi {
  public:
-  explicit PtreeApi(boost::property_tree::ptree tree) {
+  explicit PtreeApi(boost::property_tree::ptree tree, [[maybe_unused]] const DeviceHierarchy& devices={}) {
     m_config = tree;
   }
   boost::property_tree::ptree & read() override;
