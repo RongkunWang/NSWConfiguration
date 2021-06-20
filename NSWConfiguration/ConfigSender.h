@@ -14,6 +14,7 @@
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/RouterConfig.h"
 
@@ -78,10 +79,12 @@ class ConfigSender {
     void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
     void sendRouterSetSCAID(const nsw::RouterConfig& obj);
 
-    /// High level send/read functions (TP)
-    void sendTpConfig        (const nsw::TPConfig& tp, bool quiet = false);
-    void sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint32_t message, bool quiet = false);
-    std::vector<uint8_t> readTpConfigRegister(const nsw::TPConfig& tp, uint8_t address);
+    /// High level send/read functions (SCAX, TP, TPCarrier)
+    void sendTPConfig(const nsw::TPConfig& tp, bool quiet = false);
+    void sendTPCarrierConfig(const nsw::TPCarrierConfig& carrier, const bool quiet = false);
+    void sendSCAXRegister                (const nsw::SCAConfig& scax, uint8_t address, uint32_t message, bool quiet = false);
+    uint32_t readSCAXRegisterWord        (const nsw::SCAConfig& scax, uint8_t address);
+    std::vector<uint8_t> readSCAXRegister(const nsw::SCAConfig& scax, uint8_t address);
 
     /// High level send/read functions (pad trigger)
     void sendPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address, uint32_t message, bool quiet = false);

@@ -5,6 +5,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
+#include <string>
+#include <array>
 
 namespace nsw {
   /// Fool me once
@@ -69,6 +72,22 @@ namespace nsw {
   constexpr std::size_t MIN_SECTOR_ID = 1;
   constexpr std::size_t MAX_SECTOR_ID = 16;
 
+  // Magic names of electronics
+  // Do not easily change the order.
+  const std::vector<std::string> ELEMENT_NAMES = {
+    "MMFE8",
+    "PFEB",
+    "SFEB_old",
+    "SFEB8",
+    "SFEB6",
+    "SFEB",
+    "TPCarrier",
+    "TP",
+    "ADDC",
+    "PadTriggerSCA",
+    "Router",
+  };
+
   // FIXME only valid for MMFE8
   namespace roc {
     namespace digital {
@@ -109,8 +128,17 @@ namespace nsw {
     constexpr std::uint32_t NUM_PHASE_INPUT     = 16;
   }
 
-  namespace mmtp {
+  namespace scax {
     constexpr bool SCAX_LITTLE_ENDIAN = true;
+  }
+
+  namespace carrier {
+    constexpr std::uint32_t RJOUT_SEL_STGC = 0x00;
+    constexpr std::uint32_t RJOUT_SEL_MM   = 0x01;
+    constexpr std::uint8_t REG_RJOUT_SEL = 0x01;
+  }
+
+  namespace mmtp {
     constexpr std::size_t PIPELINE_OVERFLOW_READS = 10;
     constexpr std::size_t FIBER_ALIGN_ATTEMPTS    = 10;
     constexpr std::size_t FIBER_ALIGN_SLEEP       = 5e6;
