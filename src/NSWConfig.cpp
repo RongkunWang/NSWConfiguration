@@ -283,7 +283,9 @@ void nsw::NSWConfig::enableVmmCaptureInputs() {
     const auto func = [this] (const std::string& t_name) {
         const auto configuration = m_frontends.at(t_name);
         nsw::ConfigSender configSender;
-        configSender.enableVmmCaptureInputs(configuration);
+        if (!m_simulation) {
+          configSender.enableVmmCaptureInputs(configuration);
+        }
     };
     m_threads->clear();
     for (const auto& kv : m_frontends) {
@@ -308,7 +310,9 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
     const auto func = [this] (const std::string& t_name) {
         const auto configuration = m_frontends.at(t_name);
         nsw::ConfigSender configSender;
-        configSender.disableVmmCaptureInputs(configuration);
+        if (!m_simulation) {
+          configSender.disableVmmCaptureInputs(configuration);
+        }
     };
     m_threads->clear();
     for (const auto& kv : m_frontends) {
