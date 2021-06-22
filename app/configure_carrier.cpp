@@ -61,6 +61,11 @@ int main(int ac, const char *av[]) {
   //
   nsw::ConfigSender cs;
   for (const auto& carrier: carriers) {
+    std::cout << std::endl;
+    std::cout << "  " << carrier.getOpcServerIp()
+              << ", " << carrier.getAddress()
+              << ": RJOutSel = " << carrier.RJOutSel() << std::endl;
+    std::cout << std::endl;
     if (!simulation) {
       cs.sendTPCarrierConfig(carrier);
     }
