@@ -627,7 +627,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     for (auto tp : tps) {
 
         // check alignment
-        auto outdata = readTpConfigRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
+        auto outdata = readSCAXRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
         ERS_LOG(tp.getOpcServerIp() << "/" << tp.getAddress() << " Found " << nsw::vectorToBitString(outdata, true));
 
         // TP collect data from the ARTs
@@ -644,7 +644,7 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
             // read for glitches
             auto glitches = std::vector<int>(nsw::mmtp::NUM_FIBERS);
             for (size_t i_read = 0; i_read < nsw::mmtp::FIBER_ALIGN_N_READS; i_read++) {
-                auto outdata = readTpConfigRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
+                auto outdata = readSCAXRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
                 for (auto & addc : addcs)
                     for (auto art : addc.getARTs())
                         if (art.IsMyTP(tp.getOpcServerIp(), tp.getAddress()) && !art.TP_GBTxAlignmentSkip())
@@ -686,9 +686,9 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
             }
 
             // or, set/unset the reset
-            sendTpConfigRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, reset);
+            sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, reset);
             usleep(1e6);
-            sendTpConfigRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, 0x00);
+            sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, 0x00);
 
             // protecc
             n_resets++;
@@ -696,24 +696,32 @@ void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
     }
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readTpConfigRegister(const nsw::TPConfig& tp, uint8_t address) {
-    auto addr = nsw::intToByteVector(address, nsw::NUM_BYTES_IN_WORD32, nsw::mmtp::SCAX_LITTLE_ENDIAN);
-    auto data = readI2cAtAddress(tp.getOpcServerIp(), tp.getAddress(), addr.data(), addr.size(), nsw::NUM_BYTES_IN_WORD32);
-    return data;
+std::vector<uint8_t> nsw::ConfigSender::readSCAXRegister(const nsw::SCAConfig& scax, uint8_t address) {
+  auto addr = nsw::intToByteVector(address, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+  auto data = readI2cAtAddress(scax.getOpcServerIp(), scax.getAddress(), addr.data(), addr.size(), nsw::NUM_BYTES_IN_WORD32);
+  return data;
 }
 
-void nsw::ConfigSender::sendTpConfigRegister(const nsw::TPConfig& tp, uint8_t address, uint32_t message, bool quiet) {
-    auto data = nsw::intToByteVector(message, nsw::NUM_BYTES_IN_WORD32, nsw::mmtp::SCAX_LITTLE_ENDIAN);
-    auto addr = nsw::intToByteVector(address, nsw::NUM_BYTES_IN_WORD32, nsw::mmtp::SCAX_LITTLE_ENDIAN);
-    std::vector<uint8_t> payload(addr);
-    payload.insert(payload.end(), data.begin(), data.end() );
-    if (!quiet)
-      ERS_LOG("... writing to TP: address, message =  " <<
-              static_cast<int>(address) << ", " << static_cast<int>(message) );
-    sendI2cRaw(tp.getOpcServerIp(), tp.getAddress(), payload.data(), payload.size() );
+uint32_t nsw::ConfigSender::readSCAXRegisterWord(const nsw::SCAConfig& scax, uint8_t address) {
+  return nsw::byteVectorToWord32(readSCAXRegister(scax, address), nsw::scax::SCAX_LITTLE_ENDIAN);
 }
 
-void nsw::ConfigSender::sendTpConfig(const nsw::TPConfig& tp, bool quiet) {
+void nsw::ConfigSender::sendSCAXRegister(const nsw::SCAConfig& scax, uint8_t address, uint32_t message, bool quiet) {
+  auto data = nsw::intToByteVector(message, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+  auto addr = nsw::intToByteVector(address, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+  std::vector<uint8_t> payload(addr);
+  payload.insert(payload.end(), data.begin(), data.end() );
+  if (!quiet)
+    ERS_LOG("... writing to TP: address, message =  " <<
+            static_cast<int>(address) << ", " << static_cast<int>(message) );
+  sendI2cRaw(scax.getOpcServerIp(), scax.getAddress(), payload.data(), payload.size());
+}
+
+void nsw::ConfigSender::sendTPCarrierConfig(const nsw::TPCarrierConfig& carrier, const bool quiet) {
+  sendSCAXRegister(carrier, nsw::carrier::REG_RJOUT_SEL, carrier.RJOutSel(), quiet);
+}
+
+void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     //
     // Collect registers to be written
     //
@@ -742,7 +750,7 @@ void nsw::ConfigSender::sendTpConfig(const nsw::TPConfig& tp, bool quiet) {
     // Write registers
     //
     for (auto element : list_of_messages) {
-      sendTpConfigRegister(tp, element.first, element.second, quiet);
+      sendSCAXRegister(tp, element.first, element.second, quiet);
     }
 
     //

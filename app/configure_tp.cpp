@@ -69,7 +69,7 @@ int main(int ac, const char *av[]) {
 
     std::cout << "Created a ConfigSender" << std::endl;
     if (!dry_run)
-        cs.sendTpConfig(tp);
+        cs.sendTPConfig(tp);
 
     std::cout << "... Done with configure_tp" << std::endl;
 

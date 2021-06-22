@@ -246,7 +246,7 @@ void nsw::NSWConfig::configureTPs() {
     for (const auto& kv : m_tps) {
         auto configuration = m_tps.at(kv.first);
         if (!m_simulation) {
-            m_sender->sendTpConfig(configuration);
+            m_sender->sendTPConfig(configuration);
         }
         ERS_LOG("Finished config to: " << kv.first);
     }
@@ -359,8 +359,8 @@ void nsw::NSWConfig::enableMmtpChannelRates(bool enable) const {
     try {
       if (config.EnableChannelRates()) {
         if (!m_simulation) {
-          configSender.sendTpConfigRegister(config, nsw::mmtp::REG_CHAN_RATE_ENABLE,
-                                            static_cast<uint32_t>(enable), quiet);
+          configSender.sendSCAXRegister(config, nsw::mmtp::REG_CHAN_RATE_ENABLE,
+                                        static_cast<uint32_t>(enable), quiet);
         }
       } else {
         ERS_LOG("enableMmtpChannelRates skipped for " << kv.first);

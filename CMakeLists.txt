@@ -63,6 +63,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   tp_comm_test
   mmtp_loopback_test
   configure_tp
+  configure_carrier
   configure_rim_l1ddc
   )
 
@@ -108,7 +109,8 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
-                 src/TPConfig.cpp src/RouterConfig.cpp
+                 src/TPConfig.cpp src/TPCarrierConfig.cpp
+                 src/RouterConfig.cpp
                  src/ConfigConverter.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient

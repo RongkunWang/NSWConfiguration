@@ -29,6 +29,8 @@ ptree ConfigReaderApi::read(const std::string& element) {
         return readSFEB(element, 4);
     } else if (nsw::getElementType(element) == "SFEB6") {
         return readSFEB6(element);
+    } else if (nsw::getElementType(element) == "TPCarrier") {
+        return readTPCarrier(element);
     } else if (nsw::getElementType(element) == "TP") {
         return readTP(element);
     } else if (nsw::getElementType(element) == "ADDC") {
@@ -58,6 +60,12 @@ std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp
         }
     }
     return result;
+}
+
+ptree ConfigReaderApi::readTPCarrier(const std::string& element) const {
+    ERS_LOG("Reading configuration for TP Carrier: " << element);
+    ptree tree = m_config.get_child(element);
+    return tree;
 }
 
 ptree ConfigReaderApi::readTP(const std::string& element) const {

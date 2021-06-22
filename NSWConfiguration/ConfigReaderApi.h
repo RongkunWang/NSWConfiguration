@@ -104,6 +104,7 @@ class ConfigReaderApi {
   virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const;
   virtual boost::property_tree::ptree readRouter(const std::string& element) const;
   virtual boost::property_tree::ptree readTP(const std::string& element) const;
+  virtual boost::property_tree::ptree readTPCarrier(const std::string& element) const;
 
   virtual ~ConfigReaderApi() = default;
 };
