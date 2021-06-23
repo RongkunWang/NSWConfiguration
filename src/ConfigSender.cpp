@@ -6,6 +6,7 @@
 
 #include "ers/ers.h"
 
+#include <thread>
 #include "boost/property_tree/ptree.hpp"
 
 using boost::property_tree::ptree;
@@ -985,7 +986,10 @@ void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
     sendRouterSetSCAID(obj);
 }
 
-void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj, int hold_reset) {
+void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj,
+                                            std::chrono::seconds reset_hold,
+                                            std::chrono::seconds reset_sleep) {
+
     auto opc_ip   = obj.getOpcServerIp();
     auto sca_addr = obj.getAddress();
     ERS_LOG(sca_addr << ": toggling soft reset");
@@ -1002,11 +1006,10 @@ void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj, int ho
     auto soft_reset = sca_addr + ".gpio.softReset";
     sendGPIO(opc_ip, soft_reset, 1);
     ERS_LOG(soft_reset << " " << readGPIO(opc_ip, soft_reset));
-    if (hold_reset)
-        sleep(hold_reset);
+    std::this_thread::sleep_for(reset_hold);
     sendGPIO(opc_ip, soft_reset, 0);
     ERS_LOG(soft_reset << " " << readGPIO(opc_ip, soft_reset));
-    usleep(5e6);
+    std::this_thread::sleep_for(reset_sleep);
 }
 
 void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {

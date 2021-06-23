@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <chrono>
 
 namespace nsw {
   /// Fool me once
@@ -231,6 +232,11 @@ namespace nsw {
       REG_PFEB_BCID_15_08,
       REG_PFEB_BCID_07_00,
     };
+  }
+
+  namespace router {
+    constexpr std::chrono::seconds RESET_HOLD{0};
+    constexpr std::chrono::seconds RESET_SLEEP{5};
   }
 
 }  // namespace nsw
