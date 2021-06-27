@@ -110,6 +110,8 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
                  src/TPConfig.cpp src/RouterConfig.cpp
                  src/ConfigConverter.cpp
+                 src/OpcManager.cpp src/I2cSender.cpp
+                 src/ConfigSenderRoc.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
@@ -171,7 +173,7 @@ foreach(testname IN LISTS NSWCONFIG_TESTS)
 endforeach()
 
 tdaq_add_library(nswopcclient
-        src/OpcClient.cpp
+        src/OpcClient.cpp 
   LINK_LIBRARIES
         Boost::boost
         tdaq-common::ers
