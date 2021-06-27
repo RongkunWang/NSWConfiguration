@@ -97,6 +97,7 @@ namespace nsw {
     }    // namespace sfeb
 
     constexpr std::uint8_t NUM_DIGITAL_REGISTERS = 64;
+    constexpr std::uint8_t NUM_ANALOG_REGISTERS = 64;
   }      // namespace roc
 
   namespace vmm {

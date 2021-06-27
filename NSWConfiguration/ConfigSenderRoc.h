@@ -4,7 +4,9 @@
 #include "NSWConfiguration/FEBConfig.h"
 
 namespace nsw::ConfigSender::ROC {
-  std::map<std::uint8_t, std::uint8_t> readConfiguration();
+  std::map<std::uint8_t, std::uint8_t> readConfiguration(
+    const std::string& opcserver_ipport,
+    const std::string& sca_address);
 
   void writeConfiguration(const nsw::FEBConfig& config);
 

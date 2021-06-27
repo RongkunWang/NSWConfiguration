@@ -3,6 +3,7 @@
 #include <iterator>
 
 #include <boost/property_tree/ptree.hpp>
+#include <numeric>
 
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
@@ -50,6 +51,21 @@ void nsw::ConfigSender::ROC::writeConfiguration(const nsw::FEBConfig& config) {
     opc_connection, config.getAddress(), config.getRocDigital());
 }
 
+std::map<std::uint8_t, std::uint8_t> nsw::ConfigSender::ROC::readConfiguration(
+  const std::string& opcserver_ipport,
+  const std::string& sca_address) {
+  std::map<std::uint8_t, std::uint8_t> result;
+  for (std::uint8_t regNumber = 0;
+       regNumber <
+       nsw::roc::NUM_ANALOG_REGISTERS + nsw::roc::NUM_DIGITAL_REGISTERS;
+       regNumber++) {
+    result.emplace(regNumber,
+                   nsw::ConfigSender::ROC::readRegister(
+                     opcserver_ipport, sca_address, regNumber));
+  }
+  return result;
+}
+
 void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
                                            const std::string& sca_address,
                                            const std::uint8_t registerId,
@@ -71,8 +87,8 @@ void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
       std::advance(iter, registerId);
       return iter->first;
     }
-    if (registerId - nsw::roc::NUM_DIGITAL_REGISTERS >
-        ROC_DIGITAL_REGISTERS.size()) {
+    if (registerId >
+        ROC_DIGITAL_REGISTERS.size() + nsw::roc::NUM_DIGITAL_REGISTERS) {
       throw std::runtime_error("Digital ROC register out of range: " +
                                std::to_string(registerId));
     }
