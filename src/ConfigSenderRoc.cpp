@@ -12,40 +12,40 @@
 #include "NSWConfiguration/ConfigConverter.h"
 
 void nsw::ConfigSender::ROC::writeConfiguration(const nsw::FEBConfig& config) {
-  constexpr bool HIGH = true;
-  constexpr bool LOW  = true;
+  constexpr bool INACTIVE_HIGH = true;
+  constexpr bool ACTIVE_LOW    = true;
 
   const auto& opc_connection =
     OpcManager::getConnection(config.getOpcServerIp());
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocCoreResetN", LOW);
+    opc_connection, config.getAddress() + ".gpio.rocCoreResetN", ACTIVE_LOW);
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocPllResetN", LOW);
+    opc_connection, config.getAddress() + ".gpio.rocPllResetN", ACTIVE_LOW);
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocSResetN", LOW);
+    opc_connection, config.getAddress() + ".gpio.rocSResetN", ACTIVE_LOW);
 
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocSResetN", HIGH);
+    opc_connection, config.getAddress() + ".gpio.rocSResetN", INACTIVE_HIGH);
 
   nsw::ConfigSender::I2c::sendI2cMasterConfig(
     opc_connection, config.getAddress(), config.getRocAnalog());
 
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocPllResetN", HIGH);
+    opc_connection, config.getAddress() + ".gpio.rocPllResetN", INACTIVE_HIGH);
 
   ERS_DEBUG(2, "Waiting for ROC Pll locks...");
   bool roc_locked = false;
   while (!roc_locked) {
-    bool rPll1 = nsw::ConfigSender::I2c::readGPIO(
+    const bool rPll1 = nsw::ConfigSender::I2c::readGPIO(
       opc_connection, config.getAddress() + ".gpio.rocPllLocked");
-    bool rPll2 = nsw::ConfigSender::I2c::readGPIO(
+    const bool rPll2 = nsw::ConfigSender::I2c::readGPIO(
       opc_connection, config.getAddress() + ".gpio.rocPllRocLocked");
     roc_locked = rPll1 && rPll2;
     ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
   }
 
   nsw::ConfigSender::I2c::sendGPIO(
-    opc_connection, config.getAddress() + ".gpio.rocCoreResetN", HIGH);
+    opc_connection, config.getAddress() + ".gpio.rocCoreResetN", INACTIVE_HIGH);
 
   nsw::ConfigSender::I2c::sendI2cMasterConfig(
     opc_connection, config.getAddress(), config.getRocDigital());
@@ -70,13 +70,7 @@ void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
                                            const std::string& sca_address,
                                            const std::uint8_t registerId,
                                            const std::uint8_t value) {
-  const auto        isAnalog    = registerId > nsw::roc::NUM_DIGITAL_REGISTERS;
-  const std::string sectionName = [isAnalog]() {
-    if (isAnalog) {
-      return std::string{ROC_ANALOG_NAME};
-    }
-    return std::string{ROC_DIGITAL_NAME};
-  }();
+  const auto        isAnalog   = registerId > nsw::roc::NUM_DIGITAL_REGISTERS;
   const std::string regAddress = [isAnalog, registerId]() {
     if (isAnalog) {
       if (registerId > ROC_ANALOG_REGISTERS.size()) {
@@ -96,11 +90,8 @@ void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
     std::advance(iter, registerId - nsw::roc::NUM_DIGITAL_REGISTERS);
     return iter->first;
   }();
-  nsw::ConfigSender::I2c::sendI2cMasterSingle(
-    nsw::OpcManager::getConnection(opcserver_ipport),
-    sca_address + '.' + sectionName,
-    {value},
-    regAddress);
+  nsw::ConfigSender::ROC::writeRegister(
+    opcserver_ipport, sca_address, regAddress, value);
 }
 
 void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
@@ -124,11 +115,37 @@ void nsw::ConfigSender::ROC::writeRegister(const std::string& opcserver_ipport,
     }
     return std::string{ROC_DIGITAL_NAME};
   }();
+
+  const auto& opcConnection =
+    OpcManager::getConnection(opcserver_ipport);
+  // TODO: Resets
+  if (isAnalog) {
+    constexpr bool ACTIVE_LOW = true;
+    nsw::ConfigSender::I2c::sendGPIO(
+      opcConnection, sca_address + ".gpio.rocPllResetN", ACTIVE_LOW);
+  }
   nsw::ConfigSender::I2c::sendI2cMasterSingle(
-    nsw::OpcManager::getConnection(opcserver_ipport),
+    opcConnection,
     sca_address + '.' + sectionName,
     {value},
     regAddress);
+
+  if (isAnalog) {
+    constexpr bool INACTIVE_HIGH = true;
+    nsw::ConfigSender::I2c::sendGPIO(
+      opcConnection, sca_address + ".gpio.rocPllResetN", INACTIVE_HIGH);
+
+    ERS_DEBUG(2, "Waiting for ROC Pll locks...");
+    bool roc_locked = false;
+    while (!roc_locked) {
+      const bool rPll1 = nsw::ConfigSender::I2c::readGPIO(
+        opcConnection, sca_address + ".gpio.rocPllLocked");
+      const bool rPll2 = nsw::ConfigSender::I2c::readGPIO(
+        opcConnection, sca_address + ".gpio.rocPllRocLocked");
+      roc_locked = rPll1 && rPll2;
+      ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
+    }
+  }
 }
 
 std::uint8_t nsw::ConfigSender::ROC::readRegister(
