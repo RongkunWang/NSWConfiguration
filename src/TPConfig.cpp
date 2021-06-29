@@ -126,9 +126,6 @@ int nsw::TPConfig::VmmMaskHotThreshHyst() const {
 int nsw::TPConfig::VmmMaskDrainPeriod() const {
     return m_config.get<int>("VmmMaskDrainPeriod");
 }
-bool nsw::TPConfig::EnableVmmMasking() const {
-    return m_config.get<bool>("EnableVmmMasking");
-}
 bool nsw::TPConfig::EnableChannelRates() const {
     return m_config.get<bool>("EnableChannelRates");
 }
@@ -168,9 +165,6 @@ void nsw::TPConfig::setVmmMaskHotThreshHyst(int val) {
 }
 void nsw::TPConfig::setVmmMaskDrainPeriod(int val) {
   m_config.put("VmmMaskDrainPeriod", val);
-}
-void nsw::TPConfig::setEnableVmmMasking(bool val) {
-  m_config.put("EnableVmmMasking", val);
 }
 void nsw::TPConfig::setEnableChannelRates(bool val) {
   m_config.put("EnableChannelRates", val);
