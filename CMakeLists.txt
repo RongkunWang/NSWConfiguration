@@ -112,6 +112,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigConverter.cpp
                  src/OpcManager.cpp src/I2cInterface.cpp
                  src/ROCInterface.cpp
+                 src/TDSInterface.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
