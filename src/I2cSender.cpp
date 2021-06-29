@@ -1,8 +1,8 @@
-#include "NSWConfiguration/I2cSender.h"
+#include "NSWConfiguration/I2cInterface.h"
 
 #include "NSWConfiguration/Utility.h"
 
-void nsw::ConfigSender::I2c::sendI2cRaw(
+void nsw::DeviceInterface::I2c::sendI2cRaw(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const uint8_t*                         data,
@@ -10,50 +10,50 @@ void nsw::ConfigSender::I2c::sendI2cRaw(
   opc_connection->writeI2cRaw(node, data, data_size);
 }
 
-void nsw::ConfigSender::I2c::sendI2c(
+void nsw::DeviceInterface::I2c::sendI2c(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const std::vector<uint8_t>&            vdata) {
   opc_connection->writeI2cRaw(node, vdata.data(), vdata.size());
 }
 
-void nsw::ConfigSender::I2c::sendGPIO(
+void nsw::DeviceInterface::I2c::sendGPIO(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const bool                             data) {
   opc_connection->writeGPIO(node, data);
 }
 
-bool nsw::ConfigSender::I2c::readGPIO(
+bool nsw::DeviceInterface::I2c::readGPIO(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node) {
   return opc_connection->readGPIO(node);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::I2c::readI2c(
+std::vector<uint8_t> nsw::DeviceInterface::I2c::readI2c(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const size_t                           number_of_bytes) {
   return opc_connection->readI2c(node, number_of_bytes);
 }
 
-std::vector<uint8_t> nsw::ConfigSender::I2c::readI2cAtAddress(
+std::vector<uint8_t> nsw::DeviceInterface::I2c::readI2cAtAddress(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const uint8_t*                         address,
   const size_t                           address_size,
   const size_t                           number_of_bytes) {
   // Write only the address without data
-  nsw::ConfigSender::I2c::sendI2cRaw(
+  nsw::DeviceInterface::I2c::sendI2cRaw(
     opc_connection, node, address, address_size);
 
   // Read back data into the vector readdata
   std::vector<uint8_t> readdata =
-    nsw::ConfigSender::I2c::readI2c(opc_connection, node, number_of_bytes);
+    nsw::DeviceInterface::I2c::readI2c(opc_connection, node, number_of_bytes);
   return readdata;
 }
 
-void nsw::ConfigSender::I2c::sendI2cAtAddress(
+void nsw::DeviceInterface::I2c::sendI2cAtAddress(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const std::vector<uint8_t>&            address,
@@ -62,11 +62,11 @@ void nsw::ConfigSender::I2c::sendI2cAtAddress(
   for (const auto& address_byte : address) {
     data.insert(data.begin(), address_byte);
   }
-  nsw::ConfigSender::I2c::sendI2cRaw(
+  nsw::DeviceInterface::I2c::sendI2cRaw(
     opc_connection, node, data.data(), data.size());
 }
 
-void nsw::ConfigSender::I2c::sendI2cMasterSingle(
+void nsw::DeviceInterface::I2c::sendI2cMasterSingle(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     topnode,
   const nsw::I2cMasterConfig&            cfg,
@@ -74,11 +74,11 @@ void nsw::ConfigSender::I2c::sendI2cMasterSingle(
   const auto  addr_bitstr = cfg.getBitstreamMap();
   const auto& bitstr      = addr_bitstr.at(reg_address);
   const auto  data        = nsw::stringToByteVector(bitstr);
-  nsw::ConfigSender::I2c::sendI2cMasterSingle(
+  nsw::DeviceInterface::I2c::sendI2cMasterSingle(
     opc_connection, topnode + "." + cfg.getName(), data, reg_address);
 }
 
-void nsw::ConfigSender::I2c::sendI2cMasterSingle(
+void nsw::DeviceInterface::I2c::sendI2cMasterSingle(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     node,
   const std::vector<uint8_t>&            data,
@@ -91,7 +91,7 @@ void nsw::ConfigSender::I2c::sendI2cMasterSingle(
   sendI2cRaw(opc_connection, address, data.data(), data.size());
 }
 
-void nsw::ConfigSender::I2c::sendI2cMasterConfig(
+void nsw::DeviceInterface::I2c::sendI2cMasterConfig(
   const std::unique_ptr<nsw::OpcClient>& opc_connection,
   const std::string&                     topnode,
   const nsw::I2cMasterConfig&            cfg) {

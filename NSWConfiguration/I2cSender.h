@@ -1,5 +1,5 @@
-#ifndef NSWCONFIGURATION_I2CSENDER_H
-#define NSWCONFIGURATION_I2CSENDER_H
+#ifndef NSWCONFIGURATION_I2CINTERFACE_H
+#define NSWCONFIGURATION_I2CINTERFACE_H
 
 #include <vector>
 #include <string>
@@ -9,7 +9,7 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/Constants.h"
 
-namespace nsw::ConfigSender::I2c {
+namespace nsw::DeviceInterface::I2c {
   /// Low level I2c send function
   void sendI2c(const std::unique_ptr<nsw::OpcClient>& opc_connection,
                const std::string&                     node,
@@ -69,6 +69,6 @@ namespace nsw::ConfigSender::I2c {
     const std::string&                     node,
     const std::vector<uint8_t>&            data,
     const std::string&                     reg_address);
-}  // namespace nsw::ConfigSender::I2c
+}  // namespace nsw::DeviceInterface::I2c
 
 #endif
