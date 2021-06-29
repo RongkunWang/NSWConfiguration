@@ -45,7 +45,6 @@ class TPConfig: public SCAConfig {
     int VmmMaskHotThresh() const;
     int VmmMaskHotThreshHyst() const;
     int VmmMaskDrainPeriod() const;
-    bool EnableVmmMasking() const;
     bool EnableChannelRates() const;
     int L1ALatencyScanStart() const;
     int L1ALatencyScanEnd() const;
@@ -60,7 +59,6 @@ class TPConfig: public SCAConfig {
     void setVmmMaskHotThresh(int val);
     void setVmmMaskHotThreshHyst(int val);
     void setVmmMaskDrainPeriod(int val);
-    void setEnableVmmMasking(bool val);
     void setEnableChannelRates(bool val);
     void setL1ALatencyScanStart(int val);
     void setL1ALatencyScanEnd(int val);
