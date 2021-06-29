@@ -8,7 +8,7 @@
 #include "NSWConfiguration/I2cRegisterMappings.h"
 #include "NSWConfiguration/OpcManager.h"
 #include "NSWConfiguration/FEBConfig.h"
-#include "NSWConfiguration/I2cInterface.h"
+#include "NSWConfiguration/SCAInterface.h"
 
 void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
                                                    const std::size_t     numTds,
@@ -24,28 +24,28 @@ void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
   const auto& tds = config.getTdss().at(numTds);
   if (isPfeb) {
     // old boards, and PFEB
-    nsw::DeviceInterface::I2c::sendGPIO(
+    nsw::DeviceInterface::SCA::sendGPIO(
       opc_connection, sca_address + ".gpio.tdsReset", HIGH);
   } else {
     // new boards
     if (tds.getName() == "tds0") {
-      nsw::DeviceInterface::I2c::sendGPIO(
+      nsw::DeviceInterface::SCA::sendGPIO(
         opc_connection, sca_address + ".gpio.tdsaReset", HIGH);
     } else if (tds.getName() == "tds1") {
-      nsw::DeviceInterface::I2c::sendGPIO(
+      nsw::DeviceInterface::SCA::sendGPIO(
         opc_connection, sca_address + ".gpio.tdsbReset", HIGH);
     } else if (tds.getName() == "tds2") {
-      nsw::DeviceInterface::I2c::sendGPIO(
+      nsw::DeviceInterface::SCA::sendGPIO(
         opc_connection, sca_address + ".gpio.tdscReset", HIGH);
     } else if (tds.getName() == "tds3") {
-      nsw::DeviceInterface::I2c::sendGPIO(
+      nsw::DeviceInterface::SCA::sendGPIO(
         opc_connection, sca_address + ".gpio.tdsdReset", HIGH);
     } else {
       throw std::runtime_error("Unknown TDS name " + tds.getName());
     }
   }
 
-  nsw::DeviceInterface::I2c::sendI2cMasterConfig(
+  nsw::DeviceInterface::SCA::sendI2cMasterConfig(
     opc_connection, sca_address, tds);
 
   if (reset_tds) {
@@ -58,30 +58,30 @@ void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
     constexpr std::uint32_t RESET_SER   = 0x14;
     constexpr std::uint32_t RESET_OFF   = 0x0;
     tdss.setRegisterValue("register12", "resets", RESET_PLL);
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     // logic
     tdss.setRegisterValue("register12", "resets", RESET_LOGIC);
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     // SER
     tdss.setRegisterValue("register12", "resets", RESET_SER);
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
 
-    nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+    nsw::DeviceInterface::SCA::sendI2cMasterSingle(
       opc_connection, sca_address, tdss, "register12");
 
     ERS_LOG("SCA " << sca_address << " TDS " << tdss.getName()
@@ -119,7 +119,7 @@ void nsw::DeviceInterface::TDS::writeRegister(const nsw::FEBConfig& config,
                                               const std::uint64_t   value) {
   const auto& opc_connection =
     OpcManager::getConnection(config.getOpcServerIp());
-  nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+  nsw::DeviceInterface::SCA::sendI2cMasterSingle(
     opc_connection,
     config.getAddress() + '.' + config.getTdss().at(numTds).getName(),
     nsw::stringToByteVector(std::to_string(value)),
@@ -143,7 +143,7 @@ std::uint64_t nsw::DeviceInterface::TDS::readRegister(
   const auto tds           = config.getTdss().at(numTds);
   const auto size_in_bytes = tds.getTotalSize(ptreeName) / NUM_BITS_IN_BYTE;
   const std::string full_node_name = config.getAddress() + "." + registerName;
-  const auto        dataread       = nsw::DeviceInterface::I2c::readI2c(
+  const auto        dataread       = nsw::DeviceInterface::SCA::readI2c(
     OpcManager::getConnection(config.getOpcServerIp()),
     full_node_name,
     size_in_bytes);

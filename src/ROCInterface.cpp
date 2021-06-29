@@ -7,7 +7,7 @@
 
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
-#include "NSWConfiguration/I2cInterface.h"
+#include "NSWConfiguration/SCAInterface.h"
 #include "NSWConfiguration/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
 
@@ -18,37 +18,37 @@ void nsw::DeviceInterface::ROC::writeConfiguration(
 
   const auto& opc_connection =
     OpcManager::getConnection(config.getOpcServerIp());
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocCoreResetN", ACTIVE_LOW);
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocPllResetN", ACTIVE_LOW);
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocSResetN", ACTIVE_LOW);
 
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocSResetN", INACTIVE_HIGH);
 
-  nsw::DeviceInterface::I2c::sendI2cMasterConfig(
+  nsw::DeviceInterface::SCA::sendI2cMasterConfig(
     opc_connection, config.getAddress(), config.getRocAnalog());
 
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocPllResetN", INACTIVE_HIGH);
 
   ERS_DEBUG(2, "Waiting for ROC Pll locks...");
   bool roc_locked = false;
   while (!roc_locked) {
-    const bool rPll1 = nsw::DeviceInterface::I2c::readGPIO(
+    const bool rPll1 = nsw::DeviceInterface::SCA::readGPIO(
       opc_connection, config.getAddress() + ".gpio.rocPllLocked");
-    const bool rPll2 = nsw::DeviceInterface::I2c::readGPIO(
+    const bool rPll2 = nsw::DeviceInterface::SCA::readGPIO(
       opc_connection, config.getAddress() + ".gpio.rocPllRocLocked");
     roc_locked = rPll1 && rPll2;
     ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
   }
 
-  nsw::DeviceInterface::I2c::sendGPIO(
+  nsw::DeviceInterface::SCA::sendGPIO(
     opc_connection, config.getAddress() + ".gpio.rocCoreResetN", INACTIVE_HIGH);
 
-  nsw::DeviceInterface::I2c::sendI2cMasterConfig(
+  nsw::DeviceInterface::SCA::sendI2cMasterConfig(
     opc_connection, config.getAddress(), config.getRocDigital());
 }
 
@@ -118,23 +118,23 @@ void nsw::DeviceInterface::ROC::writeRegister(const nsw::FEBConfig& config,
   // TODO: Resets
   if (isAnalog) {
     constexpr bool ACTIVE_LOW = true;
-    nsw::DeviceInterface::I2c::sendGPIO(
+    nsw::DeviceInterface::SCA::sendGPIO(
       opcConnection, scaAddress + ".gpio.rocPllResetN", ACTIVE_LOW);
   }
-  nsw::DeviceInterface::I2c::sendI2cMasterSingle(
+  nsw::DeviceInterface::SCA::sendI2cMasterSingle(
     opcConnection, scaAddress + '.' + sectionName, {value}, regAddress);
 
   if (isAnalog) {
     constexpr bool INACTIVE_HIGH = true;
-    nsw::DeviceInterface::I2c::sendGPIO(
+    nsw::DeviceInterface::SCA::sendGPIO(
       opcConnection, scaAddress + ".gpio.rocPllResetN", INACTIVE_HIGH);
 
     ERS_DEBUG(2, "Waiting for ROC Pll locks...");
     bool roc_locked = false;
     while (!roc_locked) {
-      const bool rPll1 = nsw::DeviceInterface::I2c::readGPIO(
+      const bool rPll1 = nsw::DeviceInterface::SCA::readGPIO(
         opcConnection, scaAddress + ".gpio.rocPllLocked");
-      const bool rPll2 = nsw::DeviceInterface::I2c::readGPIO(
+      const bool rPll2 = nsw::DeviceInterface::SCA::readGPIO(
         opcConnection, scaAddress + ".gpio.rocPllRocLocked");
       roc_locked = rPll1 && rPll2;
       ERS_DEBUG(2, "rocPllLocked: " << rPll1 << ", rocPllRocLocked: " << rPll2);
@@ -185,7 +185,7 @@ void nsw::DeviceInterface::ROC::enableVmmCaptureInputs(
     configConverter.getFlatRegisterBasedConfig(feb.getRocDigital());
   const auto partialConfig = nsw::I2cMasterConfig(
     translatedPtree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
-  nsw::DeviceInterface::I2c::sendI2cMasterConfig(
+  nsw::DeviceInterface::SCA::sendI2cMasterConfig(
     nsw::OpcManager::getConnection(feb.getOpcServerIp()),
     feb.getAddress(),
     partialConfig);
@@ -197,7 +197,7 @@ void nsw::DeviceInterface::ROC::disableVmmCaptureInputs(
   tree.put("reg008vmmEnable", 0);
   const auto partialConfig =
     nsw::I2cMasterConfig(tree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
-  nsw::DeviceInterface::I2c::sendI2cMasterConfig(
+  nsw::DeviceInterface::SCA::sendI2cMasterConfig(
     nsw::OpcManager::getConnection(feb.getOpcServerIp()),
     feb.getAddress(),
     partialConfig);

@@ -1,5 +1,5 @@
-#ifndef NSWCONFIGURATION_I2CINTERFACE_H
-#define NSWCONFIGURATION_I2CINTERFACE_H
+#ifndef NSWCONFIGURATION_SCAINTERFACE_H
+#define NSWCONFIGURATION_SCAINTERFACE_H
 
 #include <vector>
 #include <string>
@@ -9,7 +9,7 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/Constants.h"
 
-namespace nsw::DeviceInterface::I2c {
+namespace nsw::DeviceInterface::SCA {
   /// Low level I2c send function
   void sendI2c(const std::unique_ptr<nsw::OpcClient>& opc_connection,
                const std::string&                     node,
@@ -69,6 +69,23 @@ namespace nsw::DeviceInterface::I2c {
     const std::string&                     node,
     const std::vector<uint8_t>&            data,
     const std::string&                     reg_address);
-}  // namespace nsw::DeviceInterface::I2c
+
+  /// Low level Spi send function
+  void sendSpiRaw(const std::unique_ptr<nsw::OpcClient>& opc_connection,
+                  const std::string&                     node,
+                  const uint8_t*                         data,
+                  size_t                                 data_size);
+
+  std::vector<uint8_t> readSpi(
+    const std::unique_ptr<nsw::OpcClient>& opc_connection,
+    const std::string&                     node,
+    size_t                                 data_size);
+
+  /// Low level Spi send function
+  void sendSpi(const std::unique_ptr<nsw::OpcClient>& opc_connection,
+               const std::string&                     node,
+               const std::vector<uint8_t>&            vdata);
+
+}  // namespace nsw::DeviceInterface::SCA
 
 #endif
