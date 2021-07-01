@@ -133,7 +133,7 @@ std::uint64_t nsw::DeviceInterface::TDS::readRegister(
   const std::string registerName = "register" + std::to_string(registerId);
   const std::string ptreeName    = [registerId, registerName]() {
     const std::uint8_t readonlyRegisterThreshold = 13;
-    if (registerId > readonlyRegisterThreshold) {
+    if (registerId >= readonlyRegisterThreshold) {
       return registerName + "_READONLY";
     }
     return registerName;
@@ -142,8 +142,8 @@ std::uint64_t nsw::DeviceInterface::TDS::readRegister(
   // Get size of register
   const auto tds           = config.getTdss().at(numTds);
   const auto size_in_bytes = tds.getTotalSize(ptreeName) / NUM_BITS_IN_BYTE;
-  const std::string full_node_name = config.getAddress() + "." + registerName;
-  const auto        dataread       = nsw::DeviceInterface::SCA::readI2c(
+  const std::string full_node_name =
+    config.getAddress() + '.' + tds.getName() + '.' + registerName;
     OpcManager::getConnection(config.getOpcServerIp()),
     full_node_name,
     size_in_bytes);
