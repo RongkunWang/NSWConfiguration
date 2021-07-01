@@ -4,16 +4,16 @@
 #include "NSWConfiguration/FEBConfig.h"
 
 namespace nsw::DeviceInterface::VMM {
-  std::map<std::uint8_t, std::uint64_t> readConfiguration(
+  std::map<std::uint8_t, std::vector<std::uint8_t>> readConfiguration(
     [[maybe_unused]] const nsw::FEBConfig& config,
     [[maybe_unused]] std::size_t           numVmm);
 
-  void writeConfiguration(const nsw::FEBConfig& config,
-                          std::size_t           numVmm);
+  void writeConfiguration(const nsw::FEBConfig& config, std::size_t numVmm);
 
-  std::uint64_t readRegister([[maybe_unused]] const nsw::FEBConfig& config,
-                             [[maybe_unused]] std::size_t           numVmm,
-                             [[maybe_unused]] std::uint8_t          registerId);
+  std::vector<std::uint8_t> readRegister(
+    [[maybe_unused]] const nsw::FEBConfig& config,
+    [[maybe_unused]] std::size_t           numVmm,
+    [[maybe_unused]] std::uint8_t          registerId);
 
   void writeRegister([[maybe_unused]] const nsw::FEBConfig& config,
                      [[maybe_unused]] std::size_t           numVmm,

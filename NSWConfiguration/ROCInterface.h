@@ -4,13 +4,13 @@
 #include "NSWConfiguration/FEBConfig.h"
 
 namespace nsw::DeviceInterface::ROC {
-  std::map<std::uint8_t, std::uint8_t> readConfiguration(
+  std::map<std::uint8_t, std::vector<std::uint8_t>> readConfiguration(
     const nsw::FEBConfig& config);
 
   void writeConfiguration(const nsw::FEBConfig& config);
 
-  std::uint8_t readRegister(const nsw::FEBConfig& config,
-                            std::uint8_t          registerId);
+  std::vector<std::uint8_t> readRegister(const nsw::FEBConfig& config,
+                                         std::uint8_t          registerId);
 
   void writeRegister(const nsw::FEBConfig& config,
                      std::uint8_t          registerId,

@@ -52,9 +52,9 @@ void nsw::DeviceInterface::ROC::writeConfiguration(
     opc_connection, config.getAddress(), config.getRocDigital());
 }
 
-std::map<std::uint8_t, std::uint8_t>
+std::map<std::uint8_t, std::vector<std::uint8_t>>
 nsw::DeviceInterface::ROC::readConfiguration(const nsw::FEBConfig& config) {
-  std::map<std::uint8_t, std::uint8_t> result;
+  std::map<std::uint8_t, std::vector<std::uint8_t>> result;
   for (std::uint8_t regNumber = 0;
        regNumber <
        nsw::roc::NUM_ANALOG_REGISTERS + nsw::roc::NUM_DIGITAL_REGISTERS;
@@ -142,7 +142,7 @@ void nsw::DeviceInterface::ROC::writeRegister(const nsw::FEBConfig& config,
   }
 }
 
-std::uint8_t nsw::DeviceInterface::ROC::readRegister(
+std::vector<std::uint8_t> nsw::DeviceInterface::ROC::readRegister(
   const nsw::FEBConfig& config,
   const std::uint8_t    registerId) {
   const auto             scaAddress = config.getAddress();
@@ -168,8 +168,8 @@ std::uint8_t nsw::DeviceInterface::ROC::readRegister(
   }();
   const auto& opc_connection =
     nsw::OpcManager::getConnection(config.getOpcServerIp());
-  return opc_connection->readRocRaw(
-    scaAddress + ".gpio.bitBanger", sclLine, sdaLine, registerId, DELAY);
+  return {opc_connection->readRocRaw(
+    scaAddress + ".gpio.bitBanger", sclLine, sdaLine, registerId, DELAY)};
 }
 
 void nsw::DeviceInterface::ROC::enableVmmCaptureInputs(

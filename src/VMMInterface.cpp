@@ -48,27 +48,30 @@ void nsw::DeviceInterface::VMM::writeConfiguration(const nsw::FEBConfig& config,
                                      {VMM_ACC_ENABLE});
 }
 
-std::map<std::uint8_t, std::uint64_t>
-nsw::DeviceInterface::VMM::readConfiguration([[maybe_unused]] const nsw::FEBConfig& config,
-                                             [[maybe_unused]] const std::size_t     numVmm) {
+std::map<std::uint8_t, std::vector<std::uint8_t>>
+nsw::DeviceInterface::VMM::readConfiguration(
+  [[maybe_unused]] const nsw::FEBConfig& config,
+  [[maybe_unused]] const std::size_t     numVmm) {
   throw std::logic_error("Not implemented");
 }
 
-void nsw::DeviceInterface::VMM::writeRegister([[maybe_unused]] const nsw::FEBConfig& config,
-                                              [[maybe_unused]] const std::size_t     numVmm,
-                                              [[maybe_unused]] const std::uint8_t    registerId,
-                                              [[maybe_unused]] const std::uint64_t   value) {
+void nsw::DeviceInterface::VMM::writeRegister(
+  [[maybe_unused]] const nsw::FEBConfig& config,
+  [[maybe_unused]] const std::size_t     numVmm,
+  [[maybe_unused]] const std::uint8_t    registerId,
+  [[maybe_unused]] const std::uint64_t   value) {
   throw std::logic_error("Not implemented");
 }
 
-void nsw::DeviceInterface::VMM::writeRegister([[maybe_unused]] const nsw::FEBConfig& config,
-                                              [[maybe_unused]] const std::size_t     numVmm,
-                                              [[maybe_unused]] const std::string&    regAddress,
-                                              [[maybe_unused]] const std::uint64_t   value) {
+void nsw::DeviceInterface::VMM::writeRegister(
+  [[maybe_unused]] const nsw::FEBConfig& config,
+  [[maybe_unused]] const std::size_t     numVmm,
+  [[maybe_unused]] const std::string&    regAddress,
+  [[maybe_unused]] const std::uint64_t   value) {
   throw std::logic_error("Not implemented");
 }
 
-std::uint64_t nsw::DeviceInterface::VMM::readRegister(
+std::vector<std::uint8_t> nsw::DeviceInterface::VMM::readRegister(
   [[maybe_unused]] const nsw::FEBConfig& config,
   [[maybe_unused]] const std::size_t     numVmm,
   [[maybe_unused]] const std::uint8_t    registerId) {

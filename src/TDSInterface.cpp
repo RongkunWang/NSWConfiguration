@@ -9,6 +9,7 @@
 #include "NSWConfiguration/OpcManager.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/SCAInterface.h"
+#include "NSWConfiguration/Utility.h"
 
 void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
                                                    const std::size_t     numTds,
@@ -39,7 +40,7 @@ void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
         opc_connection, sca_address + ".gpio.tdscReset", HIGH);
     } else if (tds.getName() == "tds3") {
       nsw::DeviceInterface::SCA::sendGPIO(
-        opc_connection, sca_address + ".gpio.tdsdReset", HIGH);
+        opc_connection, sca_address + ".  ", HIGH);
     } else {
       throw std::runtime_error("Unknown TDS name " + tds.getName());
     }
@@ -53,6 +54,9 @@ void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
     I2cMasterConfig tdss(tds);
     // TDS resets
 
+    // See
+    // https://espace.cern.ch/ATLAS-NSW-ELX/Shared%20Documents/TDS/TDS_V2_Specification.pdf
+    // page 23
     constexpr std::uint32_t RESET_PLL   = 0x20;
     constexpr std::uint32_t RESET_LOGIC = 0x06;
     constexpr std::uint32_t RESET_SER   = 0x14;
@@ -88,14 +92,15 @@ void nsw::DeviceInterface::TDS::writeConfiguration(const nsw::FEBConfig& config,
                    << " readback register 14:");
 
     ERS_LOG("0x" << std::hex
-                 << static_cast<uint32_t>(readRegister(config, numTds, 14)));
+                 << static_cast<uint32_t>(std::stoul(nsw::vectorToBitString(readRegister(config, numTds, 14)))));
   }
 }
 
-std::map<std::uint8_t, std::uint64_t>
+// std::map<std::uint8_t, std::vector<std::uint8_t>>
+std::map<std::uint8_t, std::vector<std::uint8_t>>
 nsw::DeviceInterface::TDS::readConfiguration(const nsw::FEBConfig& config,
                                              const std::size_t     numTds) {
-  std::map<std::uint8_t, std::uint64_t> result;
+  std::map<std::uint8_t, std::vector<std::uint8_t>> result;
   for (std::uint8_t regNumber = 0;
        regNumber < static_cast<std::uint8_t>(TDS_REGISTERS.size());
        regNumber++) {
@@ -109,24 +114,24 @@ nsw::DeviceInterface::TDS::readConfiguration(const nsw::FEBConfig& config,
 void nsw::DeviceInterface::TDS::writeRegister(const nsw::FEBConfig& config,
                                               const std::size_t     numTds,
                                               const std::uint8_t    registerId,
-                                              const std::uint64_t   value) {
+                                              const __uint128_t     value) {
   writeRegister(config, numTds, "register" + std::to_string(registerId), value);
 }
 
 void nsw::DeviceInterface::TDS::writeRegister(const nsw::FEBConfig& config,
                                               const std::size_t     numTds,
                                               const std::string&    regAddress,
-                                              const std::uint64_t   value) {
-  const auto& opc_connection =
-    OpcManager::getConnection(config.getOpcServerIp());
-  nsw::DeviceInterface::SCA::sendI2cMasterSingle(
-    opc_connection,
-    config.getAddress() + '.' + config.getTdss().at(numTds).getName(),
-    nsw::stringToByteVector(std::to_string(value)),
-    regAddress);
+                                              const __uint128_t     value) {
+  // const auto& opc_connection =
+  //   OpcManager::getConnection(config.getOpcServerIp());
+  // nsw::DeviceInterface::SCA::sendI2cMasterSingle(
+  //   opc_connection,
+  //   config.getAddress() + '.' + config.getTdss().at(numTds).getName(),
+  //   nsw::stringToByteVector(std::to_string(value)),
+  //   regAddress);
 }
 
-std::uint64_t nsw::DeviceInterface::TDS::readRegister(
+std::vector<std::uint8_t> nsw::DeviceInterface::TDS::readRegister(
   const nsw::FEBConfig& config,
   const std::size_t     numTds,
   const std::uint8_t    registerId) {
@@ -144,8 +149,8 @@ std::uint64_t nsw::DeviceInterface::TDS::readRegister(
   const auto size_in_bytes = tds.getTotalSize(ptreeName) / NUM_BITS_IN_BYTE;
   const std::string full_node_name =
     config.getAddress() + '.' + tds.getName() + '.' + registerName;
+  return nsw::DeviceInterface::SCA::readI2c(
     OpcManager::getConnection(config.getOpcServerIp()),
     full_node_name,
     size_in_bytes);
-  return std::stoul(nsw::vectorToBitString(dataread), nullptr, 2);
 }
