@@ -13,10 +13,12 @@ namespace nsw {
     static std::shared_mutex                                      m_mutex;
 
     public:
-    [[nodiscard]] static std::unique_ptr<nsw::OpcClient>& getConnection(
+    [[nodiscard]] static std::unique_ptr<nsw::OpcClient> getConnection(
       const std::string& opcserver_ipport);
 
     static void addConnection(const std::string& opcserver_ipport);
+
+    static bool exists(const std::string& opcserver_ipport);
   };
 }  // namespace nsw
 
