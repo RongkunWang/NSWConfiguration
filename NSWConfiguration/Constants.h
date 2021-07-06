@@ -17,6 +17,9 @@ namespace nsw {
   /// Make it clear when we are using 8 as the size in bits of a byte
   constexpr std::size_t NUM_BITS_IN_BYTE = 8;
 
+  /// Make it clear when we are using 32 as the size in bits of a 32-bit word
+  constexpr std::size_t NUM_BITS_IN_WORD32 = 32;
+
   /// Make it clear when we are using 4 as the size in bytes of a 32-bit word
   constexpr std::size_t NUM_BYTES_IN_WORD32 = 4;
 
@@ -166,6 +169,8 @@ namespace nsw {
       REG_FIBER_BCIDS_24_31,
     };
     constexpr std::uint8_t REG_FIBER_BC_OFFSET          = 0x08;
+    constexpr std::uint8_t REG_DATE_CODE                = 0x09;
+    constexpr std::uint8_t REG_GIT_HASH                 = 0x0a;
     constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
     constexpr std::uint8_t REG_L1A_LATENCY              = 0x11;
     constexpr std::uint8_t REG_L1A_WIN_UPPER            = 0x12;
@@ -207,9 +212,9 @@ namespace nsw {
 
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
-    constexpr std::uint32_t NUM_INPUT_DELAYS = 16;
-    constexpr std::uint32_t NUM_PFEB_DELAY_REGS = 3;
-    constexpr std::uint32_t NUM_PFEB_BCID_REGS  = 3;
+    constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
+    constexpr std::uint32_t NUM_INPUT_DELAY_READS  = 10;
+    constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t REG_CONTROL          = 0x00;
     constexpr std::uint32_t REG_STATUS           = 0x01;
     constexpr std::uint32_t REG_L1ID             = 0x02;
@@ -220,18 +225,6 @@ namespace nsw {
     constexpr std::uint32_t REG_PFEB_BCID_23_16  = 0x07;
     constexpr std::uint32_t REG_PFEB_BCID_15_08  = 0x08;
     constexpr std::uint32_t REG_PFEB_BCID_07_00  = 0x09;
-    constexpr std::array<std::uint8_t, NUM_PFEB_DELAY_REGS>
-      REG_PFEB_DELAYS = {
-      REG_PFEB_DELAY_23_16,
-      REG_PFEB_DELAY_15_08,
-      REG_PFEB_DELAY_07_00,
-    };
-    constexpr std::array<std::uint8_t, NUM_PFEB_BCID_REGS>
-      REG_PFEB_BCIDS = {
-      REG_PFEB_BCID_23_16,
-      REG_PFEB_BCID_15_08,
-      REG_PFEB_BCID_07_00,
-    };
   }
 
   namespace router {
