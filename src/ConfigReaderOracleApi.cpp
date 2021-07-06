@@ -24,12 +24,25 @@ OracleApi::OracleApi(const std::string& configuration,
   m_config_set(getConfigSet(configuration)),
   m_devices(std::move(devices)),
   m_deviceIds(getAllDeviceIds()),
-  m_placeholderString(generatePlaceholderString()),
+  m_devicesPlaceholderString(generatePlaceholderString(m_deviceIds.size())),
   m_occi_env(oracle::occi::Environment::createEnvironment()),
   m_occi_con(m_occi_env->createConnection(m_db_user_name,
                                           m_db_password,
                                           m_db_connection),
-             OcciConnectionDeleter{m_occi_env}) {}
+             OcciConnectionDeleter{m_occi_env}),
+  m_deviceTypes(getDeviceTypes()) {
+  // 1. Get all device IDs from hierarchy
+  // 2. Get all device types and subtypes from DB
+  // 3. Get all types and subtypes from 2
+  // 4. Get defaults for all type and subtypes and values for all devices from
+  // DB
+  // 5. Generate type-default, subtype-default and value ptrees
+  // 6. Merge subtype-default into type-default and values into that
+  // 7. Get all param IDs from type defaults
+  // 8. Get mapping param ID to param name from DB
+  // 9. Substitue param ID with param name
+  // 10. Convert value-based ptree into register-based ptree
+}
 
 void OracleApi::testConfigurationString(const std::string& configuration) {
   if (configuration.find('|') == std::string::npos) {
@@ -232,13 +245,42 @@ std::set<std::string> OracleApi::getAllDeviceIds() const {
       devices.merge(getIds(iterDevice.second));
     }
   }
+  return devices;
+}
+
+std::set<std::string> OracleApi::getAllDeviceTypes() const {
+  std::set<std::string> result;
+  std::transform(std::begin(m_deviceTypes),
+                 std::end(m_deviceTypes),
+                 std::inserter(result, std::end(result)),
+                 [](const auto& pair) { return pair.second.device_type; });
+  return result;
+}
+
+std::set<std::string> OracleApi::getAllDeviceSubtypes() const {
+  std::set<std::string> result;
+  std::transform(std::begin(m_deviceTypes),
+                 std::end(m_deviceTypes),
+                 std::inserter(result, std::end(result)),
+                 [](const auto& pair) { return pair.second.device_subtype; });
+  return result;
+}
+
+std::set<std::string> OracleApi::getAllParamIds() const {
+  std::set<std::string> result;
+  // std::transform(std::begin(m_deviceTypes),
+  //                std::end(m_deviceTypes),
+  //                std::inserter(result, std::end(result)),
+  //                [](const auto& pair) { return pair.second.param_id; });
+  return result;
 }
 
 std::map<std::string, OracleApi::DeviceTypeTable> OracleApi::getDeviceTypes() {
-  std::string query = "SELECT      DEVICE_ID, DEVICE_TYPE_ID, DEVICE_SUBTYPE_ID"
-                      "FROM        ATLAS_CONF_NSW.DEVICES_V"
-                      "WHERE       ATLAS_CONF_NSW.DEVICES_V.DEVICE_NAME IN (" +
-                      m_placeholderString + ')';
+  std::string query =
+    "SELECT      DEVICE_ID, DEVICE_TYPE_ID, DEVICE_SUBTYPE_ID "
+    "FROM        ATLAS_CONF_NSW.DEVICES_V "
+    "WHERE       ATLAS_CONF_NSW.DEVICES_V.DEVICE_NAME IN (" +
+    m_devicesPlaceholderString + ')';
   std::map<std::string, OracleApi::DeviceTypeTable> result;
   const auto                                        resultWithVector =
     executeQuery<OracleApi::DeviceTypeTable>(query, m_deviceIds);
@@ -258,17 +300,62 @@ std::map<std::string, OracleApi::DeviceTypeTable> OracleApi::getDeviceTypes() {
   return result;
 }
 
-// std::map<std::string, OracleApi::DeviceTypeTable> OracleApi::getParamValues()
-// {
-//   std::string query = "SELECT      DEVICE_ID, PARAM_NAME, PARAM_VALUE"
-//                       "FROM        ATLAS_CONF_NSW.DEVICES_V"
-//                       "WHERE       ATLAS_CONF_NSW.DEVICES_V.DEVICE_NAME IN ("
-//                       + m_placeholderString + ')';
-//   return executeQuery<OracleApi::DeviceTypeTable>(query, m_deviceIds);
-// }
+std::map<std::string, std::vector<OracleApi::ValueTable>>
+OracleApi::getParamValues() {
+  const std::string setPlaceholder = ':' + std::to_string(m_deviceIds.size());
+  std::string       query =
+    " SELECT DVALUES.DEVICE_ID, DVALUES.PARAM_ID, DVALUES.PARAM_VALUE"
+    " FROM ATLAS_CONF_NSW.DEVICE_PARAM_VALUES DVALUES"
+    " RIGHT JOIN ATLAS_CONF_NSW.CONFIG_ARGUMENTS DARGS"
+    "   ON DARGS.VALUE_ID = DVALUES.VALUE_ID"
+    " RIGHT JOIN ATLAS_CONF_NSW.CONFIG_SET_ITEMS SETITEMS"
+    "   ON SETITEMS.CONFIG_ID = DARGS.CONFIG_ID"
+    " LEFT JOIN ATLAS_CONF_NSW.CONFIG_SETS CSET"
+    "   ON CSET.SET_ID = SETITEMS.SET_ID"
+    " WHERE DVALUES.DEVICE_ID IN (" +
+    m_devicesPlaceholderString + ") AND CSET.SET_NAME = " + setPlaceholder +
+    " AND DARGS.UNTIL = TO_DATE('1/JAN/3000','dd/mon/yyyy')"
+    " AND SETITEMS.UNTIL = TO_DATE('1/JAN/3000','dd/mon/yyyy');";
+  return executeQuery<OracleApi::ValueTable>(
+    query, m_deviceIds, std::array{setPlaceholder});
+}
 
-std::string OracleApi::generatePlaceholderString() const {
-  std::vector<int> v(m_deviceIds.size());
+std::map<std::string, std::vector<OracleApi::ValueTable>>
+OracleApi::getTypeDefaults() {
+  const auto  types       = getAllDeviceTypes();
+  const auto  placeholder = generatePlaceholderString(types.size());
+  std::string query =
+    " SELECT ATLAS_CONF_NSW.PARAM_DEFAULTS_V.TYPE_ID, "
+    " ATLAS_CONF_NSW.PARAM_DEFAULTS_V.PARAM_ID, "
+    " ATLAS_CONF_NSW.PARAM_DEFAULTS_V.DEFAULT_VALUE"
+    " FROM ATLAS_CONF_NSW.PARAM_DEFAULTS_V"
+    " LEFT JOIN ATLAS_CONF_NSW.DEVICE_SUBTYPES"
+    "   ON ATLAS_CONF_NSW.PARAM_DEFAULTS_V.SUBTYPE_ID = "
+    " ATLAS_CONF_NSW.DEVICE_SUBTYPES.SUBTYPE_ID"
+    " WHERE ATLAS_CONF_NSW.PARAM_DEFAULTS_V.TYPE_ID IN (" +
+    placeholder +
+    ") AND ATLAS_CONF_NSW.DEVICE_SUBTYPES.SUBTYPE_NAME IS NULL"
+    " AND ATLAS_CONF_NSW.PARAM_DEFAULTS_V.UNTIL = "
+    " TO_DATE('1/JAN/3000','dd/mon/yyyy');";
+  return executeQuery<OracleApi::ValueTable>(query, types);
+}
+
+std::map<std::string, std::vector<OracleApi::ValueTable>>
+OracleApi::getSubtypeDefaults() {
+  const auto  subtypes    = getAllDeviceTypes();
+  const auto  placeholder = generatePlaceholderString(subtypes.size());
+  std::string query =
+    R"(SELECT ATLAS_CONF_NSW.PARAM_DEFAULTS.SUBTYPE_ID, ATLAS_CONF_NSW.PARAM_DEFAULTS.PARAM_ID, ATLAS_CONF_NSW.PARAM_DEFAULTS.DEFAULT_VALUE
+FROM ATLAS_CONF_NSW.PARAM_DEFAULTS
+WHERE ATLAS_CONF_NSW.PARAM_DEFAULTS.SUBTYPE_ID IN ()" +
+    placeholder +
+    R"()) AND ATLAS_CONF_NSW.PARAM_DEFAULTS.UNTIL = TO_DATE('1/JAN/3000','dd/mon/yyyy');
+)";
+  return executeQuery<OracleApi::ValueTable>(query, subtypes);
+}
+
+std::string OracleApi::generatePlaceholderString(const std::size_t num) {
+  std::vector<int> v(num);
   std::iota(std::begin(v), std::end(v), 1);
   auto fold = [](std::string a, const int b) {
     return std::move(a) + ", :" + std::to_string(b);
@@ -312,4 +399,6 @@ DeviceHierarchy OracleApi::buildValueTree(
       result.at(type).emplace(name, fill(tree));
     }
   }
+
+  return result;
 }

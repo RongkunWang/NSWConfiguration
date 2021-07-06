@@ -35,15 +35,21 @@ class OracleApi : public ConfigReaderApi {
   using OcciCon =
     std::unique_ptr<oracle::occi::Connection, OcciConnectionDeleter>;
 
-  struct ValueTable {
+  struct ParamNameTable {
+    std::string                  param_id;
     std::string                  param_name;
+    constexpr static std::size_t num_entries{2};
+  };
+
+  struct ValueTable {
+    std::string                  param_id;
     std::string                  param_value;
     constexpr static std::size_t num_entries{2};
   };
 
   struct DeviceTypeTable {
-    std::string                  parent_type;
-    std::string                  parent_subtype;
+    std::string                  device_type;
+    std::string                  device_subtype;
     constexpr static std::size_t num_entries{2};
   };
 
@@ -53,15 +59,22 @@ class OracleApi : public ConfigReaderApi {
   [[nodiscard]] static std::string getConfigSet(
     const std::string& configuration);
 
-  template<typename Table>
+  template<typename Table, typename... ValueContainers>
   [[nodiscard]] std::map<std::string, std::vector<Table>> executeQuery(
-    const std::string&           query,
-    const std::set<std::string>& values = {}) {
+    const std::string& query,
+    const ValueContainers&... valueContainers) {
     auto* statement = m_occi_con->createStatement(query);
-    int   counter   = 1;
-    for (const auto& value : values) {
-      statement->setString(counter++, value);
-    }
+
+    // Set values for placeholders
+    int counter = 1;
+    (
+      [statement, &counter](const auto& values) {
+        for (const auto& value : values) {
+          statement->setString(counter++, value);
+        }
+      }(valueContainers),
+      ...);
+
     auto* result_set = statement->executeQuery();
     // First column will become the key of the map. Hence + 1
     if (result_set->getColumnListMetaData().size() != Table::num_entries + 1) {
@@ -115,12 +128,20 @@ class OracleApi : public ConfigReaderApi {
   }
 
   std::set<std::string> getAllDeviceIds() const;
+  std::set<std::string> getAllDeviceTypes() const;
+  std::set<std::string> getAllDeviceSubtypes() const;
+  std::set<std::string> getAllParamIds() const;
 
   std::map<std::string, DeviceTypeTable> getDeviceTypes();
+  std::map<std::string, std::vector<OracleApi::ValueTable>>
+  getSubtypeDefaults();
+  std::map<std::string, std::vector<OracleApi::ValueTable>> getTypeDefaults();
+  std::map<std::string, std::vector<OracleApi::ValueTable>> getParamValues();
 
-  std::string generatePlaceholderString() const;
+  [[nodiscard]] static std::string generatePlaceholderString(std::size_t num);
 
-  DeviceHierarchy buildValueTree(const std::map<std::string, std::vector<ValueTable>>& values) const;
+  DeviceHierarchy buildValueTree(
+    const std::map<std::string, std::vector<ValueTable>>& values) const;
 
   public:
   explicit OracleApi(const std::string& configuration,
@@ -143,10 +164,10 @@ class OracleApi : public ConfigReaderApi {
   std::string                            m_config_set;
   DeviceHierarchy                        m_devices;
   std::set<std::string>                  m_deviceIds;
-  std::map<std::string, DeviceTypeTable> m_deviceTypes;
-  std::string                            m_placeholderString;
+  std::string                            m_devicesPlaceholderString;
   OcciEnv                                m_occi_env;
   OcciCon                                m_occi_con;
+  std::map<std::string, DeviceTypeTable> m_deviceTypes;
 };
 
 #endif
