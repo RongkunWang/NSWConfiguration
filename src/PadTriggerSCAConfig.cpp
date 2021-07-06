@@ -9,6 +9,7 @@
 //
 
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/Constants.h"
 
 using boost::property_tree::ptree;
 
@@ -47,6 +48,30 @@ int nsw::PadTriggerSCAConfig::ControlRegister() const {
     reg += (TTCCalib()          << 26);
   }
   return reg;
+}
+
+std::vector<uint32_t> nsw::PadTriggerSCAConfig::PFEBBCIDs(uint32_t val_07_00,
+                                                          uint32_t val_15_08,
+                                                          uint32_t val_23_16
+                                                          ) const {
+  std::vector<uint32_t> bcids_07_00 = {};
+  std::vector<uint32_t> bcids_15_08 = {};
+  std::vector<uint32_t> bcids_23_16 = {};
+  std::vector<uint32_t> bcids  = {};
+  size_t bit_position   = 0;
+  while (bit_position < nsw::NUM_BITS_IN_WORD32) {
+    bcids_07_00.push_back( (val_07_00 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bcids_15_08.push_back( (val_15_08 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bcids_23_16.push_back( (val_23_16 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bit_position += nsw::padtrigger::NUM_BITS_PER_PFEB_BCID;
+  }
+  for (const auto bcid: bcids_07_00)
+    bcids.push_back(bcid);
+  for (const auto bcid: bcids_15_08)
+    bcids.push_back(bcid);
+  for (const auto bcid: bcids_23_16)
+    bcids.push_back(bcid);
+  return bcids;
 }
 
 int nsw::PadTriggerSCAConfig::L1AReadoutLatency() const {

@@ -48,6 +48,11 @@ class PadTriggerSCAConfig: public SCAConfig {
     void SetLatencyScanNBC(int val)    {m_LatencyScanNBC    = val;}
     void SetL1AReadoutEnable()  {m_L1AReadoutEnable = 1;}
     void SetL1AReadoutDisable() {m_L1AReadoutEnable = 0;}
+    std::vector<uint32_t> PFEBBCIDs(uint32_t val_07_00,
+                                    uint32_t val_15_08,
+                                    uint32_t val_23_16
+                                    ) const;
+
 
  private:
     int m_L1AReadoutLatency;
