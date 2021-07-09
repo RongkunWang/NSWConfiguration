@@ -4,14 +4,14 @@
 #define NSWCONFIGURATION_UTILITY_H_
 
 #include <algorithm>
-#include <iostream>
 #include <bitset>
-#include <sstream>
+#include <chrono>
 #include <iomanip>
-#include <string>
-#include <vector>
-#include <utility>
 #include <set>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "boost/property_tree/ptree_fwd.hpp"
 // https://stackoverflow.com/a/9433783
@@ -118,6 +118,10 @@ bool isSmallSector(const std::string& sector_name);
 /// \return set of matched elements. Each element has the full path of each node
 std::set<std::string> matchRegexpInPtree(const std::string& regexp, const boost::property_tree::ptree& pt,
     const std::string& current_node = "");
+
+/// Sleep for some amount of time
+/// Default argument: 1 second
+void snooze(const std::chrono::duration<float> dur = std::chrono::seconds(1));
 
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_UTILITY_H_

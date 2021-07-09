@@ -3,6 +3,7 @@
 #include <exception>
 #include <cmath>
 #include <regex>
+#include <thread>
 
 #include "ers/ers.h"
 
@@ -276,4 +277,8 @@ bool nsw::isLargeSector(const std::string& sector_name) {
 
 bool nsw::isSmallSector(const std::string& sector_name) {
   return !(nsw::isLargeSector(sector_name));
+}
+
+void nsw::snooze(const std::chrono::duration<float> dur) {
+  std::this_thread::sleep_for(dur);
 }
