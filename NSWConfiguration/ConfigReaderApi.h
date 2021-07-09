@@ -60,12 +60,12 @@ class ConfigReaderApi {
   /// \param specific ptree that is partially populated.
   virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
+ protected:
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
   /// \param common ptree that is fully populated
   /// \param specific ptree that is partially populated.
   virtual void mergeTree(const boost::property_tree::ptree& specific, boost::property_tree::ptree& common) const;
 
- protected:
   boost::property_tree::ptree m_config;  /// Ptree that holds all configuration
 
  public:

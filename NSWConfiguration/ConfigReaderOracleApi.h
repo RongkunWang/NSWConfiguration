@@ -36,9 +36,8 @@ class OracleApi : public ConfigReaderApi {
     std::unique_ptr<oracle::occi::Connection, OcciConnectionDeleter>;
 
   struct ParamNameTable {
-    std::string                  param_id;
     std::string                  param_name;
-    constexpr static std::size_t num_entries{2};
+    constexpr static std::size_t num_entries{1};
   };
 
   struct ValueTable {
@@ -127,21 +126,53 @@ class OracleApi : public ConfigReaderApi {
     return init_table_impl<Result>(values, Indices{});
   }
 
-  std::set<std::string> getAllDeviceIds() const;
-  std::set<std::string> getAllDeviceTypes() const;
-  std::set<std::string> getAllDeviceSubtypes() const;
-  std::set<std::string> getAllParamIds() const;
+  [[nodiscard]] std::set<std::string>        getAllDeviceIds() const;
+  [[nodiscard]] static std::set<std::string> getAllDeviceTypes(
+    const std::map<std::string, DeviceTypeTable>& deviceTypes);
+  [[nodiscard]] static std::set<std::string> getAllDeviceSubtypes(
+    const std::map<std::string, DeviceTypeTable>& deviceSubtypes);
+  [[nodiscard]] static std::set<std::string> getAllParamIds(
+    const std::map<std::string, std::vector<OracleApi::ValueTable>>& table);
 
-  std::map<std::string, DeviceTypeTable> getDeviceTypes();
-  std::map<std::string, std::vector<OracleApi::ValueTable>>
-  getSubtypeDefaults();
-  std::map<std::string, std::vector<OracleApi::ValueTable>> getTypeDefaults();
-  std::map<std::string, std::vector<OracleApi::ValueTable>> getParamValues();
+  [[nodiscard]] std::map<std::string, DeviceTypeTable> getDeviceTypes(
+    const std::set<std::string>& deviceIds,
+    const std::string&           placeholder);
+  [[nodiscard]] std::map<std::string, std::vector<OracleApi::ValueTable>>
+  getSubtypeDefaults(const std::set<std::string>& subtypes);
+  [[nodiscard]] std::map<std::string, std::vector<OracleApi::ValueTable>>
+  getTypeDefaults(const std::set<std::string>& types);
+  [[nodiscard]] std::map<std::string, std::vector<OracleApi::ValueTable>>
+  getParamValues(const std::set<std::string>& deviceIds,
+                 const std::string&           placeholder);
+  [[nodiscard]] std::map<std::string, OracleApi::ParamNameTable> getParamNames(
+    const std::set<std::string>& paramIds);
 
   [[nodiscard]] static std::string generatePlaceholderString(std::size_t num);
 
-  DeviceHierarchy buildValueTree(
-    const std::map<std::string, std::vector<ValueTable>>& values) const;
+  [[nodiscard]] DeviceHierarchy buildValueTree(
+    const std::map<std::string, std::vector<ValueTable>>&   values,
+    const std::map<std::string, OracleApi::ParamNameTable>& paramNameMapping)
+    const;
+
+  void mergeTrees(const DeviceHierarchy& specific, DeviceHierarchy& common);
+
+  template<typename Table>
+  std::map<std::string, Table> flattenTableMap(
+    const std::map<std::string, std::vector<Table>>& withVector) {
+    std::map<std::string, Table> result;
+    std::transform(std::begin(withVector),
+                   std::end(withVector),
+                   std::inserter(result, std::end(result)),
+                   [](const auto& pair) -> std::pair<std::string, Table> {
+                     const auto& key    = pair.first;
+                     const auto& vector = pair.second;
+                     if (vector.size() != 1) {
+                       throw std::runtime_error(
+                         "Query must yield exactly one result");
+                     }
+                     return {key, vector[0]};
+                   });
+  }
 
   public:
   explicit OracleApi(const std::string& configuration,
@@ -158,16 +189,16 @@ class OracleApi : public ConfigReaderApi {
   [[nodiscard]] static DeviceHierarchy initDeviceHierarchy();
 
   private:
-  std::string                            m_db_user_name{"admin"};
-  std::string                            m_db_password{"mysecurepassword123!"};
-  std::string                            m_db_connection;
-  std::string                            m_config_set;
-  DeviceHierarchy                        m_devices;
-  std::set<std::string>                  m_deviceIds;
-  std::string                            m_devicesPlaceholderString;
-  OcciEnv                                m_occi_env;
-  OcciCon                                m_occi_con;
-  std::map<std::string, DeviceTypeTable> m_deviceTypes;
+  std::string     m_db_user_name{"admin"};
+  std::string     m_db_password{"mysecurepassword123!"};
+  std::string     m_db_connection;
+  std::string     m_config_set;
+  DeviceHierarchy m_devices;
+  // std::set<std::string>                  m_deviceIds;
+  // std::string                            m_devicesPlaceholderString;
+  OcciEnv m_occi_env;
+  OcciCon m_occi_con;
+  // std::map<std::string, DeviceTypeTable> m_deviceTypes;
 };
 
 #endif
