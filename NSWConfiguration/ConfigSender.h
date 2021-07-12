@@ -76,7 +76,8 @@ class ConfigSender {
 
     /// High level send function, and the kids
     void sendRouterConfig(const nsw::RouterConfig& obj);
-    void sendRouterCheckGPIO(const nsw::RouterConfig& obj);
+    void sendRouterWaitGPIO(const nsw::RouterConfig& obj);
+    bool sendRouterCheckGPIO(const nsw::RouterConfig& obj);
     void sendRouterSetSCAID(const nsw::RouterConfig& obj);
     void sendRouterSoftReset(const nsw::RouterConfig& obj,
                              std::chrono::seconds reset_hold  = nsw::router::RESET_HOLD,
