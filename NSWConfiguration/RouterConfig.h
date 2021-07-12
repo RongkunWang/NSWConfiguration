@@ -5,6 +5,12 @@
 
 #include "NSWConfiguration/SCAConfig.h"
 
+ERS_DECLARE_ISSUE(nsw,
+                  RouterConfigIssue,
+                  message,
+                  ((const char*)message)
+                  )
+
 namespace nsw {
 
 class RouterConfig: public SCAConfig {

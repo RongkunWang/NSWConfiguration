@@ -982,7 +982,7 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
 
 void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
     sendRouterSoftReset(obj);
-    sendRouterCheckGPIO(obj);
+    sendRouterWaitGPIO(obj);
     sendRouterSetSCAID(obj);
 }
 
@@ -1012,13 +1012,50 @@ void nsw::ConfigSender::sendRouterSoftReset(const nsw::RouterConfig& obj,
     std::this_thread::sleep_for(reset_sleep);
 }
 
-void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
+void nsw::ConfigSender::sendRouterWaitGPIO(const nsw::RouterConfig& obj) {
+    //
+    // check GPIOs
+    //
+    size_t checks = 0;
+    while (checks < nsw::router::MAX_GPIO_CHECKS) {
+      if (sendRouterCheckGPIO(obj)) {
+          return;
+      }
+      ERS_INFO("Waiting for "
+               << obj.getOpcServerIp()
+               << "/"
+               << obj.getAddress());
+      std::this_thread::sleep_for(nsw::router::RESET_PAUSE);
+      checks++;
+    }
+
+    //
+    // alert the user
+    //
+    if (obj.CrashOnConfigFailure()) {
+        const auto msg = obj.getOpcServerIp()
+                       + "/"
+                       + obj.getAddress()
+                       + " Configuration error. Crashing.";
+        nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
+        ers::fatal(issue);
+        throw std::runtime_error(msg);
+    } else {
+        const auto msg = "Giving up on "
+                       + obj.getOpcServerIp()
+                       + "/"
+                       + obj.getAddress();
+        ERS_INFO(msg);
+    }
+}
+
+bool nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
     auto opc_ip   = obj.getOpcServerIp();
     auto sca_addr = obj.getAddress();
+    bool ok = true;
 
     // Read SCA IO status back: Line 6 & 8 in excel
     // (only need to match with star mark bits)
-    bool all_ok = 1;
     std::vector< std::pair<std::string, bool> > check = { {"fpgaConfigOK",   1},
                                                           {"mmcmBotLock",    1},
                                                           {"fpgaInit",       1},
@@ -1040,24 +1077,15 @@ void nsw::ConfigSender::sendRouterCheckGPIO(const nsw::RouterConfig& obj) {
             << " Expected = " << exp
             << " Observed = " << obs
             << " -> " << (yay ? "Good" : "Bad");
-        ERS_INFO(msg.str());
-        if (!obj.CrashOnConfigFailure())
-            yay = 1;
-        if (kv.first.find("ClkReady") != std::string::npos && !obj.CrashOnClkReadyFailure())
-            yay = 1;
-        if (!yay)
-            all_ok = 0;
-        if (kv.first == "fpgaConfigOK")
-            usleep(1e6);
+        if (yay) {
+          ERS_LOG(msg.str());
+        } else {
+          ERS_INFO(msg.str());
+          ok = false;
+        }
     }
 
-    // Complain if bad config
-    if (!all_ok) {
-        auto msg = opc_ip + "/" + sca_addr + " Configuration error. Crashing.";
-        ERS_INFO(msg);
-        throw std::runtime_error(msg);
-    }
-    usleep(1e6);
+    return ok;
 }
 
 void nsw::ConfigSender::sendRouterSetSCAID(const nsw::RouterConfig& obj) {
