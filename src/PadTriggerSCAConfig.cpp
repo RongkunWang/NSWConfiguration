@@ -163,7 +163,9 @@ uint32_t nsw::PadTriggerSCAConfig::firmware_dateword() const {
   const std::string& fw = firmware();
 
   // extract YYYY*MM*DD from firmware()
-  const std::regex yyyy_mm_dd("[0-9]{4}.[0-9]{2}.[0-9]{2}");
+  //   [0-9]{N} means "N digits"
+  //   .?       means "zero or one characters"
+  const std::regex yyyy_mm_dd("[0-9]{4}.?[0-9]{2}.?[0-9]{2}");
   std::smatch matches;
   std::regex_search(fw, matches, yyyy_mm_dd);
 
