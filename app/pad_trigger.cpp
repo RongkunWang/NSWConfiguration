@@ -73,7 +73,16 @@ int main(int argc, const char *argv[])
     auto board_configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
         ("json://" + config_filename, "PadTriggerSCA", board_name);
     for (auto & board: board_configs)
-        std::cout << "Found " << board.getAddress() << " @ " << board.getOpcServerIp() << std::endl;
+        std::cout << "Found "
+                  << board.getAddress()
+                  << " @ "
+                  << board.getOpcServerIp()
+                  << std::endl
+                  << " with "
+                  << board.firmware()
+                  << " -> T = "
+                  << board.firmware_dateword()
+                  << std::endl;
 
     // the sender
     nsw::ConfigSender cs;

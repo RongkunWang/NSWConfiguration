@@ -8,12 +8,12 @@
 // conf_ttc_calib      <= control_reg(29 downto 26); -- DEFAULT VALUE ‘0000' HYPOTHESIS
 //
 
+#include <regex>
+#include "ers/ers.h"
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/Constants.h"
 
-using boost::property_tree::ptree;
-
-nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const ptree& config):
+nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const boost::property_tree::ptree& config):
     SCAConfig(config)
 {
   m_L1AReadoutLatency = -1;
@@ -155,4 +155,36 @@ bool nsw::PadTriggerSCAConfig::ConfigControlRegister() const {
 
 std::string nsw::PadTriggerSCAConfig::firmware() const {
   return m_config.get<std::string>("firmware");
+}
+
+uint32_t nsw::PadTriggerSCAConfig::firmware_dateword() const {
+
+  uint32_t dateword = 0;
+  const std::string& fw = firmware();
+
+  // extract YYYY*MM*DD from firmware()
+  const std::regex yyyy_mm_dd("[0-9]{4}.[0-9]{2}.[0-9]{2}");
+  std::smatch matches;
+  std::regex_search(fw, matches, yyyy_mm_dd);
+
+  // check result
+  if (matches.size() != 1) {
+    ERS_INFO("Cannot extract YYYYMMDD from "
+             << fw
+             << ", returning "
+             << dateword);
+    return dateword;
+  }
+
+  // convert YYYY*MM*DD to YYYYMMDD
+  for (const auto& match: matches) {
+    const std::regex non_numeric("[^0-9]");
+    const std::string datestr =
+      std::regex_replace(std::string(match), non_numeric, "");
+    dateword = static_cast<uint32_t>(std::stoul(datestr));
+    break;
+  }
+
+  // return
+  return dateword;
 }
