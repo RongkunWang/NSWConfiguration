@@ -149,9 +149,7 @@ void nsw::hw::ROC::enableVmmCaptureInputs() const
   boost::property_tree::ptree tree;
   tree.put_child("reg008vmmEnable",
                  m_rocDigital.getConfig().get_child("reg008vmmEnable"));
-  const auto configConverter = ConfigConverter(tree,
-                                               ConfigConverter::RegisterAddressSpace::ROC_DIGITAL,
-                                               ConfigConverter::ConfigType::REGISTER_BASED);
+  const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(tree, ConfigType::REGISTER_BASED);
   const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(m_rocDigital);
   writeRegister("reg008vmmEnable", translatedPtree.get<std::uint8_t>("reg008vmmEnable"));
 }
