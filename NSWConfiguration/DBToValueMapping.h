@@ -1,0 +1,173 @@
+#ifndef NSWCONFIGURATION_DBTOVALUEMAPPING_H
+#define NSWCONFIGURATION_DBTOVALUEMAPPING_H
+
+#include <unordered_map>
+#include <string>
+
+namespace nsw::Oracle {
+
+  const std::unordered_map<std::string, std::string> ROC_MAPPING = {
+    {"roc_id", "roc_id"},
+    {"even_parity", "even_parity"},
+    {"l1_first", "l1_first"},
+    {"sroc0_elinkSpeed", "elinkSpeed.sRoc0"},
+    {"sroc1_elinkSpeed", "elinkSpeed.sRoc1"},
+    {"sroc2_elinkSpeed", "elinkSpeed.sRoc2"},
+    {"sroc3_elinkSpeed", "elinkSpeed.sRoc3"},
+    {"sroc0_eopEnable", "eopEnable.sRoc0"},
+    {"sroc1_eopEnable", "eopEnable.sRoc1"},
+    {"sroc2_eopEnable", "eopEnable.sRoc2"},
+    {"sroc3_eopEnable", "eopEnable.sRoc3"},
+    {"sroc0_nullEnable", "nullEventEnable.sRoc0"},
+    {"sroc1_nullEnable", "nullEventEnable.sRoc1"},
+    {"sroc2_nullEnable", "nullEventEnable.sRoc2"},
+    {"sroc3_nullEnable", "nullEventEnable.sRoc3"},
+    {"bypass", "sRocEnable.bypass"},
+    {"timeout_enable", "sRocEnable.timeoutEnable"},
+    {"ttcStartBits", "sRocEnable.TTCStartBits"},
+    {"sroc0_enable", "sRocEnable.sRoc0"},
+    {"sroc1_enable", "sRocEnable.sRoc1"},
+    {"sroc2_enable", "sRocEnable.sRoc2"},
+    {"sroc3_enable", "sRocEnable.sRoc3"},
+    {"vmm0_enable", "vmmEnable.vmm0"},
+    {"vmm1_enable", "vmmEnable.vmm1"},
+    {"vmm2_enable", "vmmEnable.vmm2"},
+    {"vmm3_enable", "vmmEnable.vmm3"},
+    {"vmm4_enable", "vmmEnable.vmm4"},
+    {"vmm5_enable", "vmmEnable.vmm5"},
+    {"vmm6_enable", "vmmEnable.vmm6"},
+    {"vmm7_enable", "vmmEnable.vmm7"},
+    {"timeout", "FIXME.timeout"},
+    {"tx_csel", "FIXME.tx_csel"},
+    {"sroc0_eportEnable", "eportEnable.sRoc0"},
+    {"sroc1_eportEnable", "eportEnable.sRoc1"},
+    {"sroc2_eportEnable", "eportEnable.sRoc2"},
+    {"sroc3_eportEnable", "eportEnable.sRoc3"},
+    {"vmm0_fakeFailure", "fakeVmmFailure.vmm0"},
+    {"vmm1_fakeFailure", "fakeVmmFailure.vmm1"},
+    {"vmm2_fakeFailure", "fakeVmmFailure.vmm2"},
+    {"vmm3_fakeFailure", "fakeVmmFailure.vmm3"},
+    {"vmm4_fakeFailure", "fakeVmmFailure.vmm4"},
+    {"vmm5_fakeFailure", "fakeVmmFailure.vmm5"},
+    {"vmm6_fakeFailure", "fakeVmmFailure.vmm6"},
+    {"vmm7_fakeFailure", "fakeVmmFailure.vmm7"},
+    {"sroc0_tdcEnable", "tdcEnable.sRoc0"},
+    {"sroc1_tdcEnable", "tdcEnable.sRoc1"},
+    {"sroc2_tdcEnable", "tdcEnable.sRoc2"},
+    {"sroc3_tdcEnable", "tdcEnable.sRoc3"},
+    {"sroc0_busyEnable", "busyEnable.sRoc0"},
+    {"sroc1_busyEnable", "busyEnable.sRoc1"},
+    {"sroc2_busyEnable", "busyEnable.sRoc2"},
+    {"sroc3_busyEnable", "busyEnable.sRoc3"},
+    {"l1Events_noComma", "FIXME.l1EventsWithoutComma"},
+    {"reset", "FIXME.ePllReset"},
+    {"bypassPLL", "FIXME.bypassPLL"},
+    {"lockEnable", "FIXME.ePllLockEn"},
+    {"referenceFrequency", "FIXME.ePllReferenceFrequency"},
+    {"capacitorFilter", "FIXME.ePllCap"},
+    {"resistance", "FIXME.ePllRes"},
+    {"capacitor", "FIXME.ePllIcp"},
+    {"enablePhase", "FIXME.ePllEnablePhase"},
+    {"phase40MHz", "FIXME.ePllPhase40MHz"},  // Triplicate
+    {"phase160MHz", "FIXME.ePllPhase160MHz"},
+    {"tpBypass", "FIXME.tp_bypass_global"},
+    {"tpPhase", "FIXME.tp_phase_global"},
+    {"tds_bcr_inv", "FIXME.TDS_BCR_INV"},
+    {"lockOutInv", "FIXME.LockOutInv"},
+    {"testOutEn", "FIXME.testOutEn"},
+    {"testOutMux", "FIXME.testOutMux"},
+    {"vmm_bcr_inv", "FIXME.vmmBcrInv"},
+    {"vmm_ena_inv", "FIXME.vmmEnaInv"},
+    {"vmm_l0_inv", "FIXME.vmmL0Inv"},
+    {"vmm_tp_inv", "FIXME.vmmTpInv"},
+    {"sroc0_vmmConnections", "sRoc0VmmConnections"},  // split up values for VMM
+    {"sroc1_vmmConnections", "sRoc1VmmConnections"},
+    {"sroc2_vmmConnections", "sRoc2VmmConnections"},
+    {"sroc3_vmmConnections", "sRoc3VmmConnections"},
+    {"bc_offset", "FIXME.bc_offset"},
+    {"bc_rollover", "FIXME.bc_rollover"},
+    {"busy_onLimit", "FIXME.busyOnLimit"},
+    {"busy_offLimit", "FIXME.busyOffLimit"}};
+
+  const std::unordered_map<std::string, std::string> ROC_VMM_MAPPING = {
+    {"phase40MHz_0", ""},    {"phase40MHz_1", ""},
+    {"phase40MHz_2", ""},    {"phase40MHz_3", ""},
+    {"reset", ""},           {"bypass", ""},
+    {"lockEnable", ""},      {"referenceFrequency", ""},
+    {"capacitorFilter", ""}, {"resistance", ""},
+    {"capacitor", ""},       {"enablePhase", ""},
+    {"tpBypass_0", ""},      {"tpPhase_0", ""},
+    {"tpBypass_1", ""},      {"tpPhase_1", ""},
+    {"tpBypass_2", ""},      {"tpPhase_2", ""},
+    {"tpBypass_3", ""},      {"tpPhase_3", ""},
+    {"ctrlO5Delay_0", ""},   {"ctrlDelay_0", ""},
+    {"ctrlBypass_0", ""},    {"ctrlPhase_0", ""},
+    {"ctrlO5Delay_1", ""},   {"ctrlDelay_1", ""},
+    {"ctrlBypass_1", ""},    {"ctrlPhase_1", ""},
+    {"ctrlO5Delay_2", ""},   {"ctrlDelay_2", ""},
+    {"ctrlBypass_2", ""},    {"ctrlPhase_2", ""},
+    {"ctrlO5Delay_3", ""},   {"ctrlDelay_3", ""},
+    {"ctrlBypass_3", ""},    {"ctrlPhase_3", ""},
+    {"txEnable", ""},        {"txCsel", ""}};
+
+  const std::unordered_map<std::string, std::string> ROC_TDC_MAPPING = {
+    {"phase40MHz_0", ""},
+    {"phase40MHz_1", ""},
+    {"phase40MHz_2", ""},
+    {"phase40MHz_3", ""},
+    {"reset", ""},
+    {"bypass", ""},
+    {"lockEnable", ""},
+    {"referenceFrequency", ""},
+    {"capacitorFilter", ""},
+    {"resistance", ""},
+    {"capacitor", ""},
+    {"enablePhase", ""},
+    {"tpBypass_0", ""},
+    {"tpPhase_0", ""},
+    {"tpBypass_1", ""},
+    {"tpPhase_1", ""},
+    {"tpBypass_2", ""},
+    {"tpPhase_2", ""},
+    {"tpBypass_3", ""},
+    {"tpPhase_3", ""},
+    {"ctrlO5Delay_0", ""},
+    {"ctrlDelay_0", ""},
+    {"ctrlBypass_0", ""},
+    {"ctrlPhase_0", ""},
+    {"ctrlO5Delay_1", ""},
+    {"ctrlDelay_1", ""},
+    {"ctrlBypass_1", ""},
+    {"ctrlPhase_1", ""},
+    {"ctrlO5Delay_2", ""},
+    {"ctrlDelay_2", ""},
+    {"ctrlBypass_2", ""},
+    {"ctrlPhase_2", ""},
+    {"ctrlO5Delay_3", ""},
+    {"ctrlDelay_3", ""},
+    {"ctrlBypass_3", ""},
+    {"ctrlPhase_3", ""},
+    {"txEnable", ""},
+    {"txCsel", ""},
+    {"enable160MHzOnBCR", ""},
+    {"enable160MHzOn40MHz", ""}};
+
+  std::unordered_map<std::string, std::string> transform(
+    const std::string& type,
+    const std::string& name,
+    const std::string& value);
+
+  namespace Internal {
+    std::unordered_map<std::string, std::string> transformRoc(
+      const std::string& name,
+      const std::string& value);
+    std::unordered_map<std::string, std::string> transformRocVmm(
+      const std::string& name,
+      const std::string& value);
+    std::unordered_map<std::string, std::string> transformRocTdc(
+      const std::string& name,
+      const std::string& value);
+  }  // namespace Internal
+}  // namespace nsw::Oracle
+
+#endif

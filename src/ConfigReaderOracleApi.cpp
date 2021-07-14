@@ -18,6 +18,7 @@
 #include "DAL_NSWConfiguration.tmp.cpp/NSW_ROC.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Types.h"
+#include "NSWConfiguration/DBToValueMapping.h"
 
 OracleApi::OracleApi(const std::string& configuration,
                      DeviceHierarchy    devices) :
@@ -56,9 +57,12 @@ OracleApi::OracleApi(const std::string& configuration,
   const auto paramNameMapping = getParamNames(uniqueParamIds);
 
   // 7. Generate type-default, subtype-default and value ptrees
-  auto       treeTypeDefault    = buildValueTree(typeDefaults, paramNameMapping);
-  const auto treeSubtypeDefault = buildValueTree(subtypeDefaults, paramNameMapping);
-  const auto treeParamValues    = buildValueTree(paramValues, paramNameMapping);
+  auto treeTypeDefault =
+    buildValueTree(typeDefaults, paramNameMapping, deviceTypes);
+  const auto treeSubtypeDefault =
+    buildValueTree(subtypeDefaults, paramNameMapping, deviceTypes);
+  const auto treeParamValues =
+    buildValueTree(paramValues, paramNameMapping, deviceTypes);
 
   // 8. Merge subtype-default into type-default and values into that
   mergeTrees(treeSubtypeDefault, treeTypeDefault);
@@ -397,20 +401,28 @@ std::string OracleApi::generatePlaceholderString(const std::size_t num) {
 
 DeviceHierarchy OracleApi::buildValueTree(
   const std::map<std::string, std::vector<OracleApi::ValueTable>>& values,
-  const std::map<std::string, OracleApi::ParamNameTable>& paramNameMapping)
+  const std::map<std::string, OracleApi::ParamNameTable>&  paramNameMapping,
+  const std::map<std::string, OracleApi::DeviceTypeTable>& deviceTypeMapping)
   const {
   DeviceHierarchy result = initDeviceHierarchy();
 
-  const auto fill = [&values, &paramNameMapping](const boost::property_tree::ptree& tree) {
-    const auto fillImpl = [&values, &paramNameMapping](const auto&                        func,
-                                    const boost::property_tree::ptree& tree)
+  const auto fill = [&values, &paramNameMapping, &deviceTypeMapping](
+                      const boost::property_tree::ptree& tree) {
+    const auto fillImpl = [&values, &paramNameMapping, &deviceTypeMapping](
+                            const auto&                        func,
+                            const boost::property_tree::ptree& tree)
       -> std::pair<std::string, boost::property_tree::ptree> {
       boost::property_tree::ptree result;
       const auto                  id = tree.get<std::string>("device_id");
       const auto deviceName          = tree.get<std::string>("device_name");
       const auto children            = tree.get_child("children");
       for (const auto& [paramId, value] : values.at(deviceName)) {
-        result.put(paramNameMapping.at(paramId).param_name, value);
+        for (const auto& [key, valToPut] :
+             nsw::Oracle::transform(deviceTypeMapping.at(id).device_type,
+                                    paramNameMapping.at(paramId).param_name,
+                                    value)) {
+          result.put(key, valToPut);
+        }
       }
       for (const auto& iter : children) {
         const auto [childName, childTree] = func(func, iter.second);

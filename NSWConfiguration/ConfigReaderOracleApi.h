@@ -150,8 +150,9 @@ class OracleApi : public ConfigReaderApi {
   [[nodiscard]] static std::string generatePlaceholderString(std::size_t num);
 
   [[nodiscard]] DeviceHierarchy buildValueTree(
-    const std::map<std::string, std::vector<ValueTable>>&   values,
-    const std::map<std::string, OracleApi::ParamNameTable>& paramNameMapping)
+    const std::map<std::string, std::vector<ValueTable>>&    values,
+    const std::map<std::string, OracleApi::ParamNameTable>&  paramNameMapping,
+    const std::map<std::string, OracleApi::DeviceTypeTable>& deviceTypeMapping)
     const;
 
   void mergeTrees(const DeviceHierarchy& specific, DeviceHierarchy& common);
@@ -172,6 +173,7 @@ class OracleApi : public ConfigReaderApi {
                      }
                      return {key, vector[0]};
                    });
+    return result;
   }
 
   public:
