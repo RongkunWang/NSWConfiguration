@@ -1,7 +1,9 @@
 #ifndef NSWCONFIGURATION_CONFIGTRANSLATIONMAP_H
 #define NSWCONFIGURATION_CONFIGTRANSLATIONMAP_H
 
+#include <iomanip>
 #include <map>
+#include <sstream>
 #include <vector>
 #include <string>
 
@@ -802,22 +804,94 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
     }}
 };
 
-static const TranslationMapTds TRANSLATION_MAP_TDS = {
-    {"Strip_Match_Window", {
-        TranslationUnitTds{"register0.Strip_Match_Window", 0b1000'0000}
-    }},
-    {"CKBC_Clock_Phase", {
-        TranslationUnitTds{"register0.CKBC_Clock_Phase", 0b1000'0000}
-    }},
-    {"BCID_Rollover_Value", {
-        TranslationUnitTds{"register0.BCID_Rollover_Value", 0b1000'0000}
-    }},
-    {"BCID_Offset", {
-        TranslationUnitTds{"register0.BCID_Offset", 0b1000'0000}
-    }},
-    {"Strip_Match_Window", {
-        TranslationUnitTds{"register0.Strip_Match_Window", 0b1000'0000}
-    }},
-};
+static const TranslationMapTds TRANSLATION_MAP_TDS = [] () {
+    // FIXME: Origin of magic numbers: I2cRegisterMappings.h
+    TranslationMapTds table = {
+        {"Strip_Match_Window", {
+            TranslationUnitTds{"register0.Strip_Match_Window", 0x0000'000F}
+        }},
+        {"CKBC_Clock_Phase", {
+            TranslationUnitTds{"register0.CKBC_Clock_Phase", 0x0000'00F0}
+        }},
+        {"BCID_Rollover_Value", {
+            TranslationUnitTds{"register0.BCID_Rollover_Value", 0x000F'FF00}
+        }},
+        {"BCID_Offset", {
+            TranslationUnitTds{"register0.BCID_Offset", 0xFFF0'0000}
+        }},
+        {"SER_PLL_R", {
+            TranslationUnitTds{"register1.SER_PLL_R", 0xF800}
+        }},
+        {"SER_PLL_I", {
+            TranslationUnitTds{"register1.SER_PLL_I", 0x07C0}
+        }},
+        {"Ck160_0_Phase", {
+            TranslationUnitTds{"register1.Ck160_0_Phase", 0x003C}
+        }},
+        {"Ck160_1_Phase", {
+            TranslationUnitTds{"register1.Ck160_1_Phase", 0x0003}
+        }},
+        {"resets", {
+            TranslationUnitTds{"register12.resets", 0x0000'00FF}
+        }},
+        {"PRBS_en", {
+            TranslationUnitTds{"register12.PRBS_e", 0x0000'0100}
+        }},
+        {"stripTDS_globaltest", {
+            TranslationUnitTds{"register12.stripTDS_globaltest", 0x0000'0200}
+        }},
+        {"test_frame2Router_enable", {
+            TranslationUnitTds{"register12.test_frame2Router_enable", 0x0000'0400}
+        }},
+        {"bypass_scrambler", {
+            TranslationUnitTds{"register12.bypass_scrambler", 0x0000'0800}
+        }},
+        {"bypass_trigger", {
+            TranslationUnitTds{"register12.bypass_trigger", 0x0000'1000}
+        }},
+        {"prompt_circuit", {
+            TranslationUnitTds{"register12.prompt_circuit", 0x000F'0000}
+        }},
+        {"bypass", {
+            TranslationUnitTds{"register12.bypass", 0x00F0'0000}
+        }},
+        {"timer", {
+            TranslationUnitTds{"register12.timer", 0xFF00'0000}
+        }}
+    };
+    for (unsigned int i = 0; i < 128; i++) {
+        std::stringstream ss;
+        ss << "Chan" << std::setw(3) << i;
+        table[ss.str() + "_Disable"] = std::vector{TranslationUnitTds{"register2." + ss.str(), __uint128_t{0x1} << i}};
+    }
+    const auto reg3and4 = [&table] (const std::string& regname, const auto start) {
+        for (unsigned int i = 0; i < 8; i++) {
+            std::stringstream ss;
+            ss << "trig_lut" << std::hex << i + start;
+            table[ss.str()] = std::vector{TranslationUnitTds{regname + '.' + ss.str(), __uint128_t{0x7FFF} << i * 16}};
+        }
+    };
+    reg3and4("register3", 0);
+    reg3and4("register4", 8);
+    const auto reg5to10 = [&table] (const std::string& regname, const auto start) {
+        for (unsigned int i = 0; i < 16; i++) {
+            std::stringstream ss;
+            ss << "Pad_Chan" << std::hex << i + start;
+            table[ss.str() + "_Delay"] = std::vector{TranslationUnitTds{regname + '.' + ss.str(), __uint128_t{0x1F} << i * 8}};
+        }
+    };
+    reg5to10("register5", 0);
+    reg5to10("register6", 16);
+    reg5to10("register7", 32);
+    reg5to10("register8", 48);
+    reg5to10("register9", 64);
+    reg5to10("register10", 80);
+    for (unsigned int i = 0; i < 8; i++) {
+        std::stringstream ss;
+        ss << "Pad_Chan" << std::hex << i + 96;
+        table[ss.str() + "_Delay"] = std::vector{TranslationUnitTds{"register11" + ss.str(), __uint128_t{0x1F} << i * 8}};
+    }
+    return table;
+}();
 
 #endif
