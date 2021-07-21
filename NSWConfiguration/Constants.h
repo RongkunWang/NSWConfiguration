@@ -62,6 +62,11 @@ namespace nsw {
   // The first VMM on the sFEB6 is in position 2
   constexpr std::size_t SFEB6_FIRST_TDS = 1;
 
+  // A PFEB has 1 wire VMM and 2 pad VMMs
+  // The first pad VMM is in position 1
+  constexpr std::size_t PFEB_WIRE_VMM       = 0;
+  constexpr std::size_t PFEB_FIRST_PAD_VMM  = 1;
+
   /// Number of bytes at an I2C address
   constexpr std::size_t I2C_ADDRESS_BYTE_SIZE = 8;
 
