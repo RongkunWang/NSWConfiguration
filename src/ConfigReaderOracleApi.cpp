@@ -8,6 +8,7 @@
 #include <string_view>
 
 #include <boost/property_tree/json_parser.hpp>
+#include <unordered_map>
 
 #include "DAL_NSWConfiguration.tmp.cpp/NSW_MMFE8.h"
 #include "DAL_NSWConfiguration.tmp.cpp/NSW_VMM.h"
@@ -428,7 +429,7 @@ DeviceHierarchy OracleApi::buildValueTree(
         const auto [childName, childTree] = func(func, iter.second);
         result.add_child(childName, childTree);
       }
-      return {id, result};
+      return {renamePseudodevice(deviceName), result};
     };
     const auto [name, resultTree] = fillImpl(fillImpl, tree);
     boost::property_tree::ptree result;
@@ -446,7 +447,7 @@ DeviceHierarchy OracleApi::buildValueTree(
 }
 
 void OracleApi::mergeTrees(const DeviceHierarchy& specific,
-                           DeviceHierarchy&       common) {
+                           DeviceHierarchy&       common) const {
   if (specific.size() != common.size()) {
     throw std::runtime_error(
       "Can only merge tree structures with equal length");
@@ -465,6 +466,52 @@ void OracleApi::mergeTrees(const DeviceHierarchy& specific,
     for (; itInnerSpecific != std::end(innerSpecific);
          itInnerSpecific++, itInnerCommon++) {
       mergeTree(itInnerSpecific->second, itInnerCommon->second);
+    }
+  }
+}
+
+std::string OracleApi::renamePseudodevice(const std::string& pseudodevice) {
+  const std::unordered_map<std::string_view, std::string> mapping{
+    {{"ePLLVMM0", "ePllVmm0"},
+     {"ePLLVMM1", "ePllVmm1"},
+     {"ePLLTDC", "ePllTdc"}}};
+  for (const auto& [id, name] : mapping) {
+    if (pseudodevice.find(id) != std::string::npos) {
+      return name;
+    }
+  }
+
+  // ch36_VMM6_A1L3M04 -> ch36
+  if (pseudodevice.find("VMMchannel") != std::string::npos) {
+    return pseudodevice.substr(0, pseudodevice.find('_'));
+  }
+  return pseudodevice;
+}
+
+void OracleApi::postprocessVmmTrees(DeviceHierarchy& deviceTrees) {
+  std::array<std::string, nsw::vmm::NUM_CH_PER_VMM> channelNames{};
+  std::generate_n(std::begin(channelNames),
+                  nsw::vmm::NUM_CH_PER_VMM,
+                  [counter = 0, prefix = "ch"]() mutable {
+                    std::stringstream ss;
+                    ss << std::setw(2) << std::setfill('0') << counter++;
+                    return prefix + ss.str();
+                  });
+  std::array paramNames{
+    "sl", "st", "sth", "sm", "smx", "sd", "sz10b", "sz8b", "sz6b", "sc"};
+  std::string prefix = "channel_";
+  for (auto& [deviceName, tree] : deviceTrees.at("VMM")) {
+    for (const auto& paramName : paramNames) {
+      boost::property_tree::ptree node;
+      for (const auto& channelName : channelNames) {
+        boost::property_tree::ptree entry;
+        entry.put("", tree.get<unsigned int>(channelName + '.' + paramName));
+        node.push_back(std::make_pair("", entry));
+      }
+      tree.add_child("channel_" + std::string{paramName}, node);
+    }
+    for (const auto& channelName : channelNames) {
+      tree.erase(channelName);
     }
   }
 }

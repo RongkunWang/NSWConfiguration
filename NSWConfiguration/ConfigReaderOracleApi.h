@@ -155,7 +155,10 @@ class OracleApi : public ConfigReaderApi {
     const std::map<std::string, OracleApi::DeviceTypeTable>& deviceTypeMapping)
     const;
 
-  void mergeTrees(const DeviceHierarchy& specific, DeviceHierarchy& common);
+  void mergeTrees(const DeviceHierarchy& specific, DeviceHierarchy& common) const;
+
+  static std::string renamePseudodevice(const std::string& pseudodevice);
+  static void postprocessVmmTrees(DeviceHierarchy& deviceTrees);
 
   template<typename Table>
   std::map<std::string, Table> flattenTableMap(
