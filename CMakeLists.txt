@@ -126,6 +126,7 @@ tdaq_add_library(nswhwinterface
                  src/hw/ROC.cpp
                  src/hw/VMM.cpp
                  src/hw/TDS.cpp
+                 src/hw/ART.cpp
   LINK_LIBRARIES nswconfig
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
