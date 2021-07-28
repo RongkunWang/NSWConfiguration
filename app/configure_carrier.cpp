@@ -29,7 +29,7 @@ int main(int ac, const char *av[]) {
   po::options_description desc(description);
   desc.add_options()
     ("help,h", "produce help message")
-    ("c", po::value<std::string>(&config_filename)
+    ("config,c", po::value<std::string>(&config_filename)
      ->default_value(default_fname),
      "Configuration file path")
     ("sim", po::bool_switch()
