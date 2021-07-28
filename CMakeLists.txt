@@ -128,6 +128,7 @@ tdaq_add_library(nswhwinterface
                  src/hw/TDS.cpp
                  src/hw/ART.cpp
                  src/hw/PadTrigger.cpp
+                 src/hw/Router.cpp
   LINK_LIBRARIES nswconfig
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
