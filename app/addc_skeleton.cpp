@@ -27,7 +27,6 @@ int main(int argc, const char *argv[])
     std::string config_filename;
     std::string board_name;
     bool dont_config;
-    bool dont_align;
     bool dont_watch;
     int manual_phase;
     int bcr_phase;
@@ -41,8 +40,6 @@ int main(int argc, const char *argv[])
          "Configuration file path")
         ("dont_config", po::bool_switch()->
          default_value(false), "Option to NOT configure the ADDCs")
-        ("dont_align", po::bool_switch()->
-         default_value(false), "Option to NOT align the ADDCs to the TPs")
         ("dont_watch", po::bool_switch()->
          default_value(false), "Option to NOT monitor the ADDC-TP alignment vs time")
         ("manual_phase", po::value<int>(&manual_phase)->
@@ -58,7 +55,6 @@ int main(int argc, const char *argv[])
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
     dont_config = vm["dont_config"].as<bool>();
-    dont_align  = vm["dont_align" ].as<bool>();
     dont_watch  = vm["dont_watch"].as<bool>();
 
     if (vm.count("help")) {
@@ -95,10 +91,6 @@ int main(int argc, const char *argv[])
         for (auto& thread : *threads)
             thread.get();
     }
-
-    // check alignment
-    if (!dont_align)
-        cs.alignAddcGbtxTp(addc_configs);
 
     // to check: reading GBTx phase registers
     // for (auto & addc: addc_configs) {

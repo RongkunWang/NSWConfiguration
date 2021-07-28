@@ -584,117 +584,127 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
     ERS_LOG(addc.getAddress() << " Configuration done.");
 }
 
-void nsw::ConfigSender::alignAddcGbtxTp(const std::map<std::string, nsw::ADDCConfig> & addcs_map) {
-    std::vector<nsw::ADDCConfig> addcs = {};
-    for (auto & obj: addcs_map)
-        addcs.push_back(obj.second);
-    alignAddcGbtxTp(addcs);
+void nsw::ConfigSender::alignArtGbtxMmtp(const std::map<std::string, nsw::ADDCConfig> & addcs_map,
+                                         const std::map<std::string, nsw::TPConfig>   & tps_map) {
+  std::vector<nsw::ADDCConfig> addcs = {};
+  for (const auto & obj: addcs_map)
+    addcs.push_back(obj.second);
+  if (tps_map.size() > 1) {
+    throw std::runtime_error("Cant align more than 1 MMTP");
+  }
+  for (const auto & tp: tps_map) {
+    alignArtGbtxMmtp(addcs, tp.second);
+  }
 }
 
-void nsw::ConfigSender::alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs) {
+void nsw::ConfigSender::alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & addcs,
+                                         const nsw::TPConfig & tp) {
 
-    // check if any ADDCs want to be aligned
-    bool go = 0;
-    for (auto & addc : addcs)
-        for (auto art: addc.getARTs())
-            if (!art.TP_GBTxAlignmentSkip())
-                go = 1;
-    if (!go)
-        return;
-
-    // collect all TPs from the ARTs
-    std::vector< nsw::TPConfig > tps;
-    for (auto & addc : addcs) {
-        for (auto art : addc.getARTs()) {
-            bool exists = false;
-            for (const auto & tp: tps) {
-                if (art.getOpcServerIp_TP() == tp.getOpcServerIp() && art.getOpcNodeId_TP() == tp.getAddress()) {
-                    exists = true;
-                }
-            }
-            if (!exists) {
-                ptree config;
-                config.put("OpcServerIp", art.getOpcServerIp_TP());
-                config.put("OpcNodeId",   art.getOpcNodeId_TP());
-                nsw::TPConfig tp(config);
-                tps.push_back(tp);
-            }
-        }
+  // if no ARTs want to be aligned: exit
+  bool go = 0;
+  for (const auto & addc : addcs) {
+    for (const auto & art: addc.getARTs()) {
+      if (!art.TP_GBTxAlignmentSkip()) {
+        go = 1;
+      }
     }
-    for (auto tp : tps)
-        ERS_LOG("Found TP for alignment: " << tp.getOpcServerIp() << "/" << tp.getAddress());
+  }
+  if (!go) {
+    return;
+  }
 
-    // loop over TPs
-    for (auto tp : tps) {
+  // check ART/MMTP communication
+  ERS_INFO("Checking ART communication for " << tp.getOpcServerIp() << "." << tp.getAddress());
+  size_t n_resets = 0;
+  while (true) {
 
-        // check alignment
-        auto outdata = readSCAXRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
-        ERS_LOG(tp.getOpcServerIp() << "/" << tp.getAddress() << " Found " << nsw::vectorToBitString(outdata, true));
-
-        // TP collect data from the ARTs
-        // to decide if stability is good
-        size_t n_resets = 0;
-        while (true) {
-            if (n_resets > nsw::mmtp::FIBER_ALIGN_ATTEMPTS)
-                throw std::runtime_error("Failed to stabilize input to " + tp.getAddress() + ". Crashing");
-
-            // should sleep before trying the first time
-            // in case the fiber communication hasn't settled
-            usleep(nsw::mmtp::FIBER_ALIGN_SLEEP);
-
-            // read for glitches
-            auto glitches = std::vector<int>(nsw::mmtp::NUM_FIBERS);
-            for (size_t i_read = 0; i_read < nsw::mmtp::FIBER_ALIGN_N_READS; i_read++) {
-                auto outdata = readSCAXRegister(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
-                for (auto & addc : addcs)
-                    for (auto art : addc.getARTs())
-                        if (art.IsMyTP(tp.getOpcServerIp(), tp.getAddress()) && !art.TP_GBTxAlignmentSkip())
-                            glitches[art.TP_GBTxAlignmentBit()] += (art.IsAlignedWithTP(outdata) ? 0 : 1);
-            }
-
-            // announce
-            for (auto & addc : addcs) {
-                for (auto art : addc.getARTs()) {
-                    if (art.IsMyTP(tp.getOpcServerIp(), tp.getAddress()) && !art.TP_GBTxAlignmentSkip()) {
-                        std::stringstream msg;
-                        msg << addc.getAddress() << "." << art.getName() << " "
-                            << glitches[art.TP_GBTxAlignmentBit()] << " glitches"
-                            << " (" << art.TP_GBTxAlignmentBit() << ")";
-                        if (glitches[art.TP_GBTxAlignmentBit()] > 0)
-                            ERS_INFO(msg.str());
-                        else
-                            ERS_LOG(msg.str());
-                    }
-                }
-            }
-
-            // build the reset
-            uint32_t reset = 0;
-            for (size_t ipll = 0; ipll < nsw::mmtp::NUM_FIBERS/nsw::mmtp::NUM_FIBERS_PER_QPLL; ipll++) {
-                int total_glitches = 0;
-                for (size_t fib = 0; fib < nsw::mmtp::NUM_FIBERS_PER_QPLL; fib++)
-                    total_glitches += glitches.at(ipll*nsw::mmtp::NUM_FIBERS_PER_QPLL + fib);
-                if (total_glitches > 0)
-                    reset += 1 << static_cast<uint32_t>(ipll);
-            }
-            usleep(1e6);
-            ERS_INFO("alignAddcGbtxTp Reset word = " << reset);
-
-            // the moment of truth
-            if (reset == 0) {
-                ERS_INFO("alignAddcGbtxTp success!");
-                break;
-            }
-
-            // or, set/unset the reset
-            sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, reset);
-            usleep(1e6);
-            sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, 0x00);
-
-            // protecc
-            n_resets++;
-        }
+    // admit defeat
+    if (n_resets > nsw::mmtp::FIBER_ALIGN_ATTEMPTS) {
+      throw std::runtime_error("Failed to stabilize input to " + tp.getAddress() + ". Crashing");
     }
+
+    // allow communication to settle after previous reset
+    nsw::snooze(nsw::mmtp::FIBER_ALIGN_SLEEP);
+
+    // read MMTP alignment register
+    auto aligned = std::vector<uint32_t>(nsw::mmtp::NUM_FIBERS);
+    for (size_t read = 0; read < nsw::mmtp::FIBER_ALIGN_N_READS; read++) {
+      const auto word = readSCAXRegisterWord(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
+      for (size_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
+        bool align = ((word >> fiber) & 1);
+        if (align) {
+          aligned.at(fiber)++;
+        }
+      }
+    }
+
+    // skip on request
+    for (const auto & addc : addcs) {
+      for (const auto & art : addc.getARTs()) {
+        if (art.TP_GBTxAlignmentSkip()) {
+          const auto fiber = art.TP_GBTxAlignmentBit();
+          aligned.at(fiber) = nsw::mmtp::FIBER_ALIGN_N_READS;
+        }
+      }
+    }
+
+    // announce
+    for (const auto & addc : addcs) {
+      for (const auto & art : addc.getARTs()) {
+        if (art.TP_GBTxAlignmentSkip()) {
+          continue;
+        }
+        const auto fiber = art.TP_GBTxAlignmentBit();
+        const auto align = aligned.at(fiber);
+        std::stringstream msg;
+        msg << addc.getAddress()
+            << "."
+            << art.getName()
+            << " ("
+            << fiber
+            << ") "
+            << align
+            << " aligned out of "
+            << nsw::mmtp::FIBER_ALIGN_N_READS
+          ;
+        if (align < nsw::mmtp::FIBER_ALIGN_N_READS) {
+          ERS_INFO(msg.str());
+        } else {
+          ERS_LOG(msg.str());
+        }
+      }
+    }
+
+    // build the reset
+    // if any fiber of a quad has any misalignments,
+    // reset that QPLL
+    uint32_t reset = 0;
+    for (uint32_t qpll = 0; qpll < nsw::mmtp::NUM_QPLL; qpll++) {
+      for (uint32_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
+        if (fiber / nsw::mmtp::NUM_FIBERS_PER_QPLL != qpll) {
+          continue;
+        }
+        if (aligned.at(fiber) < nsw::mmtp::FIBER_ALIGN_N_READS) {
+          reset += (1 << qpll);
+          break;
+        }
+      }
+    }
+    ERS_INFO("alignArtGbtxMmtp Reset word = " << reset);
+
+    // the moment of truth
+    if (reset == 0) {
+      ERS_INFO("alignArtGbtxMmtp success!");
+      break;
+    }
+
+    // or, set/unset the reset
+    sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, reset);
+    sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, 0x00);
+
+    // and take note
+    n_resets++;
+  }
 }
 
 std::vector<uint8_t> nsw::ConfigSender::readSCAXRegister(const nsw::SCAConfig& scax, uint8_t address) {
