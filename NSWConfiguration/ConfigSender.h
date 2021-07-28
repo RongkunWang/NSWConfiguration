@@ -66,8 +66,9 @@ class ConfigSender {
     void sendAddcConfig(const nsw::ADDCConfig& feb, int i_art = -1);
 
     /// Send configuration to ADDC for aligning ART to TP
-    void alignAddcGbtxTp(const std::map<std::string, nsw::ADDCConfig> & addcs_map);
-    void alignAddcGbtxTp(std::vector<nsw::ADDCConfig> & addcs);
+    void alignArtGbtxMmtp(const std::map<std::string, nsw::ADDCConfig> & addcs_map,
+                          const std::map<std::string, nsw::TPConfig>   & tps_map);
+    void alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & addcs, const nsw::TPConfig& tp);
 
     /// High level send function
     uint32_t readPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig& obj);

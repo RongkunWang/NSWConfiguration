@@ -187,7 +187,7 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
 void nsw::NSWConfig::alignADDCsToTP() {
     ERS_LOG("Checking alignment of ADDCs to TP");
     if (!m_simulation) {
-        m_sender->alignAddcGbtxTp(m_addcs);
+        m_sender->alignArtGbtxMmtp(m_addcs, m_tps);
     }
     ERS_LOG("Finished checking alignment of ADDCs to TP");
 }
