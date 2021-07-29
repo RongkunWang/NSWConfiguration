@@ -111,6 +111,7 @@ private:
     void configureRouter(const std::string& name);
     void configurePadTriggers();
     void configureTPs();
+    void configureTPCarriers();
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
@@ -120,6 +121,7 @@ private:
     std::map<std::string, RouterConfig>        m_routers;     //!
     std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
     std::map<std::string, TPConfig>            m_tps;         //!
+    std::map<std::string, TPCarrierConfig>     m_tpcarriers;  //!
 
     // Database connection string
     std::string m_dbcon;
