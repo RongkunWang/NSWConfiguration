@@ -34,10 +34,11 @@ void nsw::NSWConfig::configureRc() {
     for (auto & name : frontend_names) {
       try {
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
-        if      (nsw::getElementType(name) == "ADDC")          m_addcs  .emplace(this_pair);
-        else if (nsw::getElementType(name) == "Router")        m_routers.emplace(this_pair);
-        else if (nsw::getElementType(name) == "PadTriggerSCA") m_ptscas .emplace(this_pair);
-        else if (nsw::getElementType(name) == "TP")            m_tps    .emplace(this_pair);
+        if      (nsw::getElementType(name) == "ADDC")          m_addcs     .emplace(this_pair);
+        else if (nsw::getElementType(name) == "Router")        m_routers   .emplace(this_pair);
+        else if (nsw::getElementType(name) == "PadTriggerSCA") m_ptscas    .emplace(this_pair);
+        else if (nsw::getElementType(name) == "TP")            m_tps       .emplace(this_pair);
+        else if (nsw::getElementType(name) == "TPCarrier")     m_tpcarriers.emplace(this_pair);
         else
           m_frontends.emplace(this_pair);
         std::cout << name << std::endl;
@@ -57,6 +58,7 @@ void nsw::NSWConfig::configureRc() {
     configureRouters();       // Configure all Routers
     configurePadTriggers();   // Configure all Pad Triggers
     configureTPs();           // Configure all Trigger processors
+    configureTPCarriers();    // Configure all Trigger processor carriers
     alignADDCsToTP();         // Adjust MMTP serializers based on ART data
     ERS_LOG("End");
 }
@@ -68,6 +70,7 @@ void nsw::NSWConfig::unconfigureRc() {
     m_routers.clear();
     m_ptscas.clear();
     m_tps.clear();
+    m_tpcarriers.clear();
     // m_reader.reset();
     ERS_INFO("End");
 }
@@ -247,6 +250,17 @@ void nsw::NSWConfig::configureTPs() {
         auto configuration = m_tps.at(kv.first);
         if (!m_simulation) {
             m_sender->sendTPConfig(configuration);
+        }
+        ERS_LOG("Finished config to: " << kv.first);
+    }
+}
+
+void nsw::NSWConfig::configureTPCarriers() {
+    ERS_LOG("Configuring TPCarriers. Total number: " << m_tpcarriers.size() );
+    for (const auto& kv : m_tpcarriers) {
+        auto configuration = m_tpcarriers.at(kv.first);
+        if (!m_simulation) {
+            m_sender->sendTPCarrierConfig(configuration);
         }
         ERS_LOG("Finished config to: " << kv.first);
     }
