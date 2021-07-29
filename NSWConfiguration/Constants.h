@@ -219,6 +219,7 @@ namespace nsw {
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
     constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
+    constexpr std::uint32_t NUM_PFEBS              = 24;
     constexpr std::uint32_t NUM_PFEB_BCID_READS    = 100;
     constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
@@ -232,6 +233,22 @@ namespace nsw {
     constexpr std::uint32_t REG_PFEB_BCID_23_16  = 0x07;
     constexpr std::uint32_t REG_PFEB_BCID_15_08  = 0x08;
     constexpr std::uint32_t REG_PFEB_BCID_07_00  = 0x09;
+    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_SS = {
+      "PFEB_L4Q2_IP", "PFEB_L2Q2_IP", "PFEB_L4Q1_IP", "PFEB_L2Q1_IP",
+      "PFEB_L2Q2_HO", "PFEB_L4Q2_HO", "PFEB_L2Q1_HO", "PFEB_L4Q1_HO",
+      "PFEB_L2Q3_HO", "PFEB_L1Q3_HO", "PFEB_L4Q3_HO", "PFEB_L3Q3_HO",
+      "PFEB_L1Q3_IP", "PFEB_L2Q3_IP", "PFEB_L3Q3_IP", "PFEB_L4Q3_IP",
+      "PFEB_L3Q2_HO", "PFEB_L1Q2_HO", "PFEB_L3Q1_HO", "PFEB_L1Q1_HO",
+      "PFEB_L1Q2_IP", "PFEB_L3Q2_IP", "PFEB_L1Q1_IP", "PFEB_L3Q1_IP",
+    };
+    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_LS = {
+      "PFEB_L4Q2_HO", "PFEB_L2Q2_HO", "PFEB_L4Q1_HO", "PFEB_L2Q1_HO",
+      "PFEB_L2Q2_IP", "PFEB_L4Q2_IP", "PFEB_L2Q1_IP", "PFEB_L4Q1_IP",
+      "PFEB_L2Q3_IP", "PFEB_L1Q3_IP", "PFEB_L4Q3_IP", "PFEB_L3Q3_IP",
+      "PFEB_L1Q3_HO", "PFEB_L2Q3_HO", "PFEB_L3Q3_HO", "PFEB_L4Q3_HO",
+      "PFEB_L3Q2_IP", "PFEB_L1Q2_IP", "PFEB_L3Q1_IP", "PFEB_L1Q1_IP",
+      "PFEB_L1Q2_HO", "PFEB_L3Q2_HO", "PFEB_L1Q1_HO", "PFEB_L3Q1_HO",
+    };
   }
 
   namespace router {
