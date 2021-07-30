@@ -56,7 +56,7 @@ uint8_t nsw::RouterConfig::id_sector() const {
   // XYY -> YY
   // A12 -> 12, e.g.
   auto sect = Sector();
-  auto result = std::stoi(sect.substr(1, 2));
+  const auto result = std::stoul(sect.substr(1, 2));
   if (result < nsw::MIN_SECTOR_ID || result > nsw::MAX_SECTOR_ID)
     id_crash();
   return static_cast<uint8_t>(result - 1);
@@ -65,7 +65,7 @@ uint8_t nsw::RouterConfig::id_sector() const {
 uint8_t nsw::RouterConfig::id_layer() const {
   // Router_LZ -> Z
   auto addr = getAddress();
-  auto result = std::stoi(addr.substr(8, 1));
+  const auto result = std::stoul(addr.substr(8, 1));
   if (result < nsw::MIN_LAYER_ID || result > nsw::MAX_LAYER_ID)
     id_crash();
   return static_cast<uint8_t>(result);
