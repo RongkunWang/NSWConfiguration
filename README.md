@@ -43,7 +43,7 @@ ssh lxplus7.cern.ch
 
 * Set up the environment (see [environment](#environment) for additional options)
 ```bash
-export TDAQ_RELEASE=tdaq-09-02-01
+export TDAQ_RELEASE=tdaq-09-03-00
 source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE}
 ```
 
@@ -269,24 +269,25 @@ Possible options are:
 - ``tdaq-08-03-01``: August 2019 release with new implementation of swROD and ALTI
 - ``tdaq-09-00-00``: March 2020 release
 - ``tdaq-09-01-00``: September 2020 release
-- ``tdaq-09-02-01``: Current (November 2020) **default**
+- ``tdaq-09-02-01``: August 2, 2021 release
+- ``tdaq-09-02-01``: Current (August 2021) **default**
 - other: Keep following Detector/DAQ meetings for newer releases.
 
 #### Environment setup
-Let's say you chose the ``tdaq`` release ``tdaq-09-02-01``.
+Let's say you chose the ``tdaq`` release ``tdaq-09-03-00``.
 Set the TDAQ environment, each ``tdaq`` release is compiled against a certain LCG release
 (and with several compiler profile options).
 For most uses, you will not need to specify the compiler profile and the following will be sufficient
 
 ```bash
-export TDAQ_RELEASE=tdaq-09-02-01
+export TDAQ_RELEASE=tdaq-09-03-00
 source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE}
 ```
 
 ### Compiler profile
 * To explicitly specify the compiler profile, you would:
 ```bash
-export TDAQ_RELEASE=tdaq-09-02-01
+export TDAQ_RELEASE=tdaq-09-03-00
 export COMPILER_PROFILE=x86_64-centos7-gcc8-opt
 source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
 ```
@@ -296,6 +297,11 @@ N.B., available profiles are:
   * ``x86_64-centos7-gcc8-opt``
   * ``x86_64-centos7-gcc8-dbg``
 * ``tdaq-09-02-01``
+  * ``x86_64-centos7-gcc8-opt``
+  * ``x86_64-centos7-gcc8-dbg``
+  * ``x86_64-centos7-gcc10-opt``
+  * ``x86_64-centos7-gcc10-dbg``
+* ``tdaq-09-03-00``
   * ``x86_64-centos7-gcc8-opt``
   * ``x86_64-centos7-gcc8-dbg``
   * ``x86_64-centos7-gcc10-opt``
