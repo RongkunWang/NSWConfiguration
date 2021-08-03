@@ -15,9 +15,6 @@ class PadTriggerSCAConfig: public SCAConfig {
     bool dummy;
 
  public:
-    //! Constructor.
-    //! The ptree in the argument should contain
-    //! - OpcServerIp, OpcNodeId
     explicit PadTriggerSCAConfig(const boost::property_tree::ptree& config);
     ~PadTriggerSCAConfig() = default;
 
@@ -27,7 +24,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     bool ConfigRepeaters() const;
     bool ConfigVTTx() const;
     bool ConfigControlRegister() const;
-    int ControlRegister() const;
+    uint32_t ControlRegister() const;
     int L1AReadoutLatency() const;
     int L1AReadoutNBC() const;
     int L1AReadoutNBCMode() const;
@@ -36,6 +33,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     int StartIdleState() const;
     int OCREnable() const;
     int TTCCalib() const;
+    int SelfTriggerEnable() const;
     int LatencyScanStart() const;
     int LatencyScanNBC() const;
     void SetL1AReadoutLatency(int val) {m_L1AReadoutLatency = val;}
@@ -45,6 +43,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     void SetStartIdleState(int val)    {m_StartIdleState    = val;}
     void SetOCREnable(int val)         {m_OCREnable         = val;}
     void SetTTCCalib(int val)          {m_TTCCalib          = val;}
+    void SetSelfTriggerEnable(int val) {m_SelfTriggerEnable = val;}
     void SetLatencyScanStart(int val)  {m_LatencyScanStart  = val;}
     void SetLatencyScanNBC(int val)    {m_LatencyScanNBC    = val;}
     void SetL1AReadoutEnable()  {m_L1AReadoutEnable = 1;}
@@ -63,6 +62,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     int m_StartIdleState;
     int m_OCREnable;
     int m_TTCCalib;
+    int m_SelfTriggerEnable;
     int m_LatencyScanStart;
     int m_LatencyScanNBC;
 
