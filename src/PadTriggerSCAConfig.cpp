@@ -131,8 +131,9 @@ int nsw::PadTriggerSCAConfig::TTCCalib() const {
 }
 
 int nsw::PadTriggerSCAConfig::SelfTriggerEnable() const {
-  if (m_SelfTriggerEnable == -1)
+  if (m_SelfTriggerEnable == -1) {
     return m_config.get<int>("SelfTriggerEnable");
+  }
   return m_SelfTriggerEnable;
 }
 
