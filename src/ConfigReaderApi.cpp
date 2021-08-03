@@ -66,19 +66,19 @@ std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp
     return result;
 }
 
-ptree ConfigReaderApi::readTPCarrier(const std::string& element) const {
+ptree JsonApi::readTPCarrier(const std::string& element) const {
     ERS_LOG("Reading configuration for TP Carrier: " << element);
     ptree tree = m_config.get_child(element);
     return tree;
 }
 
-ptree ConfigReaderApi::readTP(const std::string& element) const {
+ptree JsonApi::readTP(const std::string& element) const {
     ERS_LOG("Reading configuration for TP: " << element);
     ptree tree = m_config.get_child(element);
     return tree;
 }
 
-void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) const {
+void JsonApi::mergeI2cMasterTree(ptree & specific, ptree & common) const {
     // Loop over I2c addresses within specific tree
     for (ptree::iterator iter_addresses = specific.begin();
         iter_addresses != specific.end(); iter_addresses++) {
@@ -111,7 +111,7 @@ void ConfigReaderApi::mergeI2cMasterTree(ptree & specific, ptree & common) const
     }
 }
 
-void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) const {
+void JsonApi::mergeVMMTree(ptree & specific, ptree & common) const {
     // Iterate over registers in I2c address
     for (ptree::iterator iter_registers = specific.begin();
         iter_registers != specific.end(); iter_registers++) {
@@ -141,7 +141,7 @@ void ConfigReaderApi::mergeVMMTree(ptree & specific, ptree & common) const {
     }
 }
 
-ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, size_t vmm_start,
+ptree JsonApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, size_t vmm_start,
     size_t tds_start) const {
     ptree feb = m_config.get_child(element);
     ptree roc_common = m_config.get_child("roc_common_config");
@@ -211,15 +211,15 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
     return feb;
 }
 
-ptree ConfigReaderApi::readL1DDC(const std::string& element) const {
+ptree JsonApi::readL1DDC(const std::string& element) const {
     // Read an L1DDC branch from the configuration ptree
-    ERS_LOG("ConfigReaderApi::readL1DDC, element=" << element);
+    ERS_LOG("JsonApi::readL1DDC, element=" << element);
     // ptree with configuration for just this element
     ptree feb = m_config.get_child(element);
     return feb;
 }
 
-ptree ConfigReaderApi::readADDC(const std::string& element, size_t nart) const {
+ptree JsonApi::readADDC(const std::string& element, size_t nart) const {
     // how to dump a json to screen:
     // std::stringstream ss;
     // boost::property_tree::json_parser::write_json(ss, m_config);
@@ -260,7 +260,7 @@ ptree ConfigReaderApi::readADDC(const std::string& element, size_t nart) const {
     return feb;
 }
 
-ptree ConfigReaderApi::readPadTriggerSCA(const std::string& element) const {
+ptree JsonApi::readPadTriggerSCA(const std::string& element) const {
     //
     // Need to add functionality to overwrite values!
     //
@@ -268,7 +268,7 @@ ptree ConfigReaderApi::readPadTriggerSCA(const std::string& element) const {
     return feb;
 }
 
-ptree ConfigReaderApi::readRouter(const std::string& element) const {
+ptree JsonApi::readRouter(const std::string& element) const {
     //
     // Need to add functionality to overwrite values!
     //

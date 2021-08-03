@@ -49,16 +49,6 @@ ERS_DECLARE_ISSUE(nsw,
                   )
 
 class ConfigReaderApi {
- private:
-  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
-  /// \param common ptree that is fully populated with all fields required by I2cMasterConfig
-  /// \param specific ptree that is partially populated.
-  virtual void mergeI2cMasterTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
-
-  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
-  /// \param common ptree that is fully populated with all fields required by VMMConfig
-  /// \param specific ptree that is partially populated.
-  virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
  protected:
   /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
@@ -92,7 +82,7 @@ class ConfigReaderApi {
   /// Read configuration of front end, specifying number of vmm and tds in the FE
   virtual boost::property_tree::ptree readFEB(
       const std::string& element, size_t nvmm, size_t ntds,
-      size_t vmm_start = 0, size_t tds_start = 0) const;
+      size_t vmm_start = 0, size_t tds_start = 0) const = 0;
 
   boost::property_tree::ptree readMMFE8(const std::string& element) const {
     return readFEB(element, nsw::NUM_VMM_PER_MMFE8, nsw::NUM_TDS_PER_MMFE8);
@@ -112,21 +102,44 @@ class ConfigReaderApi {
     return readFEB(element, nsw::NUM_VMM_PER_SFEB, nsw::NUM_TDS_PER_SFEB, nsw::SFEB6_FIRST_VMM, nsw::SFEB6_FIRST_TDS);;
   }
 
-  virtual boost::property_tree::ptree readL1DDC(const std::string& element) const;
-  virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const;
-  virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const;
-  virtual boost::property_tree::ptree readRouter(const std::string& element) const;
-  virtual boost::property_tree::ptree readTP(const std::string& element) const;
-  virtual boost::property_tree::ptree readTPCarrier(const std::string& element) const;
+  virtual boost::property_tree::ptree readL1DDC(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const = 0;
+  virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readRouter(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readTP(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readTPCarrier(const std::string& element) const = 0;
 };
 
 class JsonApi: public ConfigReaderApi {
  private:
-  std::string m_file_path;
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  /// \param common ptree that is fully populated with all fields required by I2cMasterConfig
+  /// \param specific ptree that is partially populated.
+  virtual void mergeI2cMasterTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
+
+  /// Merges 2 trees, overwrites elements in common tree, using the ones from specific
+  /// \param common ptree that is fully populated with all fields required by VMMConfig
+  /// \param specific ptree that is partially populated.
+  virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
  public:
   explicit JsonApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
+
+  boost::property_tree::ptree readL1DDC(const std::string& element) const override;
+  boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const override;
+  boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const override;
+  boost::property_tree::ptree readRouter(const std::string& element) const override;
+  boost::property_tree::ptree readTP(const std::string& element) const override;
+  boost::property_tree::ptree readTPCarrier(const std::string& element) const override;
+
+  /// Read configuration of front end, specifying number of vmm and tds in the FE
+  boost::property_tree::ptree readFEB(
+      const std::string& element, size_t nvmm, size_t ntds,
+      size_t vmm_start = 0, size_t tds_start = 0) const override;
+
+ private:
+  std::string m_file_path;
 };
 
 class XmlApi: public ConfigReaderApi {
