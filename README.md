@@ -293,19 +293,19 @@ source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ
 ```
 
 N.B., available profiles are:
-* ``tdaq-08-03-01``, ``tdaq-09-00-00``, ``tdaq-09-01-00``
+* ``tdaq-09-03-00`` **default**
   * ``x86_64-centos7-gcc8-opt``
   * ``x86_64-centos7-gcc8-dbg``
+  * ``x86_64-centos7-gcc10-opt``
+  * ``x86_64-centos7-gcc10-dbg``
 * ``tdaq-09-02-01``
   * ``x86_64-centos7-gcc8-opt``
   * ``x86_64-centos7-gcc8-dbg``
   * ``x86_64-centos7-gcc10-opt``
   * ``x86_64-centos7-gcc10-dbg``
-* ``tdaq-09-03-00``
+* ``tdaq-08-03-01``, ``tdaq-09-00-00``, ``tdaq-09-01-00``
   * ``x86_64-centos7-gcc8-opt``
   * ``x86_64-centos7-gcc8-dbg``
-  * ``x86_64-centos7-gcc10-opt``
-  * ``x86_64-centos7-gcc10-dbg``
 
 ### git options
 * Clone a specific branch:
@@ -313,7 +313,9 @@ N.B., available profiles are:
 git clone --recursive -b my-special-branch https://:@gitlab.cern.ch:8443/atlas-muon-nsw-daq/NSWConfiguration.git
 ```
 
-* If you did not clone with a specific branch above, check out the branch or tag you need. Latest developments are always in the ``dev`` branch.
+* If you did not clone with a specific branch above, check out the
+  branch or tag you need. Latest developments are always in the
+  ``dev`` branch.
 ```bash
 cd NSWConfiguration
 git checkout fancy-branch
@@ -323,7 +325,9 @@ cd ..
 
 
 ### CMake options
-* You can use ``cmake_config`` to generate the build files, and then the native buildsystem to run the build, e.g., for ``make``:
+* You *can* use ``cmake_config`` (but it is not recommended for
+  flexibility reasons) to generate the build files, and then the
+  native buildsystem to run the build, e.g., for ``make``:
 ```bash
 # cmake_config $CMTCONFIG -- -DTDAQ_VERSION=${TDAQ_VERSION} # Create build configuration
 # N.B. TDAQ_VERSION in CMakeLists.txt **must** match the environment variable due to limitations of cmake_config
@@ -338,7 +342,9 @@ cmake -Bfreedomfiles -S. -DTDAQ_VERSION=${TDAQ_VERSION}
 cmake --build freedomfiles -- -j
 ```
 
-* If available, you can change the buildsystem:
+* If available, you can change the buildsystem (you must do this in a
+  new build directory, otherwise `cmake` will detect the build files
+  from the other generator and will fail):
 ```bash
 cmake -Bninja-build -S. -GNinja -DTDAQ_VERSION=${TDAQ_VERSION}
 cmake --build ninja-build -- -j
@@ -356,22 +362,31 @@ cmake --build ninja-build -- -j
 
 ### External Software
 
-``NSWConfiguration`` requires an external Opc related software to build and run.
+``NSWConfiguration`` requires an external Opc related software to
+build and run.
 
-N.B., support for using ``cmake`` to fetch and build external dependencies has been added, and manually building them is no longer recommended.
-This can be controlled at the ``cmake`` generation with the following flags, note that the default behaviour is ``ON``.
+N.B., support for using ``cmake`` to fetch and build external
+dependencies has been added, and manually building them is no longer
+recommended.
+
+This can be controlled at the ``cmake`` generation with the following
+flags, note that the default behaviour is ``ON``.
 
 
 #### Manual dependencies (**deprecated**, probably not functional)
-If you are using the fully ``cmake`` driven build mentioned above, you can skip this section and proceed directly to the next step.
-The old way of manually pointing to the external dependencies is not guaranteed to work, but the instructions are left.
+If you are using the fully ``cmake`` driven build mentioned above, you
+can skip this section and proceed directly to the next step.
+
+The old way of manually pointing to the external dependencies is not
+guaranteed to work, but the instructions are left.
 
 * Go to any lxplus node with ``centos7``:
 ```bash
 ssh lxplus7.cern.ch
 ```
 
-* Set the LCG environment with correct tag (``CMTCONFIG``) and LCG version from previous step
+* Set the LCG environment with correct tag (``CMTCONFIG``) and LCG
+  version from previous step
 ```bash
 export LCG_VERSION=$TDAQ_LCG_RELEASE
 export COMPILER_PROFILE=$CMTCONFIG
@@ -398,15 +413,20 @@ libopen62541-compat.so
 open62541/libopen62541.a
 ```
 
-The path of ``open62541-compat`` will be set as the ```OPC_OPEN62541_PATH``` environment variable to compile ``NSWConfiguration``.
+The path of ``open62541-compat`` will be set as the
+```OPC_OPEN62541_PATH``` environment variable to compile
+``NSWConfiguration``.
 
-To use the OPC libraries in a partition, create an installed area under ``open62541-compat`` directory, and copy libraries there:
+To use the OPC libraries in a partition, create an installed area
+under ``open62541-compat`` directory, and copy libraries there:
 ```bash
 mkdir -p installed/$COMPILER_PROFILE/lib/
 cp build/libopen62541-compat.so  installed/$COMPILER_PROFILE/lib/
 ```
 
-When you build ``NSWConfiguration``, you will need to invoke ``cmake`` with the following options:
+When you build ``NSWConfiguration``, you will need to invoke ``cmake``
+with the following options:
+
 ```bash
 cmake -B${CMTCONFIG} -S. -DBUILD_OPEN62541_COMPAT=OFF -DBUILD_UAOCLIENTFOROPCUASCA=OFF
 ```
@@ -414,7 +434,9 @@ cmake -B${CMTCONFIG} -S. -DBUILD_OPEN62541_COMPAT=OFF -DBUILD_UAOCLIENTFOROPCUAS
 but be warned that this will likely not work.
 
 #### Prebuilt dependencies (**deprecated**, probably not functional)
-If these dependencies have been built for the chosen TDAQ release, you can skip the previous step and use the installation from `/afs`:
+If these dependencies have been built for the chosen TDAQ release, you
+can skip the previous step and use the installation from `/afs`:
+
 ```bash
 export OPC_OPEN62541_PATH=/afs/cern.ch/work/n/nswdaq/public/${TDAQ_RELEASE}/sw/external/open62541-compat
 ```
