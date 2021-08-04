@@ -79,7 +79,7 @@ build:legacy:
   allow_failure: true
   parallel:
     matrix:
-      - TDAQ_RELEASE: [tdaq-08-03-01, tdaq-09-01-00]
+      - TDAQ_RELEASE: tdaq-09-02-01
 
 ## Nightly TDAQ releases, allowed to fail
 build:nightly:
@@ -125,7 +125,7 @@ test:legacy:
     - build:legacy
   parallel:
     matrix:
-      - TDAQ_RELEASE: [tdaq-08-03-01, tdaq-09-01-00]
+      - TDAQ_RELEASE: tdaq-09-02-01
 
 ## Nightly TDAQ releases, allowed to fail
 test:nightly:
