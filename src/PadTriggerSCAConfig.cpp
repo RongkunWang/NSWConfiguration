@@ -14,25 +14,25 @@
 #include "NSWConfiguration/Constants.h"
 
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const boost::property_tree::ptree& config):
-    SCAConfig(config)
-{
-  m_L1AReadoutLatency = -1;
-  m_L1AReadoutNBC = -1;
-  m_L1AReadoutEnable = -1;
-  m_pFEBBCIDOffset = -1;
-  m_StartIdleState = -1;
-  m_OCREnable = -1;
-  m_TTCCalib = -1;
-  m_LatencyScanStart = -1;
-  m_LatencyScanNBC = -1;
-}
+  SCAConfig(config),
+  m_L1AReadoutLatency(-1),
+  m_L1AReadoutNBC(-1),
+  m_L1AReadoutEnable(-1),
+  m_pFEBBCIDOffset(-1),
+  m_StartIdleState(-1),
+  m_OCREnable(-1),
+  m_TTCCalib(-1),
+  m_SelfTriggerEnable(-1),
+  m_LatencyScanStart(-1),
+  m_LatencyScanNBC(-1)
+{}
 
 void nsw::PadTriggerSCAConfig::dump() {
     // std::cout << std::endl;
 }
 
-int nsw::PadTriggerSCAConfig::ControlRegister() const {
-  int reg = 0;
+uint32_t nsw::PadTriggerSCAConfig::ControlRegister() const {
+  uint32_t reg = 0;
   if (firmware() == "Pad_ro_ilaro_20200610.bit") {
     reg += (L1AReadoutLatency() <<  0);
     reg += (L1AReadoutNBCMode() <<  7);
@@ -46,6 +46,7 @@ int nsw::PadTriggerSCAConfig::ControlRegister() const {
     reg += (StartIdleState()    << 24);
     reg += (OCREnable()         << 25);
     reg += (TTCCalib()          << 26);
+    reg += (SelfTriggerEnable() << 30);
   }
   return reg;
 }
@@ -127,6 +128,13 @@ int nsw::PadTriggerSCAConfig::TTCCalib() const {
   if (m_TTCCalib == -1)
     return m_config.get<int>("TTCCalib");
   return m_TTCCalib;
+}
+
+int nsw::PadTriggerSCAConfig::SelfTriggerEnable() const {
+  if (m_SelfTriggerEnable == -1) {
+    return m_config.get<int>("SelfTriggerEnable");
+  }
+  return m_SelfTriggerEnable;
 }
 
 int nsw::PadTriggerSCAConfig::LatencyScanStart() const {
