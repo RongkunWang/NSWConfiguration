@@ -270,7 +270,7 @@ Possible options are:
 - ``tdaq-09-00-00``: March 2020 release
 - ``tdaq-09-01-00``: September 2020 release
 - ``tdaq-09-02-01``: August 2, 2021 release
-- ``tdaq-09-02-01``: Current (August 2021) **default**
+- ``tdaq-09-03-00``: Current (August 2021) **default**
 - other: Keep following Detector/DAQ meetings for newer releases.
 
 #### Environment setup
