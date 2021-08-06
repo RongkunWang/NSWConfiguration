@@ -55,16 +55,16 @@ uint8_t nsw::ConfigSender::readBackRocDigital(const std::string& opcserver_ippor
     // FIXME: Why do we have to call it twice?
     const unsigned int delay{2};
     const auto fullNode = node + ".gpio.bitBanger";
-    readBackRoc(opcserver_ipport, fullNode, nsw::roc::digital::SCL_LINE_PIN, nsw::roc::digital::SDA_LINE_PIN, registerAddress, delay);
-    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::digital::SCL_LINE_PIN, nsw::roc::digital::SDA_LINE_PIN, registerAddress, delay);
+    readBackRoc(opcserver_ipport, fullNode, nsw::roc::mmfe8::digital::SCL_LINE_PIN, nsw::roc::mmfe8::digital::SDA_LINE_PIN, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::mmfe8::digital::SCL_LINE_PIN, nsw::roc::mmfe8::digital::SDA_LINE_PIN, registerAddress, delay);
 }
 
 uint8_t nsw::ConfigSender::readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress) {
     // FIXME: Why do we have to call it twice?
     const unsigned int delay{2};
     const auto fullNode = node + ".gpio.bitBanger";
-    readBackRoc(opcserver_ipport, fullNode, nsw::roc::analog::SCL_LINE_PIN, nsw::roc::analog::SDA_LINE_PIN, registerAddress, delay);
-    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::analog::SCL_LINE_PIN, nsw::roc::analog::SDA_LINE_PIN, registerAddress, delay);
+    readBackRoc(opcserver_ipport, fullNode, nsw::roc::mmfe8::analog::SCL_LINE_PIN, nsw::roc::mmfe8::analog::SDA_LINE_PIN, registerAddress, delay);
+    return readBackRoc(opcserver_ipport, fullNode, nsw::roc::mmfe8::analog::SCL_LINE_PIN, nsw::roc::mmfe8::analog::SDA_LINE_PIN, registerAddress, delay);
 }
 
 void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {

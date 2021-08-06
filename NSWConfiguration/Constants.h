@@ -99,18 +99,33 @@ namespace nsw {
     "L1DDC",
   };
 
-  // FIXME only valid for MMFE8
   namespace roc {
-    namespace digital {
-      constexpr std::uint8_t SCL_LINE_PIN = 17;
-      constexpr std::uint8_t SDA_LINE_PIN = 18;
-    }
+    namespace mmfe8 {
+      namespace digital {
+        constexpr std::uint8_t SCL_LINE_PIN = 17;
+        constexpr std::uint8_t SDA_LINE_PIN = 18;
+      }  // namespace digital
 
-    namespace analog {
-      constexpr std::uint8_t SCL_LINE_PIN = 19;
-      constexpr std::uint8_t SDA_LINE_PIN = 20;
-    }
-  }
+      namespace analog {
+        constexpr std::uint8_t SCL_LINE_PIN = 19;
+        constexpr std::uint8_t SDA_LINE_PIN = 20;
+      }  // namespace analog
+    }    // namespace mmfe8
+
+    namespace sfeb {  // Also valid for PFEBs
+      namespace digital {
+        constexpr std::uint8_t SCL_LINE_PIN = 31;
+        constexpr std::uint8_t SDA_LINE_PIN = 30;
+      }  // namespace digital
+
+      namespace analog {
+        constexpr std::uint8_t SCL_LINE_PIN = 21;
+        constexpr std::uint8_t SDA_LINE_PIN = 18;
+      }  // namespace analog
+    }    // namespace sfeb
+
+    constexpr std::size_t NUM_SROCS = 4;
+  }      // namespace roc
 
   namespace vmm {
     constexpr std::uint8_t NUM_CH_PER_VMM = 64;
