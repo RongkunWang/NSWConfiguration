@@ -123,6 +123,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
 tdaq_add_library(nswhwinterface
                  src/hw/OpcManager.cpp
                  src/hw/SCAInterface.cpp
+                 src/hw/ROCInterface.cpp
   LINK_LIBRARIES nswconfig
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
