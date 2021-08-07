@@ -150,4 +150,6 @@ public:
 
 }  // namespace nsw
 
+using OpcClientPtr = std::unique_ptr<nsw::OpcClient>;
+
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_
