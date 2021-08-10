@@ -24,7 +24,7 @@ ERS_DECLARE_ISSUE(nsw,
 
 ERS_DECLARE_ISSUE(nsw,
                   ConfigBadNode,
-                  "No such node : " << node << " in common configuration of: " << fetype,
+                  "No such node: " << node << " in common configuration of: " << fetype,
                   ((std::string)node)
                   ((std::string)fetype)
                   )
@@ -100,6 +100,7 @@ class ConfigReaderApi {
     return readFEB(element, nsw::NUM_VMM_PER_SFEB, nsw::NUM_TDS_PER_SFEB, nsw::SFEB6_FIRST_VMM, nsw::SFEB6_FIRST_TDS);;
   }
 
+  virtual boost::property_tree::ptree readL1DDC(const std::string& element) const;
   virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const;
   virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const;
   virtual boost::property_tree::ptree readRouter(const std::string& element) const;

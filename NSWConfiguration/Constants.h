@@ -95,6 +95,8 @@ namespace nsw {
     "ADDC",
     "PadTriggerSCA",
     "Router",
+    "GBTX",
+    "L1DDC",
   };
 
   // FIXME only valid for MMFE8

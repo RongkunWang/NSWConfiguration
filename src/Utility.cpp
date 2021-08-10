@@ -10,6 +10,7 @@
 #include "boost/foreach.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/exceptions.hpp"
+#include <boost/property_tree/json_parser.hpp>
 
 using boost::property_tree::ptree;
 
@@ -47,7 +48,7 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 std::string nsw::getElementType(const std::string& element_name) {
     for (auto name : nsw::ELEMENT_NAMES) {
         if (element_name.find(name) != std::string::npos) {
-            ERS_DEBUG(2, "Found instance of " << name << " configuration: " << element_name);
+            ERS_DEBUG(2,"Found instance of " << name << " configuration: " << element_name);
             return name;
         }
     }
@@ -254,6 +255,33 @@ std::string nsw::guessSector(const std::string& str) {
     }
   }
   return "";
+}
+
+
+std::string nsw::dumpTree(const boost::property_tree::ptree& pt)
+{
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    return ss.str();
+}
+
+
+std::string nsw::getPrintableGbtxConfig(std::vector<uint8_t> data){
+    // Return nicely formatted GBTx configuration string from configuration vector
+    std::stringstream ss;
+    ss<<"reg |";
+    for (int i=0; i<436; i++){
+        if (i%16==0) {
+            ss<<std::dec<<std::endl<<i;
+            if (i<10) ss<<" ";
+            if (i<100) ss<<" ";
+            ss<<" | ";
+        }
+        if (data[i]<0x10) ss<<"0";
+        ss << std::hex << static_cast<int>(data.at(i)) << std::dec << " ";
+    }
+    ss<<std::endl;
+    return ss.str();
 }
 
 bool nsw::isLargeSector(const std::string& sector_name) {

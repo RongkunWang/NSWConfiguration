@@ -1,3 +1,12 @@
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <ers/ers.h>
+
+#include "NSWConfiguration/Constants.h"
+#include "ic-over-netio/IChandler.h"
+
 #include "NSWConfiguration/ConfigSender.h"
 
 #include "NSWConfiguration/Utility.h"
@@ -196,6 +205,112 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 }
 
+bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandler& ich,std::vector<uint8_t>& data){
+    // Upload configuration, read back
+    // return 1 if config read back correctly
+    ERS_DEBUG(2, "==> Reading back configuration using IChandler");
+
+    const auto initialConfig = ich.readCfg();
+
+    ERS_DEBUG(2, "==> Successfully read back");
+
+    ERS_DEBUG(2, "==> Configuration before sending:");
+    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(initialConfig)<<'\n');
+
+    ich.sendCfg(data);
+
+    std::vector<uint8_t> currentConfig = ich.readCfg();
+    ERS_DEBUG(2, "==> Configuration after sending:");
+    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(currentConfig)<<'\n');
+
+    // Check readback
+    if (data.size()!=currentConfig.size()) {
+        ERS_LOG("WARNING: readback size not expected");
+        ERS_LOG("expected="<<data.size()<<" recieved="<<currentConfig.size()<<'\n');
+        return false;
+    }
+
+    // shift received data up by some number
+    // TODO: the readCfg function should be fixed to avoid this shift 
+    // IC Handler currently adds one byte
+    constexpr int rxShift = 1;
+    for (int j=0; j<rxShift; j++){
+        for (std::size_t i=currentConfig.size()-1; i>0; i--) {
+            currentConfig.at(i) = currentConfig.at(i-1);
+        }
+        currentConfig.at(0)=0;
+    }
+
+    // Some of the readback registers are not writable registers. Only check the writable registers
+    constexpr std::size_t maxConfigRegister = 365;
+
+    // Check that the written config matches the readback config
+    for (std::size_t i=0; i<data.size(); i++){
+        if (i>maxConfigRegister) {
+            break;
+        }
+        if (data.at(i)!=currentConfig.at(i)) {
+            ERS_LOG("Unexpected bit read back during GBTx configuration");                                                                                                                                                 
+            return false;
+        }
+    }
+    return true;
+}
+
+void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId){
+    // Send configuration for one GBTx
+    // L1DDCConfig should be initialized with a configuration ptree
+    // gbtxId should be 0, 1, 2 depending on which GBTx is to be configured (TODO: 1, 2 not supported)
+    ERS_LOG("ConfigSender::sendGBTxConfig number="<<gbtxId<<std::endl);
+    // get information from l1ddc
+    const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
+    const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
+    const std::size_t elinkId      = l1ddc.getElinkId();
+    const std::string opcServerIp  = l1ddc.getOpcServerIp();
+    // generate bytestream
+    if (gbtxId==0){
+        // send configuration over i2c
+        ERS_DEBUG(2, "Sending bytestream");
+        std::vector<uint8_t> data = l1ddc.getGbtxBytestream(gbtxId);
+
+        ERS_DEBUG(2, "==> Configuration to be uploaded to GBTx"<<gbtxId);
+
+        IChandler ich(opcServerIp, portToGBTx, portFromGBTx, elinkId);
+
+        // Try sending configuration and check the readback
+        // If the readback doesn't match, for nTries, raise error
+        int nTries = MAX_ATTEMPTS;
+        while (!sendGBTxConfigHelperFunctionReturnTrueIfCorrect(ich,data) && nTries>0) {
+            ERS_LOG("ConfigSender:: attempting configuration (remaining): "<<nTries);
+            nTries--;
+        }
+        if (nTries==0) {
+            nsw::NSWSenderIssue issue(ERS_HERE, "Unable to read back correct configuration within " + std::to_string(MAX_ATTEMPTS) + " tries");
+            ers::error(issue);
+            throw issue;
+        }
+    }
+    else if (gbtxId==1 || gbtxId==2){
+        nsw::NSWSenderIssue issue(ERS_HERE, "Non-zero GBTx configuration not defined yet");
+        ers::error(issue);
+        throw issue;
+    }
+    else{
+        nsw::NSWSenderIssue issue(ERS_HERE, "Invalid GBTx ID while sending GBTx Configuration");
+        ers::error(issue);
+        throw issue;
+    }
+}
+
+void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
+    // Send configuration for l1ddc
+    // This should configure the GBTx's and SCA
+    // Currently, configure GBTx0
+    ERS_LOG("ConfigSender::sendL1DDCConfig start\n");
+    sendGBTxConfig(l1ddc,0);
+    ERS_LOG("ConfigSender::sendL1DDCConfig done\n");
+}
+
 void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds) {
   // this is used for outside
     auto opc_ip = feb.getOpcServerIp();
@@ -390,7 +505,7 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
                 datas.push_back(((uint8_t) ((i) & 0xff)) );
                 datas.push_back(((uint8_t) ((i) >> 8)) );
             }
-            datas.push_back(ADDC_GBTx_ConfigurationData[i]);
+            datas.push_back(ADDC_GBTx_ConfigurationData.at(i));
             if (datas.size() == chunklen || i+1 == ADDC_GBTx_ConfigurationData.size()) {
                 sendI2c(opc_ip, gbtx, datas);
                 datas.clear();
@@ -469,8 +584,8 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
         // ART pattern mode
         ERS_DEBUG(1, "ART pattern mode");
         for (uint i=0; i < ARTregisters.size(); i++) {
-            art_data[0] = ARTregisters[i];
-            art_data[1] = ARTregistervalues[i];
+            art_data[0] = ARTregisters.at(i);
+            art_data[1] = ARTregistervalues.at(i);
             sendI2cRaw(opc_ip, core, art_data, art_size);
         }
         ERS_DEBUG(1, "-> done");
@@ -487,8 +602,8 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
         ERS_DEBUG(1, "GBTx eport enable");
         train = 1;
         for (uint i=0; i < GBTx_eport_registers.size(); i++) {
-            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
-            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
+            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers.at(i)) >> 8));
+            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers.at(i)) & 0xff));
             gbtx_data[2] = train ? 0xff : 0x00;
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
         }
@@ -501,8 +616,8 @@ void nsw::ConfigSender::sendAddcConfig(const nsw::ADDCConfig& addc, int i_art) {
         ERS_DEBUG(1, "GBTx eport disable");
         train = 0;
         for (uint i=0; i < GBTx_eport_registers.size(); i++) {
-            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers[i]) >> 8));
-            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers[i]) & 0xff));
+            gbtx_data[1] = ((uint8_t) ((GBTx_eport_registers.at(i)) >> 8));
+            gbtx_data[0] = ((uint8_t) ((GBTx_eport_registers.at(i)) & 0xff));
             gbtx_data[2] = train ? 0xff : 0x00;
             sendI2cRaw(opc_ip, gbtx, gbtx_data, gbtx_size);
         }

@@ -8,10 +8,12 @@
 
 using boost::property_tree::ptree;
 
-nsw::FEBConfig::FEBConfig(const ptree& config):
-        SCAConfig(config),
-        m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
-        m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {
+ nsw::FEBConfig::FEBConfig(const ptree& config):
+         SCAConfig(config),
+         m_roc_analog(config.get_child(ROC_ANALOG_NAME), ROC_ANALOG_NAME, ROC_ANALOG_REGISTERS),
+         m_roc_digital(config.get_child(ROC_DIGITAL_NAME), ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS) {
+
+
     /// A FE can have up to 8 vmms, the config ptree should be constructed with correct number vmms
     for (std::size_t i = 0; i < MAX_NUMBER_OF_VMM; i++) {
         std::string vmmname = "vmm" + std::to_string(i);

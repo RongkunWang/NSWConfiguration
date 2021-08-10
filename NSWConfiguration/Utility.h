@@ -123,5 +123,16 @@ std::set<std::string> matchRegexpInPtree(const std::string& regexp, const boost:
 /// Default argument: 1 second
 void snooze(const std::chrono::duration<float> dur = std::chrono::seconds(1));
 
+/**
+ * @brief Dump a ptree into a JSON formatted string
+ * 
+ * @param pt ptree
+ * @return std::string JSON string
+ */
+std::string dumpTree(const boost::property_tree::ptree &pt);
+
+std::string getPrintableGbtxConfig(std::vector<uint8_t> data);
+
 }  // namespace nsw
+
 #endif  // NSWCONFIGURATION_UTILITY_H_
