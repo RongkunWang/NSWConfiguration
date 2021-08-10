@@ -40,7 +40,7 @@ set(NSWCONFIG_EXE_WITH_BOOST generate_config_json)
 
 foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST)
   tdaq_add_executable(${appsrc} app/${appsrc}.cpp
-    LINK_LIBRARIES Boost::boost
+    LINK_LIBRARIES Boost::boost tdaq-common::ers
   )
 endforeach()
 
@@ -106,7 +106,9 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/SCAConfig.cpp
                  src/I2cMasterConfig.cpp
+                 src/GBTxConfig.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
+                 src/L1DDCConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
                  src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
                  src/TPConfig.cpp src/TPCarrierConfig.cpp
@@ -115,6 +117,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
   LINK_LIBRARIES Boost::boost
                  nswopcclient
                  tdaq-common::ers
+                 ic_comms
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp

@@ -1,0 +1,340 @@
+, ,2,45
+i2cResetTx,reset TX logic C,0,54,1,54,2,54
+cmReferenceClockSelect,Selects global reference clock C,0,281,2,281,4,281
+cmXpllReferenceSelect,Selects Xpll reference clock C,0,290,2,290,4,290
+ePllRxReferenceFreq,Select EPLL-RX reference frequency C,0,242,2,242,4,242
+enableTermination3,enable Termination group3 channel 7,0,323
+cmTxTestMuxSelect40,Selects TX 40MHz clock C in Test mode,0,287,0,288,0,289
+extLate7, ,6,23
+extLate6, ,6,22
+extLate5, ,6,21
+extLate4, ,6,20
+extLate3, ,6,19
+extLate2, ,6,18
+extLate1, ,6,17
+extLate0, ,6,16
+i2cRxFilterEnable, C,0,45,1,45,2,45
+modeEc,mode EC channel C,4,254,5,254,6,254
+paPhaseSelectGroup0Channel4,Select sample phase channel 4 C,0,67,0,71,0,75
+xPllControlOverride,Override XPLL control C,0,318,1,318,2,318
+paDllConfigGroup5,Set Phase-aligner dll C,0,184,4,184,0,185
+cmRxTestMuxSelect80,Selects RX 80MHz clock C in Test mode,2,277,2,278,2,279
+paDllConfigGroup4,Set Phase-aligner dll C,0,160,4,160,0,161
+ePllRxCap,Sets EPLL-RX Cap C in filter,5,307,5,308,5,309
+ePllTxReset,Reset of EPLL-TX filter C,0,303,1,303,2,303
+paPhaseSelectGroup5Channel4,Select sample phase channel 4 C,0,187,0,191,0,195
+paResetGroup4,Reset channel 7 C,0,180,0,181,0,182
+paPhaseSelectGroup5Channel6,Select sample phase channel 6 C,0,186,0,190,0,194
+paPhaseSelectGroup5Channel7,Select sample phase channel 7 C,4,186,4,190,4,194
+paPhaseSelectGroup5Channel0,Select sample phase channel 0 C,0,189,0,193,0,197
+i2cResetRx,reset RX logic C,3,50,4,50,5,50
+paPhaseSelectGroup5Channel5,Select sample phase channel 5 C,4,187,4,191,4,195
+paPhaseSelectGroup5Channel3,Select sample phase channel 3 C,4,188,4,192,4,196
+i2cRxSkipCycle, C,0,40,1,40,2,40
+TXselectPosEdge,select +ve clock edge in TX synchroniser C,3,244,4,244,5,244
+xPllEnablePhaseDetector,Enable XPLL Phase Detector C,4,317,5,317,6,317
+ePllRxEnablePhase,Enable EPLL-RX phase C,0,304,0,305,0,306
+paDllConfigGroup1,Set Phase-aligner dll C,0,88,4,88,0,89
+ePllTxPhase160MHz,Sets EPLL-TX 160MHz phase C,0,296,0,297,0,298
+enableTermination5,enable Termination group5 channel 7,0,325
+enableTermination4,enable Termination group4 channel 7,0,324
+i2cTxReset,Reset TX control and serialiser C,0,33,1,33,2,33
+enableTermination1,enable Termination group1 channel 7,0,321
+enableTermination0,enable Termination group0 channel 7,0,320
+i2cRxSwap, C,3,40,4,40,5,40
+enableTermination2,enable Termination group2 channel 7,0,322
+paPhaseSelectGroup2Channel3,Select sample phase channel 3 C,4,116,4,120,4,124
+paPhaseSelectGroup2Channel2,Select sample phase channel 2 C,0,116,0,120,0,124
+paPhaseSelectGroup2Channel1,Select sample phase channel 1 C,4,117,4,121,4,125
+paPhaseSelectGroup2Channel0,Select sample phase channel 0 C,0,117,0,121,0,125
+paPhaseSelectGroup2Channel7,Select sample phase channel 7 C,4,114,4,118,4,122
+paPhaseSelectGroup2Channel6,Select sample phase channel 6 C,0,114,0,118,0,122
+paPhaseSelectGroup2Channel5,Select sample phase channel 5 C,4,115,4,119,4,123
+paPhaseSelectGroup2Channel4,Select sample phase channel 4 C,0,115,0,119,0,123
+cmRxTestMuxSelect160,Selects RX 160MHz clock C in Test mode,4,277,4,278,4,279
+cmRxTestMuxSelect40,Selects RX 40MHz clock C in Test mode,0,277,0,278,0,279
+xPllGmSelect,Select XPLL Gm C,0,316,4,316,0,317
+paEnableEC,Enable EC channel C,0,248,1,248,2,248
+cset1, ,4,269
+paPhaseSelectEC,Select sample phase EC channel C,0,233,0,237,0,241
+rxMaxInvalidHeaders, ,0,38
+paResetGroup0,Reset channel 7 C,0,84,0,85,0,86
+paResetGroup1,Reset channel 7 C,0,108,0,109,0,110
+paResetGroup2,Reset channel 7 C,0,132,0,133,0,134
+paResetGroup3,Reset channel 7 C,0,156,0,157,0,158
+paDllConfigGroup3,Set Phase-aligner dll C,0,136,4,136,0,137
+paDllConfigGroup2,Set Phase-aligner dll C,0,112,4,112,0,113
+i2cRxSelectDataInPhase, C,3,36,4,36,5,36
+paDllConfigGroup0,Set Phase-aligner dll C,0,64,4,64,0,65
+clockBusFrequency4,clock frequency group4 C,2,266,2,344,2,359
+ePllTxReferenceFreq,Select EPLL-TX reference frequency C,0,243,2,243,4,243
+clockBusFrequency1,clock frequency group1 C,2,257,2,335,2,350
+clockBusFrequency2,clock frequency group2 C,2,260,2,338,2,353
+PSpllEnable,enable phase-shifter PLL C,0,52,1,52,2,52
+paDataRateGroup0,Set Phase-aligner speed C,0,63,2,63,4,63
+paDataRateGroup1,Set Phase-aligner speed C,0,87,2,87,4,87
+paDataRateGroup2,Set Phase-aligner speed C,0,111,2,111,4,111
+paDataRateGroup3,Set Phase-aligner speed C,0,135,2,135,4,135
+paDataRateGroup4,Set Phase-aligner speed C,0,159,2,159,4,159
+paDataRateGroup5,Set Phase-aligner speed C,0,183,2,183,4,183
+paDataRateGroup6,Set Phase-aligner speed C,0,207,2,207,4,207
+cset5, ,4,271
+cset2, ,0,270
+cset3, ,4,270
+paPhaseSelectGroup4Channel5,Select sample phase channel 5 C,4,163,4,167,4,171
+paPhaseSelectGroup4Channel4,Select sample phase channel 4 C,0,163,0,167,0,171
+paPhaseSelectGroup4Channel7,Select sample phase channel 7 C,4,162,4,166,4,170
+paPhaseSelectGroup4Channel6,Select sample phase channel 6 C,0,162,0,166,0,170
+paPhaseSelectGroup4Channel1,Select sample phase channel 1 C,4,165,4,169,4,173
+paPhaseSelectGroup4Channel0,Select sample phase channel 0 C,0,165,0,169,0,173
+paPhaseSelectGroup4Channel3,Select sample phase channel 3 C,4,164,4,168,4,172
+paPhaseSelectGroup4Channel2,Select sample phase channel 2 C,0,164,0,168,0,172
+paEnableGroup1,Enable channel 7 C,0,105,0,106,0,107
+paEnableGroup0,Enable channel 7 C,0,81,0,82,0,83
+paEnableGroup3,Enable channel 7 C,0,153,0,154,0,155
+paEnableGroup2,Enable channel 7 C,0,129,0,130,0,131
+paEnableGroup5,Enable channel 7 C,0,201,0,202,0,203
+paEnableGroup4,Enable channel 7 C,0,177,0,178,0,179
+i2cStartRace, C,0,42,1,42,2,42
+cset6, ,0,272
+paDllConfigGroup6,Set Phase-aligner dll C,0,208,4,208,0,209
+cset7, ,4,272
+enableWatchdogFSM,enable watchdog C,0,50,1,50,2,50
+modeGroup2,mode group2 C,0,260,0,338,0,353
+cmRxPhase40MHz,Fine phase delay of RX 40MHz clock C,0,274,4,274,0,275
+PLLcp, ,0,26
+cset4, ,0,271
+i2cRxSelectI2Freq, freq detector, ,0,35
+ePllTxEnablePhase,Enable EPLL-TX phase C,0,293,0,294,0,295
+cmTxTestMuxSelect80,Selects TX 80MHz clock C in Test mode,2,287,2,288,2,289
+clkDriveStrength1,set clock drive strength group 1,0,330
+cmTxPhase40MHz,Fine phase delay of TX 40MHz clock C,0,284,4,284,0,285
+fuseBlowData,data to blow fuse,0,240
+ePllTxIcp,Sets EPLL-TX charge pump current C,0,299,0,300,0,301
+xPllChargePumpCurrent,xPll Charge Pump Current C,0,235,4,235,0,236
+dataPortEnableGroup2,enable data group2 channel 7 C,0,262,0,340,0,355
+PLLres, ,4,26
+i2cRxFilterBypass, C,1,44,2,44,3,44
+i2cRxControlOverride, C,0,36,1,36,2,36
+clockBusFrequencyEc,clock frequency EC channel C,4,257,5,257,6,257
+ePllRxIcp,Sets EPLL-RX charge pump current C,0,310,0,311,0,312
+paEnableGroup6,Enable channel 7 C,0,225,0,226,0,227
+paDllResetGroup3,Reset Phase-aligner dll C,4,137,5,137,6,137
+paDllResetGroup2,Reset Phase-aligner dll C,4,113,5,113,6,113
+paDllResetGroup1,Reset Phase-aligner dll C,4,89,5,89,6,89
+paDllResetGroup0,Reset Phase-aligner dll C,4,65,5,65,6,65
+paDllResetGroup6,Reset Phase-aligner dll C,4,209,5,209,6,209
+paDllResetGroup5,Reset Phase-aligner dll C,4,185,5,185,6,185
+paDllResetGroup4,Reset Phase-aligner dll C,4,161,5,161,6,161
+paDllConfigEC,Set EC Phase-aligner dll C,0,231,4,231,0,232
+rxSelectR, ,0,34
+paPhaseSelectGroup6Channel7,Select sample phase channel 7 C,4,210,4,214,4,218
+paPhaseSelectGroup6Channel6,Select sample phase channel 6 C,0,210,0,214,0,218
+paPhaseSelectGroup6Channel5,Select sample phase channel 5 C,4,211,4,215,4,219
+gbld_w1,Value to write to GBLD,0,56
+paPhaseSelectGroup6Channel3,Select sample phase channel 3 C,4,212,4,216,4,220
+paPhaseSelectGroup6Channel2,Select sample phase channel 2 C,0,212,0,216,0,220
+paPhaseSelectGroup6Channel1,Select sample phase channel 1 C,4,213,4,217,4,221
+cmEpllRxReferenceSelect,Selects reference clock C for EPLL-RX,0,0,2,0,4,0
+xPllEnableAutoRestart,Enable XPLL Auto restart C,3,318,4,318,5,318
+modeGroup0,mode group0 C,0,254,0,332,0,347
+ePllRxPhase320MHz,Sets EPLL-RX 320MHz phase B,0,302,4,302,4,292
+gbld_w4,Value to write to GBLD,0,59
+rxTestMode,Select RX data source C,5,48,6,48,7,48
+gbld_w6,Value to write to GBLD,0,61
+modeGroup3,mode group3 C,0,263,0,341,0,356
+gbld_w0,Value to write to GBLD,0,55
+cmTxReferenceTestMuxSelect,Selects reference clock C for TX in Test mode,0,3,2,3,4,3
+gbld_w2,Value to write to GBLD,0,57
+gbld_w3,Value to write to GBLD,0,58
+clockPortEnableGroup0,enable clock group0 channel 7 C,0,255,0,333,0,348
+i2cRxSelectI2Phase, phase detector, ,4,35
+clockPortEnableGroup2,enable clock group2 channel 7 C,0,261,0,339,0,354
+stateForced,select state of power-up sequence,0,51
+clockPortEnableGroup4,enable clock group4 channel 7 C,0,267,0,345,0,360
+dataPortEnableGroup3,enable data group3 channel 7 C,0,265,0,343,0,358
+extS5, ,5,13
+extS4, ,5,12
+extS7, ,5,15
+txTestMode,Select TX data source,0,28
+txEnableSoftLossOfLock,Enable soft loss of lock,6,33
+extS0, ,5,8
+extS3, ,5,11
+extS2, ,5,10
+bypssEportTX2,bypass Eport TX group2 C,6,246,7,246,0,247
+txSelectI, ,0,27
+dllCoarseLockDetection,dll coarse lock detection C,4,233,5,233,6,233
+bypssEportTX1,bypass Eport TX group1 C,3,246,4,246,5,246
+dataPortEnableGroup1,enable data group1 channel 7 C,0,259,0,337,0,352
+bypssEportTX4,bypass Eport TX group4 C,4,247,5,247,6,247
+iSel4, ,0,20
+iSel5, ,0,21
+iSel6, ,0,22
+iSel7, ,0,23
+iSel0, ,0,16
+iSel1, ,0,17
+iSel2, ,0,18
+iSel3, ,0,19
+paPhaseSelectGroup6Channel0,Select sample phase channel 0 C,0,213,0,217,0,221
+cmRxPhase80MHz,Fine phase delay of RX 80MHz clock C,4,275,0,276,4,276
+loopbackF,enable loopbackF C,3,234,4,234,5,234
+paPhaseSelectGroup5Channel1,Select sample phase channel 1 C,4,189,4,193,4,197
+clkDriveStrength4,set clock drive strength group 4,4,331
+i2cRxDac2, ,0,44
+i2cRxDac1, ,0,43
+scCset,Drive current control for SC-EC Eport,0,273
+FDL6, ,0,7
+FDL7, ,4,7
+FDL4, ,0,6
+FDL5, ,4,6
+FDL2, ,0,5
+FDL3, ,4,5
+FDL0, ,0,4
+FDL1, ,4,4
+i2cRxForceVfEqVc, C,3,45,4,45,5,45
+enableTestBar, ,1,25
+paPhaseSelectGroup1Channel0,Select sample phase channel 0 C,0,93,0,97,0,101
+paPhaseSelectGroup1Channel1,Select sample phase channel 1 C,4,93,4,97,4,101
+paPhaseSelectGroup1Channel2,Select sample phase channel 2 C,0,92,0,96,0,100
+paPhaseSelectGroup1Channel3,Select sample phase channel 3 C,4,92,4,96,4,100
+paPhaseSelectGroup1Channel4,Select sample phase channel 4 C,0,91,0,95,0,99
+paPhaseSelectGroup1Channel5,Select sample phase channel 5 C,4,91,4,95,4,99
+paPhaseSelectGroup1Channel6,Select sample phase channel 6 C,0,90,0,94,0,98
+paPhaseSelectGroup1Channel7,Select sample phase channel 7 C,4,90,4,94,4,98
+CDL5, ,0,13
+CDL4, ,0,12
+CDL7, ,0,15
+CDL6, ,0,14
+CDL1, ,0,9
+CDL0, ,0,8
+CDL3, ,0,11
+CDL2, ,0,10
+resetBar1,Channel 1 reset,1,24
+resetBar0,Channel 0 reset,0,24
+resetBar3,Channel 3 reset,3,24
+resetBar2,Channel 2 reset,2,24
+resetBar5,Channel 5 reset,5,24
+resetBar4,Channel 4 reset,4,24
+resetBar7,Channel 7 reset,7,24
+resetBar6,Channel 6 reset,6,24
+paTrainGroup6,Train channel 7 C,0,222,0,223,0,224
+paTrainGroup5,Train channel 7 C,0,198,0,199,0,200
+paTrainGroup4,Train channel 7 C,0,174,0,175,0,176
+paTrainGroup3,Train channel 7 C,0,150,0,151,0,152
+paTrainGroup2,Train channel 7 C,0,126,0,127,0,128
+paTrainGroup1,Train channel 7 C,0,102,0,103,0,104
+gbld_w5,Value to write to GBLD,0,60
+dataPortEnableGroup0,enable data group0 channel 7 C,0,256,0,334,0,349
+rxSwitchesControl,Select data path through RX logic C,0,46,0,47,0,48
+fuseBlowAddress2,address of fuse to blow,0,239
+fuseBlowAddress1,address of fuse to blow,0,238
+configDone,re-starts power-up sequence if set to AA hex,0,365
+paTrainGroup0,Train channel 7 C,0,78,0,79,0,80
+i2cRxControlReset,FASM and LCSM reset C,0,41,1,41,2,41
+modeGroup4,mode group4 C,0,266,0,344,0,359
+ePllTxPhase320MHz,Sets EPLL-TX 320MHz phase C,0,291,4,291,0,292
+xPllFrequencyTrim,Sets XPLL frequency trim C,0,313,0,314,0,315
+clockBusFrequency3,clock frequency group3 C,2,263,2,341,2,356
+xPllEnable,Enables XPLL C,7,313,7,314,7,315
+paPhaseSelectGroup6Channel4,Select sample phase channel 4 C,0,211,0,215,0,219
+i2cRxSelectI1, ,4,41
+paDllResetEC,Reset EC Phase-aligner dll C,4,232,5,232,6,232
+enableTermination6,enable Termination group6 channel 7,0,326
+cmTestOutSelect,Selects which signal to send to testClockOut from first subset,0,283
+rxMinValidHeaders, ,0,39
+timeOutEnable,enable timeOuts C,3,52,4,52,5,52
+bypssEportTX3,bypass Eport TX group3 C,1,247,2,247,3,247
+paPhaseSelectGroup3Channel0,Select sample phase channel 0 C,0,141,0,145,0,149
+cmTestMuxSelect,Selects which signal to send to testClockOut from second subset,0,319
+cmEpllTxReferenceSelect,Selects reference clock C for EPLL-TX,0,1,2,1,4,1
+txPLLLockTIme,Set wait time for serialiser PLL to lock,0,32
+modeGroup1,mode group1 C,0,257,0,335,0,350
+cmTxPhase80MHz,Fine phase delay of TX 80MHz clock C,4,285,0,286,4,286
+clockPortEnableGroup1,enable clock group1 channel 7 C,0,258,0,336,0,351
+paPhaseSelectGroup5Channel2,Select sample phase channel 2 C,0,188,0,192,0,196
+paResetGroup5,Reset channel 7 C,0,204,0,205,0,206
+selHiByteTX1,select HiByte in bypassed Eport TX group1 C,3,249,4,249,5,249
+loopbackE,enable loopbackE C,0,234,1,234,2,234
+enableBERT,Enable BERT in RX logic C,2,48,3,48,4,48
+clockPortEnableGroup3,enable clock group3 channel 7 C,0,264,0,342,0,357
+i2cRxDacEnable, C,3,42,4,42,5,42
+cset0, ,0,269
+clkDriveStrength0,set clock drive strength group 0,4,329
+rxDisableDecoderTMR,Disable TMR in FEC decoder,1,48
+driveStrength3,set drive strength group 3,4,328
+paResetEC,Reset EC channel C,0,251,1,251,2,251
+paPhaseSelectGroup3Channel2,Select sample phase channel 2 C,0,140,0,144,0,148
+paPhaseSelectGroup3Channel3,Select sample phase channel 3 C,4,140,4,144,4,148
+paMode,Phase-aligner track mode C,0,62,2,62,4,62
+paPhaseSelectGroup3Channel1,Select sample phase channel 1 C,4,141,4,145,4,149
+paPhaseSelectGroup3Channel6,Select sample phase channel 6 C,0,138,0,142,0,146
+paPhaseSelectGroup3Channel7,Select sample phase channel 7 C,4,138,4,142,4,146
+paPhaseSelectGroup3Channel4,Select sample phase channel 4 C,0,139,0,143,0,147
+paPhaseSelectGroup3Channel5,Select sample phase channel 5 C,4,139,4,143,4,147
+cmPsReferenceSelect,Selects Phase-Shifter reference clock C,0,282,2,282,4,282
+txEnableTest, ,6,27
+paResetGroup6,Reset channel 7 C,0,228,0,229,0,230
+selHiByteTX0,select HiByte in bypassed Eport TX group0 C,0,249,1,249,2,249
+clkDriveStrength2,set clock drive strength group 2,4,330
+clkDriveStrength3,set clock drive strength group 3,0,331
+cmRxReferenceTestMuxSelect,Selects reference clock C for RX in Test mode,0,2,2,2,4,2
+cmTxTestMuxSelect160,Selects TX 160MHz clock C in Test mode,4,287,4,288,4,289
+ePllRxReset,Reset of EPLL-RX filter C,4,303,5,303,6,303
+FREQ7, ,4,23
+FREQ6, ,4,22
+FREQ5, ,4,21
+FREQ4, ,4,20
+FREQ3, ,4,19
+FREQ2, ,4,18
+FREQ1, ,4,17
+FREQ0, ,4,16
+RXselectPosEdge,select +ve clock edge in RX synchroniser C,0,244,1,244,2,244
+extS6, ,5,14
+ePllTxCap,Sets EPLL-TX Cap C in filter,5,296,5,297,5,298
+i2cldReset,Controls state of ldReset pin C,3,54,4,54,5,54
+extS1, ,5,9
+selHiByteTX3,select HiByte in bypassed Eport TX group3 C,1,250,2,250,3,250
+ePllTxRes,Sets EPLL-TX Res C in filter,4,299,4,300,4,301
+ePllRxRes,Sets EPLL-RX Res C in filter,4,310,4,311,4,312
+dataPortEnableGroup4,enable data group4 channel 7 C,0,268,0,346,0,361
+cmTxTestMuxSelect320,Selects TX 320MHz clock C in Test mode,6,287,6,288,6,289
+ePllRxPhase160MHz,Sets EPLL-RX 160MHz phase C,0,307,0,308,0,309
+cmRxTestMuxSelect320,Selects RX 320MHz clock C in Test mode,6,277,6,278,6,279
+rxDacGain, C,4,34,5,34,6,34
+resetPLLBar,PLL reset,0,25
+SLVSoutTestSel,Selects signal to drive SLVS output test (dOut32),6,0
+txSelectR, ,4,27
+extEarly3, ,7,11
+extEarly2, ,7,10
+extEarly1, ,7,9
+extEarly0, ,7,8
+extEarly7, ,7,15
+extEarly6, ,7,14
+extEarly5, ,7,13
+extEarly4, ,7,12
+selHiByteTX2,select HiByte in bypassed Eport TX group2 C,6,249,7,249,0,250
+bypssEportTX0,bypass Eport TX group0 C,0,246,1,246,2,246
+clockBusFrequency0,clock frequency group0 C,2,254,2,332,2,347
+selHiByteTX4,select HiByte in bypassed Eport TX group4 C,4,250,5,250,6,250
+driveStrength4,set drive strength group 4,0,329
+rxValidHeaders, ,0,37
+driveStrength2,set drive strength group 2,0,328
+driveStrength1,set drive strength group 1,4,327
+driveStrength0,set drive strength group 0,0,327
+paTrainEC,Train EC channel C,0,245,1,245,2,245
+txSwitchesControl,Select data path through TX logic C,0,29,0,30,0,31
+testOutputSelect,Selects the signal to drive testOutput,0,280
+txForceLockState,Force serialiser control to locked state,4,32
+txLossOfLockTime,Set time limit on unlock,5,32
+scEnableTermination,Enable termination for SC-EC Eport,5,273
+txDisableEncoderTMR,Disable TMR in FEC encoder,6,28
+bypass EportRX,bypass EportRX C,0,252,1,252,2,252
+gbld_ID,i2c address of GBLD,0,253
+paPhaseSelectGroup0Channel1,Select sample phase channel 1 C,4,69,4,73,4,77
+paPhaseSelectGroup0Channel0,Select sample phase channel 0 C,0,69,0,73,0,77
+paPhaseSelectGroup0Channel3,Select sample phase channel 3 C,4,68,4,72,4,76
+paPhaseSelectGroup0Channel2,Select sample phase channel 2 C,0,68,0,72,0,76
+paPhaseSelectGroup0Channel5,Select sample phase channel 5 C,4,67,4,71,4,75
+i2cRxReset,(Conditional) reset of the CDR PLL C,0,53,2,53,4,53
+paPhaseSelectGroup0Channel7,Select sample phase channel 7 C,4,66,4,70,4,74
+paPhaseSelectGroup0Channel6,Select sample phase channel 6 C,0,66,0,70,0,74

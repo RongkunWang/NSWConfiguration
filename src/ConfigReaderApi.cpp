@@ -16,28 +16,32 @@
 using boost::property_tree::ptree;
 
 ptree ConfigReaderApi::read(const std::string& element) {
-    if (nsw::getElementType(element) == "MMFE8") {
+    const std::string type = nsw::getElementType(element);
+    ERS_DEBUG(2, "==> Reading element=" << element << " as type=" << type);
+    if (type == "MMFE8") {
         return readMMFE8(element);
-    } else if (nsw::getElementType(element) == "PFEB") {
+    } else if (type == "PFEB") {
         return readPFEB(element);
-    } else if (nsw::getElementType(element) == "SFEB_old") {
+    } else if (type == "SFEB_old") {
         return readSFEB(element, 3);
-    } else if (nsw::getElementType(element) == "SFEB") {
+    } else if (type == "SFEB") {
         ERS_LOG("WARNING!! You are using deprecated SFEB type. Please switch to use SFEB8_XXX instead of " << element);
         return readSFEB(element, 4);
-    } else if (nsw::getElementType(element) == "SFEB8") {
+    } else if (type == "SFEB8") {
         return readSFEB(element, 4);
-    } else if (nsw::getElementType(element) == "SFEB6") {
+    } else if (type == "SFEB6") {
         return readSFEB6(element);
-    } else if (nsw::getElementType(element) == "TPCarrier") {
+    } else if (type == "TPCarrier") {
         return readTPCarrier(element);
-    } else if (nsw::getElementType(element) == "TP") {
+    } else if (type == "TP") {
         return readTP(element);
-    } else if (nsw::getElementType(element) == "ADDC") {
+    } else if (type == "L1DDC") {
+        return readL1DDC(element);
+    } else if (type == "ADDC") {
         return readADDC(element, 2);
-    } else if (nsw::getElementType(element) == "PadTriggerSCA") {
+    } else if (type == "PadTriggerSCA") {
         return readPadTriggerSCA(element);
-    } else if (nsw::getElementType(element) == "Router") {
+    } else if (type == "Router") {
         return readRouter(element);
     }
 }
@@ -47,7 +51,7 @@ std::set<std::string> ConfigReaderApi::getAllElementNames() {
       read();
     }
 
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*|L1DDC.*", m_config);
 }
 
 std::set<std::string> ConfigReaderApi::getElementNames(const std::string& regexp) {
@@ -71,11 +75,6 @@ ptree ConfigReaderApi::readTPCarrier(const std::string& element) const {
 ptree ConfigReaderApi::readTP(const std::string& element) const {
     ERS_LOG("Reading configuration for TP: " << element);
     ptree tree = m_config.get_child(element);
-
-    // for (ptree::iterator iter = registers.begin(); iter != registers.end(); iter++) {
-    //   std::cout << iter->first << "\t" << (iter->second).data() << std::endl;
-    // }
-
     return tree;
 }
 
@@ -209,6 +208,14 @@ ptree ConfigReaderApi::readFEB(const std::string& element, size_t nvmm, size_t n
     }
 
 
+    return feb;
+}
+
+ptree ConfigReaderApi::readL1DDC(const std::string& element) const {
+    // Read an L1DDC branch from the configuration ptree
+    ERS_LOG("ConfigReaderApi::readL1DDC, element=" << element);
+    // ptree with configuration for just this element
+    ptree feb = m_config.get_child(element);
     return feb;
 }
 

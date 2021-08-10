@@ -287,4 +287,3 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
 
     return 0;
 }
-

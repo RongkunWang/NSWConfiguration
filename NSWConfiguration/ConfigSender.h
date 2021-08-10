@@ -11,13 +11,23 @@
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/L1DDCConfig.h"
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
-#include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/TPCarrierConfig.h"
+#include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/GBTxConfig.h"
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
+
+#include "ic-over-netio/IChandler.h"
+
+ERS_DECLARE_ISSUE(nsw,
+                  NSWSenderIssue,
+                  message,
+                  ((std::string)message)
+                  )
 
 namespace nsw {
 
@@ -60,6 +70,34 @@ class ConfigSender {
 
     /// Send configuration to all tds in the feb
     void sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds = false);
+
+    /**
+     * \brief Configure the GBTx's of a given L1DDC
+     * 
+     * \todo Implement GBTx 1 and 2 (Currently only 0 is implemented)
+     * 
+     * \param l1ddc L1DDC config object
+     */
+    void sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc);
+
+    /**
+     * \brief Sends GBTx configuration for a given L1DDC and GBTx ID
+     * 
+     * \param l1ddc L1DDC config object
+     * \param gbtxId GBTx ID
+     */
+    void sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId);
+
+    /**
+     * \brief Helper function that sends GBTX configuration and reads it back. 
+     * 
+     * \param ich IC Handler instance
+     * \param data Data to be sent
+     * \return true if the read-back configuration matches the input
+     * \return false if the read-back configuration does not match the input
+     */
+    bool sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandler& ich,std::vector<uint8_t>& data);
+
 
     /// Send configuration to ADDC and its ARTs
     /// By default (i_art == -1), configure both ARTs

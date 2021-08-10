@@ -106,6 +106,10 @@ private:
     void configureADDC(const std::string& name);
     void alignADDCsToTP();
 
+    //! Configure L1DDC's
+    void configureL1DDCs();
+    void configureL1DDC(const nsw::L1DDCConfig& l1ddc);
+
     //! Configure all Routers, Pad Triggers, and Trigger Processors
     void configureRouters();
     void configureRouter(const std::string& name);
@@ -122,6 +126,7 @@ private:
     std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
     std::map<std::string, TPConfig>            m_tps;         //!
     std::map<std::string, TPCarrierConfig>     m_tpcarriers;  //!
+    std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
 
     // Database connection string
     std::string m_dbcon;

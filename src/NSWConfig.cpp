@@ -29,16 +29,18 @@ void nsw::NSWConfig::configureRc() {
     // we should find the ones that are at the same links with the swROD
     auto frontend_names = m_reader->getAllElementNames();
 
-    ERS_LOG("\nFollowing front ends will be configured:\n"
-          <<"========================================");
+    ERS_LOG("\nFollowing front ends will be configured now:\n");
     for (auto & name : frontend_names) {
       try {
+        auto element = nsw::getElementType(name);
+        ERS_LOG(name << ", an instance of " << element);
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
-        if      (nsw::getElementType(name) == "ADDC")          m_addcs     .emplace(this_pair);
-        else if (nsw::getElementType(name) == "Router")        m_routers   .emplace(this_pair);
-        else if (nsw::getElementType(name) == "PadTriggerSCA") m_ptscas    .emplace(this_pair);
-        else if (nsw::getElementType(name) == "TP")            m_tps       .emplace(this_pair);
-        else if (nsw::getElementType(name) == "TPCarrier")     m_tpcarriers.emplace(this_pair);
+        if      (element == "ADDC")          m_addcs     .emplace(this_pair);
+        else if (element == "Router")        m_routers   .emplace(this_pair);
+        else if (element == "PadTriggerSCA") m_ptscas    .emplace(this_pair);
+        else if (element == "TP")            m_tps       .emplace(this_pair);
+        else if (element == "TPCarrier")     m_tpcarriers.emplace(this_pair);
+        else if (element == "L1DDC")         m_l1ddcs    .emplace(this_pair);
         else
           m_frontends.emplace(this_pair);
         std::cout << name << std::endl;
@@ -53,6 +55,7 @@ void nsw::NSWConfig::configureRc() {
       }
     }
 
+    configureL1DDCs();        // Configure all l1ddc's
     configureFEBs();          // Configure all front-ends
     configureADDCs();         // Configure all ADDCs
     configureRouters();       // Configure all Routers
@@ -67,6 +70,7 @@ void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
     m_frontends.clear();
     m_addcs.clear();
+    m_l1ddcs.clear();
     m_routers.clear();
     m_ptscas.clear();
     m_tps.clear();
@@ -133,6 +137,33 @@ void nsw::NSWConfig::configureFEB(const std::string& name) {
     usleep(100000);
     ERS_LOG("Sending config to: " << name);
 }
+
+void nsw::NSWConfig::configureL1DDCs() {
+    ERS_INFO("Configuring all L1DDCs");
+    m_threads->clear();
+    for (const auto& [name,l1ddc] : m_l1ddcs) {
+        while (too_many_threads()) usleep(500000);
+        // ThreadConfig cfg;
+        // cfg.configure_l1ddc     = configure_l1ddc;
+        m_threads->push_back(std::async(std::launch::async, &nsw::NSWConfig::configureL1DDC,this, l1ddc));
+    }
+    for (auto& thread : *m_threads) {
+        try {  // If configureADDC throws exception, it will be caught here
+            thread.get();
+        } catch (std::exception & ex) {
+            std::string message = "Skipping L1DDC due to : " + std::string(ex.what());
+            nsw::NSWConfigIssue issue(ERS_HERE, message);
+            ers::warning(issue);
+        }
+    }
+}
+
+void nsw::NSWConfig::configureL1DDC(const nsw::L1DDCConfig& l1ddc) {
+    // Configure L1DDC
+    nsw::ConfigSender cs;
+    cs.sendL1DDCConfig(l1ddc);
+}
+
 
 void nsw::NSWConfig::configureADDCs() {
     ERS_LOG("Configuring all ADDCs");

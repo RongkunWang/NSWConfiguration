@@ -26,4 +26,15 @@ namespace i2c {
     using AddressBitstreamMap = std::map<std::string, std::string>;
 }  // namespace i2c
 
+namespace gbtx{
+
+    struct regMap {
+        std::string name;
+        std::string description;
+        std::vector<std::size_t> shifts;
+        std::vector<std::size_t> registers;
+    };
+
+}
+
 #endif  // NSWCONFIGURATION_TYPES_H_

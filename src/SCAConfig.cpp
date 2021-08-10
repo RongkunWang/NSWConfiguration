@@ -18,7 +18,6 @@ nsw::SCAConfig::SCAConfig(const ptree& config): m_config(config) {
         ss << "OpcServerIp or OpcNodeId missing in configuration! " << e.what();
         nsw::SCAConfigIssue issue(ERS_HERE, ss.str().c_str());
         ers::error(issue);
-
         ss << " - Problematic FE ptree: \n";
         boost::property_tree::json_parser::write_json(ss, m_config);
         std::cerr << ss.str() << "\n";
