@@ -426,94 +426,94 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_ANALOG = {
     {"ePllTdc.tx_csel", {
         TranslationUnitRoc{"reg111ePllTdc.tx_csel", 0b0000'1111},
     }},
-    {"FIXME.ePllInstantLock", {
+    {"ePllCore.ePllInstantLock", {
         TranslationUnitRoc{"reg112.ePllInstantLock", 0b1000'0000},
     }},
-    {"FIXME.ePllReset", {
+    {"ePllCore.ePllReset", {
         TranslationUnitRoc{"reg112.ePllReset", 0b0100'0000},
     }},
-    {"FIXME.bypassPLL", {
+    {"ePllCore.bypassPLL", {
         TranslationUnitRoc{"reg112.bypassPLL", 0b0010'0000},
     }},
-    {"FIXME.ePllLockEn", {
+    {"ePllCore.ePllLockEn", {
         TranslationUnitRoc{"reg112.ePllLockEn", 0b0001'0000},
     }},
-    {"FIXME.ePllReferenceFrequency", {
+    {"ePllCore.ePllReferenceFrequency", {
         TranslationUnitRoc{"reg112.ePllReferenceFrequency", 0b0000'1100},
     }},
-    {"FIXME.ePllCap", {
+    {"ePllCore.ePllCap", {
         TranslationUnitRoc{"reg112.ePllCap", 0b0000'0011},
     }},
-    {"FIXME.ePllRes", {
+    {"ePllCore.ePllRes", {
         TranslationUnitRoc{"reg113.ePllRes", 0b1111'0000},
     }},
-    {"FIXME.ePllIcp", {
+    {"ePllCore.ePllIcp", {
         TranslationUnitRoc{"reg113.ePllIcp", 0b0000'1111},
     }},
-    {"FIXME.ePllEnablePhase", {
+    {"ePllCore.ePllEnablePhase", {
         TranslationUnitRoc{"reg114.ePllEnablePhase"},
     }},
-    {"FIXME.ePllPhase40MHz_0", {
+    {"ePllCore.ePllPhase40MHz_0", {
         TranslationUnitRoc{"reg115.ePllPhase40MHz_0", 0b0111'1111}
     }},
-    {"FIXME.ePllPhase40MHz_1", {
+    {"ePllCore.ePllPhase40MHz_1", {
         TranslationUnitRoc{"reg116.ePllPhase40MHz_1", 0b0111'1111}
     }},
-    {"FIXME.ePllPhase40MHz_2", {
+    {"ePllCore.ePllPhase40MHz_2", {
         TranslationUnitRoc{"reg117.ePllPhase40MHz_2", 0b0111'1111}
     }},
-    {"FIXME.ePllPhase160MHz_0", {
+    {"ePllCore.ePllPhase160MHz_0", {
         TranslationUnitRoc{"reg115.ePllPhase160MHz_0[4]", 0b1000'0000, 0b0001'0000},
         TranslationUnitRoc{"reg118.ePllPhase160MHz_0[3:0]", 0b1111'0000, 0b0000'1111}
     }},
-    {"FIXME.ePllPhase160MHz_1", {
+    {"ePllCore.ePllPhase160MHz_1", {
         TranslationUnitRoc{"reg116.ePllPhase160MHz_1[4]", 0b1000'0000, 0b0001'0000},
         TranslationUnitRoc{"reg118.ePllPhase160MHz_1[3:0]", 0b0000'1111, 0b0000'1111}
     }},
-    {"FIXME.ePllPhase160MHz_2", {
+    {"ePllCore.ePllPhase160MHz_2", {
         TranslationUnitRoc{"reg117.ePllPhase160MHz_2[4]", 0b1000'0000, 0b0001'0000},
         TranslationUnitRoc{"reg119.ePllPhase160MHz_2[3:0]", 0b0000'1111, 0b0000'1111}
     }},
-    {"FIXME.tp_bypass_global", {
+    {"ePllCore.tp_bypass_global", {
         TranslationUnitRoc{"reg119.tp_bypass_global", 0b1000'0000}
     }},
-    {"FIXME.tp_phase_global", {
+    {"ePllCore.tp_phase_global", {
         TranslationUnitRoc{"reg119.tp_phase_global", 0b0111'0000}
     }},
-    {"FIXME.TDS_BCR_INV", {
+    {"tdsBcrInvert", {
         TranslationUnitRoc{"reg120.TDS_BCR_INV", 0b1111'0000}
     }},
-    {"FIXME.LockOutInv", {
+    {"lockOutInvert", {
         TranslationUnitRoc{"reg120.LockOutInv", 0b0000'1000}
     }},
-    {"FIXME.testOutEn", {
+    {"testOutEnable", {
         TranslationUnitRoc{"reg120.testOutEn", 0b0000'0100}
     }},
-    {"FIXME.testOutMux", {
+    {"testOutMux", {
         TranslationUnitRoc{"reg120.testOutMux", 0b0000'0011}
     }},
-    {"FIXME.vmmBcrInv", {
+    {"vmmBcrInvert", {
         TranslationUnitRoc{"reg121vmmBcrInv.vmmBcrInv"}
     }},
-    {"FIXME.vmmEnaInv", {
+    {"vmmEnaInvert", {
         TranslationUnitRoc{"reg122vmmEnaInv.vmmEnaInv"}
     }},
-    {"FIXME.vmmL0Inv", {
+    {"vmmL0Invert", {
         TranslationUnitRoc{"reg123vmmL0Inv.vmmL0Inv"}
     }},
-    {"FIXME.vmmTpInv", {
+    {"vmmTpInvert", {
         TranslationUnitRoc{"reg124vmmTpInv.vmmTpInv"}
     }}
 };
 
 static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
-    {"rocId.l1_first", {
+    {"l1_first", {
         TranslationUnitRoc{"reg000rocId.l1_first", 0b1000'0000}
     }},
-    {"rocId.even_parity", {
+    {"even_parity", {
         TranslationUnitRoc{"reg000rocId.even_parity", 0b0100'0000}
     }},
-    {"rocId.roc_id", {
+    {"roc_id", {
         TranslationUnitRoc{"reg000rocId.roc_id", 0b0011'1111}
     }},
     {"elinkSpeed.sRoc0", {
@@ -648,13 +648,13 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
     {"nullEventEnable.sRoc3", {
         TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc3_nullevt_enable", 0b1000'0000}
     }},
-    {"sRocEnable.bypass", {
+    {"bypassMode", {
         TranslationUnitRoc{"reg007sRocEnable.bypass", 0b1000'0000}
     }},
-    {"sRocEnable.timeoutEnable", {
+    {"timeoutEnable", {
         TranslationUnitRoc{"reg007sRocEnable.timeoutEnable", 0b0100'0000}
     }},
-    {"sRocEnable.TTCStartBits", {
+    {"ttcStartBits", {
         TranslationUnitRoc{"reg007sRocEnable.TTCStartBits", 0b0011'0000}
     }},
     {"sRocEnable.sRoc0", {
@@ -693,17 +693,17 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
     {"vmmEnable.vmm7", {
         TranslationUnitRoc{"reg008vmmEnable.vmm7", 0b1000'0000}
     }},
-    {"FIXME.timeout", {
+    {"timeout", {
         TranslationUnitRoc{"reg009timeout.timeout"}
     }},
-    {"FIXME.tx_csel", {
+    {"tx_csel", {
         TranslationUnitRoc{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
     }},
-    {"FIXME.bc_offset", {
+    {"bc_offset", {
         TranslationUnitRoc{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111},
         TranslationUnitRoc{"reg011bcOffset1.bc_offset[7:0]"}
     }},
-    {"FIXME.bc_rollover", {
+    {"bc_rollover", {
         TranslationUnitRoc{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111},
         TranslationUnitRoc{"reg013bcRollover1.bc_rollover[7:0]"}
     }},
@@ -767,15 +767,15 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
     {"tdcEnable.sRoc3", {
         TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc3", 0b1000'0000}
     }},
-    {"FIXME.busyOnLimit", {
+    {"busyOnLimit", {
         TranslationUnitRoc{"reg021busyOnLimit0.busy_on_limit[10:8]", 0b0000'0111, 0b0111'0000'0000},
         TranslationUnitRoc{"reg022busyOnLimit1.busy_on_limit[7:0]", 0b1111'1111, 0b0000'1111'1111}
     }},
-    {"FIXME.busyOffLimit", {
+    {"busyOffLimit", {
         TranslationUnitRoc{"reg023busyOffLimit0.busy_off_limit[10:8]", 0b0000'0111},
         TranslationUnitRoc{"reg024busyOffLimit1.busy_off_limit[7:0]"}
     }},
-    {"FIXME.l1EventsWithoutComma", {
+    {"l1EventsWithoutComma", {
         TranslationUnitRoc{"reg031l1EventsWithoutComma.l1_events_no_comma"}
     }},
     {"fakeVmmFailure.vmm0", {

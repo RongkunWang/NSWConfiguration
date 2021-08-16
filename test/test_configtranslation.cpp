@@ -39,10 +39,10 @@ ptree createDummyAnalog()
 ptree createDummyDigital()
 {
     ptree tree;
-    tree.put("rocId.l1_first", 1);
-    tree.put("rocId.even_parity", 0);
-    tree.put("rocId.roc_id", 37);
-    tree.put("FIXME.busyOnLimit", 1590);
+    tree.put("l1_first", 1);
+    tree.put("even_parity", 0);
+    tree.put("roc_id", 37);
+    tree.put("busyOnLimit", 1590);
     return tree;
 }
 
@@ -118,11 +118,11 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigDigital_ROCDigitalValueTree_ReturnsCo
     const auto converter = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getSubRegisterBasedConfig();
 
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), registerTree.get<int>("reg000rocId.l1_first"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), registerTree.get<int>("reg000rocId.even_parity"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.roc_id"), registerTree.get<int>("reg000rocId.roc_id"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") / 256, registerTree.get<int>("reg021busyOnLimit0.busy_on_limit[10:8]"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") % 256, registerTree.get<int>("reg022busyOnLimit1.busy_on_limit[7:0]"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("l1_first"), registerTree.get<int>("reg000rocId.l1_first"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("even_parity"), registerTree.get<int>("reg000rocId.even_parity"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("roc_id"), registerTree.get<int>("reg000rocId.roc_id"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("busyOnLimit") / 256, registerTree.get<int>("reg021busyOnLimit0.busy_on_limit[10:8]"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("busyOnLimit") % 256, registerTree.get<int>("reg022busyOnLimit1.busy_on_limit[7:0]"));
 }
 
 
@@ -131,11 +131,11 @@ BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital_ROCDig
     const auto converter = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::VALUE_BASED);
     const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocDigital());
 
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), (registerTree.get<int>("reg000rocId") & 0b1000'0000) >> 7);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), (registerTree.get<int>("reg000rocId") & 0b0100'0000) >> 6);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.roc_id"), registerTree.get<int>("reg000rocId") & 0b0011'1111);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") / 256, registerTree.get<int>("reg021busyOnLimit0") & 0b0000'0111);
-    BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit") % 256, registerTree.get<int>("reg022busyOnLimit1"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("l1_first"), (registerTree.get<int>("reg000rocId") & 0b1000'0000) >> 7);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("even_parity"), (registerTree.get<int>("reg000rocId") & 0b0100'0000) >> 6);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("roc_id"), registerTree.get<int>("reg000rocId") & 0b0011'1111);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("busyOnLimit") / 256, registerTree.get<int>("reg021busyOnLimit0") & 0b0000'0111);
+    BOOST_CHECK_EQUAL(valueTree.get<int>("busyOnLimit") % 256, registerTree.get<int>("reg022busyOnLimit1"));
 }
 
 
@@ -146,10 +146,10 @@ BOOST_AUTO_TEST_CASE(translationNewToOldToNewDigital_ROCDigitalValueAndRegisterT
     const auto converterRegisterToValue = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(registerTree, nsw::ConfigType::REGISTER_BASED);
     const auto valueTreeNew = converterRegisterToValue.getValueBasedConfig();
 
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.l1_first"), valueTreeNew.get<int>("rocId.l1_first"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.even_parity"), valueTreeNew.get<int>("rocId.even_parity"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("rocId.roc_id"), valueTreeNew.get<int>("rocId.roc_id"));
-    BOOST_CHECK_EQUAL(valueTree.get<int>("FIXME.busyOnLimit"), valueTreeNew.get<int>("FIXME.busyOnLimit"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("l1_first"), valueTreeNew.get<int>("l1_first"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("even_parity"), valueTreeNew.get<int>("even_parity"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("roc_id"), valueTreeNew.get<int>("roc_id"));
+    BOOST_CHECK_EQUAL(valueTree.get<int>("busyOnLimit"), valueTreeNew.get<int>("busyOnLimit"));
 }
 
 
@@ -171,9 +171,9 @@ BOOST_AUTO_TEST_CASE(translationFailuresAnalog_ConfigConverterAnalog_ThrowsError
 BOOST_AUTO_TEST_CASE(translationFailuresDigital_ConfigConverterDigital_ThrowsErrors) {
     const auto valueTree = createDummyDigital();
     const auto checkFunc = [] (const std::runtime_error& t_ex, const std::string& t_pred) {return t_ex.what() == t_pred;};
-    BOOST_CHECK_EXCEPTION(nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node rocId.l1_first in translation map");});
+    BOOST_CHECK_EXCEPTION(nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node l1_first in translation map");});
     BOOST_CHECK_EXCEPTION(nsw::ConfigConverter<nsw::ConfigConversionType::ROC_ANALOG>(valueTree, nsw::ConfigType::VALUE_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find all nodes in translation map");});
-    BOOST_CHECK_EXCEPTION(nsw::ConfigConverter<nsw::ConfigConversionType::ROC_ANALOG>(valueTree, nsw::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node rocId.l1_first in translation map");});
+    BOOST_CHECK_EXCEPTION(nsw::ConfigConverter<nsw::ConfigConversionType::ROC_ANALOG>(valueTree, nsw::ConfigType::REGISTER_BASED), std::runtime_error, [&checkFunc] (const auto& t_ex) {return checkFunc(t_ex, "Did not find node l1_first in translation map");});
     
     const auto converterValueToRegister = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::VALUE_BASED);
     const auto registerTree = converterValueToRegister.getSubRegisterBasedConfig();
