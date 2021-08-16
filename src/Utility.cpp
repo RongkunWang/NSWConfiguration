@@ -310,3 +310,10 @@ bool nsw::isSmallSector(const std::string& sector_name) {
 void nsw::snooze(const std::chrono::duration<float> dur) {
   std::this_thread::sleep_for(dur);
 }
+
+uint32_t nsw::median(std::vector<uint32_t> vec) {
+  // https://stackoverflow.com/questions/1719070/
+  const size_t ndiv2 = vec.size() / 2;
+  std::nth_element(vec.begin(), vec.begin()+ndiv2, vec.end());
+  return vec.at(ndiv2);
+}

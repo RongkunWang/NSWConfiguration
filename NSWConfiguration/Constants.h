@@ -220,11 +220,14 @@ namespace nsw {
 
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
-    constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
-    constexpr std::uint32_t NUM_PFEBS              = 24;
-    constexpr std::uint32_t NUM_PFEB_BCID_READS    = 100;
-    constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
-    constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
+    constexpr std::uint32_t NUM_INPUT_DELAYS          = 16;
+    constexpr std::uint32_t NUM_INPUT_DELAYS_PER_BCID = 6;
+    constexpr std::uint32_t NUM_PFEBS                 = 24;
+    constexpr std::uint32_t NUM_PFEB_BCID_READS       = 10;
+    constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID    = 4;
+    constexpr std::uint32_t NUM_PFEB_BCIDS            = (1 << NUM_BITS_PER_PFEB_BCID);
+    constexpr std::uint32_t PFEB_BCID_BITMASK         = 0b1111;
+    constexpr std::uint32_t PFEB_BCID_DISCONNECTED    = 0x5;
     constexpr std::uint32_t REG_CONTROL          = 0x00;
     constexpr std::uint32_t REG_STATUS           = 0x01;
     constexpr std::uint32_t REG_L1ID             = 0x02;

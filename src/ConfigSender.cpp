@@ -1105,6 +1105,346 @@ void nsw::ConfigSender::sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& 
     }
 }
 
+void nsw::ConfigSender::alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt) {
+
+  bool sim = false;
+  auto bcid_per_delay_per_pfeb = std::vector< std::vector<uint32_t> >();
+
+  for (uint32_t delay = 0; delay < nsw::padtrigger::NUM_INPUT_DELAYS; ++delay) {
+
+    //
+    // Set delay
+    //
+    uint32_t delay_word = 0;
+    for (size_t it = 0; it < nsw::NUM_BITS_IN_WORD32 / nsw::padtrigger::NUM_BITS_PER_PFEB_BCID; it++) {
+      delay_word += (delay << it*nsw::padtrigger::NUM_BITS_PER_PFEB_BCID);
+    }
+    ERS_INFO("Configuring " << pt.getAddress() << " with delay = " << std::hex << delay_word);
+    if (!sim) {
+      bool quiet = false;
+      auto cs = std::make_unique<nsw::ConfigSender>();
+      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word, quiet);
+      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word, quiet);
+      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word, quiet);
+    }
+    ERS_LOG("Done configuring " << pt.getAddress());
+
+    //
+    // Collect PFEB BCIDs
+    //
+    auto bcids_per_pfeb = std::vector< std::vector<uint32_t> >();
+    for (size_t it = 0; it < nsw::padtrigger::NUM_PFEBS; ++it) {
+      bcids_per_pfeb.push_back(std::vector<uint32_t>());
+    }
+    for (uint32_t ir = 0; ir < nsw::padtrigger::NUM_PFEB_BCID_READS; ++ir) {
+
+      //
+      // Read BCID words
+      //
+      ERS_LOG("Reading PFEB BCIDs of " << pt.getAddress());
+      uint32_t bcids_23_16 = 0;
+      uint32_t bcids_15_08 = 0;
+      uint32_t bcids_07_00 = 0;
+      if (!sim) {
+        auto cs = std::make_unique<nsw::ConfigSender>();
+        bcids_23_16 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_23_16);
+        bcids_15_08 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_15_08);
+        bcids_07_00 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_07_00);
+      } else {
+        uint32_t bump = 0x11111111;
+        bcids_23_16 = 0xFFFFFFFF - bump*((delay / nsw::padtrigger::NUM_INPUT_DELAYS_PER_BCID) + 1);
+        bcids_15_08 = 0xFFFFFFFF - bump*((delay / nsw::padtrigger::NUM_INPUT_DELAYS_PER_BCID) + 2);
+        bcids_07_00 = 0xFFFFFFFF - bump*((delay / nsw::padtrigger::NUM_INPUT_DELAYS_PER_BCID) + 3);
+      }
+
+      //
+      // Decode BCIDs
+      //
+      ERS_LOG("Decoding PFEB BCIDs");
+      const auto bcids_of_this_read = pt.PFEBBCIDs(bcids_07_00,
+                                                   bcids_15_08,
+                                                   bcids_23_16);
+
+      //
+      // Collate BCIDs
+      //
+      for (size_t it = 0; it < nsw::padtrigger::NUM_PFEBS; ++it) {
+        bcids_per_pfeb.at(it).push_back(bcids_of_this_read.at(it));
+      }
+    }
+
+    //
+    // Get median BCID of each PFEB
+    //
+    auto bcid_median_per_pfeb = std::vector<uint32_t>();
+    for (const auto& bcids: bcids_per_pfeb) {
+
+      auto bcid_median = nsw::median(bcids);
+
+      //
+      // Beware of suspicious measurements:
+      // There should be at most 2 values recorded
+      //
+      if (std::size(std::set(std::begin(bcids), std::end(bcids))) > 2) {
+        bcid_median = 0;
+      }
+
+      //
+      // Announce
+      //
+      std::stringstream msg;
+      for (const auto& bcid: bcids)
+        msg << std::hex << bcid;
+      ERS_LOG("For delay = 0x"
+              << std::hex
+              << delay
+              << ", median BCID of PFEB 0x"
+              << bcid_median_per_pfeb.size()
+              << " is 0x"
+              << bcid_median
+              << " via "
+              << msg.str()
+              );
+      bcid_median_per_pfeb.push_back(bcid_median);
+    }
+    bcid_per_delay_per_pfeb.push_back(bcid_median_per_pfeb);
+
+  }
+
+  //
+  // Check if any PFEB are disconnected or suspicious; mark them as ignored
+  //
+  auto ignored = std::vector<bool>();
+  for (size_t pfeb = 0; pfeb < nsw::padtrigger::NUM_PFEBS; ++pfeb) {
+
+    bool any_connected       = false;
+    bool any_nonzero         = false;
+    bool any_nonincrementing = false;
+
+    //
+    // test for any non-disconnected BCID (good)
+    //
+    for (const auto& bcids: bcid_per_delay_per_pfeb) {
+      if (bcids.at(pfeb) != nsw::padtrigger::PFEB_BCID_DISCONNECTED) {
+        any_connected = true;
+        break;
+      }
+    }
+
+    //
+    // test for any non-zero BCID (good)
+    //
+    for (const auto& bcids: bcid_per_delay_per_pfeb) {
+      if (bcids.at(pfeb) != 0) {
+        any_nonzero = true;
+        break;
+      }
+    }
+
+    //
+    // test for any non-incrementing BCID (bad)
+    //
+    auto bcid_test = bcid_per_delay_per_pfeb.front().at(pfeb);
+    for (const auto& bcids: bcid_per_delay_per_pfeb) {
+      uint32_t bcid_test_minus_one = (bcid_test - 1 + nsw::padtrigger::NUM_PFEB_BCIDS) % nsw::padtrigger::NUM_PFEB_BCIDS;
+      if (bcids.at(pfeb) != bcid_test && bcids.at(pfeb) != bcid_test_minus_one) {
+        any_nonincrementing = true;
+        break;
+      }
+      bcid_test = bcids.at(pfeb);
+    }
+
+    //
+    // evaluate
+    //
+    bool ok = (any_connected && any_nonzero && !any_nonincrementing);
+    ignored.push_back(!ok);
+    if (ignored.back()) {
+      ERS_INFO("Found PFEB " << pfeb << " is disconnected or suspicious");
+    }
+
+  }
+
+  //
+  // Find the set of all BCIDs (hopefully contiguous)
+  //
+  auto unique_bcids = std::set<uint32_t>();
+  for (size_t pfeb = 0; pfeb < nsw::padtrigger::NUM_PFEBS; ++pfeb) {
+    if (ignored.at(pfeb)) {
+      continue;
+    }
+    for (size_t delay = 0; delay < nsw::padtrigger::NUM_INPUT_DELAYS; ++delay) {
+      const auto bcid = bcid_per_delay_per_pfeb.at(delay).at(pfeb);
+      unique_bcids.insert(bcid);
+    }
+  }
+  for (const auto& bcid: unique_bcids) {
+    ERS_LOG("Measured PFEB BCID: 0x" << std::hex << bcid);
+  }
+  if (std::size(unique_bcids) > nsw::padtrigger::NUM_PFEB_BCIDS / 2) {
+    std::string msg = "Too many unique BCIDs found: " + std::to_string(std::size(unique_bcids)) + ". Crashing";
+    nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
+    ers::fatal(issue);
+    throw std::runtime_error(msg);
+  }
+
+  //
+  // Check if unique BCIDs are contiguous
+  //
+  auto max_el = *std::max_element(std::begin(unique_bcids), std::end(unique_bcids));
+  auto min_el = *std::min_element(std::begin(unique_bcids), std::end(unique_bcids));
+  bool contiguous = false;
+  if (max_el - min_el + 1 == std::size(unique_bcids)) {
+    contiguous = true;
+  } else if (max_el == nsw::padtrigger::NUM_PFEB_BCIDS && min_el == 0) {
+    // rolled over; contiguous?
+    auto unique_bcids_shifted = std::set<uint32_t>();
+    for (const auto& bcid: unique_bcids) {
+      auto bcid_shifted(bcid);
+      if (bcid < nsw::padtrigger::NUM_PFEB_BCIDS / 2) {
+        bcid_shifted = bcid + nsw::padtrigger::NUM_PFEB_BCIDS;
+      }
+      unique_bcids_shifted.insert(bcid_shifted);
+    }
+    max_el = *std::max_element(std::begin(unique_bcids_shifted), std::end(unique_bcids_shifted));
+    min_el = *std::min_element(std::begin(unique_bcids_shifted), std::end(unique_bcids_shifted));
+    if (max_el - min_el + 1 == std::size(unique_bcids)) {
+      contiguous = true;
+      max_el = max_el % nsw::padtrigger::NUM_PFEB_BCIDS;
+      min_el = min_el % nsw::padtrigger::NUM_PFEB_BCIDS;
+    }
+  }
+  if (!contiguous) {
+    std::string msg = "BCIDs arent contiguous. Cant align.";
+    nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
+    ers::fatal(issue);
+    throw std::runtime_error(msg);
+  } else {
+    ERS_LOG("PFEB BCID are contiguous, with max_element 0x"
+            << std::hex << max_el << " and min_element 0x" << min_el);
+  }
+
+  //
+  // Check for a common BCID returned by each PFEB
+  // If there is a BCID which works for all PFEBs, choose that
+  //
+  uint32_t the_chosen_bcid = 0xFFFFFFFF;
+  const uint32_t margin = nsw::padtrigger::NUM_INPUT_DELAYS_PER_BCID / 2;
+  for (auto this_bcid = max_el; this_bcid >= min_el && this_bcid <= max_el; --this_bcid) {
+
+    //
+    // handle rollover
+    //
+    if (this_bcid > nsw::padtrigger::NUM_PFEB_BCIDS) {
+      this_bcid = this_bcid + nsw::padtrigger::NUM_PFEB_BCIDS;
+    }
+
+    //
+    // check how many times this BCID is reported by each PFEB
+    //
+    auto counts = std::vector<uint32_t>();
+    for (uint32_t pfeb = 0; pfeb < nsw::padtrigger::NUM_PFEBS; ++pfeb) {
+      counts.push_back(0);
+      if (ignored.at(pfeb)) {
+        counts.back() = nsw::padtrigger::NUM_INPUT_DELAYS;
+        continue;
+      }
+      for (uint32_t delay = 0; delay < nsw::padtrigger::NUM_INPUT_DELAYS; ++delay) {
+        if (bcid_per_delay_per_pfeb.at(delay).at(pfeb) == this_bcid) {
+          counts.back()++;
+        }
+      }
+    }
+
+    //
+    // announce
+    //
+    std::stringstream msg;
+    for (const auto& count: counts)
+      msg << std::hex << count;
+    ERS_LOG("BCID = 0x" << std::hex << this_bcid << " counts = " << msg.str());
+
+    //
+    // acceptable?
+    //
+    bool ok = true;
+    for (const auto& count: counts) {
+      if (count < margin) {
+        ok = false;
+      }
+    }
+    if (ok) {
+      ERS_LOG("BCID = 0x" << std::hex << this_bcid << " works! Using.");
+      the_chosen_bcid = this_bcid;
+      break;
+    }
+  }
+  if (the_chosen_bcid == 0xFFFFFFFF) {
+    std::string msg = "Couldnt find good BCID. Crashing";
+    nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
+    ers::fatal(issue);
+    throw std::runtime_error(msg);
+  }
+
+  //
+  // Choose the delay for each PFEB which has sufficient margin
+  //
+  auto delays = std::vector<uint32_t>();
+  for (uint32_t pfeb = 0; pfeb < nsw::padtrigger::NUM_PFEBS; ++pfeb) {
+    if (ignored.at(pfeb)) {
+      delays.push_back(0);
+      continue;
+    }
+    uint32_t consecutive = 0;
+    for (uint32_t delay = 0; delay < nsw::padtrigger::NUM_INPUT_DELAYS; ++delay) {
+      auto bcid = bcid_per_delay_per_pfeb.at(delay).at(pfeb);
+      if (bcid == the_chosen_bcid) {
+        consecutive++;
+      } else {
+        consecutive = 0;
+      }
+      if (consecutive == margin) {
+        delays.push_back(delay);
+        break;
+      }
+    }
+    if (consecutive < margin) {
+      std::string msg = "Couldnt find good delay for PFEB " + std::to_string(pfeb);
+      nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
+      ers::fatal(issue);
+      throw std::runtime_error(msg);
+    }
+  }
+  std::stringstream msg;
+  for (const auto& delay: delays)
+    msg << std::hex << delay;
+  ERS_LOG("Chosen delays: " << msg.str());
+
+  //
+  // Set delay
+  //
+  uint32_t delay_word_07_00 = 0;
+  uint32_t delay_word_15_08 = 0;
+  uint32_t delay_word_23_16 = 0;
+  for (size_t it = 0; it < nsw::NUM_BITS_IN_WORD32 / nsw::padtrigger::NUM_BITS_PER_PFEB_BCID; it++) {
+    delay_word_07_00 += (delays.at(it +  0) << it*nsw::padtrigger::NUM_BITS_PER_PFEB_BCID);
+    delay_word_15_08 += (delays.at(it +  8) << it*nsw::padtrigger::NUM_BITS_PER_PFEB_BCID);
+    delay_word_23_16 += (delays.at(it + 16) << it*nsw::padtrigger::NUM_BITS_PER_PFEB_BCID);
+  }
+  ERS_INFO("Configuring " << pt.getAddress() << " with delay_word_07_00 = " << std::hex << delay_word_07_00);
+  ERS_INFO("Configuring " << pt.getAddress() << " with delay_word_15_08 = " << std::hex << delay_word_15_08);
+  ERS_INFO("Configuring " << pt.getAddress() << " with delay_word_23_16 = " << std::hex << delay_word_23_16);
+  if (!sim) {
+    bool quiet = false;
+    auto cs = std::make_unique<nsw::ConfigSender>();
+    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word_23_16, quiet);
+    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word_15_08, quiet);
+    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word_07_00, quiet);
+  }
+  ERS_LOG("Done configuring " << pt.getAddress());
+
+}
+
 void nsw::ConfigSender::sendRouterConfig(const nsw::RouterConfig& obj) {
     sendRouterSoftReset(obj);
     sendRouterWaitGPIO(obj);

@@ -113,6 +113,9 @@ class ConfigSender {
     void sendPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig& obj, bool write = true);
     void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
 
+    /// Adjust pad trigger input delays to align inputs
+    void alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt);
+
     /// High level send function, and the kids
     void sendRouterConfig(const nsw::RouterConfig& obj);
     void sendRouterWaitGPIO(const nsw::RouterConfig& obj);

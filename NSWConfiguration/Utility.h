@@ -123,6 +123,13 @@ std::set<std::string> matchRegexpInPtree(const std::string& regexp, const boost:
 /// Default argument: 1 second
 void snooze(const std::chrono::duration<float> dur = std::chrono::seconds(1));
 
+
+/**
+ * @brief Return the median of a vector
+ */
+uint32_t median(std::vector<uint32_t> vec);
+
+
 /**
  * @brief Dump a ptree into a JSON formatted string
  * 
