@@ -1122,10 +1122,9 @@ void nsw::ConfigSender::alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt
     ERS_INFO("Configuring " << pt.getAddress() << " with delay = " << std::hex << delay_word);
     if (!sim) {
       bool quiet = false;
-      auto cs = std::make_unique<nsw::ConfigSender>();
-      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word, quiet);
-      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word, quiet);
-      cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word, quiet);
+      sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word, quiet);
+      sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word, quiet);
+      sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word, quiet);
     }
     ERS_LOG("Done configuring " << pt.getAddress());
 
@@ -1146,10 +1145,9 @@ void nsw::ConfigSender::alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt
       uint32_t bcids_15_08 = 0;
       uint32_t bcids_07_00 = 0;
       if (!sim) {
-        auto cs = std::make_unique<nsw::ConfigSender>();
-        bcids_23_16 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_23_16);
-        bcids_15_08 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_15_08);
-        bcids_07_00 = cs->readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_07_00);
+        bcids_23_16 = readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_23_16);
+        bcids_15_08 = readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_15_08);
+        bcids_07_00 = readPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_BCID_07_00);
       } else {
         uint32_t bump = 0x11111111;
         bcids_23_16 = 0xFFFFFFFF - bump*((delay / nsw::padtrigger::NUM_INPUT_DELAYS_PER_BCID) + 1);
@@ -1436,10 +1434,9 @@ void nsw::ConfigSender::alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt
   ERS_INFO("Configuring " << pt.getAddress() << " with delay_word_23_16 = " << std::hex << delay_word_23_16);
   if (!sim) {
     bool quiet = false;
-    auto cs = std::make_unique<nsw::ConfigSender>();
-    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word_23_16, quiet);
-    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word_15_08, quiet);
-    cs->sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word_07_00, quiet);
+    sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_23_16, delay_word_23_16, quiet);
+    sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_15_08, delay_word_15_08, quiet);
+    sendPadTriggerConfigRegister(pt, nsw::padtrigger::REG_PFEB_DELAY_07_00, delay_word_07_00, quiet);
   }
   ERS_LOG("Done configuring " << pt.getAddress());
 
