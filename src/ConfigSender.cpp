@@ -1315,7 +1315,7 @@ void nsw::ConfigSender::alignPadTriggerInputs(const nsw::PadTriggerSCAConfig& pt
     }
   }
   if (!contiguous) {
-    std::string msg = "BCIDs arent contiguous. Cant align.";
+    std::string msg = "BCIDs aren't contiguous. Can't align.";
     nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
     ers::fatal(issue);
     throw std::runtime_error(msg);
