@@ -301,21 +301,21 @@ class OracleApi : public ConfigReaderApi {
    * @param values Parameter values/defaults
    * @param paramNameMapping Mapping between param ID and name
    * @param deviceTypeMapping Mapping between device types and IDs
-   * @return DeviceHierarchy Hierarchy object with value-based ptrees
+   * @return DeviceMap Hierarchy object with value-based ptrees
    */
-  [[nodiscard]] DeviceHierarchy buildValueTree(
+  [[nodiscard]] nsw::DeviceMap buildValueTree(
     const std::map<std::string, std::vector<ValueTable>>&    values,
     const std::map<std::string, OracleApi::ParamNameTable>&  paramNameMapping,
     const std::map<std::string, OracleApi::DeviceTypeTable>& deviceTypeMapping)
     const;
 
   /**
-   * @brief Merges the specific \ref DeviceHierarchy into the common one
+   * @brief Merges the specific \ref DeviceMap into the common one
    * 
    * @param specific Specific tree to be merged into common
    * @param common Common tree object (is modified!)
    */
-  void mergeTrees(const DeviceHierarchy& specific, DeviceHierarchy& common) const;
+  void mergeTrees(const nsw::DeviceMap& specific, nsw::DeviceMap& common) const;
 
   /**
    * @brief Transforms the pseudodevice names into the ones used in the value-based representation
@@ -330,7 +330,7 @@ class OracleApi : public ConfigReaderApi {
    * 
    * @param deviceTrees Hierarchy object with value-based ptrees
    */
-  static void postprocessVmmTrees(DeviceHierarchy& deviceTrees);
+  static void postprocessVmmTrees(nsw::DeviceMap& deviceTrees);
 
   /**
    * @brief Flatten result of query if it yields only a single entry per map key
@@ -366,7 +366,7 @@ class OracleApi : public ConfigReaderApi {
    * @param devices Set of devices to be configured
    */
   explicit OracleApi(const std::string& configuration,
-                     DeviceHierarchy    devices = {});
+                     nsw::DeviceMap     devices = {});
 
   /**
    * @brief TODO
@@ -375,32 +375,12 @@ class OracleApi : public ConfigReaderApi {
    */
   boost::property_tree::ptree& read() override;
 
-  /**
-   * @brief Parse device hierarchy from OKS
-   * 
-   * @param container Hierarchy object that is filled
-   * @param contains Result of get_Contains of the parent OKS object
-   * @param parentType Type of the parent OKS object
-   * @return boost::property_tree::ptree TODO
-   */
-  [[nodiscard]] static boost::property_tree::ptree parseDeviceHierarchy(
-    DeviceHierarchy&                                   container,
-    const std::vector<const daq::core::ResourceBase*>& contains,
-    const std::string&                                 parentType);
-
-  /**
-   * @brief Init hierarchy struct
-   * 
-   * @return DeviceHierarchy Empty hierarchy struct
-   */
-  [[nodiscard]] static DeviceHierarchy initDeviceHierarchy();
-
   private:
   std::string     m_db_user_name{"admin"};  ///< Name of the DB user
   std::string     m_db_password{"mysecurepassword123!"};  ///< Password of the DB user
   std::string     m_db_connection;  ///< Oracle DB connection string
   std::string     m_config_set;  ///< Name of the config set
-  DeviceHierarchy m_devices;  ///< Devices to be configured
+  nsw::DeviceMap  m_devices;  ///< Devices to be configured
   // std::set<std::string>                  m_deviceIds;
   // std::string                            m_devicesPlaceholderString;
   OcciEnv m_occi_env;  ///< OCCI environment

@@ -116,6 +116,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/RouterConfig.cpp
                  src/ConfigConverter.cpp
                  src/DBToValueMapping.cpp
+                 src/OKSDeviceHierarchy.cpp
   LINK_LIBRARIES Boost::boost
                  Oracle
                  nswconfigdal

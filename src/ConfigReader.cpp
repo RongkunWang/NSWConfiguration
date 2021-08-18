@@ -25,14 +25,14 @@ nsw::ConfigReader::ConfigReader(const std::string& connection_string) :
 nsw::ConfigReader::ConfigReader(const ptree& tree) :
   m_api(std::make_unique<PtreeApi>(tree)) {}
 
-nsw::ConfigReader::ConfigReader(const std::string&     connection_string,
-                                const DeviceHierarchy& devices) :
+nsw::ConfigReader::ConfigReader(const std::string& connection_string,
+                                const DeviceMap&   devices) :
   m_connection_string(connection_string),
   m_api(getApi(connection_string, devices)) {}
 
 std::unique_ptr<ConfigReaderApi> nsw::ConfigReader::getApi(
   const std::string&     connection_string,
-  const DeviceHierarchy& devices) {
+  const DeviceMap& devices) {
   // Open db, json file or oracle db
   if (connection_string.find("json://") == 0) {
     const std::string file_path =

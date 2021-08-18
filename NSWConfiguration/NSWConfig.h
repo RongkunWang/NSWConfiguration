@@ -10,7 +10,7 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/ConfigReaderOracleApi.h"
+#include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Types.h"
 
 #include "boost/property_tree/ptree.hpp"
@@ -48,8 +48,8 @@ class NSWConfig {
         m_resettds = nswApp->get_resetTDS();
         m_max_threads = nswApp->get_maxThreads();
         ERS_INFO("Read device hierarchy");
-        auto deviceHierarchy            = OracleApi::initDeviceHierarchy();
-        [[maybe_unused]] const auto val = OracleApi::parseDeviceHierarchy(
+        auto deviceHierarchy            = nsw::oks::initDeviceMap();
+        [[maybe_unused]] const auto val = nsw::oks::parseDeviceMap(
           deviceHierarchy, nswApp->get_Contains(), nswApp->class_name());
         ERS_INFO("DB Configuration: " << m_dbcon);
         ERS_INFO("Reset VMM: "   << m_resetvmm);

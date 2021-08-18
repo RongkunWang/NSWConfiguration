@@ -123,7 +123,7 @@ class JsonApi: public ConfigReaderApi {
   virtual void mergeVMMTree(boost::property_tree::ptree & specific, boost::property_tree::ptree & common) const;
 
  public:
-  explicit JsonApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
+  explicit JsonApi(const std::string& file_path, nsw::DeviceMap devices={}): m_file_path(file_path), m_devices(std::move(devices)) {}
   boost::property_tree::ptree & read() override;
 
   boost::property_tree::ptree readL1DDC(const std::string& element) const override;
@@ -147,7 +147,7 @@ class XmlApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit XmlApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
+  explicit XmlApi(const std::string& file_path, [[maybe_unused]] const nsw::DeviceMap& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
@@ -156,13 +156,13 @@ class OksApi: public ConfigReaderApi {
   std::string m_file_path;
 
  public:
-  explicit OksApi(const std::string& file_path, [[maybe_unused]] const DeviceHierarchy& devices={}): m_file_path(file_path) {}
+  explicit OksApi(const std::string& file_path, [[maybe_unused]] const nsw::DeviceMap& devices={}): m_file_path(file_path) {}
   boost::property_tree::ptree & read() override;
 };
 
 class PtreeApi: public ConfigReaderApi {
  public:
-  explicit PtreeApi(boost::property_tree::ptree tree, [[maybe_unused]] const DeviceHierarchy& devices={}) {
+  explicit PtreeApi(boost::property_tree::ptree tree, [[maybe_unused]] const nsw::DeviceMap& devices={}) {
     m_config = tree;
   }
   boost::property_tree::ptree & read() override;

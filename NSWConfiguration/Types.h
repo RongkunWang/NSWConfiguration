@@ -39,9 +39,10 @@ namespace gbtx{
 
 }
 
-using DeviceHierarchy = std::unordered_map<
-  std::string,
-  std::unordered_map<std::string, boost::property_tree::ptree>>;
-
+namespace nsw {
+    using DeviceMap = std::unordered_map<
+        std::string,
+        std::unordered_map<std::string, boost::property_tree::ptree>>;
+} // namespace nsw
 
 #endif  // NSWCONFIGURATION_TYPES_H_
