@@ -120,6 +120,23 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  ic_comms
 )
 
+tdaq_add_library(nswhwinterface
+                #  src/hw/DeviceManager.cpp # Placeholder for future
+                 src/hw/OpcManager.cpp
+                 src/hw/SCAInterface.cpp
+                 src/hw/ROC.cpp
+                 src/hw/VMM.cpp
+                 src/hw/TDS.cpp
+                 src/hw/ART.cpp
+                 src/hw/PadTrigger.cpp
+                 src/hw/Router.cpp
+                 src/hw/TP.cpp
+                 src/hw/TPCarrier.cpp
+  LINK_LIBRARIES nswconfig
+    PRIVATE
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
+
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig

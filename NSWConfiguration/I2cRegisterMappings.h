@@ -345,6 +345,11 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
 
     { "reg014eportEnable", { {"sroc3", 2}, {"sroc2", 2}, {"sroc1", 2}, {"sroc0", 2}}},
 
+    { "reg015dummy_READONLY", { {"dummy", 8} } },
+    { "reg016dummy_READONLY", { {"dummy", 8} } },
+    { "reg017dummy_READONLY", { {"dummy", 8} } },
+    { "reg018dummy_READONLY", { {"dummy", 8} } },
+
     { "reg019fakeVmmFailure", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                           {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } },
 
@@ -359,6 +364,13 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
 
     { "reg023busyOffLimit0", { {"NOT_USED", 5}, {"busy_off_limit[10:8]", 3} } },
     { "reg024busyOffLimit1", { {"busy_off_limit[7:0]", 8} } },
+
+    { "reg025dummy_READONLY", { {"dummy", 8} } },
+    { "reg026dummy_READONLY", { {"dummy", 8} } },
+    { "reg027dummy_READONLY", { {"dummy", 8} } },
+    { "reg028dummy_READONLY", { {"dummy", 8} } },
+    { "reg029dummy_READONLY", { {"dummy", 8} } },
+    { "reg030dummy_READONLY", { {"dummy", 8} } },
 
     { "reg031l1EventsWithoutComma", { {"l1_events_no_comma", 8} } },
 
@@ -392,6 +404,15 @@ static const i2c::AddressRegisterMap ROC_DIGITAL_REGISTERS = {
     { "reg051parityCounterVmm6_READONLY", { {"parity_counter", 8} } },
     { "reg052parityCounterVmm7_READONLY", { {"parity_counter", 8} } },
     { "reg053seuCounter_READONLY", { {"seu_counter", 8} } },
+    { "reg054dummy_READONLY", { {"dummy", 8} } },
+    { "reg055dummy_READONLY", { {"dummy", 8} } },
+    { "reg056dummy_READONLY", { {"dummy", 8} } },
+    { "reg057dummy_READONLY", { {"dummy", 8} } },
+    { "reg058dummy_READONLY", { {"dummy", 8} } },
+    { "reg059dummy_READONLY", { {"dummy", 8} } },
+    { "reg060dummy_READONLY", { {"dummy", 8} } },
+    { "reg061dummy_READONLY", { {"dummy", 8} } },
+    { "reg062dummy_READONLY", { {"dummy", 8} } },
 
     { "reg063timeoutStatus", { {"vmm7", 1}, {"vmm6", 1}, {"vmm5", 1}, {"vmm4", 1},
                          {"vmm3", 1}, {"vmm2", 1}, {"vmm1", 1}, {"vmm0", 1} } }

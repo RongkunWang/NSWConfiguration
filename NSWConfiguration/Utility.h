@@ -9,9 +9,12 @@
 #include <iomanip>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <extern/fmt/include/fmt/core.h>
 
 #include "boost/property_tree/ptree_fwd.hpp"
 // https://stackoverflow.com/a/9433783
@@ -55,6 +58,41 @@ std::bitset<N1 + N2 + N3> concatenate(const std::bitset<N1>& b1, const std::bits
 /// Returns byte vector for the value of size nbytes
 std::vector<uint8_t> intToByteVector(uint32_t value, size_t nbytes, bool littleEndian = true);
 std::vector<uint8_t> intToByteVector(uint8_t  value, size_t nbytes, bool littleEndian = true);
+
+/**
+ * \brief Transform an integer into a byte vector
+ * 
+ * \tparam Integer type of the integer
+ * \param val value to be transformed
+ * \return std::vector<std::uint8_t> byte vector
+ * \todo Merge with \ref intToByteVector functions above (and concepts)
+ */
+template<typename Integer>
+std::vector<std::uint8_t> integerToByteVector(const Integer val) {
+  return integerToByteVector(val, sizeof(val));
+}
+
+/**
+ * \brief Transform an integer into a byte vector
+ * 
+ * \tparam Integer type of the integer
+ * \param val value to be transformed
+ * \param nBytes number of bytes
+ * \return std::vector<std::uint8_t> byte vector
+ * \todo Merge with \ref intToByteVector functions above (and concepts)
+ */
+template<typename Integer>
+std::vector<std::uint8_t> integerToByteVector(const Integer val, std::size_t nBytes) {
+  static_assert(std::is_unsigned_v<Integer> or std::is_same_v<Integer, __uint128_t>, "Value must be an integer type");
+  if (nBytes > sizeof(val)) {
+    throw std::logic_error(fmt::format("Value has only {} bytes. Cannot split it into a byte vector of {} bytes", sizeof(val), nBytes));
+  }
+  std::vector<std::uint8_t> bytes(nBytes);
+  for (std::size_t counter = 0; counter < nBytes; counter++) {
+    bytes.at(nBytes - 1 - counter) = (val >> (counter * nsw::NUM_BITS_IN_BYTE));
+  }
+  return bytes;
+}
 
 /// Returns bit pattern for the value
 std::string bitString(unsigned value, size_t nbits);
