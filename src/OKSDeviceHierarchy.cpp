@@ -1,5 +1,6 @@
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 
+#include <algorithm>
 #include <iomanip>
 
 #include "NSWConfiguration/Constants.h"
@@ -199,4 +200,12 @@ boost::property_tree::ptree nsw::oks::parseDeviceMap(
 
 [[nodiscard]] nsw::DeviceMap nsw::oks::initDeviceMap() {
   return {{"FEB", {}}, {"TP", {}}, {"ART", {}}, {"L1DDC", {}}, {"ADDC", {}}, {"Router", {}}, {"PadTrigger", {}}, {"TP", {}}, {"TPCarrier", {}}};
+}
+
+std::set<std::string> nsw::oks::getAllDeviceNames(const nsw::DeviceMap& deviceMap) {
+  std::set<std::string> devices;
+  for (const auto& [type, map] : deviceMap) {
+    std::transform(std::cbegin(map), std::cend(map), std::inserter(devices, std::end(devices)), [] (const auto& pair) { return pair.first; });
+  }
+  return devices;
 }

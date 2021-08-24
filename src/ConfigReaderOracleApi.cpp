@@ -88,9 +88,18 @@ std::string OracleApi::getConfigSet(const std::string& configuration) {
   return configuration.substr(configuration.find('|') + 1);
 }
 
-boost::property_tree::ptree& OracleApi::read() {
-  return m_config;
+boost::property_tree::ptree& OracleApi::getConfig() {
+  return m_dummyTree;
 }
+
+const boost::property_tree::ptree& OracleApi::getConfig() const {
+  return m_dummyTree;
+}
+
+std::set<std::string> OracleApi::getAllElementNames() const {
+  return nsw::oks::getAllDeviceNames(m_devices);
+}
+
 
 std::set<std::string> OracleApi::getAllDeviceIds() const {
   const std::string_view id = "device_id";

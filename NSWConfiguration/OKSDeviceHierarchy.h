@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_OKSDEVICEHIERARCHY_H
 #define NSWCONFIGURATION_OKSDEVICEHIERARCHY_H
 
+#include <set>
 #include <vector>
 #include <string>
 
@@ -29,6 +30,14 @@ namespace nsw::oks {
    * \return DeviceMap Empty hierarchy struct
    */
   [[nodiscard]] DeviceMap initDeviceMap();
+
+  /**
+   * @brief Get all device names from a device map
+   * 
+   * @param deviceMap The device map
+   * @return std::set<std::string> Names of all devices
+   */
+  std::set<std::string> getAllDeviceNames(const DeviceMap& deviceMap);
 }  // namespace nsw::oks
 
 #endif

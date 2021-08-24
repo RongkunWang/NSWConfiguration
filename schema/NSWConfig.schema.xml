@@ -164,6 +164,7 @@
   <superclass name="ResourceBase"/>
   <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
 
+  <attribute name="ch00_DeviceID" description="The Oracle DB Device ID of the channel 00 pseudodevice" type="u64" is-not-null="yes"/>
   <attribute name="ch01_DeviceID" description="The Oracle DB Device ID of the channel 01 pseudodevice" type="u64" is-not-null="yes"/>
   <attribute name="ch02_DeviceID" description="The Oracle DB Device ID of the channel 02 pseudodevice" type="u64" is-not-null="yes"/>
   <attribute name="ch03_DeviceID" description="The Oracle DB Device ID of the channel 03 pseudodevice" type="u64" is-not-null="yes"/>
@@ -227,7 +228,26 @@
   <attribute name="ch61_DeviceID" description="The Oracle DB Device ID of the channel 61 pseudodevice" type="u64" is-not-null="yes"/>
   <attribute name="ch62_DeviceID" description="The Oracle DB Device ID of the channel 62 pseudodevice" type="u64" is-not-null="yes"/>
   <attribute name="ch63_DeviceID" description="The Oracle DB Device ID of the channel 63 pseudodevice" type="u64" is-not-null="yes"/>
-  <attribute name="ch64_DeviceID" description="The Oracle DB Device ID of the channel 64 pseudodevice" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_PadTrigger" description="NSW Pad Trigger chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_Router" description="NSW Router chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_TP" description="NSW Trigger Processor chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSW_TPCarrier" description="NSW Trigger Processor Carrier chip configuration">
+  <superclass name="ResourceBase"/>
+  <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
  </class>
 
 </oks-schema>

@@ -373,9 +373,23 @@ class OracleApi : public ConfigReaderApi {
    * 
    * @return boost::property_tree::ptree& TODO
    */
-  boost::property_tree::ptree& read() override;
+  boost::property_tree::ptree& getConfig() override;
+  const boost::property_tree::ptree& getConfig() const override;
+
+  boost::property_tree::ptree readL1DDC(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const override { return {}; };
+  boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readRouter(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readTP(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readTPCarrier(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readFEB(
+      const std::string& element, size_t nvmm, size_t ntds,
+      size_t vmm_start = 0, size_t tds_start = 0) const override { return {}; };
+
+  std::set<std::string> getAllElementNames() const override;
 
   private:
+  boost::property_tree::ptree m_dummyTree{};  ///< Empty ptree for JsonApi compatibility
   std::string     m_db_user_name{"admin"};  ///< Name of the DB user
   std::string     m_db_password{"mysecurepassword123!"};  ///< Password of the DB user
   std::string     m_db_connection;  ///< Oracle DB connection string
