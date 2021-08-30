@@ -178,7 +178,8 @@ tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMa
 
 tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
   NOINSTALL
-  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 ### Tests
 set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)

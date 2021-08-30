@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_CONFIGTRANSLATIONMAP_H
 #define NSWCONFIGURATION_CONFIGTRANSLATIONMAP_H
 
+#include "extern/fmt/include/fmt/core.h"
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -34,9 +35,11 @@ using TranslationMap = std::map<std::string, std::vector<TranslationUnit<Registe
 
 using TranslationUnitRoc = TranslationUnit<std::uint32_t>;
 using TranslationUnitTds = TranslationUnit<__uint128_t>;
+using TranslationUnitArt = TranslationUnit<std::uint32_t>;
 
 using TranslationMapRoc = std::map<std::string, std::vector<TranslationUnitRoc>>;
 using TranslationMapTds = std::map<std::string, std::vector<TranslationUnitTds>>;
+using TranslationMapArt = std::map<std::string, std::vector<TranslationUnitArt>>;
 
 static const TranslationMapRoc TRANSLATION_MAP_ROC_ANALOG = {
     {"ePllVmm0.ePllPhase40MHz_0", {
@@ -893,5 +896,266 @@ static const TranslationMapTds TRANSLATION_MAP_TDS = [] () {
     }
     return table;
 }();
+
+static const auto TRANSLATION_MAP_ART_PS = [] () -> TranslationMapArt {
+    const auto get = [](const int number) -> TranslationMapArt {
+        const auto nRegsPerBlock = 15;
+        const auto nFirstRxOff = 62;
+        const auto nFirstRxTermEnable = 66;
+        return {
+            {fmt::format("{:02}.dllLockedV", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllLockedV", nRegsPerBlock * number + 0), 0b1000'0000}
+            }},
+            {fmt::format("{:02}.reserved", number), {
+                TranslationUnitRoc{fmt::format("{:02}.reserved", nRegsPerBlock * number + 0), 0b0100'0000}
+            }},
+            {fmt::format("{:02}.dllLockCfg", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllLockCfg", nRegsPerBlock * number + 0), 0b0011'0000}
+            }},
+            {fmt::format("{:02}.muxEn2to8", number), {
+                TranslationUnitRoc{fmt::format("{:02}.muxEn2to8", nRegsPerBlock * number + 0), 0b0000'1000}
+            }},
+            {fmt::format("{:02}.muzEn1to8", number), {
+                TranslationUnitRoc{fmt::format("{:02}.muzEn1to8", nRegsPerBlock * number + 0), 0b0000'0100}
+            }},
+            {fmt::format("{:02}.dllCoarseLockDetection", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllCoarseLockDetection", nRegsPerBlock * number + 0), 0b0000'0010}
+            }},
+            {fmt::format("{:02}.dllResetFromCfg", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllResetFromCfg", nRegsPerBlock * number + 0), 0b0000'0001}
+            }},
+            {fmt::format("{:02}.dataRateDll", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dataRateDll", nRegsPerBlock * number + 1), 0b1100'0000}
+            }},
+            {fmt::format("{:02}.dllConfirmCountSelect", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllConfirmCountSelect", nRegsPerBlock * number + 1), 0b0011'0000}
+            }},
+            {fmt::format("{:02}.dllChargePumpCurrent", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dllChargePumpCurrent", nRegsPerBlock * number + 1), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.enableGroup", number), {
+                TranslationUnitRoc{fmt::format("{:02}.enableGroup", nRegsPerBlock * number + 2), 0b1000'0000}
+            }},
+            {fmt::format("{:02}.outRegEn", number), {
+                TranslationUnitRoc{fmt::format("{:02}.outRegEn", nRegsPerBlock * number + 2), 0b0100'0000}
+            }},
+            {fmt::format("{:02}.dataRate", number), {
+                TranslationUnitRoc{fmt::format("{:02}.dataRate", nRegsPerBlock * number + 2), 0b0011'0000}
+            }},
+            {fmt::format("{:02}.sampleClockSel", number), {
+                TranslationUnitRoc{fmt::format("{:02}.sampleClockSel", nRegsPerBlock * number + 2), 0b0000'1100}
+            }},
+            {fmt::format("{:02}.trackMode", number), {
+                TranslationUnitRoc{fmt::format("{:02}.trackMode", nRegsPerBlock * number + 2), 0b0000'0011}
+            }},
+            {fmt::format("{:02}.enableChannel", number), {
+                TranslationUnitRoc{fmt::format("{:02}.enableChannel", nRegsPerBlock * number + 3)}
+            }},
+            {fmt::format("{:02}.resetChannel", number), {
+                TranslationUnitRoc{fmt::format("{:02}.resetChannel", nRegsPerBlock * number + 4)}
+            }},
+            {fmt::format("{:02}.trainChannel", number), {
+                TranslationUnitRoc{fmt::format("{:02}.trainChannel", nRegsPerBlock * number + 5)}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel0input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel0input", nRegsPerBlock * number + 6), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel1input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel1input", nRegsPerBlock * number + 6), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel2input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel2input", nRegsPerBlock * number + 7), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel3input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel3input", nRegsPerBlock * number + 7), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel4input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel4input", nRegsPerBlock * number + 8), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel5input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel5input", nRegsPerBlock * number + 8), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel6input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel6input", nRegsPerBlock * number + 9), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel7input", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel7input", nRegsPerBlock * number + 9), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel0output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel0output", nRegsPerBlock * number + 10), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel1output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel1output", nRegsPerBlock * number + 10), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel2output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel0output", nRegsPerBlock * number + 11), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel3output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel1output", nRegsPerBlock * number + 11), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel4output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel0output", nRegsPerBlock * number + 12), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel5output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel1output", nRegsPerBlock * number + 12), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel6output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel0output", nRegsPerBlock * number + 13), 0b0000'1111}
+            }},
+            {fmt::format("{:02}.phaseSelectChannel7output", number), {
+                TranslationUnitRoc{fmt::format("{:02}.phaseSelectChannel1output", nRegsPerBlock * number + 13), 0b1111'0000}
+            }},
+            {fmt::format("{:02}.rxOff", number), {
+                TranslationUnitRoc{fmt::format("{:02}.rxOff", nFirstRxOff + number)}
+            }},
+            {fmt::format("{:02}.rxTermEnable", number), {
+                TranslationUnitRoc{fmt::format("{:02}.rxTermEnable", nFirstRxTermEnable + number)}
+            }},
+        };
+    };
+    TranslationMapArt table{};
+    for (auto i=0; i<4; i++) {
+        table.merge(get(i));
+    }
+    return table;
+}();
+
+static const TranslationMapArt TRANSLATION_MAP_ART_CORE = {
+    {"c_disable_arthist", {
+        TranslationUnitRoc{"00.c_disable_arthist", 0b1000'0000}
+    }},
+    {"c_bypass_pa", {
+        TranslationUnitRoc{"00.c_bypass_pa", 0b0100'0000}
+    }},
+    {"rxterm", {
+        TranslationUnitRoc{"00.rxterm", 0b0011'0000}
+    }},
+    {"txcset", {
+        TranslationUnitRoc{"00.txcset", 0b0000'1111}
+    }},
+    {"cfg_dout_time2", {
+        TranslationUnitRoc{"01.cfg_dout_time2", 0b1000'0000}
+    }},
+    {"cfg_bcr_sel", {
+        TranslationUnitRoc{"01.cfg_bcr_sel", 0b0100'0000}
+    }},
+    {"cfg_bcrout_sel", {
+        TranslationUnitRoc{"01.cfg_bcrout_sel", 0b0010'0000}
+    }},
+    {"cfg_art_revall", {
+        TranslationUnitRoc{"01.cfg_art_revall", 0b0001'0000}
+    }},
+    {"cfg_art_revbank", {
+        TranslationUnitRoc{"01.cfg_art_revbank", 0b0000'1111}
+    }},
+    {"cfg_dout_pattern", {
+        TranslationUnitRoc{"02.cfg_dout_pattern", 0b1000'0000}
+    }},
+    {"cfg_dout_artbypass", {
+        TranslationUnitRoc{"02.cfg_dout_artbypass", 0b0100'0000}
+    }},
+    {"cfg_dout_hitlist", {
+        TranslationUnitRoc{"02.cfg_dout_hitlist", 0b0010'0000}
+    }},
+    {"cfg_dout_artflags", {
+        TranslationUnitRoc{"02.cfg_dout_artflags", 0b0001'0000}
+    }},
+    {"cfg_dout_time", {
+        TranslationUnitRoc{"02.cfg_dout_time", 0b0000'1000}
+    }},
+    {"cfg_artmask", {
+        TranslationUnitRoc{"02.cfg_artmask", 0b0000'0111}
+    }},
+    {"cfg_deser_flagmask", {
+        TranslationUnitRoc{"03.cfg_deser_flagmask"}
+    }},
+    {"cfg_deser_flagpatt", {
+        TranslationUnitRoc{"04.cfg_deser_flagpatt"}
+    }},
+    {"cfg_din_invert", {
+        TranslationUnitRoc{"05.cfg_din_invert[7:0]", 0b1111'1111, 0x0000'00FF},
+        TranslationUnitRoc{"06.cfg_din_invert[15:8]", 0b1111'1111, 0x0000'FF00},
+        TranslationUnitRoc{"07.cfg_din_invert[23:16]", 0b1111'1111, 0x00FF'0000},
+        TranslationUnitRoc{"08.cfg_din_invert[31:24]", 0b1111'1111, 0xFF00'0000}
+    }},
+    {"cfg_din_mask", {
+        TranslationUnitRoc{"09.cfg_din_mask[7:0]", 0b1111'1111, 0x0000'00FF},
+        TranslationUnitRoc{"10.cfg_din_mask[7:0]", 0b1111'1111, 0x0000'FF00},
+        TranslationUnitRoc{"11.cfg_din_mask[7:0]", 0b1111'1111, 0x00FF'0000},
+        TranslationUnitRoc{"12.cfg_din_mask[7:0]", 0b1111'1111, 0xFF00'0000}
+    }},
+    {"cfg_bcid0", {
+        TranslationUnitRoc{"13.cfg_bcid0[7:0]", 0b1111'1111, 0x0000'00FF},
+        TranslationUnitRoc{"14.cfg_bcid0[11:8]", 0b0000'1111, 0x0000'0F00}
+    }},
+    {"cfg_bcid1", {
+        TranslationUnitRoc{"14.cfg_bcid1[3:0]", 0b1111'0000, 0x0000'000F},
+        TranslationUnitRoc{"15.cfg_bcid1[11:4]", 0b1111'1111, 0x0000'0FF0}
+    }},
+    {"cfg_artbypass_sel_ch0", {
+        TranslationUnitRoc{"16.cfg_artbypass_sel_ch0[4:0]", 0b0001'1111}
+    }},
+    {"cfg_artbypass_sel_ch1", {
+        TranslationUnitRoc{"16.cfg_artbypass_sel_ch1[2:0]", 0b1110'0000},
+        TranslationUnitRoc{"17.cfg_artbypass_sel_ch1[4:3]", 0b0000'0011}
+    }},
+    {"cfg_artbypass_sel_ch2", {
+        TranslationUnitRoc{"17.cfg_artbypass_sel_ch2[4:0]", 0b0111'1100}
+    }},
+    {"cfg_artbypass_sel_ch3", {
+        TranslationUnitRoc{"17.cfg_artbypass_sel_ch3[0]", 0b1000'0000},
+        TranslationUnitRoc{"18.cfg_artbypass_sel_ch3[4:1]", 0b0000'1111}
+    }},
+    {"cfg_artbypass_sel_ch4", {
+        TranslationUnitRoc{"18.cfg_artbypass_sel_ch4[3:0]", 0b1111'0000},
+        TranslationUnitRoc{"19.cfg_artbypass_sel_ch4[4]", 0b0000'0001}
+    }},
+    {"cfg_artbypass_sel_ch5", {
+        TranslationUnitRoc{"19.cfg_artbypass_sel_ch5[4:0]", 0b0011'1110}
+    }},
+    {"cfg_artbypass_sel_ch6", {
+        TranslationUnitRoc{"19.cfg_artbypass_sel_ch6[1:0]", 0b1100'0000},
+        TranslationUnitRoc{"20.cfg_artbypass_sel_ch6[4:2]", 0b0000'0111}
+    }},
+    {"cfg_artbypass_sel_ch7", {
+        TranslationUnitRoc{"20.cfg_artbypass_sel_ch7[4:0]", 0b1111'1000}
+    }},
+    {"cfg_pattern_data_phi0", {
+        TranslationUnitRoc{"21.cfg_pattern_data_phi0[7:0]"},
+        TranslationUnitRoc{"22.cfg_pattern_data_phi0[13:8]", 0b0011'1111}
+    }},
+    {"cfg_pattern_data_phi1", {
+        TranslationUnitRoc{"22.cfg_pattern_data_phi1[1:0]", 0b1100'0000},
+        TranslationUnitRoc{"23.cfg_pattern_data_phi1[9:2]"},
+        TranslationUnitRoc{"24.cfg_pattern_data_phi1[13:10]", 0b0000'1111}
+    }},
+    {"cfg_pattern_data_phi2", {
+        TranslationUnitRoc{"24.cfg_pattern_data_phi2[3:0]", 0b1111'0000},
+        TranslationUnitRoc{"25.cfg_pattern_data_phi2[11:4]"},
+        TranslationUnitRoc{"26.cfg_pattern_data_phi2[13:12]", 0b0000'0011}
+    }},
+    {"cfg_pattern_data_phi3", {
+        TranslationUnitRoc{"26.cfg_pattern_data_phi3[5:0]", 0b1111'1100},
+        TranslationUnitRoc{"27.cfg_pattern_data_phi3[13:6]"}
+    }},
+    {"cfg_pattern_data_phi4", {
+        TranslationUnitRoc{"21.cfg_pattern_data_phi4[7:0]"},
+        TranslationUnitRoc{"22.cfg_pattern_data_phi4[13:8]", 0b0011'1111}
+    }},
+    {"cfg_pattern_data_phi5", {
+        TranslationUnitRoc{"22.cfg_pattern_data_phi5[1:0]", 0b1100'0000},
+        TranslationUnitRoc{"23.cfg_pattern_data_phi5[9:2]"},
+        TranslationUnitRoc{"24.cfg_pattern_data_phi5[13:10]", 0b0000'1111}
+    }},
+    {"cfg_pattern_data_phi6", {
+        TranslationUnitRoc{"24.cfg_pattern_data_phi6[3:0]", 0b1111'0000},
+        TranslationUnitRoc{"25.cfg_pattern_data_phi6[11:4]"},
+        TranslationUnitRoc{"26.cfg_pattern_data_phi6[13:12]", 0b0000'0011}
+    }},
+    {"cfg_pattern_data_phi7", {
+        TranslationUnitRoc{"26.cfg_pattern_data_phi7[5:0]", 0b1111'1100},
+        TranslationUnitRoc{"27.cfg_pattern_data_phi7[13:6]"}
+    }},
+};
 
 #endif

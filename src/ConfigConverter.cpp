@@ -16,6 +16,8 @@ const std::map<ConfigConversionType, i2c::AddressRegisterMap>
     {ConfigConversionType::ROC_DIGITAL, ROC_DIGITAL_REGISTERS},
     {ConfigConversionType::ROC_ANALOG, ROC_ANALOG_REGISTERS},
     {ConfigConversionType::TDS, TDS_REGISTERS},
+    {ConfigConversionType::ART, ART_CORE_REGISTERS},
+    {ConfigConversionType::ART_PS, ART_PS_REGISTERS},
 };
 
 template<ConfigConversionType DeviceType>
@@ -51,6 +53,46 @@ ConfigConverter<DeviceType>::ConfigConverter(const ptree &t_config, const Config
 template<>
 ConfigConverter<ConfigConversionType::TDS>::ConfigConverter(const ptree &t_config, const ConfigType t_type) :
     m_translationMap(TRANSLATION_MAP_TDS),
+   m_registerTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::REGISTER_BASED)
+       {
+           return t_config;
+       }
+       return convertValueToSubRegister(t_config);
+   }()),
+   m_valueTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::VALUE_BASED)
+       {
+           return t_config;
+       }
+       return convertSubRegisterToValue(t_config);
+   }())
+{
+}
+
+template<>
+ConfigConverter<ConfigConversionType::ART>::ConfigConverter(const ptree &t_config, const ConfigType t_type) :
+    m_translationMap(TRANSLATION_MAP_ART_CORE),
+   m_registerTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::REGISTER_BASED)
+       {
+           return t_config;
+       }
+       return convertValueToSubRegister(t_config);
+   }()),
+   m_valueTree([this, t_type, &t_config]() {
+       if (t_type == ConfigType::VALUE_BASED)
+       {
+           return t_config;
+       }
+       return convertSubRegisterToValue(t_config);
+   }())
+{
+}
+
+template<>
+ConfigConverter<ConfigConversionType::ART_PS>::ConfigConverter(const ptree &t_config, const ConfigType t_type) :
+    m_translationMap(TRANSLATION_MAP_ART_PS),
    m_registerTree([this, t_type, &t_config]() {
        if (t_type == ConfigType::REGISTER_BASED)
        {
@@ -289,5 +331,7 @@ translationMapIntType_t<ConfigConversionType::TDS> ConfigConverter<ConfigConvers
 template class ConfigConverter<ConfigConversionType::ROC_ANALOG>;
 template class ConfigConverter<ConfigConversionType::ROC_DIGITAL>;
 template class ConfigConverter<ConfigConversionType::TDS>;
+template class ConfigConverter<ConfigConversionType::ART>;
+template class ConfigConverter<ConfigConversionType::ART_PS>;
 
 } // namespace nsw

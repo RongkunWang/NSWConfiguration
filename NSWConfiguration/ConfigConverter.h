@@ -17,7 +17,7 @@
 namespace nsw {
 /** \brief Used to infer the conversion map
  */
-enum class ConfigConversionType { ROC_ANALOG, ROC_DIGITAL, TDS, VMM };
+enum class ConfigConversionType { ROC_ANALOG, ROC_DIGITAL, TDS, VMM, ART, ART_PS };
 
 /** \brief Type of configuration
  */
@@ -59,6 +59,24 @@ struct translationMapTypeSelector<ConfigConversionType::ROC_ANALOG> {
 template<>
 struct translationMapTypeSelector<ConfigConversionType::ROC_DIGITAL> {
   using mapType = TranslationMapRoc;
+  using intType = std::uint32_t;
+};
+
+/**
+ * \brief ART 8 bit registers
+ */
+template<>
+struct translationMapTypeSelector<ConfigConversionType::ART> {
+  using mapType = TranslationMapArt;
+  using intType = std::uint32_t;
+};
+
+/**
+ * \brief ART 8 bit registers
+ */
+template<>
+struct translationMapTypeSelector<ConfigConversionType::ART_PS> {
+  using mapType = TranslationMapArt;
   using intType = std::uint32_t;
 };
 
