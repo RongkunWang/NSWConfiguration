@@ -366,3 +366,41 @@ void OracleApi::postprocessVmmTrees(nsw::DeviceMap& deviceTrees) {
     }
   }
 }
+
+boost::property_tree::ptree OracleApi::readL1DDC(const std::string& element) const {
+  return m_config.at("L1DDC").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readADDC(const std::string& element, size_t nart) const
+{
+  return m_config.at("ADDC").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readPadTriggerSCA(const std::string& element) const
+{
+  return m_config.at("PadTrigger").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readRouter(const std::string& element) const
+{
+  return m_config.at("Router").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readTP(const std::string& element) const
+{
+  return m_config.at("TP").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readTPCarrier(const std::string& element) const
+{
+  return m_config.at("TPCarrier").at(element);
+}
+
+boost::property_tree::ptree OracleApi::readFEB(const std::string& element,
+                                               [[maybe_unused]] size_t nvmm,
+                                               [[maybe_unused]] size_t ntds,
+                                               [[maybe_unused]] size_t vmm_start,
+                                               [[maybe_unused]] size_t tds_start) const
+{
+  return m_config.at("FEB").at(element);
+};

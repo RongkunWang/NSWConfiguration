@@ -376,15 +376,15 @@ class OracleApi : public ConfigReaderApi {
   boost::property_tree::ptree& getConfig() override;
   const boost::property_tree::ptree& getConfig() const override;
 
-  boost::property_tree::ptree readL1DDC(const std::string& element) const override { return {}; };
-  boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const override { return {}; };
-  boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const override { return {}; };
-  boost::property_tree::ptree readRouter(const std::string& element) const override { return {}; };
-  boost::property_tree::ptree readTP(const std::string& element) const override { return {}; };
-  boost::property_tree::ptree readTPCarrier(const std::string& element) const override { return {}; };
+  boost::property_tree::ptree readL1DDC(const std::string& element) const override;
+  boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const override;
+  boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const override;
+  boost::property_tree::ptree readRouter(const std::string& element) const override;
+  boost::property_tree::ptree readTP(const std::string& element) const override;
+  boost::property_tree::ptree readTPCarrier(const std::string& element) const override;
   boost::property_tree::ptree readFEB(
-      const std::string& element, size_t nvmm, size_t ntds,
-      size_t vmm_start = 0, size_t tds_start = 0) const override { return {}; };
+      const std::string& element, [[maybe_unused]] size_t nvmm, [[maybe_unused]] size_t ntds,
+      [[maybe_unused]] size_t vmm_start = 0, [[maybe_unused]] size_t tds_start = 0) const override;
 
   std::set<std::string> getAllElementNames() const override;
 
@@ -395,6 +395,7 @@ class OracleApi : public ConfigReaderApi {
   std::string     m_db_connection;  ///< Oracle DB connection string
   std::string     m_config_set;  ///< Name of the config set
   nsw::DeviceMap  m_devices;  ///< Devices to be configured
+  nsw::DeviceMap  m_config;  ///< Ptrees
   // std::set<std::string>                  m_deviceIds;
   // std::string                            m_devicesPlaceholderString;
   OcciEnv m_occi_env;  ///< OCCI environment
