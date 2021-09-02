@@ -29,7 +29,7 @@ class ConfigReader {
   explicit ConfigReader(const std::string& connection_string, const DeviceMap& devices);
 
   boost::property_tree::ptree readConfig() {
-    return m_api->read();
+    return m_api->getConfig();
     // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
     // TODO(cyildiz): if (!m_components.empty()) Get Only relevant components config
   }

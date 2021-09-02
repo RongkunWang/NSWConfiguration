@@ -52,6 +52,14 @@ class NSWConfig {
         auto conf = Configuration("");
         [[maybe_unused]] const auto val = nsw::oks::parseDeviceMap(
           deviceHierarchy, nswApp->get_Contains(), nswApp->class_name(), daq::core::get_partition(conf, ""));
+        if (nswApp->get_Contains().empty()) {
+          if (m_dbcon.find(".json") != std::string::npos) {
+            ERS_INFO("NSWConfig application is empty. Configure everything in JSON.");
+          } else {
+            ers::warning(NSWConfigIssue(ERS_HERE, "NSWConfig application is empty. Nothing will be configured."));
+          }
+          deviceHierarchy = {};
+        }
         ERS_INFO("DB Configuration: " << m_dbcon);
         ERS_INFO("Reset VMM: "   << m_resetvmm);
         ERS_INFO("Reset TDS: "   << m_resettds);
@@ -63,7 +71,7 @@ class NSWConfig {
           ers::fatal(issue);
       }
 
-      m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon);
+      m_reader  = std::make_unique<nsw::ConfigReader>(m_dbcon, deviceHierarchy);
       m_sender  = std::make_unique<nsw::ConfigSender>();
       m_threads = std::make_unique<std::vector<std::future<void> > >();
 

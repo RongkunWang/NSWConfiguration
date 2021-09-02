@@ -105,6 +105,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_ALTI)
 endforeach()
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
+                 src/ConfigReaderJsonApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
                  src/SCAConfig.cpp
                  src/I2cMasterConfig.cpp

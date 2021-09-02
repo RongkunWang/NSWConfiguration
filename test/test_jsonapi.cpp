@@ -12,6 +12,7 @@
 #include "boost/property_tree/json_parser.hpp"
 
 #include "NSWConfiguration/ConfigReaderApi.h"
+#include "NSWConfiguration/ConfigReaderJsonApi.h"
 
 BOOST_AUTO_TEST_CASE(GetAllElementNames_FullConfigTree_ReturnsAllElements) {
     const std::string file_path = "test_jsonapi.json";
