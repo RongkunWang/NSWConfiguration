@@ -7,7 +7,9 @@
 #include <fstream>
 #include <bitset>
 
-#include "ers/ers.h"
+#include <fmt/core.h>
+
+#include <ers/ers.h>
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/Constants.h"
@@ -37,7 +39,7 @@ nsw::OpcClient::OpcClient(const std::string& server_ip_port): m_server_ipport(se
             opc_connection.c_str(),
             m_sessionConnectInfo,
             m_security,
-            new MyCallBack ());
+            nullptr);
 
     if (status.isBad()) {  // Can't establish initial connection with Opc Server
         nsw::OpcConnectionIssue issue(ERS_HERE, m_server_ipport, status.toString().toUtf8());
@@ -343,20 +345,20 @@ bool nsw::OpcClient::readScaOnline(const std::string& node) const {
 void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string& bitfile_path) const {
     UaoClientForOpcUaSca::XilinxFpga fpga(m_session.get(), UaNodeId(node.c_str(), 2));
 
-    // Read file content and convert to UaByteString
-    std::vector<uint8_t> bytes;
-    UaByteString bs;
-
     // Open file in binary mode and immediately go to end
     std::ifstream input(bitfile_path, std::ios::binary| std::ios::ate);
 
     if (input.is_open()) {
         auto size = input.tellg();  // Current position, which is end of file
         ERS_DEBUG(4, "File size in bytes: " << size);
-        std::unique_ptr<char[]> bytes(new char[size]);
+        auto bytes = std::make_unique<char[]>(size);
         input.seekg(0, std::ios::beg);  // Go to beginning of file
         input.read(bytes.get(), size);  // Read the whole file into memory block
         input.close();
+
+        // Convert to UaByteString
+        UaByteString bs;
+        // FIXME: unnecessary cast?
         bs.setByteString(size, reinterpret_cast<uint8_t*>(bytes.get()));
         ERS_DEBUG(4, "Node: " << node << ", Data size: " << size
                   << ", data[0]: " << static_cast<unsigned>(bytes.get()[0]));
@@ -365,14 +367,17 @@ void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string&
             fpga.program(bs);
         } catch (const std::exception& e) {
             // TODO(cyildiz) handle exception properly
-            std::cout << "Can't program FPGA: " << e.what() << std::endl;
+            nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't program FPGA: {}", e.what()));
+            ers::warning(issue);
+            // throw issue;
         }
     } else {  // File doesn't exist?
       // TODO(cyildiz) handle exception properly
-      std::cout << "Can't open bitfile: " << bitfile_path << std::endl;
+      nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't open bitfile: {}", bitfile_path));
+      ers::warning(issue);
+      // throw issue;
     }
 }
 
 
 // TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
-

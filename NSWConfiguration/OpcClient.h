@@ -35,6 +35,12 @@ ERS_DECLARE_ISSUE(nsw,
                   ((std::string) message)  // Describe the problem or forward the message that comes from downstream
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+                  OpcClientIssue,
+                  "OpcClient isue encountered: " << message,
+                  ((std::string) message)  // Describe the problem or forward the message that comes from downstream
+                  )
+
 namespace nsw::gpio::roc {
   enum class ROCGPIOPins {
   };
