@@ -195,10 +195,12 @@ endforeach()
 tdaq_add_library(nswopcclient
     src/OpcClient.cpp
   LINK_LIBRARIES
-    tdaq-common::ers
-    UaoClient::UaoClientForOpcUaSca
-    Open62541Compat::open62541-compat
-    rt
+      tdaq-common::ers
+      UaoClient::UaoClientForOpcUaSca
+      Open62541Compat::open62541-compat
+      rt
+    PRIVATE
+      $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
 if(IPO_SUPPORTED)
