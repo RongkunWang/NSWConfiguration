@@ -6,6 +6,8 @@ variables:
   ARTIFACTS_DIR: ${CI_PROJECT_DIR}/artifacts
   CMAKE_DIR: ${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE}/ci-build
   BUILD_TYPE: Debug
+  FELIX_RELEASE_BASE: /cvmfs/atlas-online-nightlies.cern.ch/felix/releases
+  FELIX_RELEASE: felix-04-01-01-stand-alone
 
 .build_setup: &build_setup |-
   git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.cern.ch/atlas-muon-nsw-daq/nsw-build-scripts.git ${CMAKE_DIR}
@@ -17,6 +19,8 @@ variables:
 
 .cmake_prep: &cmake_prep |-
   pushd ${CMAKE_DIR}
+  git describe --abbrev=4 --dirty --always --tags
+  git rev-parse --abbrev-ref HEAD
   cp -rfp CMakeLists.txt.in CMakeLists.txt
   ln -sf ../${CI_PROJECT_NAME} .
   export TDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}')
@@ -40,6 +44,7 @@ variables:
               -DENABLE_NSW_ASAN=ON \
               -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
               -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+              -DFELIX_DIR=${FELIX_RELEASE_BASE}/${FELIX_RELEASE} \
               ${CMAKE_JOB_OPTIONS}
     - cmake --build ${TDAQ_RELEASE} -- ${MAKE_OPTIONS}
     - cmake --build ${TDAQ_RELEASE} --target install
@@ -72,6 +77,7 @@ build:stable:
   parallel:
     matrix:
       - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
+        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
 
 ## Unstable TDAQ releases, allowed to fail
 build:legacy:
@@ -98,6 +104,7 @@ build:nightly:
   script:
     - unset PYTHONPATH
     - unset PYTHONHOME
+    - export LD_LIBRARY_PATH=${FELIX_RELEASE_BASE}/${FELIX_RELEASE}/${COMPILER_PROFILE}/lib:${LD_LIBRARY_PATH}
     - export LD_LIBRARY_PATH=${INSTALL_DIR}/${COMPILER_PROFILE}/lib:${LD_LIBRARY_PATH}
     - /usr/bin/python3 ./test/run_unit_tests.py -d ${TESTS_BIN_DIR}/ -o junit.xml
   artifacts:
@@ -115,7 +122,9 @@ test:stable:
     - build:stable
   parallel:
     matrix:
-      - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
+      # - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
+      - COMPILER_PROFILE: x86_64-centos7-gcc8-opt
+        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
 
 ## Unstable TDAQ releases, allowed to fail
 test:legacy:
