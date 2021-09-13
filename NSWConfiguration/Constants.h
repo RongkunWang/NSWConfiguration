@@ -9,6 +9,7 @@
 #include <string>
 #include <array>
 #include <chrono>
+#include <map>
 
 namespace nsw {
   /// Fool me once
@@ -162,6 +163,9 @@ namespace nsw {
     constexpr std::uint32_t RJOUT_SEL_STGC = 0x00;
     constexpr std::uint32_t RJOUT_SEL_MM   = 0x01;
     constexpr std::uint8_t REG_RJOUT_SEL = 0x01;
+    const std::map<std::string, uint32_t> REGS = {
+      {"RJOUT_SEL", 0x01},
+    };
   }
 
   namespace mmtp {
