@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/TPCarrierConfig.h"
+#include "NSWConfiguration/hw/TPCarrier.h"
 
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
@@ -59,15 +59,15 @@ int main(int ac, const char *av[]) {
   //
   // send config
   //
-  nsw::ConfigSender cs;
-  for (const auto& carrier: carriers) {
+  for (const auto& carrier_cfg: carriers) {
+    nsw::hw::TPCarrier carrier_hw(carrier_cfg);
     std::cout << std::endl;
-    std::cout << "  " << carrier.getOpcServerIp()
-              << ", " << carrier.getAddress()
-              << ": RJOutSel = " << carrier.RJOutSel() << std::endl;
+    std::cout << "  " << carrier_cfg.getOpcServerIp()
+              << ", " << carrier_cfg.getAddress()
+              << ": RJOutSel = " << carrier_cfg.RJOutSel() << std::endl;
     std::cout << std::endl;
     if (!simulation) {
-      cs.sendTPCarrierConfig(carrier);
+      carrier_hw.writeConfiguration();
     }
   }
 

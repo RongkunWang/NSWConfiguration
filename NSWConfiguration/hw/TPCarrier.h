@@ -32,7 +32,8 @@ namespace nsw::hw {
      *
      * \returns a map of address to register value
      */
-    [[nodiscard]] std::map<std::uint8_t, std::vector<std::uint32_t>> readConfiguration() const;
+    [[nodiscard]]
+    std::map<std::uint8_t, std::uint32_t> readConfiguration() const;
 
     /**
      * \brief Write the full TPCarrier configuration
@@ -45,24 +46,26 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister([[maybe_unused]] std::uint8_t regAddress,
-                       [[maybe_unused]] std::uint32_t value) const;
+    void writeRegister(const std::uint8_t regAddress,
+                       const std::uint32_t value) const;
 
     /**
      * \brief Read an individual TPCarrier register by its address
      *
      * \param regAddress is the address of the register
      */
-    [[nodiscard]] std::vector<std::uint8_t> readRegister(
-      [[maybe_unused]] std::uint8_t regAddress) const;
+    [[nodiscard]]
+    std::uint32_t readRegister(const std::uint8_t regAddress) const;
 
     /**
      * \brief Get the \ref TPCarrierConfig object associated with this TPCarrier object
      *
      * Both const and non-const overloads are provided
      */
-    [[nodiscard]] TPCarrierConfig& getConfig() { return m_config; }
-    [[nodiscard]] const TPCarrierConfig& getConfig() const { return m_config; }  //!< \overload
+    [[nodiscard]]
+    TPCarrierConfig& getConfig() { return m_config; }
+    [[nodiscard]]
+    const TPCarrierConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
     TPCarrierConfig m_config;   //!< TPCarrierConfig object associated with this TPCarrier

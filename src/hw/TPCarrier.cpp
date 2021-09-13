@@ -1,4 +1,8 @@
 #include "NSWConfiguration/hw/TPCarrier.h"
+#include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/SCAInterface.h"
+#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/Utility.h"
 
 #include <stdexcept>
 
@@ -8,22 +12,43 @@ nsw::hw::TPCarrier::TPCarrier(const TPCarrierConfig& config) :
 
 void nsw::hw::TPCarrier::writeConfiguration() const
 {
-  throw std::logic_error("Not implemented");
+  const auto& regs = nsw::carrier::REGS;
+  writeRegister(regs.at("RJOUT_SEL"), m_config.RJOutSel());
 }
 
-std::map<std::uint8_t, std::vector<std::uint32_t>> nsw::hw::TPCarrier::readConfiguration() const
+std::map<std::uint8_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() const
 {
-  throw std::logic_error("Not implemented");
+  std::map<std::uint8_t, std::uint32_t> result;
+  for (const auto& [name, reg]: nsw::carrier::REGS) {
+    result.emplace(reg, readRegister(reg));
+  }
+  return result;
 }
 
-void nsw::hw::TPCarrier::writeRegister([[maybe_unused]] const std::uint8_t regAddress,
-                                       [[maybe_unused]] const std::uint32_t value) const
+void nsw::hw::TPCarrier::writeRegister(const std::uint8_t regAddress,
+                                       const std::uint32_t value) const
 {
-  throw std::logic_error("Not implemented");
+  ERS_LOG("Writing address, message =  " << static_cast<uint32_t>(regAddress) << ", " << value << " to "
+          << m_opcserverIp << "/" << m_opcserverIp);
+  const auto addr = nsw::intToByteVector(regAddress, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+  const auto data = nsw::intToByteVector(value,      nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+
+  std::vector<uint8_t> payload;
+  payload.reserve(addr.size() + data.size());
+  payload.insert(std::end(payload), std::begin(addr), std::end(addr));
+  payload.insert(std::end(payload), std::begin(data), std::end(data));
+
+  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  nsw::hw::SCA::sendI2cRaw(opcConnection, m_scaAddress, payload.data(), payload.size());
 }
 
-std::vector<std::uint8_t> nsw::hw::TPCarrier::readRegister(
-  [[maybe_unused]] const std::uint8_t regAddress) const
+std::uint32_t nsw::hw::TPCarrier::readRegister(const std::uint8_t regAddress) const
 {
-  throw std::logic_error("Not implemented");
+  const auto addr = nsw::intToByteVector(regAddress, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
+
+  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto data = nsw::hw::SCA::readI2cAtAddress(opcConnection, m_scaAddress,
+                                                   addr.data(), addr.size(), nsw::NUM_BYTES_IN_WORD32);
+
+  return nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN);
 }

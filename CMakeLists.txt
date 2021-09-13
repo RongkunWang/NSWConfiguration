@@ -44,7 +44,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST)
   )
 endforeach()
 
-## Executables linked against nswconfig and Boost::program_options
+## Executables linked against nswconfig, nswhwinterface, and Boost::program_options
 set(NSWCONFIG_EXE_WITH_BOOST_PO
   configure_frontend
   read_sca_info
@@ -78,6 +78,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED
 foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
   tdaq_add_executable(${appsrc} app/${appsrc}.cpp
     LINK_LIBRARIES nswconfig
+    LINK_LIBRARIES nswhwinterface
     LINK_LIBRARIES Boost::program_options
   )
 endforeach()
