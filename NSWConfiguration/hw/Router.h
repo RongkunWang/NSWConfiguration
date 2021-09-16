@@ -2,6 +2,8 @@
 #define NSWCONFIGURATION_HW_ROUTER_H
 
 #include "NSWConfiguration/RouterConfig.h"
+#include "NSWConfiguration/Constants.h"
+#include <chrono>
 
 namespace nsw::hw {
   /**
@@ -21,22 +23,112 @@ namespace nsw::hw {
     explicit Router(const RouterConfig& config);
 
     /**
+     * \brief Send a value to a particular Router GPIO
+     */
+    void sendGPIO(const std::string& name, bool val) const;
+
+    /**
+     * \brief Read a value from a particular Router GPIO
+     */
+    bool readGPIO(const std::string& name) const;
+
+    /**
+     * \brief Read all Router GPIOs
+     */
+    std::map<std::string, bool> readConfiguration() const;
+
+    /**
      * \brief Write the full Router configuration
      */
     void writeConfiguration() const;
+
+    /**
+     * \brief Send a soft reset to the Router
+     */
+    void writeSoftReset(const std::chrono::seconds reset_hold  = nsw::router::RESET_HOLD,
+                        const std::chrono::seconds reset_sleep = nsw::router::RESET_SLEEP) const;
+
+    /**
+     * \brief Wait patiently for the status of Router GPIOs to be good
+     */
+    void writeWaitGPIO() const;
+
+    /**
+     * \brief Check the status of Router GPIOs
+     */
+    bool writeCheckGPIO() const;
+
+    /**
+     * \brief Configure the Router GPIOs which control the SCA ID
+     */
+    void writeSetSCAID() const;
 
     /**
      * \brief Get the \ref RouterConfig object associated with this Router object
      *
      * Both const and non-const overloads are provided
      */
-    [[nodiscard]] RouterConfig& getConfig() { return m_config; }
-    [[nodiscard]] const RouterConfig& getConfig() const { return m_config; }  //!< \overload
+    [[nodiscard]]
+    RouterConfig& getConfig() { return m_config; }
+    [[nodiscard]]
+    const RouterConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
     RouterConfig m_config;
     std::string m_opcserverIp;  //!< address and port of the Opc Server
     std::string m_scaAddress;   //!< SCA address of Router item in the Opc address space
+
+    static constexpr size_t m_num_gpios = 32;
+    static constexpr std::array<std::string_view, m_num_gpios> m_ordered_gpios = {
+      "fpgaConfigOK",
+      "routerId0",
+      "routerId1",
+      "routerId2",
+      "routerId3",
+      "routerId4",
+      "routerId5",
+      "routerId6",
+      "routerId7",
+      "mmcmBotLock",
+      "designNum0",
+      "designNum1",
+      "designNum2",
+      "fpgaInit",
+      "mmcmReset",
+      "softReset",
+      "rxClkReady",
+      "txClkReady",
+      "cpllTopLock",
+      "cpllBotLock",
+      "mmcmTopLock",
+      "semFatalError",
+      "semHeartBeat",
+      "debugEnable",
+      "notConnected",
+      "mtxRst",
+      "masterChannel0",
+      "masterChannel1",
+      "masterChannel2",
+      "ctrlMod0",
+      "ctrlMod1",
+      "multibootTrigger",
+    };
+
+    static constexpr size_t m_num_checks = 10;
+    static constexpr
+      std::array< std::pair<std::string_view, bool>, m_num_checks > m_gpio_checks = {{
+        {"fpgaConfigOK",   true},
+        {"mmcmBotLock",    true},
+        {"fpgaInit",       true},
+        {"rxClkReady",     true},
+        {"txClkReady",     true},
+        {"cpllTopLock",    true},
+        {"cpllBotLock",    true},
+        {"mmcmTopLock",    true},
+        {"semFatalError",  false},
+        {"masterChannel0", true},
+    }};
+
   };
 }  // namespace nsw::hw
 
