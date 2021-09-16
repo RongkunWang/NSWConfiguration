@@ -753,12 +753,14 @@ void nsw::ConfigSender::alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & ad
       }
     }
 
-    // skip on request
+    // skip fibers unless explicitly requested
+    auto skipped = std::bitset<nsw::mmtp::NUM_FIBERS>();
+    skipped.flip();
     for (const auto & addc : addcs) {
       for (const auto & art : addc.getARTs()) {
-        if (art.TP_GBTxAlignmentSkip()) {
+        if (!art.TP_GBTxAlignmentSkip()) {
           const auto fiber = art.TP_GBTxAlignmentBit();
-          aligned.at(fiber) = nsw::mmtp::FIBER_ALIGN_N_READS;
+          skipped.set(fiber, false);
         }
       }
     }
@@ -796,6 +798,9 @@ void nsw::ConfigSender::alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & ad
     uint32_t reset = 0;
     for (uint32_t qpll = 0; qpll < nsw::mmtp::NUM_QPLL; qpll++) {
       for (uint32_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
+        if (skipped.test(fiber)) {
+          continue;
+        }
         if (fiber / nsw::mmtp::NUM_FIBERS_PER_QPLL != qpll) {
           continue;
         }
