@@ -85,7 +85,7 @@ build:legacy:
   allow_failure: true
   parallel:
     matrix:
-      - TDAQ_RELEASE: tdaq-09-02-01
+      - TDAQ_RELEASE: [tdaq-09-02-01, tdaq-09-04-00]
 
 ## Nightly TDAQ releases, allowed to fail
 build:nightly:
@@ -93,6 +93,10 @@ build:nightly:
   allow_failure: true
   variables:
     TDAQ_RELEASE: tdaq-99-00-00
+  parallel:
+    matrix:
+      - COMPILER_PROFILE: [x86_64-centos7-gcc11-opt, x86_64-centos7-gcc8-opt]
+        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
 
 #### Unit test jobs #################################################################
 .test:
@@ -122,7 +126,6 @@ test:stable:
     - build:stable
   parallel:
     matrix:
-      # - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
       - COMPILER_PROFILE: x86_64-centos7-gcc8-opt
         FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
 
@@ -134,7 +137,7 @@ test:legacy:
     - build:legacy
   parallel:
     matrix:
-      - TDAQ_RELEASE: tdaq-09-02-01
+      - TDAQ_RELEASE: [tdaq-09-02-01, tdaq-09-04-00]
 
 ## Nightly TDAQ releases, allowed to fail
 test:nightly:
