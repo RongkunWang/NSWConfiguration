@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/hw/ROC.h"
 #include "NSWConfiguration/hw/TDS.h"
@@ -38,7 +39,9 @@ namespace nsw::hw {
           tdss.emplace_back(tds);
         }
         return tdss;
-      }())
+      }()),
+      m_firstVmm(config.getFirstVmmIndex()),
+      m_firstTds(config.getFirstTdsIndex())
     {}
 
     /**
@@ -57,8 +60,8 @@ namespace nsw::hw {
      * \param id Number of VMM
      */
     // clang-format off
-    [[nodiscard]] VMM& getVmm(const std::size_t id) { return m_vmms.at(id); }
-    [[nodiscard]] const VMM& getVmm(const std::size_t id) const { return m_vmms.at(id); }  //!< \overload
+    [[nodiscard]] VMM& getVmm(const std::size_t id) { return m_vmms.at(id - m_firstVmm); }
+    [[nodiscard]] const VMM& getVmm(const std::size_t id) const { return m_vmms.at(id - m_firstVmm); }  //!< \overload
     // clang-format on
 
     /**
@@ -69,8 +72,8 @@ namespace nsw::hw {
      * \param id Number of TDS
      */
     // clang-format off
-    [[nodiscard]] TDS& getTds(const std::size_t id) { return m_tdss.at(id); }
-    [[nodiscard]] const TDS& getTds(const std::size_t id) const { return m_tdss.at(id); }  //!< \overload
+    [[nodiscard]] TDS& getTds(const std::size_t id) { return m_tdss.at(id - m_firstTds); }
+    [[nodiscard]] const TDS& getTds(const std::size_t id) const { return m_tdss.at(id - m_firstTds); }  //!< \overload
     // clang-format on
 
     /**
@@ -85,6 +88,8 @@ namespace nsw::hw {
     std::vector<VMM> m_vmms;  //!< VMMs assiociated to this FEB
     std::vector<TDS> m_tdss;  //!< TDSs assiociated to this FEB
     std::string m_opcNodeId;  //!< SCA address of FE item in Opc address space
+    std::size_t m_firstVmm{nsw::MAX_NUMBER_OF_VMM};  //!< Hold the board ID of the first VMM to correctly access by index of container
+    std::size_t m_firstTds{nsw::MAX_NUMBER_OF_TDS};  //!< Hold the board ID of the first TDS to correctly access by index of container
   };
 }  // namespace nsw::hw
 

@@ -134,7 +134,7 @@ public:
     /// Program FPGA
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration
     void writeXilinxFpga(const std::string& node, const std::string& bitfile_path) const;
-    
+
     // Read anytype SCA OPC UA's FreeVariable
     template <typename T>
     inline T readFreeVariable(const std::string& node) const {
@@ -144,22 +144,21 @@ public:
         } catch (const std::exception& e) {
             nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
             ers::warning(issue);
-        }	
+        }
     }
 
     // Write anytype SCA OPC UA's FreeVariable
     template <typename T>
     inline void writeFreeVariable(const std::string& node, T value) {
-    
         try {
             UaoClientForOpcUaSca::QuasarFreeVariable<T> fvnode(m_session.get(), UaNodeId(node.c_str(), 2));
             fvnode.write(value);
-            ERS_LOG("Write FreeVariable: " << node.c_str() << " to " << value);
+            ERS_DEBUG(2, "Write FreeVariable: " << node.c_str() << " to " << value);
         } catch (const std::exception& e) {
             nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
             ers::warning(issue);
         }
-    }    
+    }
 
 };
 

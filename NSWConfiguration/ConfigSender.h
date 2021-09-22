@@ -181,7 +181,7 @@ class ConfigSender {
     uint8_t readBackRocAnalog(const std::string& opcserver_ipport, const std::string& node, uint8_t registerAddress);
 
     /// Low level Spi send function
-    void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t *data, size_t data_size);
+    void sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, const uint8_t *data, size_t data_size);
 
     std::vector<uint8_t> readSpi(const std::string& opcserver_ipport, const std::string& node, size_t data_size);
 
@@ -192,7 +192,7 @@ class ConfigSender {
     void sendI2c(std::string opcserver_ipport, std::string node, std::vector<uint8_t> vdata);
 
     /// Low level I2c send function
-    void sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t *data, size_t data_size);
+    void sendI2cRaw(const std::string opcserver_ipport, const std::string node, const uint8_t *data, size_t data_size);
 
     /// Low level GPIO send function
     void sendGPIO(const std::string& opcserver_ipport, const std::string& node, bool data);
@@ -206,7 +206,7 @@ class ConfigSender {
 
     // Read back I2c register as vector for ADDC
     std::vector<uint8_t> readI2cAtAddress(const std::string& opcserver_ipport, const std::string& node,
-                                          uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
+                                          const uint8_t* address, size_t address_size, size_t number_of_bytes = 1);
 
     // Send I2c register as vector for ADDC
     void sendI2cAtAddress(const std::string& opcserver_ipport, const std::string& node,
@@ -255,20 +255,16 @@ class ConfigSender {
     // example use: ReadFreeVariable<bool>(...)
     template <typename T>
     inline T readFreeVariable(const std::string& opcserver_ipport, const std::string& node) {
-    
         addOpcClientIfNew(opcserver_ipport);
         return m_clients.at(opcserver_ipport)->readFreeVariable<T>(node);
-    
     }
 
     // Write anytype SCA OPC UA's FreeVariable
     template<typename T>
     inline void writeFreeVariable(const std::string& opcserver_ipport, const std::string& node, T value) {
-
         addOpcClientIfNew(opcserver_ipport);
         m_clients[opcserver_ipport]->writeFreeVariable(node, value);
-
-    }    
+    }
 
     // Program to set VMMConfigurationStatusInfo FreeVariable parameter
     // Used by SCA DCS for VMM boards (polyneikis)

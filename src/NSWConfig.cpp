@@ -34,7 +34,7 @@ void nsw::NSWConfig::configureRc() {
     // we should find the ones that are at the same links with the swROD
     auto frontend_names = m_reader->getAllElementNames();
 
-    ERS_LOG("\nFollowing front ends will be configured now:\n");
+    ERS_LOG("The following front ends will be configured now:\n");
     for (auto & name : frontend_names) {
       try {
         auto element = nsw::getElementType(name);
@@ -49,12 +49,11 @@ void nsw::NSWConfig::configureRc() {
         else {
           m_frontends.emplace(this_pair);
         }
-        std::cout << name << std::endl;
       } catch (std::exception & e) {
         std::stringstream ss;
         ss << " Skipping FE: " << name
            << " - Problem constructing configuration due to : "
-           << e.what() << std::endl;
+           << e.what();
         nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
         ERS_INFO(ss.str());
         ers::fatal(issue);
@@ -133,7 +132,7 @@ void nsw::NSWConfig::configureFEB(const std::string& name) {
 
             size_t i = 0;
             for (auto & vmm : configuration.getVmms()) {
-                vmm.setGlobalRegister("reset", reset_ori[i++]);  // Set reset bits to original
+                vmm.setGlobalRegister("reset", reset_ori.at(i++));  // Set reset bits to original
             }
         }
         local_sender->sendVmmConfig(configuration);
