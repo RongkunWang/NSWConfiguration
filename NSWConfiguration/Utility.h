@@ -185,4 +185,47 @@ std::string getPrintableGbtxConfig(std::vector<uint8_t> data);
 
 }  // namespace nsw
 
+namespace boost::property_tree {
+
+/**
+ * \brief Add ptree support for __uint128_t
+ *
+ * \tparam  __uint128_t to std::string
+ */
+template<>
+struct translator_between<std::string, __uint128_t>
+{
+  struct type {
+    using internal_type = std::string;
+    using external_type = __uint128_t;
+
+    /**
+     * \brief Translation from std::string to __uint128_t
+     *
+     * \param str stringified value
+     * \return boost::optional<external_type> value
+     */
+    static boost::optional<external_type> get_value(const internal_type& str);
+
+    /**
+     * \brief Translation from __uint128_t to std::string
+     *
+     * \param obj value
+     * \return boost::optional<internal_type> stringified value
+     */
+    static boost::optional<internal_type> put_value(const external_type& obj);
+  };
+};
+
+} // namespace boost::property_tree
+
+/**
+ * \brief Stream operator for 128 bit integers
+ *
+ * \param out output stream
+ * \param x value to be streamed
+ * \return std::ostream& stream with value
+ */
+std::ostream& operator<<(std::ostream& out, __uint128_t x);
+
 #endif  // NSWCONFIGURATION_UTILITY_H_

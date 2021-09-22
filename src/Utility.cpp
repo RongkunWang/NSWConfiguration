@@ -297,3 +297,55 @@ bool nsw::isSmallSector(const std::string& sector_name) {
 void nsw::snooze(const std::chrono::duration<float> dur) {
   std::this_thread::sleep_for(dur);
 }
+
+namespace boost::property_tree {
+
+  boost::optional<
+    translator_between<std::string, __uint128_t>::type::external_type>
+  translator_between<std::string, __uint128_t>::type::get_value(
+    const internal_type& str) {
+    __uint128_t res = 0;
+
+    for (const char c : str) {
+      if (std::isdigit(c) != 0) {
+        throw std::runtime_error(std::string("Non-numeric character: ") + c);
+      }
+      res *= 10;
+      res += (c - '0');
+    }
+
+    return res;
+  }
+
+  boost::optional<
+    translator_between<std::string, __uint128_t>::type::internal_type>
+  translator_between<std::string, __uint128_t>::type::put_value(
+    const external_type& obj) {
+    std::stringstream ss;
+
+    return [&obj]() {
+      // Recursive lambda
+      const auto toString_impl = [](const auto&          func,
+                                    const external_type& x) -> std::string {
+        // If the value fits into a 64 bit integer use standard to_string conversion
+        // Otherwise convert it bit by bit until the value fits into a 64 bit integer
+        if (x > std::numeric_limits<std::uint64_t>::max()) {
+          __uint128_t   leading  = x / 10;
+          std::uint64_t trailing = x % 10;
+          return func(func, leading) + std::to_string(trailing);
+        }
+        return std::to_string(static_cast<std::uint64_t>(x));
+      };
+      return toString_impl(toString_impl, obj);
+    }();
+  }
+}  // namespace boost::property_tree
+
+std::ostream& operator<<(std::ostream& out, const __uint128_t x) {
+  if (x > std::numeric_limits<std::uint64_t>::max()) {
+    __uint128_t   leading  = x / 10;
+    std::uint64_t trailing = x % 10;
+    return out << leading << trailing;
+  }
+  return out << static_cast<std::uint64_t>(x);
+}
