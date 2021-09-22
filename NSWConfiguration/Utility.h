@@ -14,9 +14,9 @@
 #include <utility>
 #include <vector>
 
-#include <extern/fmt/include/fmt/core.h>
+#include <fmt/core.h>
 
-#include "boost/property_tree/ptree_fwd.hpp"
+#include <boost/property_tree/ptree.hpp>
 // https://stackoverflow.com/a/9433783
 // namespace boost::property_tree {
 //   template <class Key, class Data, class KeyCompare>
@@ -27,7 +27,7 @@
 
 #include "NSWConfiguration/Constants.h"
 
-#include "ers/Issue.h"
+#include <ers/Issue.h>
 
 ERS_DECLARE_ISSUE(nsw,
                   RegisterOverflow,
@@ -135,7 +135,19 @@ std::string vectorToBitString(std::vector<uint8_t> vec, bool littleEndian = fals
 std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const boost::property_tree::ptree& config);
 
 /// Converts vector to ptree
-boost::property_tree::ptree buildPtreeFromVector(const std::vector<unsigned>& channelarray);
+// TODO: Concept
+template<typename Container>
+boost::property_tree::ptree buildPtreeFromVector(const Container& vec) {
+    boost::property_tree::ptree temp;
+
+    // This is the only way to create an array in a ptree
+    for (const auto value : vec) {
+        boost::property_tree::ptree child;
+        child.put("", value);
+        temp.push_back(std::make_pair("", child));
+    }
+    return temp;
+}
 
 /// Strips string "_READONLY" from end of string, used for i2c addresses
 std::string stripReadonly(std::string str);

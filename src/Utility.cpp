@@ -7,9 +7,8 @@
 
 #include "ers/ers.h"
 
-#include "boost/foreach.hpp"
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/exceptions.hpp"
+#include <boost/foreach.hpp>
+#include <boost/property_tree/exceptions.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 using boost::property_tree::ptree;
@@ -191,18 +190,6 @@ std::string nsw::buildBitstream(const std::vector<std::pair<std::string, size_t>
     }
     ERS_DEBUG(4, " - bitstream : " << tempstr);
     return tempstr;
-}
-
-ptree nsw::buildPtreeFromVector(const std::vector<unsigned>& vec) {
-    ptree temp;
-
-    // This is the only way to create an array in a ptree
-    for (auto value : vec) {
-        ptree child;
-        child.put("", value);
-        temp.push_back(std::make_pair("", child));
-    }
-    return temp;
 }
 
 /// Strips string "_READONLY" from end of string, used for i2c addresses

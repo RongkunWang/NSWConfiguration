@@ -120,6 +120,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  nswopcclient
                  tdaq-common::ers
                  ic_comms
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
 tdaq_add_library(nswhwinterface
@@ -176,11 +177,13 @@ tdaq_add_executable(test_configreader test/test_configreader.cpp
 
 tdaq_add_executable(test_utility test/test_utility.cpp src/Utility.cpp
   NOINSTALL
-  LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers)
+  LINK_LIBRARIES Boost::unit_test_framework  tdaq-common::ers
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMasterConfig.cpp src/Utility.cpp
   NOINSTALL
-  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers)
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
   NOINSTALL
