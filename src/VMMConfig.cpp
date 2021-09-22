@@ -9,7 +9,7 @@
 using boost::property_tree::ptree;
 
 nsw::VMMConfig::VMMConfig(const ptree& vmmconfig): m_config(vmmconfig) {
-    m_bitstring = codec.buildConfig(m_config);
+    m_bitstring = VMMCodec::buildConfig(m_config);
     ERS_DEBUG(5, "VMM Bitstream: " << m_bitstring);
     ERS_DEBUG(3, "VMM Bytestream(hex): " << nsw::bitstringToHexString(m_bitstring));
 }
@@ -19,7 +19,7 @@ std::vector<uint8_t> nsw::VMMConfig::getByteVector() const {
 }
 
 unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) const {
-    if (!codec.globalRegisterExists(register_name)) {
+    if (!VMMCodec::globalRegisterExists(register_name)) {
         std::string temp = register_name;
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
@@ -29,8 +29,8 @@ unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) con
 }
 
 unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const {
-    auto channelreg = codec.buildChannelRegisterMap(m_config);
-    if (!codec.channelRegisterExists(register_name)) {
+    auto channelreg = VMMCodec::buildChannelRegisterMap(m_config);
+    if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
@@ -43,19 +43,19 @@ unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& registe
     return channelreg[register_name][channel];
 }
 
-std::vector<unsigned> nsw::VMMConfig::getChannelRegisterAllChannels(std::string register_name) const {
-    auto channelreg = codec.buildChannelRegisterMap(m_config);
-    if (!codec.channelRegisterExists(register_name)) {
+std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> nsw::VMMConfig::getChannelRegisterAllChannels(const std::string& register_name) const {
+    auto channelreg = VMMCodec::buildChannelRegisterMap(m_config);
+    if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
         throw issue;
     }
-    return channelreg[register_name];
+    return channelreg.at(register_name);
 }
 
 void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, unsigned value) {
-    if (!codec.globalRegisterExists(register_name)) {
+    if (!VMMCodec::globalRegisterExists(register_name)) {
         std::string temp = register_name;
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
@@ -63,7 +63,7 @@ void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, unsigne
     }
     m_config.put(register_name, value);
     try {
-        m_bitstring = codec.buildConfig(m_config);
+        m_bitstring = VMMCodec::buildConfig(m_config);
     } catch(std::exception & e) {
         nsw::VmmConfigIssue issue(ERS_HERE, e.what());
         ers::error(issue);
@@ -74,11 +74,11 @@ void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, unsigne
 void nsw::VMMConfig::setChannelRegisterAllChannels(const std::string& register_name, unsigned value) {
     m_config.erase(register_name);
     m_config.put(register_name, value);
-    m_bitstring = codec.buildConfig(m_config);
+    m_bitstring = VMMCodec::buildConfig(m_config);
 }
 
 void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_name, unsigned value, size_t channel) {
-    if (!codec.channelRegisterExists(register_name)) {
+    if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
@@ -89,7 +89,7 @@ void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_na
         throw issue;
     }
 
-    auto channelreg = codec.buildChannelRegisterMap(m_config);
+    auto channelreg = VMMCodec::buildChannelRegisterMap(m_config);
     channelreg[register_name][channel] = value;
 
     ptree temp = nsw::buildPtreeFromVector(channelreg[register_name]);
@@ -98,7 +98,7 @@ void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_na
     m_config.erase(register_name);
     m_config.add_child(register_name, temp);
 
-    m_bitstring = codec.buildConfig(m_config);
+    m_bitstring = VMMCodec::buildConfig(m_config);
 }
 
 void nsw::VMMConfig::setTestPulseDAC(size_t param) {

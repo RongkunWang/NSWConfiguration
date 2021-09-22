@@ -6,11 +6,12 @@
 #include <string>
 #include <vector>
 
-#include "boost/property_tree/ptree.hpp"
+#include "NSWConfiguration/Constants.h"
+#include <boost/property_tree/ptree.hpp>
 
 #include "NSWConfiguration/VMMCodec.h"
 
-#include "ers/Issue.h"
+#include <ers/Issue.h>
 
 ERS_DECLARE_ISSUE(nsw,
                   NoSuchVmmRegister,
@@ -34,7 +35,6 @@ namespace nsw {
 
 class VMMConfig {
  private:
-    VMMCodec& codec = VMMCodec::Instance();
     std::string m_bitstring;  // Config information as a string of 0/1s
     std::string name;         // Name of the element (vmm0,vmm1,vmm2 ...)
     boost::property_tree::ptree m_config;
@@ -52,7 +52,7 @@ class VMMConfig {
 
     unsigned getGlobalRegister(const std::string& register_name) const;
     unsigned getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const;
-    std::vector<unsigned> getChannelRegisterAllChannels(std::string register_name) const;
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> getChannelRegisterAllChannels(const std::string& register_name) const;
 
     void setGlobalRegister(const std::string& register_name, unsigned value);
     void setChannelRegisterAllChannels(const std::string& register_name, unsigned value);

@@ -1,6 +1,7 @@
 /// Test suite for testing VMMCodec and VMMConfig classes
 /// This tests require test_vmm.json file, so if you change the file, you also need to change the tests
 
+#include "NSWConfiguration/Constants.h"
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -69,14 +70,14 @@ BOOST_AUTO_TEST_CASE(GetChannelRegisterAllChannels_CorrectChannelRegisterName_Re
     ptree config;
     boost::property_tree::read_json("test_vmm.json", config);
     nsw::VMMConfig vmm0(config.get_child("vmm0"));
-    std::vector<uint32_t> expected_chmap = { 0, 0, 3, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 
-                                            0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0 };
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> expected_chmap = { 0, 0, 3, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0, 
+                                                                      0, 0, 0, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0,
+                                                                      0, 0, 0, 0, 0, 0, 0, 0 };
     BOOST_TEST(vmm0.getChannelRegisterAllChannels("channel_sz10b") == expected_chmap);
 }
 
@@ -111,7 +112,8 @@ BOOST_AUTO_TEST_CASE(SetChannelRegisterAllChannels_CorrectRegisterName_SetsAllCh
     boost::property_tree::read_json("test_vmm.json", config);
     nsw::VMMConfig vmm0(config.get_child("vmm0"));
     vmm0.setChannelRegisterAllChannels("channel_sd", 1);    // Set sd for all channels to 1
-    std::vector<uint32_t> expected_chmap(64, 1);            // vector of 64 ones
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> expected_chmap{};
+    expected_chmap.fill(1);            // vector of 64 ones
     BOOST_TEST(vmm0.getChannelRegisterAllChannels("channel_sd") == expected_chmap);
 }
 
@@ -129,7 +131,8 @@ BOOST_AUTO_TEST_CASE(SetChannelRegisterOneChannel_CorrectRegisterAndChannel_Sets
     boost::property_tree::read_json("test_vmm.json", config);
     nsw::VMMConfig vmm0(config.get_child("vmm0"));
 
-    std::vector<uint32_t> expected_chmap(64, 1);
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> expected_chmap{};
+    expected_chmap.fill(1);            // vector of 64 ones
     expected_chmap[53] = 0;
 
     vmm0.setChannelRegisterOneChannel("channel_st", 0, 53);  // Set st for channel 53 to 0
@@ -183,7 +186,7 @@ BOOST_AUTO_TEST_CASE(SetChannelMOMode__SetsSmxChannelRegister) {
     nsw::VMMConfig vmm0(config.get_child("vmm0"));
     vmm0.setChannelMOMode(32, 1);
 
-    std::vector<uint32_t> expected_chmap(64, 0);
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> expected_chmap{};
     expected_chmap[32] = 1;
 
     BOOST_TEST(vmm0.getChannelRegisterAllChannels("channel_smx") == expected_chmap);
@@ -195,7 +198,7 @@ BOOST_AUTO_TEST_CASE(SetChannelTrimmer__SetsSdChannelRegister) {
     nsw::VMMConfig vmm0(config.get_child("vmm0"));
     vmm0.setChannelTrimmer(32, 30);
 
-    std::vector<uint32_t> expected_chmap(64, 0);
+    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> expected_chmap{};
     expected_chmap[32] = 30;
 
     BOOST_TEST(vmm0.getChannelRegisterAllChannels("channel_sd") == expected_chmap);
