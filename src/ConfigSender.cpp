@@ -9,6 +9,7 @@
 
 #include "NSWConfiguration/ConfigSender.h"
 
+#include "NSWConfiguration/ConfigTranslationMap.h"
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
@@ -1307,7 +1308,7 @@ void nsw::ConfigSender::enableVmmCaptureInputs(const nsw::FEBConfig& feb)
 {
     ptree tree;
     tree.put_child("reg008vmmEnable", feb.getConfig().get_child("rocCoreDigital.reg008vmmEnable"));
-    const auto configConverter = ConfigConverter(tree, ConfigConverter::RegisterAddressSpace::ROC_DIGITAL, ConfigConverter::ConfigType::REGISTER_BASED);
+    const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(tree, ConfigType::REGISTER_BASED);
     const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(feb.getRocDigital());
     const auto partialConfig = nsw::I2cMasterConfig(translatedPtree, ROC_DIGITAL_NAME, ROC_DIGITAL_REGISTERS, true);
     sendI2cMasterConfig(feb.getOpcServerIp(), feb.getAddress(), partialConfig);

@@ -145,10 +145,6 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
-tdaq_add_executable(convert_json app/convert_json.cpp
-  LINK_LIBRARIES nswconfig Boost::program_options
-)
-
 tdaq_add_schema(schema/NSWConfig.schema.xml)
 
 # Testing
@@ -187,7 +183,8 @@ tdaq_add_executable(test_i2cmasterconfig test/test_i2cmasterconfig.cpp src/I2cMa
 
 tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
   NOINSTALL
-  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig)
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 ### Tests
 set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)
