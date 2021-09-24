@@ -204,7 +204,7 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
     for (size_t iart = 0; iart < nsw::NUM_ART_PER_ADDC; iart++) {
       try {
         if (!m_simulation) {
-          local_sender->sendAddcConfig(configuration, iart);
+          local_sender->sendAddcConfig(configuration, static_cast<int>(iart));
         }
         usleep(5000);
       } catch (std::exception & ex) {

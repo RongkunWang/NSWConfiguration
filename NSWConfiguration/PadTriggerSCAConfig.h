@@ -53,7 +53,6 @@ class PadTriggerSCAConfig: public SCAConfig {
                                     uint32_t val_23_16
                                     ) const;
 
-
  private:
     int m_L1AReadoutLatency;
     int m_L1AReadoutNBC;
@@ -66,6 +65,19 @@ class PadTriggerSCAConfig: public SCAConfig {
     int m_LatencyScanStart;
     int m_LatencyScanNBC;
 
+    static constexpr std::uint32_t BIT_OLDFW_L1AReadoutLatency = 0;
+    static constexpr std::uint32_t BIT_OLDFW_L1AReadoutNBCMode = 7;
+    static constexpr std::uint32_t BIT_OLDFW_pFEBBCIDOffset    = 11;
+    static constexpr std::uint32_t BIT_OLDFW_L1AReadoutEnable  = 15;
+
+    static constexpr std::uint32_t BIT_L1AReadoutLatency = 0;
+    static constexpr std::uint32_t BIT_L1AReadoutNBCMode = 7;
+    static constexpr std::uint32_t BIT_L1AReadoutEnable  = 11;
+    static constexpr std::uint32_t BIT_pFEBBCIDOffset    = 12;
+    static constexpr std::uint32_t BIT_StartIdleState    = 24;
+    static constexpr std::uint32_t BIT_OCREnable         = 25;
+    static constexpr std::uint32_t BIT_TTCCalib          = 26;
+    static constexpr std::uint32_t BIT_SelfTriggerEnable = 30;
 };
 
 }

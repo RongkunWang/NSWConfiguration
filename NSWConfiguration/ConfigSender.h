@@ -213,7 +213,7 @@ class ConfigSender {
                                                                  size_t n_samples);
 
     // Read SCA ID
-    int readSCAID(FEBConfig& feb);
+    std::uint32_t readSCAID(FEBConfig& feb);
 
     // Read SCA Address
     std::string readSCAAddress(FEBConfig& feb);

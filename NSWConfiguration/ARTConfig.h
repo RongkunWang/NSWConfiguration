@@ -40,15 +40,13 @@ class ARTConfig {
     std::string getNamePs()   const { return getName() + "Ps."   + getName() + "Ps"; }
     std::string getNameGbtx() const { return "gbtx" + std::to_string(index()) + ".gbtx" + std::to_string(index()); }
 
-    int index() const { return i_art; }
-    void setIndex(int i) { i_art = i; }
+    std::size_t index() const { return i_art; }
+    void setIndex(std::size_t i) { i_art = i; }
 
     size_t NPhase() const { return n_phase; }
     std::string PhaseToString(uint phase) const;
-    int register0_test_00() const;
-    int art_core_cfg_deser_flagmask() const;
     bool MustConfigure() const;
-    int TP_GBTxAlignmentBit() const;
+    std::size_t TP_GBTxAlignmentBit() const;
     int TP_GBTxAlignmentSleepTime() const;
     bool TP_GBTxAlignmentSkip() const;
     std::vector<uint> TP_GBTxAlignmentCommonPhases() const;

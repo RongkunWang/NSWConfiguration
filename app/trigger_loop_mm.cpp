@@ -12,7 +12,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/Utility.h"
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 #include "ALTI/AltiModule.h"

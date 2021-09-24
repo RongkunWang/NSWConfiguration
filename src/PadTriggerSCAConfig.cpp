@@ -9,7 +9,7 @@
 //
 
 #include <regex>
-#include "ers/ers.h"
+#include <ers/ers.h>
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/Constants.h"
 
@@ -34,19 +34,19 @@ void nsw::PadTriggerSCAConfig::dump() {
 uint32_t nsw::PadTriggerSCAConfig::ControlRegister() const {
   uint32_t reg = 0;
   if (firmware() == "Pad_ro_ilaro_20200610.bit") {
-    reg += (L1AReadoutLatency() <<  0);
-    reg += (L1AReadoutNBCMode() <<  7);
-    reg += (pFEBBCIDOffset()    << 11);
-    reg += (L1AReadoutEnable()  << 15);
+    reg += (L1AReadoutLatency() << BIT_OLDFW_L1AReadoutLatency);
+    reg += (L1AReadoutNBCMode() << BIT_OLDFW_L1AReadoutNBCMode);
+    reg += (pFEBBCIDOffset()    << BIT_OLDFW_pFEBBCIDOffset);
+    reg += (L1AReadoutEnable()  << BIT_OLDFW_L1AReadoutEnable);
   } else {
-    reg += (L1AReadoutLatency() <<  0);
-    reg += (L1AReadoutNBCMode() <<  7);
-    reg += (L1AReadoutEnable()  << 11);
-    reg += (pFEBBCIDOffset()    << 12);
-    reg += (StartIdleState()    << 24);
-    reg += (OCREnable()         << 25);
-    reg += (TTCCalib()          << 26);
-    reg += (SelfTriggerEnable() << 30);
+    reg += (L1AReadoutLatency() << BIT_L1AReadoutLatency);
+    reg += (L1AReadoutNBCMode() << BIT_L1AReadoutNBCMode);
+    reg += (L1AReadoutEnable()  << BIT_L1AReadoutEnable);
+    reg += (pFEBBCIDOffset()    << BIT_pFEBBCIDOffset);
+    reg += (StartIdleState()    << BIT_StartIdleState);
+    reg += (OCREnable()         << BIT_OCREnable);
+    reg += (TTCCalib()          << BIT_TTCCalib);
+    reg += (SelfTriggerEnable() << BIT_SelfTriggerEnable);
   }
   return reg;
 }

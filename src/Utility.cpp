@@ -5,7 +5,7 @@
 #include <regex>
 #include <thread>
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 #include <boost/foreach.hpp>
 #include <boost/property_tree/exceptions.hpp>
@@ -19,7 +19,7 @@ using boost::property_tree::ptree;
 std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool littleEndian) {
     std::vector<uint8_t> byteVector(nbytes);
     for (size_t i = 0; i < nbytes; i++)
-        byteVector.at(i) = (value >> (i * NUM_BITS_IN_BYTE));
+        byteVector.at(i) = static_cast<std::uint8_t>(value >> (i * NUM_BITS_IN_BYTE));
     if (!littleEndian)
         std::reverse(byteVector.begin(), byteVector.end());
     return byteVector;
@@ -83,7 +83,7 @@ std::vector<uint8_t> nsw::stringToByteVector(const std::string& bitstr) {
     return vec;
 }
 
-std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, int length, bool littleEndian) {
+std::vector<uint8_t> nsw::hexStringToByteVector(const std::string& hexstr, std::size_t length, bool littleEndian) {
     std::vector<uint8_t> vec;
     vec.reserve(length);
     std::string substr;
@@ -227,15 +227,15 @@ std::set<std::string> nsw::matchRegexpInPtree(const std::string& regexp, const p
 }
 
 std::string nsw::guessSector(const std::string& str) {
-  std::vector<std::string> sides = {"A", "C"};
-  std::vector<std::string> sects = {"01", "02", "03", "04",
-                                    "05", "06", "07", "08",
-                                    "09", "10", "11", "12",
-                                    "13", "14", "15", "16",
-                                    };
-  for (const auto & side : sides) {
-    for (const auto & sector : sects) {
-      auto name = std::string(side + sector);
+  const std::array<std::string, nsw::NUM_WHEELS> sides = {"A", "C"};
+  const std::array<std::string, nsw::NUM_SECTORS> sects = {"01", "02", "03", "04",
+                                                           "05", "06", "07", "08",
+                                                           "09", "10", "11", "12",
+                                                           "13", "14", "15", "16",
+                                                           };
+  for (const auto& side : sides) {
+    for (const auto& sector : sects) {
+      const auto name = side + sector;
       if (str.find(name) != std::string::npos) {
         return name;
       }

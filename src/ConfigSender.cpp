@@ -14,7 +14,7 @@
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 #include <thread>
 #include "boost/property_tree/ptree.hpp"
@@ -1268,7 +1268,7 @@ std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(
 
 
 
-int nsw::ConfigSender::readSCAID(FEBConfig& feb) {
+std::uint32_t nsw::ConfigSender::readSCAID(FEBConfig& feb) {
 
     auto opc_ip      = feb.getOpcServerIp();
     auto feb_address = feb.getAddress();

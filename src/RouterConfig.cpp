@@ -1,6 +1,7 @@
 #include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
 
+#include <cstdint>
 #include <stdexcept>
 
 using boost::property_tree::ptree;
@@ -39,14 +40,17 @@ uint8_t nsw::RouterConfig::id() const {
   // (13 << 4) + (5 << 1) + 1 = 218
   //
   id_check();
-  return (id_sector() << 4) + (id_layer() << 1) + id_endcap();
+  constexpr std::uint8_t bit_position_sector = 4;
+  constexpr std::uint8_t bit_position_layer = 1;
+
+  return static_cast<std::uint8_t>((id_sector() << bit_position_sector) + (id_layer() << bit_position_layer) + id_endcap());
 }
 
 uint8_t nsw::RouterConfig::id_endcap() const {
   // XYY -> X
   // A12 -> A, e.g.
-  auto sect = Sector();
-  auto result = sect.substr(0, 1);
+  const auto sect = Sector();
+  const auto result = sect.substr(0, 1);
   if (result != "A" && result != "C")
     id_crash();
   return result == "A" ? 0 : 1;
@@ -55,7 +59,7 @@ uint8_t nsw::RouterConfig::id_endcap() const {
 uint8_t nsw::RouterConfig::id_sector() const {
   // XYY -> YY
   // A12 -> 12, e.g.
-  auto sect = Sector();
+  const auto sect = Sector();
   const auto result = std::stoul(sect.substr(1, 2));
   if (result < nsw::MIN_SECTOR_ID || result > nsw::MAX_SECTOR_ID)
     id_crash();
@@ -64,7 +68,7 @@ uint8_t nsw::RouterConfig::id_sector() const {
 
 uint8_t nsw::RouterConfig::id_layer() const {
   // Router_LZ -> Z
-  auto addr = getAddress();
+  const auto addr = getAddress();
   const auto result = std::stoul(addr.substr(8, 1));
   if (result < nsw::MIN_LAYER_ID || result > nsw::MAX_LAYER_ID)
     id_crash();
@@ -72,7 +76,7 @@ uint8_t nsw::RouterConfig::id_layer() const {
 }
 
 void nsw::RouterConfig::id_check() const {
-  auto addr = getAddress();
+  const auto addr = getAddress();
   if (addr.length() != convention.length())
     id_crash();
   if (addr.substr(0, 7) != "Router_")
@@ -82,8 +86,8 @@ void nsw::RouterConfig::id_check() const {
 }
 
 void nsw::RouterConfig::id_crash() const {
-  auto addr = getAddress();
-  auto msg = name_error + " (" + convention + "): " + addr;
+  const auto addr = getAddress();
+  const auto msg = name_error + " (" + convention + "): " + addr;
   throw std::runtime_error(msg);
 }
 

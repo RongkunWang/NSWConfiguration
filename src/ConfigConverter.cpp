@@ -102,15 +102,14 @@ namespace nsw {
   template<ConfigConversionType DeviceType>
   std::vector<std::string> ConfigConverter<DeviceType>::getAllPaths(const ptree& t_tree) const
   {
-    const auto iterate = [](const ptree& t_tree) {
+    const auto iterate = [&t_tree]() {
       std::vector<std::string> paths;
-      const auto iterate_impl =
-        [&paths](const auto func, const ptree& t_tree, const std::string& t_path = "") -> void {
-        if (t_tree.empty()) {
+      const auto iterate_impl = [&paths](const auto func, const ptree &tree, const std::string &t_path = "") -> void {
+        if (tree.empty()) {
           paths.push_back(t_path);
         }
 
-        for (const auto& child : t_tree) {
+        for (const auto& child : tree) {
           if (t_path.empty()) {
             func(func, child.second, child.first);
           } else {
@@ -121,7 +120,7 @@ namespace nsw {
       iterate_impl(iterate_impl, t_tree);
       return paths;
     };
-    return iterate(t_tree);
+    return iterate();
   }
 
   template<ConfigConversionType DeviceType>

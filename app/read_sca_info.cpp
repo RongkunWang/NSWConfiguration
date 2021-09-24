@@ -11,7 +11,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
@@ -82,14 +82,13 @@ int main(int ac, const char *av[]) {
 
     nsw::ConfigSender cs;
 
-    int scaID;
     std::string scaAddress;
     bool scaOnline; 
     std::cout << "Board" << "\t"<< "ID" <<"\t"<< "Online" <<"\t"<< "Address" <<std::endl;
 
     for (auto & feb : frontend_configs) {
 
-    scaID=cs.readSCAID(feb);
+    const auto scaID=cs.readSCAID(feb);
 	scaAddress=cs.readSCAAddress(feb);
 	scaOnline=cs.readSCAOnline(feb);
 	

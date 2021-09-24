@@ -36,7 +36,7 @@ bool nsw::NSWConfigRc::simulationFromIS() {
     return false;
 }
 
-void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
     // Retrieving the configuration db
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
@@ -58,31 +58,31 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd& cmd) {
     ERS_LOG("End");
 }
 
-void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
     m_NSWConfig->configureRc();
     ERS_LOG("End");
 }
 
-void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::prepareForRun(const daq::rc::TransitionCmd&) {
     ERS_LOG("Start");
     m_NSWConfig->startRc();
     ERS_LOG("End");
 }
 
-void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd&) {
     ERS_LOG("Start");
     m_NSWConfig->stopRc();
     ERS_LOG("End");
 }
 
-void nsw::NSWConfigRc::disconnect(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::disconnect(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
     m_NSWConfig->unconfigureRc();
     ERS_INFO("End");
 }
 
-void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd& cmd) {
+void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
     ERS_INFO("End");
 }
@@ -100,18 +100,6 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
     auto sub_transition = cmd.subTransition();
 
     ERS_LOG("Sub transition received: " << sub_transition << " (mainTransition: " << main_transition << ")");
-
-    // This part should be in sync with NSWTTCConfig application. Some of this steps can also be a regular
-    // state transition instead of a subTransition. SubTransitions are called before the main transition
-    // This is not used in current software version, it may be used if one requires to configure different
-    // boards at different times, instead of configuring everything at "configure" step.
-    /*if (sub_transition == "CONFIGURE_ROC") {
-      // configureROCs();
-    } else if (sub_transition == "CONFIGURE_VMM") {
-      // configureVMMs();
-    } else {
-      ERS_LOG("Nothing to do for subTransition" << sub_transition);
-    }*/
 }
 
 

@@ -9,7 +9,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/TPConfig.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 

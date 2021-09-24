@@ -15,9 +15,9 @@
 
 #include <boost/property_tree/ptree.hpp>
 
-#include "dal/ResourceBase.h"
-#include "dal/util.h"
-#include "ers/ers.h"
+#include <dal/ResourceBase.h>
+#include <dal/util.h>
+#include <ers/ers.h>
 
 ERS_DECLARE_ISSUE(nsw,
                   NSWConfigIssue,

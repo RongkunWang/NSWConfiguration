@@ -6,7 +6,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 size_t NTDS = 4;
 namespace po = boost::program_options;

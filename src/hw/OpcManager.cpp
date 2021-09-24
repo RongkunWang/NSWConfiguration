@@ -18,7 +18,7 @@ OpcClientPtr nsw::OpcManager::getConnection(const std::string& opcserver_ipport)
   // return m_clients.at(opcserver_ipport);
 }
 
-void nsw::OpcManager::addConnection(const std::string& opcserver_ipport)
+void nsw::OpcManager::addConnection([[maybe_unused]] const std::string& opcserver_ipport)
 {
   // Code for one connection per IP (or board)
   // std::lock_guard<std::shared_mutex> lock(m_mutex);

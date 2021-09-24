@@ -89,7 +89,7 @@ std::vector<std::uint8_t> integerToByteVector(const Integer val, std::size_t nBy
   }
   std::vector<std::uint8_t> bytes(nBytes);
   for (std::size_t counter = 0; counter < nBytes; counter++) {
-    bytes.at(nBytes - 1 - counter) = (val >> (counter * nsw::NUM_BITS_IN_BYTE));
+    bytes.at(nBytes - 1 - counter) = static_cast<std::uint8_t>(val >> (counter * nsw::NUM_BITS_IN_BYTE));
   }
   return bytes;
 }
@@ -100,23 +100,12 @@ std::string bitString(unsigned value, size_t nbits);
 /// Reverses a bit pattern of a long and returns string with reversed bits
 std::string reversedBitString(unsigned value, size_t nbits);
 
-/// Convert bitset to string of hex numbers
-template<size_t N>
-std::string bitsetToHexString(const std::bitset<N>& b) {
-    std::ostringstream ss;
-    for (int i=N-NUM_BITS_IN_BYTE; i >= 0; i=i-NUM_BITS_IN_BYTE) {
-        auto val = std::bitset<N>(0xff) & (b >> i);
-        ss << std::hex << std::setfill('0') << std::setw(2) << val.to_ulong();
-    }
-    return ss.str();
-}
-
 std::string getElementType(const std::string& element_name);
 
 void checkOverflow(size_t register_size, unsigned value, const std::string& register_name);
 
 std::vector<uint8_t> stringToByteVector(const std::string& bitstr);
-std::vector<uint8_t> hexStringToByteVector(const std::string& hexstr, int length = 4, bool littleEndian = true);
+std::vector<uint8_t> hexStringToByteVector(const std::string& hexstr, std::size_t length = nsw::NUM_BYTES_IN_WORD32, bool littleEndian = true);
 
 /// Converts vector of bytes to 32-bit word
 uint32_t byteVectorToWord32(std::vector<uint8_t> vec, bool littleEndian = false);
