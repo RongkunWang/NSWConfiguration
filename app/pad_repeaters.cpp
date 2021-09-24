@@ -11,7 +11,7 @@
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/Utility.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 

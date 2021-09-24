@@ -33,7 +33,7 @@ namespace nsw::hw {
      * \returns a map of address to register value
      */
     [[nodiscard]]
-    std::map<std::uint8_t, std::uint32_t> readConfiguration() const;
+    std::map<std::uint32_t, std::uint32_t> readConfiguration() const;
 
     /**
      * \brief Write the full TPCarrier configuration
@@ -46,7 +46,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister(const std::uint8_t regAddress,
+    void writeRegister(const std::uint32_t regAddress,
                        const std::uint32_t value) const;
 
     /**
@@ -55,7 +55,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(const std::uint8_t regAddress) const;
+    std::uint32_t readRegister(const std::uint32_t regAddress) const;
 
     /**
      * \brief Get the \ref TPCarrierConfig object associated with this TPCarrier object

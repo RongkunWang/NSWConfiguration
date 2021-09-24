@@ -10,7 +10,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/OpcClient.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 namespace po = boost::program_options;

@@ -4,7 +4,7 @@
 
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 using boost::property_tree::ptree;
 

@@ -17,14 +17,6 @@ nsw::ARTConfig::ARTConfig(const ptree& config):
     // std::cout << "ART Constructor!" << std::endl;
 }
 
-int nsw::ARTConfig::register0_test_00() const {
-    return m_config.get_child("register0").get<int>("test_00");
-}
-
-int nsw::ARTConfig::art_core_cfg_deser_flagmask() const {
-    return core.getRegisterValue("03", "cfg_deser_flagmask");
-}
-
 bool nsw::ARTConfig::MustConfigure() const {
     return m_config.get("MustConfigure", true);
 }
@@ -41,8 +33,8 @@ bool nsw::ARTConfig::failsafe() const {
     return static_cast<bool>(m_config.get<int>("failsafe"));
 }
 
-int nsw::ARTConfig::TP_GBTxAlignmentBit() const {
-    return m_config.get<int>("TP_GBTxAlignmentBit");
+std::size_t nsw::ARTConfig::TP_GBTxAlignmentBit() const {
+    return m_config.get<std::size_t>("TP_GBTxAlignmentBit");
 }
 
 bool nsw::ARTConfig::TP_GBTxAlignmentSkip() const {
@@ -75,10 +67,8 @@ int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() const {
 
 bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     // bit of interest
-    int boi = TP_GBTxAlignmentBit();
-    if (boi < 0)
-        throw std::runtime_error("Alignment bit is less than 0: " + std::to_string(boi));
-    if (boi >= static_cast<int>(NPhase()))
+    const auto boi = TP_GBTxAlignmentBit();
+    if (boi >= NPhase())
         throw std::runtime_error("Alignment bit is greater than or equal to " + std::to_string(NPhase()) + ": " + std::to_string(boi));
     if (vec.size() != 4)
         throw std::runtime_error("Need a vector of bytes of size=4, but got size = " + std::to_string(vec.size()));
@@ -91,12 +81,11 @@ bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
 }
 
 uint8_t nsw::ARTConfig::BcidFromTp(const std::vector<uint8_t>& vec) const {
-    const size_t boi = TP_GBTxAlignmentBit();
+    const auto boi = TP_GBTxAlignmentBit();
     constexpr size_t num_bytes_for_32fibers_and_4bits_per_fiber = 16;
     if (vec.size() != num_bytes_for_32fibers_and_4bits_per_fiber) {
         throw std::runtime_error("Need a vector of bytes of size=16, but got size = " + std::to_string(vec.size()));
     }
-    // TODO(AT): correct this char ordering
     uint8_t bcid = 0;
     constexpr uint8_t fourLSB = 0x0f;
     const auto byte = vec.at(boi / 2);

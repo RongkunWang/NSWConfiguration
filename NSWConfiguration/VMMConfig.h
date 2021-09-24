@@ -50,19 +50,19 @@ class VMMConfig {
     void setName(std::string str) {name = std::move(str);}
     std::string getName() const {return name;}
 
-    unsigned getGlobalRegister(const std::string& register_name) const;
-    unsigned getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const;
-    std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> getChannelRegisterAllChannels(const std::string& register_name) const;
+    std::uint32_t getGlobalRegister(const std::string& register_name) const;
+    std::uint32_t getChannelRegisterOneChannel(const std::string& register_name, std::uint32_t channel) const;
+    std::array<std::uint32_t, nsw::vmm::NUM_CH_PER_VMM> getChannelRegisterAllChannels(const std::string& register_name) const;
 
-    void setGlobalRegister(const std::string& register_name, unsigned value);
-    void setChannelRegisterAllChannels(const std::string& register_name, unsigned value);
-    void setChannelRegisterOneChannel(const std::string& register_name, unsigned value, size_t channel);
+    void setGlobalRegister(const std::string& register_name, std::uint32_t value);
+    void setChannelRegisterAllChannels(const std::string& register_name, std::uint32_t value);
+    void setChannelRegisterOneChannel(const std::string& register_name, std::uint32_t value, std::uint32_t channel);
 
-    void setTestPulseDAC    (size_t param);
-    void setGlobalThreshold (size_t param);
-    void setMonitorOutput   (size_t channel_id, size_t param);
-    void setChannelTrimmer  (size_t channel_id, size_t param);
-    void setChannelMOMode   (size_t channel_id, size_t param);
+    void setTestPulseDAC    (std::uint32_t param);
+    void setGlobalThreshold (std::uint32_t param);
+    void setMonitorOutput   (std::uint32_t channel_id, std::uint32_t param);
+    void setChannelTrimmer  (std::uint32_t channel_id, std::uint32_t param);
+    void setChannelMOMode   (std::uint32_t channel_id, std::uint32_t param);
 };
 
 namespace vmm {
@@ -70,18 +70,18 @@ namespace vmm {
     /// vmm register values
 
     /// scmx
-    const size_t CommonMonitor  = 0;
-    const size_t ChannelMonitor = 1;
+    const std::uint32_t CommonMonitor  = 0;
+    const std::uint32_t ChannelMonitor = 1;
 
     /// sm (when scmx = 0)
-    const size_t TestPulseDAC = 1;
-    const size_t ThresholdDAC = 2;
-    const size_t BandGapRef   = 3;
-    const size_t Temperature  = 4;
+    const std::uint32_t TestPulseDAC = 1;
+    const std::uint32_t ThresholdDAC = 2;
+    const std::uint32_t BandGapRef   = 3;
+    const std::uint32_t Temperature  = 4;
     
     /// channel_smx
-    const size_t ChannelAnalogOutput     = 0;
-    const size_t ChannelTrimmedThreshold = 1;
+    const std::uint32_t ChannelAnalogOutput     = 0;
+    const std::uint32_t ChannelTrimmedThreshold = 1;
 
 }
 

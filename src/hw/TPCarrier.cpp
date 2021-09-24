@@ -16,16 +16,16 @@ void nsw::hw::TPCarrier::writeConfiguration() const
   writeRegister(regs.at("RJOUT_SEL"), m_config.RJOutSel());
 }
 
-std::map<std::uint8_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() const
+std::map<std::uint32_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() const
 {
-  std::map<std::uint8_t, std::uint32_t> result;
+  std::map<std::uint32_t, std::uint32_t> result;
   for (const auto& [name, reg]: nsw::carrier::REGS) {
     result.emplace(reg, readRegister(reg));
   }
   return result;
 }
 
-void nsw::hw::TPCarrier::writeRegister(const std::uint8_t regAddress,
+void nsw::hw::TPCarrier::writeRegister(const std::uint32_t regAddress,
                                        const std::uint32_t value) const
 {
   ERS_LOG("Writing address, message =  " << static_cast<uint32_t>(regAddress) << ", " << value << " to "
@@ -42,7 +42,7 @@ void nsw::hw::TPCarrier::writeRegister(const std::uint8_t regAddress,
   nsw::hw::SCA::sendI2cRaw(opcConnection, m_scaAddress, payload.data(), payload.size());
 }
 
-std::uint32_t nsw::hw::TPCarrier::readRegister(const std::uint8_t regAddress) const
+std::uint32_t nsw::hw::TPCarrier::readRegister(const std::uint32_t regAddress) const
 {
   const auto addr = nsw::intToByteVector(regAddress, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
 

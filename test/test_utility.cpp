@@ -118,16 +118,6 @@ BOOST_AUTO_TEST_CASE(Bitstring_SizeOverflow_ThrowsOutOfRange) {
     BOOST_CHECK_THROW(nsw::bitString(0x41414141, -1), std::out_of_range);
 }
 
-BOOST_AUTO_TEST_CASE(BitsetToHexString_EmptyBitset_ReturnsEmptyString) {
-    BOOST_TEST(nsw::bitsetToHexString(std::bitset<0>{}) == std::string{});
-}
-
-BOOST_AUTO_TEST_CASE(BitsetToHexString_ValidBitset_ReturnsHexString) {
-    // Function is malformed for bitset<N>, N % 8 != 0. Probably should not compile if N not multiple of 8.
-    BOOST_TEST(nsw::bitsetToHexString(std::bitset<8>{"10101011"}) == "ab");
-    BOOST_TEST(nsw::bitsetToHexString(std::bitset<16>{"1100100111000011"}) == "c9c3");
-}
-
 BOOST_AUTO_TEST_CASE(GetElementType_ElementNameInInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("A.MMFE8.B") == "MMFE8");
     BOOST_TEST(nsw::getElementType("A.PFEB.B") == "PFEB");

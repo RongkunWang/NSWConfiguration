@@ -6,7 +6,7 @@
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/TP_I2cRegisterMappings.h"
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 #include "boost/property_tree/json_parser.hpp"
 

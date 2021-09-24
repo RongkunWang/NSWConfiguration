@@ -12,7 +12,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
@@ -31,7 +31,6 @@ struct ThreadConfig {
 
 int active_threads(std::vector< std::future<int> >* threads);
 int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg);
-void readTDS(nsw::FEBConfig & feb) {}
 
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";

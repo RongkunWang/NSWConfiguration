@@ -8,7 +8,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 int main(int ac, const char *av[]) {
     std::string description = "This program is for reading/writing GPIO on the Rim L1DDC";

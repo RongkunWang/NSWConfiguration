@@ -4,18 +4,18 @@
 #define NSWCONFIGURATION_OPCCLIENT_H_
 
 #include <unistd.h>
-#include <time.h>
+#include <ctime>
 
 #include <iostream>
 #include <string>
 #include <memory>
 #include <vector>
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 // From UaoForQuasar (UaoClientForOpcUaSca/include)
-#include "ClientSessionFactory.h"
-#include "QuasarFreeVariable.h"
+#include <ClientSessionFactory.h>
+#include <QuasarFreeVariable.h>
 
 // Throw this if constructor fails
 ERS_DECLARE_ISSUE(nsw,
@@ -83,6 +83,7 @@ public:
     /// \param number_of_chunks Number of 96 bit chunks to read
     /// \param current_node Current ptree node we are at, required for recursive calls
     /// \return vector of bytes, with size number_of_chunks*12
+    [[nodiscard]]
     std::vector<uint8_t> readSpiSlave(const std::string& node, size_t number_of_chunks) const;
 
 
@@ -93,24 +94,31 @@ public:
     void writeI2cRaw(const std::string& node, const uint8_t* data, size_t number_of_bytes) const;
 
     void writeGPIO(const std::string& node, bool value) const;
+    [[nodiscard]]
     bool readGPIO(const std::string& node) const;
 
     /// Read back the I2c
+    [[nodiscard]]
     std::vector<uint8_t> readI2c(const std::string& node, size_t number_of_bytes = 1) const;
 
     //! Read current value of an analog output
+    [[nodiscard]]
     float readAnalogInput(const std::string& node) const;
 
     //! Read n_samples consecutive samples from an analog output.
-    std::vector<short unsigned int> readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const;
+    [[nodiscard]]
+    std::vector<std::uint16_t> readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const;
 
     // Read SCA ID
-    int readScaID(const std::string& node) const; 
+    [[nodiscard]]
+    std::uint32_t readScaID(const std::string& node) const; 
 
     // Read SCA Address
+    [[nodiscard]]
     std::string readScaAddress(const std::string& node) const;
 
     // Read SCA Online Status
+    [[nodiscard]]
     bool readScaOnline(const std::string& node) const;
 
     /// Read back ROC
@@ -120,7 +128,8 @@ public:
     /// \param registerAddress ROC register address as uint8_t (This can be deduced from register name)
     /// \param i2cDelay I2c delay value, 2 corresponds to 100kHz
     /// \return result 8 bit register value
-    uint8_t readRocRaw(const std::string& node, unsigned int scl, unsigned int sda, uint8_t registerAddress, unsigned int i2cDelay) const;
+    [[nodiscard]]
+    std::uint8_t readRocRaw(const std::string& node, unsigned int scl, unsigned int sda, std::uint8_t registerAddress, unsigned int i2cDelay) const;
 
     /// Program FPGA
     /// \param bitfile_path relative or absolute path of the binary file that contains the configuration

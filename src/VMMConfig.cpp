@@ -4,7 +4,7 @@
 
 #include <utility>
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 using boost::property_tree::ptree;
 
@@ -18,17 +18,17 @@ std::vector<uint8_t> nsw::VMMConfig::getByteVector() const {
     return nsw::stringToByteVector(m_bitstring);
 }
 
-unsigned nsw::VMMConfig::getGlobalRegister(const std::string& register_name) const {
+std::uint32_t nsw::VMMConfig::getGlobalRegister(const std::string& register_name) const {
     if (!VMMCodec::globalRegisterExists(register_name)) {
         std::string temp = register_name;
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
         ers::error(issue);
         throw issue;
     }
-    return m_config.get<unsigned>(register_name);
+    return m_config.get<std::uint32_t>(register_name);
 }
 
-unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& register_name, size_t channel) const {
+std::uint32_t nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& register_name, const std::uint32_t channel) const {
     auto channelreg = VMMCodec::buildChannelRegisterMap(m_config);
     if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
@@ -40,10 +40,10 @@ unsigned nsw::VMMConfig::getChannelRegisterOneChannel(const std::string& registe
         ers::error(issue);
         throw issue;
     }
-    return channelreg[register_name][channel];
+    return channelreg.at(register_name).at(channel);
 }
 
-std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> nsw::VMMConfig::getChannelRegisterAllChannels(const std::string& register_name) const {
+std::array<std::uint32_t, nsw::vmm::NUM_CH_PER_VMM> nsw::VMMConfig::getChannelRegisterAllChannels(const std::string& register_name) const {
     auto channelreg = VMMCodec::buildChannelRegisterMap(m_config);
     if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
@@ -54,7 +54,7 @@ std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM> nsw::VMMConfig::getChannelRegiste
     return channelreg.at(register_name);
 }
 
-void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, unsigned value) {
+void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, const std::uint32_t value) {
     if (!VMMCodec::globalRegisterExists(register_name)) {
         std::string temp = register_name;
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
@@ -71,13 +71,13 @@ void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, unsigne
     }
 }
 
-void nsw::VMMConfig::setChannelRegisterAllChannels(const std::string& register_name, unsigned value) {
+void nsw::VMMConfig::setChannelRegisterAllChannels(const std::string& register_name, const std::uint32_t value) {
     m_config.erase(register_name);
     m_config.put(register_name, value);
     m_bitstring = VMMCodec::buildConfig(m_config);
 }
 
-void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_name, unsigned value, size_t channel) {
+void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_name, const std::uint32_t value, const std::uint32_t channel) {
     if (!VMMCodec::channelRegisterExists(register_name)) {
         std::string temp = register_name + "(Channel register)";
         nsw::NoSuchVmmRegister issue(ERS_HERE, temp.c_str());
@@ -101,21 +101,21 @@ void nsw::VMMConfig::setChannelRegisterOneChannel(const std::string& register_na
     m_bitstring = VMMCodec::buildConfig(m_config);
 }
 
-void nsw::VMMConfig::setTestPulseDAC(size_t param) {
+void nsw::VMMConfig::setTestPulseDAC(const std::uint32_t param) {
     //
     // param (tpdac): 0-1023
     //
-    this->setGlobalRegister("sdp_dac", param);
+    setGlobalRegister("sdp_dac", param);
 }
 
-void nsw::VMMConfig::setGlobalThreshold(size_t param) {
+void nsw::VMMConfig::setGlobalThreshold(const std::uint32_t param) {
     //
     // param (thdac): 0-1023
     //
-    this->setGlobalRegister("sdt_dac", param);
+    setGlobalRegister("sdt_dac", param);
 }
 
-void nsw::VMMConfig::setMonitorOutput(size_t channel_id, size_t param) {
+void nsw::VMMConfig::setMonitorOutput(const std::uint32_t channel_id, const std::uint32_t param) {
     //
     //
     // param = 0: common monitor mode
@@ -126,21 +126,21 @@ void nsw::VMMConfig::setMonitorOutput(size_t channel_id, size_t param) {
     //     channel_id = 3: bandgap reference
     //     channel_id = 4: temperature
     //
-    this->setGlobalRegister("scmx", param);
-    this->setGlobalRegister("sm",   channel_id);
+    setGlobalRegister("scmx", param);
+    setGlobalRegister("sm",   channel_id);
 }
 
-void nsw::VMMConfig::setChannelMOMode(size_t channel_id, size_t param) {
+void nsw::VMMConfig::setChannelMOMode(const std::uint32_t channel_id, const std::uint32_t param) {
     //
     // param = 0: channel analog output
     // param = 1: channel threshold
     //
-    this->setChannelRegisterOneChannel("channel_smx", param, channel_id);
+    setChannelRegisterOneChannel("channel_smx", param, channel_id);
 }
 
-void nsw::VMMConfig::setChannelTrimmer(size_t channel_id, size_t param) {
+void nsw::VMMConfig::setChannelTrimmer(const std::uint32_t channel_id, const std::uint32_t param) {
     //
     // param (trim): 0-31
     //
-    this->setChannelRegisterOneChannel("channel_sd", param, channel_id);
+    setChannelRegisterOneChannel("channel_sd", param, channel_id);
 }

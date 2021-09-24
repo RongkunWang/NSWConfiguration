@@ -10,14 +10,13 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
 int main(int ac, const char *av[]) {
     std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
 
-    bool configure_roc;
     std::string config_filename;
     po::options_description desc("This program configures ROC/VMM with some command line options");
     desc.add_options()

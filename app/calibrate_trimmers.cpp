@@ -11,7 +11,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
@@ -63,12 +63,8 @@ float take_rms(std::vector<short unsigned int> &v, float mean) {
   return stdev;
 }
 
-bool check_channel(float ch_baseline_med, float ch_baseline_rms, float vmm_baseline_med) {
-  if (sample_to_mV(ch_baseline_rms) > RMS_CUTOFF)
-    return false;
-  // if (fabs(sample_to_mV(ch_baseline_med - vmm_baseline_med))  > RMS_CUTOFF)
-  //   return false;
-  return true;
+bool check_channel(float, float ch_baseline_rms, float) {
+  return not (sample_to_mV(ch_baseline_rms) > RMS_CUTOFF);
 }
 
 std::pair<float, float> get_slopes(float ch_lo,

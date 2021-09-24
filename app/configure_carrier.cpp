@@ -11,7 +11,7 @@
 #include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
 int main(int ac, const char *av[]) {

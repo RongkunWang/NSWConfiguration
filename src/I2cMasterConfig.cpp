@@ -6,7 +6,7 @@
 #include <utility>
 #include <numeric>
 
-#include "ers/ers.h"
+#include <ers/ers.h>
 
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/Constants.h"
@@ -27,7 +27,7 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
         i2c::AddressSizeMap register_size;
 
         // Total size of registers, by summing sizes of individual registers
-        size_t total_size = std::accumulate(register_sizes.begin(), register_sizes.end(), 0,
+        const auto total_size = std::accumulate(register_sizes.begin(), register_sizes.end(), std::size_t{0},
                                             [](size_t sum, i2c::RegisterSizePair & p) {
                                             return sum + p.second;  });
         ERS_DEBUG(3, address << " -> total size: " << total_size);
@@ -152,7 +152,7 @@ uint32_t nsw::I2cMasterConfig::getRegisterValue(const std::string& address, cons
 
     // Find corresponding string of bits from the bitstream and convert it to long
     auto tmp = m_address_bitstream.at(address).substr(reg_pos, reg_size);
-    return std::stoul(tmp, nullptr, 2);
+    return static_cast<std::uint32_t>(std::stoul(tmp, nullptr, 2));
 }
 
 void nsw::I2cMasterConfig::setRegisterValue(const std::string& address, const std::string& register_name,

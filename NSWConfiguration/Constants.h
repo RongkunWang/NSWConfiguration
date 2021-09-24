@@ -82,6 +82,10 @@ namespace nsw {
   constexpr std::size_t MIN_SECTOR_ID = 1;
   constexpr std::size_t MAX_SECTOR_ID = 16;
 
+  /// Number of wheels and sectors
+  constexpr std::size_t NUM_WHEELS = 2;
+  constexpr std::size_t NUM_SECTORS = 16;
+
   // Magic names of electronics
   // Do not easily change the order.
   const std::vector<std::string> ELEMENT_NAMES = {

@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <memory>
 #include <vector>
 #include <string>
@@ -63,7 +64,7 @@ void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* da
 
     UaByteString bs;
     // UaByteString::setByteString does not modify its buffer argument.
-    bs.setByteString(number_of_bytes, const_cast<uint8_t*>(data));
+    bs.setByteString(static_cast<int>(number_of_bytes), const_cast<uint8_t*>(data));
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
@@ -88,8 +89,8 @@ void nsw::OpcClient::writeSpiSlaveRaw(const std::string& node, const uint8_t* da
 }
 
 
-uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, unsigned int sda,
-                                    uint8_t registerAddress, unsigned int i2cDelay) const {
+std::uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, unsigned int sda,
+                                        std::uint8_t registerAddress, unsigned int i2cDelay) const {
     UaoClientForOpcUaSca::IoBatch ioBatch(m_session.get(), UaNodeId( node.c_str(), 2));
 
     ioBatch.addSetPins( { { scl, true }, { sda, true } } );
@@ -101,7 +102,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 
     uint8_t byte = 0xF1;
 
-    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
+    for (std::size_t i = 0; i < ROC_REGISTER_SIZE; ++i) {
 
       if ( byte & 0x80 ) {
         ioBatch.addSetPins( { { sda, true } } );
@@ -122,7 +123,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
     ioBatch.addSetPins( { { scl, false } }, i2cDelay );
     ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::OUTPUT } } );
 
-    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
+    for (std::size_t i = 0; i < ROC_REGISTER_SIZE; ++i) {
       if ( registerAddress & 0x80 ) {
         ioBatch.addSetPins( { { sda, true } } );
       } else {
@@ -144,7 +145,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 
     ioBatch.addSetPinsDirections( { { sda, UaoClientForOpcUaSca::IoBatch::INPUT } } );
 
-    for (auto i = 0; i < ROC_REGISTER_SIZE; ++i) {
+    for (std::size_t i = 0; i < ROC_REGISTER_SIZE; ++i) {
         ioBatch.addSetPins( { { scl, true } }, i2cDelay );
         ioBatch.addGetPins();
         ioBatch.addSetPins( { { scl, false } }, i2cDelay );
@@ -164,7 +165,7 @@ uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int scl, un
 
     std::bitset<ROC_REGISTER_SIZE> registerValue;
 
-    for ( auto i = 0; i < ROC_REGISTER_SIZE; ++i ) {
+    for (std::size_t i = 0; i < ROC_REGISTER_SIZE; ++i) {
         registerValue[ROC_REGISTER_SIZE-1-i] = interestingPinSda[i+2];
     }
 
@@ -177,7 +178,7 @@ std::vector<uint8_t> nsw::OpcClient::readSpiSlave(const std::string& node, size_
 
     try {
         UaByteString bsread;
-        ss.readSlave(number_of_chunks, bsread);
+        ss.readSlave(static_cast<std::uint32_t>(number_of_chunks), bsread);
         std::vector<uint8_t> result;
         auto array = bsread.data();
         auto length = bsread.length();
@@ -201,7 +202,7 @@ void nsw::OpcClient::writeI2cRaw(const std::string& node, const uint8_t* data, s
 
     UaByteString bs;
     // UaByteString::setByteString does not modify its buffer argument.
-    bs.setByteString(number_of_bytes, const_cast<uint8_t*>(data));
+    bs.setByteString(static_cast<int>(number_of_bytes), const_cast<uint8_t*>(data));
     ERS_DEBUG(4, "Node: " << node << ", Data size: " << number_of_bytes
               << ", data[0]: " << static_cast<unsigned>(data[0]));
 
@@ -281,7 +282,7 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t num
     std::vector<uint8_t> result;
     try {
         UaByteString output;
-        i2cnode.readSlave(number_of_bytes, output);
+        i2cnode.readSlave(static_cast<std::uint8_t>(number_of_bytes), output);
         ERS_DEBUG(4, "node: " << node << ", bytes to read: " << number_of_bytes);
         // copy array contents in a vector
         result.assign(output.data(), output.data() + number_of_bytes);
@@ -299,16 +300,16 @@ float nsw::OpcClient::readAnalogInput(const std::string& node) const {
     return ainode.readValue();
 }
 
-std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const {
+std::vector<std::uint16_t> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
 
-    std::vector<short unsigned int> values;
+    std::vector<std::uint16_t> values;
 
     bool success{ false };
     size_t retry{ 0 };
     while (!success && retry < MAX_RETRY) {
         try {
-            ainode.getConsecutiveRawSamples(n_samples, values);
+            ainode.getConsecutiveRawSamples(static_cast<std::uint16_t>(n_samples), values);
             success = true;
         }
         catch (const std::exception& e) {
@@ -327,23 +328,23 @@ std::vector<short unsigned int> nsw::OpcClient::readAnalogInputConsecutiveSample
     return values;
 }
 
-int nsw::OpcClient::readScaID(const std::string& node) const {
-    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+unsigned int nsw::OpcClient::readScaID(const std::string& node) const {
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
     return scanode.readId();
 }
 
 std::string nsw::OpcClient::readScaAddress(const std::string& node) const {
-    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
     return scanode.readAddress().toUtf8();
 }
 
 bool nsw::OpcClient::readScaOnline(const std::string& node) const {
-    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
     return scanode.readOnline();
 }
 
 void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string& bitfile_path) const {
-    UaoClientForOpcUaSca::XilinxFpga fpga(m_session.get(), UaNodeId(node.c_str(), 2));
+    UaoClientForOpcUaSca::XilinxFpga fpga(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
 
     // Open file in binary mode and immediately go to end
     std::ifstream input(bitfile_path, std::ios::binary| std::ios::ate);
@@ -351,7 +352,7 @@ void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string&
     if (input.is_open()) {
         auto size = input.tellg();  // Current position, which is end of file
         ERS_DEBUG(4, "File size in bytes: " << size);
-        auto bytes = std::make_unique<char[]>(size);
+        auto bytes = std::make_unique<char[]>(static_cast<std::size_t>(size));
         input.seekg(0, std::ios::beg);  // Go to beginning of file
         input.read(bytes.get(), size);  // Read the whole file into memory block
         input.close();
@@ -359,25 +360,18 @@ void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string&
         // Convert to UaByteString
         UaByteString bs;
         // FIXME: unnecessary cast?
-        bs.setByteString(size, reinterpret_cast<uint8_t*>(bytes.get()));
+        bs.setByteString(static_cast<int>(size), reinterpret_cast<uint8_t*>(bytes.get()));
         ERS_DEBUG(4, "Node: " << node << ", Data size: " << size
                   << ", data[0]: " << static_cast<unsigned>(bytes.get()[0]));
 
         try {
             fpga.program(bs);
         } catch (const std::exception& e) {
-            // TODO(cyildiz) handle exception properly
             nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't program FPGA: {}", e.what()));
             ers::warning(issue);
-            // throw issue;
         }
     } else {  // File doesn't exist?
-      // TODO(cyildiz) handle exception properly
       nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't open bitfile: {}", bitfile_path));
       ers::warning(issue);
-      // throw issue;
     }
 }
-
-
-// TODO(cyildiz): Set a parameter: number_of_retries, so each action is tried multiple times
