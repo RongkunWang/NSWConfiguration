@@ -67,14 +67,52 @@ public:
      */
     void debugPrintRegisterMaps();
 
-    // interface
+    /**
+     * \brief Sets the whole config, eg to match readback config
+     * 
+     * \param config: what to set the internal config to
+     */
+    void setConfig(const std::vector<std::uint8_t>& config);
+
+    /**
+     * \brief Sets the register for a given setting to 0x00, then set the setting to value
+     * 
+     * \param name name of the setting
+     * \param value value to be set
+     */
+    void reset(const std::string& name, const std::size_t value);
+
     /**
      * \brief Sets the value in the config object for a given setting
      * 
      * \param name name of the setting
      * \param value value to be set
      */
-    void set(const std::string& name,std::size_t value);
+    void set(const std::string& name, const std::size_t value);
+
+    /**
+     * \brief Set the e-link phase training registers on to begin training
+     * Details: reset channels
+     *          set phase tracker mode to 01
+     *          set phase training pins on
+     */
+    void setTrainingRegistersOn();
+
+    /**
+     * \brief Set the e-link phase training registers off to stop training
+     * Details: set phase training pins off
+     */
+    void setTrainingRegistersOff();
+
+    /**
+     * \brief Set reset channels on
+     */
+    void setResetChannelsOn();
+
+    /**
+     * \brief Set reset channels off
+     */
+    void setResetChannelsOff();
 
     /**
      * \brief Sets a register in the config object to a given value
@@ -91,7 +129,13 @@ public:
      * \return std::vector<std::uint8_t> config as register vector
      */
     std::vector<std::uint8_t> configAsVector() const ;
-    
+
+    /**
+     * \brief Set the config from file path
+     * 
+     * \param string file path
+     */
+    void setConfigFromFile(const std::string& iPath);
     /**
      * \brief Set the config from ptree object
      * 
@@ -105,6 +149,13 @@ public:
      * \return std::string formatted config
      */
     std::string getPrintableConfig() const;
+
+    /**
+     * \brief Parse full GBTx config, return phases
+     * 
+     * \return std::vector<uint8_t> list of phase values
+     */
+     static std::vector<uint8_t> parsePhasesFromConfig(const std::vector<uint8_t>& config) ;
 
     /**
      * \brief Return the number of registers

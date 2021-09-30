@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "NSWConfiguration/Utility.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -32,13 +33,16 @@ class L1DDCConfig {
     std::size_t m_portToGBTx;
     std::size_t m_portFromGBTx;
     std::size_t m_elinkId;
+    bool m_trainGBTxPhaseAlignment;
+    int m_trainGBTxPhaseWaitTime;
     std::string m_opcServerIp;
+    std::string m_name;
 
  public:
 
     /**
      * \brief Construct a new L1DDCConfig object
-     * 
+     *
      * Example configuration ptree:
      * {
      *   "OpcServerIp": "pcatlnswfelix10.cern.ch",
@@ -58,46 +62,83 @@ class L1DDCConfig {
      *       ...
      *   }
      * }
-     * 
+     *
      * \param config configuration ptree (see example above)
      */
     explicit L1DDCConfig(const boost::property_tree::ptree& config);
 
     /**
+     * Simple configuration for standalone use
+     */
+    explicit L1DDCConfig(const nsw::GBTxSingleConfig& config);
+
+    /**
      * \brief Get the port to Gbtx
-     * 
+     *
      * \return std::size_t port
      */
     std::size_t getPortToGbtx() const {return m_portToGBTx;}
 
     /**
      * \brief Get the port from GBTx
-     * 
+     *
      * \return std::size_t port
      */
     std::size_t getPortFromGbtx() const {return m_portFromGBTx;}
 
     /**
      * \brief Get the elink ID
-     * 
+     *
      * \return std::size_t elink ID
      */
     std::size_t getElinkId() const {return m_elinkId;}
 
     /**
+     * \brief Get the name of l1ddc
+     *
+     * \return std::string name of l1ddc
+     */
+    std::string getName() const {return m_name;}
+
+    /**
      * \brief Get the IP address of the OPC server
-     * 
+     *
      * \return std::string OPC IP address
      */
     std::string getOpcServerIp() const {return m_opcServerIp;}
 
     /**
+     * \brief Return the time to wait while training the GBTx phase alignment
+     *
+     * \return int train time in us
+     */
+    int trainGBTxPhaseWaitTime() const {return m_trainGBTxPhaseWaitTime;}
+
+    /**
+     * \brief Return whether to train the GBTx phase alignment has been configured
+     *
+     * \return bool train setting
+     */
+    bool trainGBTxPhaseAlignment() const {return m_trainGBTxPhaseAlignment;}
+
+    /**
      * \brief Get the configuration bytestream for a given GBTx
-     * 
+     *
      * \param gbtxId GBTx ID
      * \return std::vector<uint8_t> bytestream
      */
     std::vector<std::uint8_t> getGbtxBytestream(std::size_t gbtxId) const;
+
+    /**
+     * \brief Update config objects in each GBTx instance to start training e-links
+     */
+    void trainGbtxsOn();
+
+    /**
+     * \brief Update config objects in each GBTx instance to stop training e-links
+     */
+    void trainGbtxsOff();
+
 };
 }  // namespace nsw
 

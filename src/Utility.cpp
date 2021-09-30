@@ -255,19 +255,23 @@ std::string nsw::dumpTree(const boost::property_tree::ptree& pt)
 
 std::string nsw::getPrintableGbtxConfig(std::vector<uint8_t> data){
     // Return nicely formatted GBTx configuration string from configuration vector
+    if (data.size()!=436){
+        ERS_DEBUG(1,"Asked to print GBTx configuration with size!=436. This strongly indicates a mistake.");
+    }
+
     std::stringstream ss;
-    ss<<"reg |";
-    for (int i=0; i<436; i++){
+    ss<<"\nreg |";
+    for (int i=0; i<data.size(); i++){
         if (i%16==0) {
-            ss<<std::dec<<std::endl<<i;
+            ss<<std::dec<<'\n'<<i;
             if (i<10) ss<<" ";
             if (i<100) ss<<" ";
             ss<<" | ";
         }
-        if (data[i]<0x10) ss<<"0";
+        if (data.at(i)<0x10) ss<<"0";
         ss << std::hex << static_cast<int>(data.at(i)) << std::dec << " ";
     }
-    ss<<std::endl;
+    ss<<'\n';
     return ss.str();
 }
 

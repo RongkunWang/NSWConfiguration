@@ -28,7 +28,7 @@ namespace i2c {
     using AddressBitstreamMap = std::map<std::string, std::string>;
 }  // namespace i2c
 
-namespace gbtx{
+namespace gbtx {
 
     struct regMap {
         std::string name;
@@ -43,6 +43,17 @@ namespace nsw {
     using DeviceMap = std::unordered_map<
         std::string,
         std::unordered_map<std::string, boost::property_tree::ptree>>;
+
+    struct GBTxSingleConfig{
+        std::string iPath;
+        std::string opcServerIp;
+        std::size_t portToGBTx;
+        std::size_t portFromGBTx;
+        std::size_t elinkId;
+        bool trainGBTxPhaseAlignment;
+        int trainGBTxPhaseWaitTime;
+    };
+
 } // namespace nsw
 
 #endif  // NSWCONFIGURATION_TYPES_H_
