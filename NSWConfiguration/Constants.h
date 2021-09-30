@@ -15,6 +15,9 @@ namespace nsw {
   /// Fool me once
   constexpr std::size_t MAX_ATTEMPTS = 5;
 
+  /// Make it clear when we are using 16 to indicate hexadecimal
+  constexpr std::size_t BASE_HEX = 16;
+
   /// Make it clear when we are using 8 as the size in bits of a byte
   constexpr std::size_t NUM_BITS_IN_BYTE = 8;
 
@@ -248,16 +251,16 @@ namespace nsw {
     constexpr std::uint32_t NUM_PFEB_BCID_READS    = 100;
     constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
-    constexpr std::uint32_t REG_CONTROL          = 0x00;
-    constexpr std::uint32_t REG_STATUS           = 0x01;
-    constexpr std::uint32_t REG_L1ID             = 0x02;
-    constexpr std::uint32_t REG_CONTROL2         = 0x03;
-    constexpr std::uint32_t REG_PFEB_DELAY_23_16 = 0x04;
-    constexpr std::uint32_t REG_PFEB_DELAY_15_08 = 0x05;
-    constexpr std::uint32_t REG_PFEB_DELAY_07_00 = 0x06;
-    constexpr std::uint32_t REG_PFEB_BCID_23_16  = 0x07;
-    constexpr std::uint32_t REG_PFEB_BCID_15_08  = 0x08;
-    constexpr std::uint32_t REG_PFEB_BCID_07_00  = 0x09;
+    constexpr std::uint8_t REG_CONTROL          = 0x00;
+    constexpr std::uint8_t REG_STATUS           = 0x01;
+    constexpr std::uint8_t REG_L1ID             = 0x02;
+    constexpr std::uint8_t REG_CONTROL2         = 0x03;
+    constexpr std::uint8_t REG_PFEB_DELAY_23_16 = 0x04;
+    constexpr std::uint8_t REG_PFEB_DELAY_15_08 = 0x05;
+    constexpr std::uint8_t REG_PFEB_DELAY_07_00 = 0x06;
+    constexpr std::uint8_t REG_PFEB_BCID_23_16  = 0x07;
+    constexpr std::uint8_t REG_PFEB_BCID_15_08  = 0x08;
+    constexpr std::uint8_t REG_PFEB_BCID_07_00  = 0x09;
     [[deprecated("Should only be used with Pad_ro_ilaro_20200610.bit")]]
     constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_SS = {
       "PFEB_L4Q2_IP", "PFEB_L2Q2_IP", "PFEB_L4Q1_IP", "PFEB_L2Q1_IP",
