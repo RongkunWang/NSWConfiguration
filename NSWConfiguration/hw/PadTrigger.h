@@ -8,6 +8,14 @@
 
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 
+#include <ers/Issue.h>
+
+ERS_DECLARE_ISSUE(nsw,
+                  PadTriggerReadbackMismatch,
+                  message,
+                  ((const char *)message)
+                  )
+
 namespace nsw::hw {
   /**
    * \brief Class representing a Pad Trigger
@@ -28,11 +36,20 @@ namespace nsw::hw {
     explicit PadTrigger(const PadTriggerSCAConfig& config);
 
     /**
+     * \brief Name of pad trigger object
+     *
+     * \returns a name of the object
+     */
+    [[nodiscard]]
+    std::string name() const {return m_name;};
+
+    /**
      * \brief Read the full PadTrigger address space
      *
      * \returns a map of address to register value
      */
-    [[nodiscard]] std::map<std::uint8_t, std::vector<std::uint32_t>> readConfiguration() const;
+    [[nodiscard]]
+    std::map<std::uint8_t, std::uint32_t> readConfiguration() const;
 
     /**
      * \brief Write the full PadTrigger configuration
@@ -40,21 +57,95 @@ namespace nsw::hw {
     void writeConfiguration() const;
 
     /**
-     * \brief Write a value to a TP register address
+     * \brief Write the PadTrigger repeaters configuration
+     */
+    void writeRepeatersConfiguration() const;
+
+    /**
+     * \brief Write the PadTrigger VTTx configuration
+     */
+    void writeVTTxConfiguration() const;
+
+    /**
+     * \brief Write the PadTrigger FPGA configuration
+     */
+    void writeFPGAConfiguration() const;
+
+    /**
+     * \brief Write a value to a pad trigger GPIO
+     *
+     * \param name is the name of the GPIO
+     * \param value is the value to be written
+     */
+    void writeGPIO(const std::string& name, bool value) const;
+
+    /**
+     * \brief Write a value to a pad trigger FPGA register address
      *
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister([[maybe_unused]] std::uint8_t regAddress,
-                       [[maybe_unused]] std::uint32_t value) const;
+    void writeFPGARegister(std::uint8_t regAddress,
+                           std::uint32_t value) const;
 
     /**
-     * \brief Read an individual TP register by its address
+     * \brief Write a value to a pad trigger VTTx register address
+     *
+     * \param vttx is the number of the VTTx
+     * \param regAddress is the address of the register
+     * \param value is the value to be written
+     */
+    void writeVTTxRegister(std::uint8_t vttx,
+                           std::uint8_t regAddress,
+                           std::uint8_t value) const;
+
+    /**
+     * \brief Write a value to a pad trigger repeater register address
+     *
+     * \param repeater is the number of the repeater
+     * \param regAddress is the address of the register
+     * \param value is the value to be written
+     */
+    void writeRepeaterRegister(std::uint8_t repeater,
+                               std::uint8_t regAddress,
+                               std::uint8_t value) const;
+
+    /**
+     * \brief Read an individual pad trigger FPGA register by its address
      *
      * \param regAddress is the address of the register
      */
-    [[nodiscard]] std::vector<std::uint8_t> readRegister(
-      [[maybe_unused]] std::uint8_t regAddress) const;
+    [[nodiscard]]
+    std::uint32_t readFPGARegister(std::uint8_t regAddress) const;
+
+    /**
+     * \brief Write a value to a pad trigger GPIO
+     *
+     * \param name is the name of the GPIO
+     * \param value is the value to be written
+     */
+    [[nodiscard]]
+    bool readGPIO(const std::string& name) const;
+
+    /**
+     * \brief Read an individual pad trigger repeater register by its address
+     *
+     * \param repeater is the number of the repeater
+     * \param regAddress is the address of the register
+     */
+    [[nodiscard]]
+    std::uint8_t readRepeaterRegister(std::uint8_t repeater,
+                                      std::uint8_t regAddress) const;
+
+    /**
+     * \brief Read an individual pad trigger VTTx register by its address
+     *
+     * \param VTTx is the number of the VTTx
+     * \param regAddress is the address of the register
+     */
+    [[nodiscard]]
+    std::uint8_t readVTTxRegister(std::uint8_t vttx,
+                                  std::uint8_t regAddress) const;
 
     /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
@@ -68,6 +159,42 @@ namespace nsw::hw {
     PadTriggerSCAConfig m_config;  //!< PadTriggerConfig object associated with this PadTrigger
     std::string m_opcserverIp;     //!< Address and port of OPC Server
     std::string m_scaAddress;      //!< SCA address of PadTrigger item in the OPC address space
+    std::string m_scaAddressFPGA;  //!< SCA address of PadTrigger FPGA i2c
+    std::string m_name;            //!< Name composed of OPC and SCA addresses
+
+    static constexpr std::array<std::uint8_t, 2> m_vttxs{1, 2};
+    static constexpr std::array<std::uint8_t, 1> m_vttx_datas{0xC7};
+    static constexpr std::uint8_t m_vttx_addr{0x00};
+
+    static constexpr size_t NUM_CMD = 72;
+    static constexpr std::array< std::tuple< std::uint8_t, std::uint8_t, std::uint8_t >, NUM_CMD>
+      m_repeaterSequenceOfCommands = {{
+        // clang-format off
+        // enable smbus registers on all repeater chips
+        {0x01, 0x07, 0x01}, {0x01, 0x07, 0x11}, {0x01, 0x07, 0x21}, {0x01, 0x07, 0x31},
+        {0x02, 0x07, 0x01}, {0x02, 0x07, 0x11}, {0x02, 0x07, 0x21}, {0x02, 0x07, 0x31},
+        {0x03, 0x07, 0x01}, {0x03, 0x07, 0x11}, {0x03, 0x07, 0x21}, {0x03, 0x07, 0x31},
+        {0x04, 0x07, 0x01}, {0x04, 0x07, 0x11}, {0x04, 0x07, 0x21}, {0x04, 0x07, 0x31},
+        {0x05, 0x07, 0x01}, {0x05, 0x07, 0x11}, {0x05, 0x07, 0x21}, {0x05, 0x07, 0x31},
+        {0x06, 0x07, 0x01}, {0x06, 0x07, 0x11}, {0x06, 0x07, 0x21}, {0x06, 0x07, 0x31},
+        // set repeater chips equaliser settings
+        {0x01, 0x14, 0x03}, {0x01, 0x16, 0x03}, {0x01, 0x18, 0x03}, {0x01, 0x1A, 0x03},
+        {0x02, 0x14, 0x03}, {0x02, 0x16, 0x03}, {0x02, 0x18, 0x03}, {0x02, 0x1A, 0x03},
+        {0x03, 0x14, 0x03}, {0x03, 0x16, 0x03}, {0x03, 0x18, 0x03}, {0x03, 0x1A, 0x03},
+        {0x04, 0x14, 0x03}, {0x04, 0x16, 0x03}, {0x04, 0x18, 0x03}, {0x04, 0x1A, 0x03},
+        {0x05, 0x14, 0x03}, {0x05, 0x16, 0x03}, {0x05, 0x18, 0x03}, {0x05, 0x1A, 0x03},
+        {0x06, 0x14, 0x03}, {0x06, 0x16, 0x03}, {0x06, 0x18, 0x03}, {0x06, 0x1A, 0x03},
+        // disable smbus registers on all repeater chips
+        // not really necessary but it’s a protection against occasional commands sent by mistake
+        {0x01, 0x07, 0x00}, {0x01, 0x07, 0x10}, {0x01, 0x07, 0x20}, {0x01, 0x07, 0x30},
+        {0x02, 0x07, 0x00}, {0x02, 0x07, 0x10}, {0x02, 0x07, 0x20}, {0x02, 0x07, 0x30},
+        {0x03, 0x07, 0x00}, {0x03, 0x07, 0x10}, {0x03, 0x07, 0x20}, {0x03, 0x07, 0x30},
+        {0x04, 0x07, 0x00}, {0x04, 0x07, 0x10}, {0x04, 0x07, 0x20}, {0x04, 0x07, 0x30},
+        {0x05, 0x07, 0x00}, {0x05, 0x07, 0x10}, {0x05, 0x07, 0x20}, {0x05, 0x07, 0x30},
+        {0x06, 0x07, 0x00}, {0x06, 0x07, 0x10}, {0x06, 0x07, 0x20}, {0x06, 0x07, 0x30},
+        // clang-format on
+    }};
+
   };
 }  // namespace nsw::hw
 

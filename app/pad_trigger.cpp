@@ -6,16 +6,17 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/hw/PadTrigger.h"
+#include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
 
 #include <boost/program_options.hpp>
+#include <fmt/core.h>
 
 namespace po = boost::program_options;
 
-double adc2temp(int adc);
 bool file_exists(std::string fname);
+double xilinx_temperature_conversion(uint32_t temp);
 
 int main(int argc, const char *argv[]) 
 {
@@ -24,12 +25,10 @@ int main(int argc, const char *argv[])
     std::string board_name;
     std::string bitstream;
     std::string gpio_name;
-    std::string adc_name;
     std::string i2c_reg;
     std::string i2c_val;
     bool do_config;
     bool do_control;
-    int samples;
     int val;
 
     // options
@@ -44,8 +43,6 @@ int main(int argc, const char *argv[])
          ->default_value(""), "Bitstream name to write to the FPGA. WARNING: EXPERIMENTAL.")
         ("gpio", po::value<std::string>(&gpio_name)
          ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
-        ("adc", po::value<std::string>(&adc_name)
-         ->default_value(""), "ADC name to read (check the xml for valid names).")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
@@ -56,130 +53,95 @@ int main(int argc, const char *argv[])
          ->default_value(""), "i2c register for SCA communication (0xHEX).")
         ("i2c_val", po::value<std::string>(&i2c_val)
          ->default_value(""), "i2c value to write (0xHEX)")
-        ("samples", po::value<int>(&samples)
-         ->default_value(100), "Number of samples when reading SCA ADC.")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
     do_config  = vm["do_config"] .as<bool>();
     do_control = vm["do_control"].as<bool>();
-    if (vm.count("help")) {
+    if (vm.count("help") > 0) {
         std::cout << desc << "\n";
-        return 1;
-    }    
+        return 0;
+    }
 
     // make objects from json
-    auto board_configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
-        ("json://" + config_filename, "PadTriggerSCA", board_name);
-    for (auto & board: board_configs)
-        std::cout << "Found "
-                  << board.getAddress()
-                  << " @ "
-                  << board.getOpcServerIp()
-                  << std::endl
-                  << " with "
-                  << board.firmware()
-                  << " -> T = "
-                  << board.firmware_dateword()
-                  << std::endl;
+    const auto configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
+      (fmt::format("json://{}", config_filename), "PadTriggerSCA", board_name);
+    for (const auto& cfg: configs) {
+      std::cout << fmt::format("Found {} @ {} with {} -> T = {}",
+                               cfg.getAddress(),
+                               cfg.getOpcServerIp(),
+                               cfg.firmware(),
+                               cfg.firmware_dateword()) << std::endl;
+    }
 
-    // the sender
-    nsw::ConfigSender cs;
+    // the hw objects
+    std::vector<nsw::hw::PadTrigger> hws;
+    for (const auto& cfg: configs) {
+      hws.emplace_back(nsw::hw::PadTrigger(cfg));
+    }
 
     // fpga bitstream
     if (bitstream != "") {
-        if (!file_exists(bitstream))
-            throw std::runtime_error("File doesnt exist: " + bitstream);
-        for (auto & board: board_configs)
-            cs.sendFPGA(board.getOpcServerIp(), board.getAddress(), bitstream);
+      if (!file_exists(bitstream)) {
+        throw std::runtime_error(fmt::format("File doesnt exist: {}", bitstream));
+      }
+      std::cout << "FPGA bitstreams not supported at this time!" << std::endl;
+      return 1;
+      // for (auto & board: configs)
+      //   cs.sendFPGA(board.getOpcServerIp(), board.getAddress(), bitstream);
     }
 
     // GPIO read/write
     if (gpio_name != "") {
-        for (auto & board: board_configs) {
-            auto ip   = board.getOpcServerIp();
-            auto addr = board.getAddress() + ".gpio." + gpio_name;
-            auto name = ip + "::" + addr;
-            if (val != -1) {
-                std::cout << name << " -> write " << val << std::endl;
-                cs.sendGPIO(ip, addr, val);
-            }
-            std::cout << name << " -> read  " << cs.readGPIO(ip, addr) << std::endl;
+      for (const auto& hw: hws) {
+        if (val != -1) {
+          std::cout << fmt::format("{} -> write {}", hw.name(), val) << std::endl;
+          hw.writeGPIO(gpio_name, static_cast<bool>(val));
         }
-    }
-
-    // SCA ADC
-    if (adc_name != "") {
-        for (auto & board: board_configs) {
-            auto ip   = board.getOpcServerIp();
-            auto addr = board.getAddress() + ".ai." + adc_name;
-            auto name = ip + "::" + addr;
-            std::cout << name << " -> read ADC" << std::endl;
-            auto datas = cs.readAnalogInputConsecutiveSamples(ip, addr, samples);
-            for (auto data : datas)
-                if (adc_name == "internalTemperature")
-                    std::cout << " " << adc_name << " " << data << " -> " << adc2temp(data) << "C" << std::endl;
-                else
-                    std::cout << " " << adc_name << " " << data << std::endl;
-        }
+        std::cout << fmt::format("{} -> read {}", hw.name(), hw.readGPIO(gpio_name)) << std::endl;
+      }
     }
 
     // pad i2c
     if (i2c_reg != "") {
-        for (auto & board: board_configs) {
-            auto ip   = board.getOpcServerIp();
-            auto addr = board.getAddress() + ".fpga.fpga";
-            uint8_t address[]    = {(uint8_t)(std::stol(i2c_reg, 0, 16) & 0xff)};
-            size_t  address_size = 1;
-            size_t  data_size    = 4;
-            if (i2c_val != "") {
-                uint32_t i2c_val_32 = (uint32_t)(std::stol(i2c_val, 0, 16));
-                uint8_t data_data[]  = {address[0],
-                                        (uint8_t)((i2c_val_32 >> 24) & 0xff),
-                                        (uint8_t)((i2c_val_32 >> 16) & 0xff),
-                                        (uint8_t)((i2c_val_32 >>  8) & 0xff),
-                                        (uint8_t)((i2c_val_32 >>  0) & 0xff)};
-                std::cout << " Writing  " << addr
-                          << " reg "      << i2c_reg
-                          << " val "      << i2c_val
-                          << " -> msg = ";
-                for (auto val : data_data)
-                    std::cout << std::hex << unsigned(val) << " " << std::dec;
-                std::cout << std::endl;
-                cs.sendI2cRaw(ip, addr, data_data, address_size + data_size);
-            }
-            std::cout << " Readback " << addr << ": ";
-            auto vals = cs.readI2cAtAddress(ip, addr, address, address_size, data_size);
-            for (auto val : vals)
-                std::cout << std::hex << unsigned(val) << " " << std::dec;
-            if (address[0] == 1) {
-                uint32_t temp = 0;
-                temp += (uint32_t)(vals[0] << 24);
-                temp += (uint32_t)(vals[1] << 16);
-                temp += (uint32_t)(vals[2] <<  8);
-                temp += (uint32_t)(vals[3] <<  0);
-                std::cout << " -> " << (temp*503.975/4096)-273.15 << "C" << std::endl;
-            }
-            std::cout << std::endl;
+      const auto i2c_reg_08 = static_cast<uint8_t>(std::stoul(i2c_reg, nullptr, nsw::BASE_HEX));
+      for (const auto& hw: hws) {
+        if (i2c_val != "") {
+          const auto i2c_val_32 = static_cast<uint32_t>(std::stol(i2c_val, nullptr, nsw::BASE_HEX));
+          std::cout << fmt::format("Writing {}: register address {} with value {}",
+                                   hw.name(),i2c_reg, i2c_val) << std::endl;
+          hw.writeFPGARegister(i2c_reg_08, i2c_val_32);
         }
+        const auto val = hw.readFPGARegister(i2c_reg_08);
+        std::cout << fmt::format(" Readback {}: {}", i2c_reg_08, val) << std::endl;
+        if (i2c_reg_08 == nsw::padtrigger::REG_STATUS) {
+          const auto temp = val & 0xfff;
+          std::cout << fmt::format(" -> {}C", xilinx_temperature_conversion(temp)) << std::endl;
+        }
+      }
     }
 
     // config
-    if (do_config)
-        for (auto & board: board_configs)
-            cs.sendPadTriggerSCAConfig(board);
+    if (do_config) {
+      for (const auto& hw: hws) {
+        hw.writeConfiguration();
+      }
+    }
 
     // control
-    if (do_control)
-        for (auto & board: board_configs)
-            cs.sendPadTriggerSCAControlRegister(board);
+    if (do_control) {
+      for (const auto& hw: hws) {
+        hw.writeFPGAConfiguration();
+      }
+    }
 
     return 0;
 }
 
-double adc2temp(int adc) {
-    return (0.79-adc/4095.0)*545.454545455 - 40;
+double xilinx_temperature_conversion(uint32_t temp) {
+  // www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf
+  return (temp * 503.975 / 4096) - 273.15;
 }
 
 bool file_exists(std::string fname) {
