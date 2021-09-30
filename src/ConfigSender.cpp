@@ -211,17 +211,48 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandle
     // return 1 if config read back correctly
     ERS_DEBUG(2, "==> Reading back configuration using IChandler");
 
-    const auto initialConfig = ich.readCfg();
+    std::vector<uint8_t> initialConfig = ich.readCfg();
+
+    // shift received data up by some number
+    // TODO: the readCfg function should be fixed to avoid this shift
+    // IC Handler currently adds one byte
+    constexpr int rxShift1 = 1;
+    for (std::size_t j=0; j<rxShift1; j++){
+        for (std::size_t i=initialConfig.size()-1; i>0; i--) {
+            initialConfig.at(i) = initialConfig.at(i-1);
+        }
+        initialConfig.at(0)=0;
+    }
 
     ERS_DEBUG(2, "==> Successfully read back");
+    if (initialConfig.size() != NUM_GBTX_REGISTERS){
+        ERS_INFO("Read back incorrect number of bytes="+std::to_string(initialConfig.size())+" from GBTx");
+        for (std::size_t i=0; i<initialConfig.size();i++)
+            ERS_DEBUG(2, "GBTx Byte "+std::to_string(i)+"="+std::to_string(initialConfig.at(i)));
+        nsw::NSWSenderIssue issue(ERS_HERE, "Read back incorrect number of bytes="+std::to_string(initialConfig.size())+" from GBTx. See debug log for details of bytes");
+        ers::error(issue);
+        throw issue;
+    }
 
-    ERS_DEBUG(2, "==> Configuration before sending:");
+    ERS_DEBUG(2, "\n==> Configuration before sending:");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(initialConfig)<<'\n');
 
     ich.sendCfg(data);
 
     std::vector<uint8_t> currentConfig = ich.readCfg();
-    ERS_DEBUG(2, "==> Configuration after sending:");
+
+    // shift received data up by some number
+    // TODO: the readCfg function should be fixed to avoid this shift
+    // IC Handler currently adds one byte
+    constexpr int rxShift = 1;
+    for (std::size_t j=0; j<rxShift; j++){
+        for (std::size_t i=currentConfig.size()-1; i>0; i--) {
+            currentConfig.at(i) = currentConfig.at(i-1);
+        }
+        currentConfig.at(0)=0;
+    }
+
+    ERS_DEBUG(2, "\n==> Configuration after sending:");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(currentConfig)<<'\n');
 
     // Check readback
@@ -229,17 +260,6 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandle
         ERS_LOG("WARNING: readback size not expected");
         ERS_LOG("expected="<<data.size()<<" recieved="<<currentConfig.size()<<'\n');
         return false;
-    }
-
-    // shift received data up by some number
-    // TODO: the readCfg function should be fixed to avoid this shift 
-    // IC Handler currently adds one byte
-    constexpr int rxShift = 1;
-    for (int j=0; j<rxShift; j++){
-        for (std::size_t i=currentConfig.size()-1; i>0; i--) {
-            currentConfig.at(i) = currentConfig.at(i-1);
-        }
-        currentConfig.at(0)=0;
     }
 
     // Some of the readback registers are not writable registers. Only check the writable registers
@@ -252,9 +272,11 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandle
         }
         if (data.at(i)!=currentConfig.at(i)) {
             ERS_LOG("Unexpected bit read back during GBTx configuration");                                                                                                                                                 
+            ERS_DEBUG(2, "==> Configuration readback is BAD");
             return false;
         }
     }
+    ERS_DEBUG(2, "==> Configuration readback is OKAY");
     return true;
 }
 
@@ -262,7 +284,7 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     // Send configuration for one GBTx
     // L1DDCConfig should be initialized with a configuration ptree
     // gbtxId should be 0, 1, 2 depending on which GBTx is to be configured (TODO: 1, 2 not supported)
-    ERS_LOG("ConfigSender::sendGBTxConfig number="<<gbtxId<<std::endl);
+    ERS_LOG("\nConfigSender::sendGBTxConfig number="<<gbtxId<<std::endl);
     // get information from l1ddc
     const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
     const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
@@ -303,12 +325,84 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     }
 }
 
+std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId)const {
+    // read back gbtx configuration
+    ERS_LOG("ConfigSender::readGBTxConfig number="<<gbtxId<<std::endl);
+    // get information from l1ddc
+    const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
+    const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
+    const std::size_t elinkId      = l1ddc.getElinkId();
+    const std::string opcServerIp  = l1ddc.getOpcServerIp();
+    if (gbtxId==0){
+        ERS_DEBUG(2, "Reading bytestream");
+
+        ERS_DEBUG(2, "==> Configuration to be read from GBTx"<<gbtxId);
+
+        IChandler ich(opcServerIp, portToGBTx, portFromGBTx, elinkId);
+        std::vector<uint8_t> config = ich.readCfg();
+
+        // shift received data up by some number
+        // TODO: the readCfg function should be fixed to avoid this shift
+        // IC Handler currently adds one byte
+        constexpr int rxShift = 1;
+        for (std::size_t j=0; j<rxShift; j++){
+            for (std::size_t i=config.size()-1; i>0; i--) {
+                config.at(i) = config.at(i-1);
+            }
+            config.at(0)=0;
+        }
+
+        return config;
+    }
+    else if (gbtxId==1 || gbtxId==2){
+        nsw::NSWSenderIssue issue(ERS_HERE, "Non-zero GBTx configuration not defined yet");
+        ers::error(issue);
+        throw issue;
+    }
+    else{
+        nsw::NSWSenderIssue issue(ERS_HERE, "Invalid GBTx ID while sending GBTx Configuration");
+        ers::error(issue);
+        throw issue;
+    }
+}
+
 void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     // Send configuration for l1ddc
     // This should configure the GBTx's and SCA
     // Currently, configure GBTx0
-    ERS_LOG("ConfigSender::sendL1DDCConfig start\n");
+    ERS_LOG("Starting");
+    // Initial configuration with default values
     sendGBTxConfig(l1ddc,0);
+    // If this L1DDC is configured to train the GBTx PA phase, send apropriate bits
+    ERS_LOG("\nGBTx phase training setting: "<<l1ddc.trainGBTxPhaseAlignment());
+    if (l1ddc.trainGBTxPhaseAlignment()){
+        ERS_LOG("\nConfigSender::sendL1DDCConfig Training GBTx phase alignment");
+        // Make a non-const copy
+        L1DDCConfig l1ddcCopy(l1ddc);
+        // send start training configuration
+        l1ddcCopy.trainGbtxsOn();
+        sendGBTxConfig(l1ddcCopy,0);
+        // wait while registers train
+        ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us");
+        usleep(l1ddc.trainGBTxPhaseWaitTime());
+        // send stop training configuration
+        l1ddcCopy.trainGbtxsOff();
+        sendGBTxConfig(l1ddcCopy,0);
+        // Print out phases
+        const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,0);
+        const std::vector<uint8_t> phases = nsw::GBTxConfig::parsePhasesFromConfig(config);
+        std::stringstream ss;
+        ss<<"\n[GBTx Phases Read Back]\n";
+        ss<<"Channel   0   1   2   3   4   5   6   7 \n";
+        for (std::size_t i=0; i<phases.size(); i++){
+            if (i%8==0) ss<<"Group "<<i/8<<" ";
+            ss<<"| ";
+            ss << std::hex << static_cast<int>(phases.at(i)) << std::dec << " ";
+            if ((i-7)%8==0) ss<<'\n';
+        }
+        ERS_LOG(ss.str());
+
+    }
     ERS_LOG("ConfigSender::sendL1DDCConfig done\n");
 }
 

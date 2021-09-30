@@ -148,8 +148,6 @@ void nsw::NSWConfig::configureL1DDCs() {
     m_threads->clear();
     for (const auto& [name,l1ddc] : m_l1ddcs) {
         while (too_many_threads()) usleep(500000);
-        // ThreadConfig cfg;
-        // cfg.configure_l1ddc     = configure_l1ddc;
         m_threads->push_back(std::async(std::launch::async, &nsw::NSWConfig::configureL1DDC,this, l1ddc));
     }
     for (auto& thread : *m_threads) {
@@ -165,6 +163,7 @@ void nsw::NSWConfig::configureL1DDCs() {
 
 void nsw::NSWConfig::configureL1DDC(const nsw::L1DDCConfig& l1ddc) {
     // Configure L1DDC
+    ERS_INFO("Configuring L1DDC " + l1ddc.getName());
     nsw::ConfigSender cs;
     cs.sendL1DDCConfig(l1ddc);
 }

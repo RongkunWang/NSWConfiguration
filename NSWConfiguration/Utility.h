@@ -217,4 +217,5 @@ struct translator_between<std::string, __uint128_t>
  */
 std::ostream& operator<<(std::ostream& out, __uint128_t x);
 
+
 #endif  // NSWCONFIGURATION_UTILITY_H_

@@ -47,6 +47,7 @@ endforeach()
 ## Executables linked against nswconfig, nswhwinterface, and Boost::program_options
 set(NSWCONFIG_EXE_WITH_BOOST_PO
   configure_frontend
+  configure_gbtx
   read_sca_info
   roc_register_readout
   vmm_capture_status

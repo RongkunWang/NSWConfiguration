@@ -89,6 +89,14 @@ class ConfigSender {
     void sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId);
 
     /**
+     * \brief Reads GBTx configuration for a given L1DDC and GBTx ID
+     * 
+     * \param l1ddc L1DDC config object
+     * \param gbtxId GBTx ID
+     */
+    std::vector<uint8_t> readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId) const;
+
+    /**
      * \brief Helper function that sends GBTX configuration and reads it back. 
      * 
      * \param ich IC Handler instance
