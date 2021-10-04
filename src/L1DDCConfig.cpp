@@ -18,19 +18,19 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
     m_gbtx0.setConfigFromPTree(gbtx0Config);
     ERS_DEBUG(2, "Done setting setConfigFromPTree\n");
 
-    m_name = "L1DDC";
-
     try {
         m_portToGBTx   = config.get<std::size_t>("portToGBTx");
         m_portFromGBTx = config.get<std::size_t>("portFromGBTx");
         m_elinkId      = config.get<std::size_t>("elinkId");
-        m_opcServerIp  = config.get<std::string>("OpcServerIp");
+        m_felixServerIp  = config.get<std::string>("FelixServerIp");
     }
     catch (const boost::property_tree::ptree_bad_path&){
         nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
         ers::error(issue);
         throw issue;
     }
+
+    m_name = fmt::format("L1DDC:{}/{}/{}/{}",m_felixServerIp,m_portToGBTx,m_portFromGBTx,m_elinkId);
 
     // Optional Calibration configuration passed in ptree
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
@@ -49,8 +49,8 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     m_elinkId(config.elinkId),
     m_trainGBTxPhaseAlignment(config.trainGBTxPhaseAlignment),
     m_trainGBTxPhaseWaitTime(config.trainGBTxPhaseWaitTime),
-    m_opcServerIp(config.opcServerIp),
-    m_name("L1DDC") {
+    m_felixServerIp(config.felixServerIp),
+    m_name(fmt::format("L1DDC:{}/{}/{}/{}",config.felixServerIp,config.portToGBTx,config.portFromGBTx,config.elinkId)) {
     m_gbtx0.setConfigFromFile(config.iPath);
 }
 

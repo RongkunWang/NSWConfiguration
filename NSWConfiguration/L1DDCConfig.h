@@ -35,7 +35,7 @@ class L1DDCConfig {
     std::size_t m_elinkId;
     bool m_trainGBTxPhaseAlignment;
     int m_trainGBTxPhaseWaitTime;
-    std::string m_opcServerIp;
+    std::string m_felixServerIp;
     std::string m_name;
 
  public:
@@ -45,8 +45,7 @@ class L1DDCConfig {
      *
      * Example configuration ptree:
      * {
-     *   "OpcServerIp": "pcatlnswfelix10.cern.ch",
-     *   "OpcNodeId": "L1DDC_0",
+     *   "felixServerIp": "pcatlnswfelix10.cern.ch",
      *   "portToGBTx": "12340",
      *   "portFromGBTx": "12350",
      *   "elinkId": 62,
@@ -94,18 +93,18 @@ class L1DDCConfig {
     std::size_t getElinkId() const {return m_elinkId;}
 
     /**
-     * \brief Get the name of l1ddc
+     * \brief Get the name of l1ddc. The format is L1DDC:felixServerIp/portToGBTx/portFromGBTx/elinkId
      *
      * \return std::string name of l1ddc
      */
     std::string getName() const {return m_name;}
 
     /**
-     * \brief Get the IP address of the OPC server
+     * \brief Get the IP address of the felix server
      *
-     * \return std::string OPC IP address
+     * \return std::string felix IP address
      */
-    std::string getOpcServerIp() const {return m_opcServerIp;}
+    std::string getFelixServerIp() const {return m_felixServerIp;}
 
     /**
      * \brief Return the time to wait while training the GBTx phase alignment
