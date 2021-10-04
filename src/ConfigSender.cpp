@@ -206,12 +206,39 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vm
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 }
 
-bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandler& ich,std::vector<uint8_t>& data){
+void nsw::ConfigSender::sendIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich, std::vector<uint8_t>& data){
+    // Send data with IChandler
+    // Raise intelligible error if IChandler crashes
+    try {
+        ich.sendCfg(data);
+    }
+    catch(...){
+        nsw::NSWSenderIssue issue(ERS_HERE, fmt::format("Problem sending GBTx configuration over IC for {}. This may be due to a unpowered L1DDC, or a missing felix server",l1ddc.getName()));
+        ers::error(issue);
+        throw issue;
+    }
+}
+
+std::vector<uint8_t> nsw::ConfigSender::readIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const {
+    // Read data with IChandler
+    // Raise intelligible error if IChandler crashes
+    try {
+        return ich.readCfg();
+    }
+    catch(...){
+        nsw::NSWSenderIssue issue(ERS_HERE, fmt::format("Problem reading GBTx configuration over IC for {}. This may be due to a unpowered L1DDC, or a missing felix server",l1ddc.getName()));
+        ers::error(issue);
+        throw issue;
+    }
+}
+
+
+bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const nsw::L1DDCConfig& l1ddc, IChandler& ich,std::vector<uint8_t>& data){
     // Upload configuration, read back
     // return 1 if config read back correctly
     ERS_DEBUG(2, "==> Reading back configuration using IChandler");
 
-    std::vector<uint8_t> initialConfig = ich.readCfg();
+    std::vector<uint8_t> initialConfig = readIcConfig(l1ddc,ich);
 
     // shift received data up by some number
     // TODO: the readCfg function should be fixed to avoid this shift
@@ -237,9 +264,9 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandle
     ERS_DEBUG(2, "\n==> Configuration before sending:");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(initialConfig)<<'\n');
 
-    ich.sendCfg(data);
+    sendIcConfig(l1ddc,ich,data);
 
-    std::vector<uint8_t> currentConfig = ich.readCfg();
+    std::vector<uint8_t> currentConfig = readIcConfig(l1ddc,ich);
 
     // shift received data up by some number
     // TODO: the readCfg function should be fixed to avoid this shift
@@ -284,12 +311,12 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     // Send configuration for one GBTx
     // L1DDCConfig should be initialized with a configuration ptree
     // gbtxId should be 0, 1, 2 depending on which GBTx is to be configured (TODO: 1, 2 not supported)
-    ERS_LOG("\nConfigSender::sendGBTxConfig number="<<gbtxId<<std::endl);
+    ERS_LOG("\nConfigSender::sendGBTxConfig number="<<gbtxId<<" for "<<l1ddc.getName()<<"\n");
     // get information from l1ddc
     const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
     const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
     const std::size_t elinkId      = l1ddc.getElinkId();
-    const std::string opcServerIp  = l1ddc.getOpcServerIp();
+    const std::string felixServerIp= l1ddc.getFelixServerIp();
     // generate bytestream
     if (gbtxId==0){
         // send configuration over i2c
@@ -298,17 +325,17 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
 
         ERS_DEBUG(2, "==> Configuration to be uploaded to GBTx"<<gbtxId);
 
-        IChandler ich(opcServerIp, portToGBTx, portFromGBTx, elinkId);
+        IChandler ich(felixServerIp, portToGBTx, portFromGBTx, elinkId);
 
         // Try sending configuration and check the readback
         // If the readback doesn't match, for nTries, raise error
         int nTries = MAX_ATTEMPTS;
-        while (!sendGBTxConfigHelperFunctionReturnTrueIfCorrect(ich,data) && nTries>0) {
-            ERS_LOG("ConfigSender:: attempting configuration (remaining): "<<nTries);
+        while (!sendGBTxConfigHelperFunctionReturnTrueIfCorrect(l1ddc,ich,data) && nTries>0) {
+            ERS_LOG("Retrying configuration. Remaining tries: "<<nTries<<" for "<<l1ddc.getName());
             nTries--;
         }
         if (nTries==0) {
-            nsw::NSWSenderIssue issue(ERS_HERE, "Unable to read back correct configuration within " + std::to_string(MAX_ATTEMPTS) + " tries");
+            nsw::NSWSenderIssue issue(ERS_HERE, "Unable to read back correct configuration within " + std::to_string(MAX_ATTEMPTS) + " tries for "+l1ddc.getName());
             ers::error(issue);
             throw issue;
         }
@@ -327,19 +354,19 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
 
 std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId)const {
     // read back gbtx configuration
-    ERS_LOG("ConfigSender::readGBTxConfig number="<<gbtxId<<std::endl);
+    ERS_LOG("Sending configuration for GBTx number="<<gbtxId<<" for "<<l1ddc.getName()<<"\n");
     // get information from l1ddc
     const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
     const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
     const std::size_t elinkId      = l1ddc.getElinkId();
-    const std::string opcServerIp  = l1ddc.getOpcServerIp();
+    const std::string felixServerIp= l1ddc.getFelixServerIp();
     if (gbtxId==0){
-        ERS_DEBUG(2, "Reading bytestream");
+        ERS_DEBUG(2, "Reading bytestream for "<<l1ddc.getName());
 
         ERS_DEBUG(2, "==> Configuration to be read from GBTx"<<gbtxId);
 
-        IChandler ich(opcServerIp, portToGBTx, portFromGBTx, elinkId);
-        std::vector<uint8_t> config = ich.readCfg();
+        IChandler ich(felixServerIp, portToGBTx, portFromGBTx, elinkId);
+        std::vector<uint8_t> config = readIcConfig(l1ddc,ich);
 
         // shift received data up by some number
         // TODO: the readCfg function should be fixed to avoid this shift
@@ -370,20 +397,18 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     // Send configuration for l1ddc
     // This should configure the GBTx's and SCA
     // Currently, configure GBTx0
-    ERS_LOG("Starting");
+    ERS_INFO("Configuring "<<l1ddc.getName());
     // Initial configuration with default values
     sendGBTxConfig(l1ddc,0);
-    // If this L1DDC is configured to train the GBTx PA phase, send apropriate bits
-    ERS_LOG("\nGBTx phase training setting: "<<l1ddc.trainGBTxPhaseAlignment());
     if (l1ddc.trainGBTxPhaseAlignment()){
-        ERS_LOG("\nConfigSender::sendL1DDCConfig Training GBTx phase alignment");
+        ERS_LOG("\nConfigSender::sendL1DDCConfig Training GBTx phase alignment for "<<l1ddc.getName());
         // Make a non-const copy
         L1DDCConfig l1ddcCopy(l1ddc);
         // send start training configuration
         l1ddcCopy.trainGbtxsOn();
         sendGBTxConfig(l1ddcCopy,0);
         // wait while registers train
-        ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us");
+        ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us for "<<l1ddc.getName());
         usleep(l1ddc.trainGBTxPhaseWaitTime());
         // send stop training configuration
         l1ddcCopy.trainGbtxsOff();
@@ -392,6 +417,7 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
         const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,0);
         const std::vector<uint8_t> phases = nsw::GBTxConfig::parsePhasesFromConfig(config);
         std::stringstream ss;
+        ss<<"\nFor: "<<l1ddc.getName()<<"\n";
         ss<<"\n[GBTx Phases Read Back]\n";
         ss<<"Channel   0   1   2   3   4   5   6   7 \n";
         for (std::size_t i=0; i<phases.size(); i++){
@@ -403,7 +429,7 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
         ERS_LOG(ss.str());
 
     }
-    ERS_LOG("ConfigSender::sendL1DDCConfig done\n");
+    ERS_LOG("Finished config for "<<l1ddc.getName());
 }
 
 void nsw::ConfigSender::sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds) {

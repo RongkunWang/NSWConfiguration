@@ -72,6 +72,25 @@ class ConfigSender {
     void sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds = false);
 
     /**
+     * \brief Send data with ICHandler
+     * 
+     * 
+     * \param l1ddc L1DDC config object
+     * \param ich IChandler object
+     * \param data Data to be sent
+     */
+    void sendIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich, std::vector<uint8_t>& data);
+
+    /**
+     * \brief Read data with ICHandler
+     * 
+     * 
+     * \param l1ddc L1DDC config object
+     * \param ich IChandler object
+     */
+    std::vector<uint8_t> readIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const;
+
+    /**
      * \brief Configure the GBTx's of a given L1DDC
      * 
      * \todo Implement GBTx 1 and 2 (Currently only 0 is implemented)
@@ -104,7 +123,7 @@ class ConfigSender {
      * \return true if the read-back configuration matches the input
      * \return false if the read-back configuration does not match the input
      */
-    bool sendGBTxConfigHelperFunctionReturnTrueIfCorrect(IChandler& ich,std::vector<uint8_t>& data);
+    bool sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const nsw::L1DDCConfig& l1ddc, IChandler& ich,std::vector<uint8_t>& data);
 
 
     /// Send configuration to ADDC and its ARTs
