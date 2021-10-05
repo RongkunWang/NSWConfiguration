@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <boost/property_tree/json_parser.hpp>
+#include <fmt/core.h>
 
 #include "NSWConfiguration/Constants.h"
 
@@ -32,7 +33,8 @@ boost::property_tree::ptree nsw::oks::parseDeviceMap(
   DeviceMap&                                   container,
   const std::vector<const daq::core::ResourceBase*>& contains,
   const std::string&                                 parentType,
-  const class daq::core::Partition*                  partition) {
+  const class daq::core::Partition*                  partition,
+  const bool                                         json) {
   ERS_DEBUG(5, "Starting parent type " << parentType);
   boost::property_tree::ptree parentTree;
   for (const auto* element : contains) {
@@ -45,10 +47,24 @@ boost::property_tree::ptree nsw::oks::parseDeviceMap(
     
     // Get device name, id and type. If it is not of interest return ""
     const auto [deviceName, deviceId, deviceType] =
-      [element]() -> std::tuple<std::string, std::string, std::string> {
+      [element, &json]() -> std::tuple<std::string, std::string, std::string> {
       const auto& className = element->class_name();
-      const auto getData = [](const auto* pointer) {
-        return std::pair{pointer->UID(),
+      const auto getData = [&json](const auto* pointer) {
+        const auto preprocessName = [&json] (const auto& name) {
+            if (json) {
+              constexpr std::size_t INDEX_DASH = 3;
+              constexpr std::size_t NUM_CHARS_PREFIX = 8;
+              if (name.at(NUM_CHARS_PREFIX - 1) != '_' or name.at(INDEX_DASH) != '-') {
+                throw std::logic_error(
+                  fmt::format("Attempted to remove sector prefix from device "
+                              "{} but eighth character was not '_' or the fourth was not '-'",
+                              name));
+              }
+              return name.substr(NUM_CHARS_PREFIX);
+            }
+            return name;
+        };
+        return std::pair{preprocessName(pointer->UID()),
                          std::to_string(pointer->get_DeviceID())};
       };
       if (className == "NSW_MMFE8") {
@@ -212,7 +228,7 @@ boost::property_tree::ptree nsw::oks::parseDeviceMap(
     if (pointerForContains != nullptr) {
       const auto& children = pointerForContains->get_Contains();
       const boost::property_tree::ptree result =
-        parseDeviceMap(container, children, deviceType, partition);
+        parseDeviceMap(container, children, deviceType, partition, json);
 
       // If not empty add it to children of current tree
       if (not result.empty()) {
@@ -259,7 +275,7 @@ std::set<std::string> nsw::oks::getAllDeviceNames(const nsw::DeviceMap& deviceMa
   return devices;
 }
 
-void printDeviceMap(const nsw::DeviceMap& devices) {
+void nsw::oks::printDeviceMap(const nsw::DeviceMap& devices) {
   ERS_INFO("Hierarchy");
   for (const auto& [type, map] : devices) {
     ERS_INFO("Type: " << type);
