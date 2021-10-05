@@ -50,10 +50,11 @@ class NSWConfig {
         m_max_threads = nswApp->get_maxThreads();
         ERS_INFO("Read device hierarchy");
         auto conf = Configuration("");
+        const auto jsonConfiguration = m_dbcon.find(".json") != std::string::npos;
         [[maybe_unused]] const auto val = nsw::oks::parseDeviceMap(
-          deviceHierarchy, nswApp->get_Contains(), nswApp->class_name(), daq::core::get_partition(conf, ""));
+          deviceHierarchy, nswApp->get_Contains(), nswApp->class_name(), daq::core::get_partition(conf, ""), jsonConfiguration);
         if (nswApp->get_Contains().empty()) {
-          if (m_dbcon.find(".json") != std::string::npos) {
+          if (jsonConfiguration) {
             ERS_INFO("NSWConfig application is empty. Configure everything in JSON.");
           } else {
             ers::warning(NSWConfigIssue(ERS_HERE, "NSWConfig application is empty. Nothing will be configured."));
