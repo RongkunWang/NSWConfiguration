@@ -31,6 +31,7 @@ int main (int argc, char** argv){
     string mode="none";
     for (int i = 0; i < argc; i++){
         if      (!strcmp(argv[i],"-t")) mode="train";
+        else if (!strcmp(argv[i],"-w")) mode="write";
         else if (!strcmp(argv[i],"-h")) mode="help";
     }
     // get required settings
@@ -46,15 +47,17 @@ int main (int argc, char** argv){
 
     // check inputs
     if (mode=="none"){
-        cout<<"Please run with -r,-w,-t,-x, or -h for help\n";
+        cout<<"Please run with -w,-t, or -h for help\n";
         cout<<"Example: --ip pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62\n";
         return 0;
     }
 
     if (mode=="help"){
         cout<<"NAME\n   configure_gbtx - write to and read from GBTx through netio\n";
-        cout<<"SYNOPSIS\n   configure_gbtx [-r,-w,-t,-h]... --iport WWW --oport XXX --ip YYY --elink ZZZ \n";
-        cout<<"-t      | Train GBTx e-links\n";
+        cout<<"SYNOPSIS\n   configure_gbtx [-w,-t,-h]... --iport WWW --oport XXX --ip YYY --elink ZZZ -c CONFIG \n";
+        cout<<"-t      | Write configuration and train GBTx e-links\n";
+        cout<<"-w      | Just write configuration\n";
+        cout<<"-c      | Required configuration file consisting of line separated hex bytes\n";
         cout<<"--iport | Input port for GBTx. For example, 12340\n";
         cout<<"--oport | Output port for GBTx. For example, 12350\n";
         cout<<"--ip    | Address/name for FELIX machine running ip. For example, pcatlnswfelix10.cern.ch\n";
