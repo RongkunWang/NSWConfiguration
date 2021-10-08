@@ -492,16 +492,22 @@ void nsw::ConfigSender::sendTdsConfig(const std::string& opc_ip, const std::stri
   if (ntds < 3) {
     // old boards, and PFEB
       sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsReset", 0);
   } else {
     // new boards
-    if (tds.getName() == "tds0")
+    if (tds.getName() == "tds0") {
       sendGPIO(opc_ip, sca_address + ".gpio.tdsaReset", 1);
-    else if (tds.getName() == "tds1")
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsaReset", 0);
+    } else if (tds.getName() == "tds1") {
       sendGPIO(opc_ip, sca_address + ".gpio.tdsbReset", 1);
-    else if (tds.getName() == "tds2")
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsbReset", 0);
+    } else if (tds.getName() == "tds2") { 
       sendGPIO(opc_ip, sca_address + ".gpio.tdscReset", 1);
-    else if (tds.getName() == "tds3")
+      sendGPIO(opc_ip, sca_address + ".gpio.tdscReset", 0);
+    } else if (tds.getName() == "tds3") { 
       sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 1);
+      sendGPIO(opc_ip, sca_address + ".gpio.tdsdReset", 0);
+    }
   }
 
 
