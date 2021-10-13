@@ -19,6 +19,12 @@ ERS_DECLARE_ISSUE(nsw,
                   ((std::string)message)
                   )
 
+ERS_DECLARE_ISSUE(nsw,
+              InvalidGBTxTrainingType,
+              "GBTx training issue: bad GBTx type " << gbtx_type,
+              ((std::string)gbtx_type)
+              )
+
 
 namespace nsw {
     constexpr std::size_t NUM_GBTX_REGISTERS = 436;
@@ -53,13 +59,21 @@ class GBTxConfig{
 private: 
     std::array<uint8_t,nsw::NUM_GBTX_REGISTERS> m_config{};
     std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
+    std::string m_gbtxType;
 
 public: 
+
+    /**
+     * \brief Construct a new GBTxConfig object
+     */
+    GBTxConfig();
+
     /**
      * \brief Construct a new GBTxConfig object
      * 
+     * \param gbtxType indicates what type (eg mmg1, stg1) of gbtx this is
      */
-    GBTxConfig();
+    void setType(const std::string& gbtxType){m_gbtxType=gbtxType;};
 
     /**
      * \brief Print formatted configuration to ERS

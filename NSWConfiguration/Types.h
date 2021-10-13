@@ -50,6 +50,7 @@ namespace nsw {
         std::size_t portToGBTx;
         std::size_t portFromGBTx;
         std::size_t elinkId;
+        std::string boardType;
         bool trainGBTxPhaseAlignment;
         int trainGBTxPhaseWaitTime;
     };

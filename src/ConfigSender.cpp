@@ -238,6 +238,9 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const ns
     // return 1 if config read back correctly
     ERS_DEBUG(2, "==> Reading back configuration using IChandler");
 
+    ERS_DEBUG(2, "\n==> Configuration to be uploaded to the GBTx::");
+    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(data)<<'\n');
+
     std::vector<uint8_t> initialConfig = readIcConfig(l1ddc,ich);
 
     // shift received data up by some number
@@ -261,8 +264,10 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const ns
         throw issue;
     }
 
-    ERS_DEBUG(2, "\n==> Configuration before sending:");
+    ERS_DEBUG(2, "\n==> Configuration, read from GBTx, before uploading new configuration:");
+    ERS_DEBUG(2, "\n==> Length:"<<initialConfig.size());
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(initialConfig)<<'\n');
+
 
     sendIcConfig(l1ddc,ich,data);
 
@@ -279,7 +284,7 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const ns
         currentConfig.at(0)=0;
     }
 
-    ERS_DEBUG(2, "\n==> Configuration after sending:");
+    ERS_DEBUG(2, "\n==> Configuration, read from GBTx, after uploading new configuration:");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(currentConfig)<<'\n');
 
     // Check readback

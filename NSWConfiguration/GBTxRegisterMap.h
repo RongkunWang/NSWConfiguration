@@ -189,7 +189,7 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["modeGroup0"]                      = gbtx::regMap{"modeGroup0","mode group0",{0,0,0},{254,332,347}};
     registerMaps["ePllRxPhase320MHz"]               = gbtx::regMap{"ePllRxPhase320MHz","Sets EPLL-RX 320MHz phase",{0,4,4},{302,302,292}};
     registerMaps["gbld_w4"]                         = gbtx::regMap{"gbld_w4","Value to write to GBLD",{0},{59}};
-    registerMaps["rxTestMode"]                      = gbtx::regMap{"rxTestMode","Select RX data source",{5,6,7},{48,48,48}};
+    registerMaps["rxTestMode"]                      = gbtx::regMap{"rxTestMode","Select RX data source",{5,6,7},{49,49,49}};
     registerMaps["gbld_w6"]                         = gbtx::regMap{"gbld_w6","Value to write to GBLD",{0},{61}};
     registerMaps["modeGroup3"]                      = gbtx::regMap{"modeGroup3","mode group3",{0,0,0},{263,341,356}};
     registerMaps["gbld_w0"]                         = gbtx::regMap{"gbld_w0","Value to write to GBLD",{0},{55}};
@@ -211,7 +211,6 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["extS3"]                           = gbtx::regMap{"extS3"," ",{5},{11}};
     registerMaps["extS2"]                           = gbtx::regMap{"extS2"," ",{5},{10}};
     registerMaps["bypssEportTX2"]                   = gbtx::regMap{"bypssEportTX2","bypass Eport TX group2",{6,7,0},{246,246,247}};
-    registerMaps["txSelectI"]                       = gbtx::regMap{"txSelectI"," ",{0},{27}};
     registerMaps["dllCoarseLockDetection"]          = gbtx::regMap{"dllCoarseLockDetection","dll coarse lock detection",{4,5,6},{233,233,233}};
     registerMaps["bypssEportTX1"]                   = gbtx::regMap{"bypssEportTX1","bypass Eport TX group1",{3,4,5},{246,246,246}};
     registerMaps["dataPortEnableGroup1"]            = gbtx::regMap{"dataPortEnableGroup1","enable data group1 channel 7",{0,0,0},{259,337,352}};
@@ -277,23 +276,22 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["bypssEportTX3"]                   = gbtx::regMap{"bypssEportTX3","bypass Eport TX group3",{1,2,3},{247,247,247}};
     registerMaps["cmTestMuxSelect"]                 = gbtx::regMap{"cmTestMuxSelect","Selects which signal to send to testClockOut from second subset",{0},{319}};
     registerMaps["cmEpllTxReferenceSelect"]         = gbtx::regMap{"cmEpllTxReferenceSelect","Selects reference clock C for EPLL-TX",{0,2,4},{1,1,1}};
-    registerMaps["txPLLLockTIme"]                   = gbtx::regMap{"txPLLLockTIme","Set wait time for serialiser PLL to lock",{0},{32}};
+    registerMaps["txPLLLockTime"]                   = gbtx::regMap{"txPLLLockTime","Set wait time for serialiser PLL to lock",{0},{32}};
     registerMaps["modeGroup1"]                      = gbtx::regMap{"modeGroup1","mode group1",{0,0,0},{257,335,350}};
     registerMaps["cmTxPhase80MHz"]                  = gbtx::regMap{"cmTxPhase80MHz","Fine phase delay of TX 80MHz clock",{4,0,4},{285,286,286}};
     registerMaps["clockPortEnableGroup1"]           = gbtx::regMap{"clockPortEnableGroup1","enable clock group1 channel 7",{0,0,0},{258,336,351}};
     registerMaps["selHiByteTX1"]                    = gbtx::regMap{"selHiByteTX1","select HiByte in bypassed Eport TX group1",{3,4,5},{249,249,249}};
     registerMaps["loopbackE"]                       = gbtx::regMap{"loopbackE","enable loopbackE",{0,1,2},{234,234,234}};
-    registerMaps["enableBERT"]                      = gbtx::regMap{"enableBERT","Enable BERT in RX logic",{2,3,4},{48,48,48}};
+    registerMaps["enableBERT"]                      = gbtx::regMap{"enableBERT","Enable BERT in RX logic",{2,3,4},{49,49,49}};
     registerMaps["clockPortEnableGroup3"]           = gbtx::regMap{"clockPortEnableGroup3","enable clock group3 channel 7",{0,0,0},{264,342,357}};
     registerMaps["i2cRxDacEnable"]                  = gbtx::regMap{"i2cRxDacEnable","",{3,4,5},{42,42,42}};
     registerMaps["cset0"]                           = gbtx::regMap{"cset0"," ",{0},{269}};
     registerMaps["clkDriveStrength0"]               = gbtx::regMap{"clkDriveStrength0","set clock drive strength group 0",{4},{329}};
-    registerMaps["rxDisableDecoderTMR"]             = gbtx::regMap{"rxDisableDecoderTMR","Disable TMR in FEC decoder",{1},{48}};
+    registerMaps["rxDisableDecoderTMR"]             = gbtx::regMap{"rxDisableDecoderTMR","Disable TMR in FEC decoder",{1},{49}};
     registerMaps["driveStrength3"]                  = gbtx::regMap{"driveStrength3","set drive strength group 3",{4},{328}};
     registerMaps["paResetEC"]                       = gbtx::regMap{"paResetEC","Reset EC channel",{0,1,2},{251,251,251}};
     registerMaps["paMode"]                          = gbtx::regMap{"paMode","Phase-aligner track mode",{0,2,4},{62,62,62}};
     registerMaps["cmPsReferenceSelect"]             = gbtx::regMap{"cmPsReferenceSelect","Selects Phase-Shifter reference clock",{0,2,4},{282,282,282}};
-    registerMaps["txEnableTest"]                    = gbtx::regMap{"txEnableTest"," ",{6},{27}};
     registerMaps["selHiByteTX0"]                    = gbtx::regMap{"selHiByteTX0","select HiByte in bypassed Eport TX group0",{0,1,2},{249,249,249}};
     registerMaps["clkDriveStrength2"]               = gbtx::regMap{"clkDriveStrength2","set clock drive strength group 2",{4},{330}};
     registerMaps["clkDriveStrength3"]               = gbtx::regMap{"clkDriveStrength3","set clock drive strength group 3",{0},{331}};
@@ -323,7 +321,9 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["rxDacGain"]                       = gbtx::regMap{"rxDacGain","",{4,5,6},{34,34,34}};
     registerMaps["resetPLLBar"]                     = gbtx::regMap{"resetPLLBar","PLL reset",{0},{25}};
     registerMaps["SLVSoutTestSel"]                  = gbtx::regMap{"SLVSoutTestSel","Selects signal to drive SLVS output test (dOut32)",{6},{0}};
+    registerMaps["txSelectI"]                       = gbtx::regMap{"txSelectI"," ",{0},{27}};
     registerMaps["txSelectR"]                       = gbtx::regMap{"txSelectR"," ",{4},{27}};
+    registerMaps["txEnableTest"]                    = gbtx::regMap{"txEnableTest"," ",{6},{27}};
     registerMaps["extEarly3"]                       = gbtx::regMap{"extEarly3"," ",{7},{11}};
     registerMaps["extEarly2"]                       = gbtx::regMap{"extEarly2"," ",{7},{10}};
     registerMaps["extEarly1"]                       = gbtx::regMap{"extEarly1"," ",{7},{9}};
@@ -348,7 +348,7 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["txLossOfLockTime"]                = gbtx::regMap{"txLossOfLockTime","Set time limit on unlock",{5},{32}};
     registerMaps["scEnableTermination"]             = gbtx::regMap{"scEnableTermination","Enable termination for SC-EC Eport",{5},{273}};
     registerMaps["txDisableEncoderTMR"]             = gbtx::regMap{"txDisableEncoderTMR","Disable TMR in FEC encoder",{6},{28}};
-    registerMaps["bypass"]                          = gbtx::regMap{"bypass EportRX","bypass EportRX",{0,1,2},{252,252,252}};
+    registerMaps["bypassEportRX"]                   = gbtx::regMap{"bypassEportRX","bypass EportRX",{0,1,2},{252,252,252}};
     registerMaps["gbld_ID"]                         = gbtx::regMap{"gbld_ID","i2c address of GBLD",{0},{253}};
     registerMaps["i2cRxReset"]                      = gbtx::regMap{"i2cRxReset","(Conditional) reset of the CDR PLL",{0,2,4},{53,53,53}};
 

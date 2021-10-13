@@ -22,6 +22,7 @@ int main (int argc, char** argv){
     // required settings
     string felixServerIp="none";
     string iPath="none";
+    string boardType="none";
     int portToGBTx=-1;
     int portFromGBTx=-1;
     int elinkId=-1;
@@ -42,6 +43,7 @@ int main (int argc, char** argv){
         if (!strcmp(argv[i],"--oport")) portFromGBTx=atoi(argv[i+1]);
         if (!strcmp(argv[i],"--elink")) elinkId=atoi(argv[i+1]);
         if (!strcmp(argv[i],"--sleep")) trainGBTxPhaseWaitTime=atoi(argv[i+1]);
+        if (!strcmp(argv[i],"-t")) boardType=argv[i+1];
         if (!strcmp(argv[i],"-c")) iPath=argv[i+1];
     }
 
@@ -81,27 +83,60 @@ int main (int argc, char** argv){
     cout<<"# portToGBTx:    "<<portToGBTx<<endl;
     cout<<"# portFromGBTx:  "<<portFromGBTx<<endl;
     cout<<"# elinkId:       "<<elinkId<<endl;
+    cout<<"# config file:   "<<iPath<<endl;
+    cout<<"# board type:    "<<boardType<<endl;
     cout<<"#------------------------------------------------#\n";
     cout<<"# sleep:         "<<trainGBTxPhaseWaitTime<<endl;
     cout<<"##################################################\n";
-
-
     std::vector<nsw::L1DDCConfig> l1ddc_configs;
 
-    nsw::GBTxSingleConfig config {
-        .iPath = iPath,
-        .felixServerIp = felixServerIp,
-        .portToGBTx = portToGBTx,
-        .portFromGBTx = portFromGBTx,
-        .elinkId = elinkId,
-        .trainGBTxPhaseAlignment = (mode=="train"),
-        .trainGBTxPhaseWaitTime = trainGBTxPhaseWaitTime
-    };
+    // Configure with xml file
+    if (iPath.find(".xml")!=string::npos){
 
-    l1ddc_configs.emplace_back(config);
 
+        nsw::GBTxSingleConfig config {
+            .iPath = iPath,
+            .felixServerIp = felixServerIp,
+            .portToGBTx = portToGBTx,
+            .portFromGBTx = portFromGBTx,
+            .elinkId = elinkId,
+            .boardType = boardType,
+            .trainGBTxPhaseAlignment = (mode=="train"),
+            .trainGBTxPhaseWaitTime = trainGBTxPhaseWaitTime
+        };
+
+        l1ddc_configs.emplace_back(config);
+
+
+    }
+    // Read configuration from json
+    else if (iPath.find(".json")!=string::npos){
+        if (mode=="train"){
+            cout<<"--------------------------------------------------\n";
+            cout<<"Warning: the trainGBTxPhaseAlignment setting in\n";
+            cout<<"the JSON file will take precident over the -t  \n";
+            cout<<"--------------------------------------------------\n";
+        }
+        nsw::ConfigReader reader("json://" + iPath);
+        try {
+            reader.readConfig();
+        } catch (std::exception & e) {
+            std::cout<<"ERROR: Can't read config file due to : "<<e.what()<<std::endl;
+            exit(0);
+        }
+        // pick names for configuration
+        for (auto & name : reader.getAllElementNames()) {
+             boost::property_tree::ptree config = reader.readConfig(name);
+             l1ddc_configs.emplace_back(config);
+        }
+    }
+    else{
+        std::cout<<"ERROR: Configuration file should be either .xml or .json\n";
+        exit(0);
+    }
+
+    // send configuration
     nsw::ConfigSender cs;
-
     for (std::size_t i=0; i<l1ddc_configs.size(); i++){
         std::cout << "Starting cs.sendL1DDCConfig\n";
         cs.sendL1DDCConfig(l1ddc_configs[i]);
