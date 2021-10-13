@@ -5,7 +5,7 @@
 
 #include "NSWConfiguration/Utility.h"
 
-nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbtx0(){
+nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbtx0() {
 
     ERS_DEBUG(2, "Constructor for nsw::L1DDCConfig::L1DDCConfig\n");
 
@@ -14,14 +14,11 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
     // Printout configuration tree for debugging
     ERS_DEBUG(2, nsw::dumpTree(gbtx0Config));
 
-    // Import configuration tree to GBTx0 configuration
-    m_gbtx0.setConfigFromPTree(gbtx0Config);
-    ERS_DEBUG(2, "Done setting setConfigFromPTree\n");
 
     try {
-        m_portToGBTx   = config.get<std::size_t>("portToGBTx");
-        m_portFromGBTx = config.get<std::size_t>("portFromGBTx");
-        m_elinkId      = config.get<std::size_t>("elinkId");
+        m_portToGBTx     = config.get<std::size_t>("portToGBTx");
+        m_portFromGBTx   = config.get<std::size_t>("portFromGBTx");
+        m_elinkId        = config.get<std::size_t>("elinkId");
         m_felixServerIp  = config.get<std::string>("FelixServerIp");
     }
     catch (const boost::property_tree::ptree_bad_path&){
@@ -30,20 +27,23 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
         throw issue;
     }
 
-    m_name = fmt::format("L1DDC:{}/{}/{}/{}",m_felixServerIp,m_portToGBTx,m_portFromGBTx,m_elinkId);
+    m_name = fmt::format("L1DDC-{}:{}/{}/{}/{}",m_boardType,m_felixServerIp,m_portToGBTx,m_portFromGBTx,m_elinkId);
 
     // Optional Calibration configuration passed in ptree
+    m_boardType               = config.get("boardType", "none");
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
-    m_trainGBTxPhaseWaitTime  = config.get("trainGBTxPhaseWaitTime", 1);
+    m_trainGBTxPhaseWaitTime  = config.get("trainGBTxPhaseWaitTime", 0);
     ERS_DEBUG(2,"L1DDC read GBTx training settings (note, these may be default values): toggle = "<<m_trainGBTxPhaseAlignment<<" and wait time = "<<m_trainGBTxPhaseWaitTime);
 
     // TODO: Future configuration for GBTx1, GBTx2 can go here
+
+    initGBTx();
+    m_gbtx0.setConfigFromPTree(gbtx0Config);
 
 }
 
 nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     m_gbtx0(),
-    // to be configured
     m_portToGBTx(config.portToGBTx),
     m_portFromGBTx(config.portFromGBTx),
     m_elinkId(config.elinkId),
@@ -51,7 +51,20 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     m_trainGBTxPhaseWaitTime(config.trainGBTxPhaseWaitTime),
     m_felixServerIp(config.felixServerIp),
     m_name(fmt::format("L1DDC:{}/{}/{}/{}",config.felixServerIp,config.portToGBTx,config.portFromGBTx,config.elinkId)) {
+
+    initGBTx();
     m_gbtx0.setConfigFromFile(config.iPath);
+}
+
+void nsw::L1DDCConfig::initGBTx(){
+    // Set up GBTx objects
+    // Configuration and training behavior depend on which board type
+    if (m_boardType=="mmg"){
+        m_gbtx0.setType("mmg0");
+    }
+    else if (m_boardType=="stg"){
+        m_gbtx0.setType("stg0");
+    }
 }
 
 

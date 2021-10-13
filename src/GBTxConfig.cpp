@@ -8,8 +8,10 @@
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
+#include <fmt/core.h>
 
 nsw::GBTxConfig::GBTxConfig() :
+    m_gbtxType("none"),
     m_registerMaps(compiledGbtxRegisterMap())
 {
 }
@@ -176,26 +178,49 @@ void nsw::GBTxConfig::setResetChannelsOn(){
     // Todo: There should be a configured setting to determine which channels are used, via a mask
     // set("paResetGroup0",0xFF);
     // This mode is not recommended for environments were SEUs are a concern.
-    reset("paResetGroup0",0x00);
-    reset("paResetGroup1",0xFF);
-    reset("paResetGroup2",0xFF);
-    reset("paResetGroup3",0xFF);
-    reset("paResetGroup4",0xFF);
-    reset("paResetGroup5",0x00); // just in case
-    reset("paResetGroup6",0x00); // just in case
+    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+        reset("paResetGroup0",0x00);
+        reset("paResetGroup1",0xFF);
+        reset("paResetGroup2",0xFF);
+        reset("paResetGroup3",0xFF);
+        reset("paResetGroup4",0xFF);
+        reset("paResetGroup5",0x00); // just in case
+        reset("paResetGroup6",0x00); // just in case
+    }
+    else{
+        nsw::InvalidGBTxTrainingType issue(ERS_HERE,m_gbtxType);
+        ers::error(issue);
+        throw issue;
+    }
 }
 
 void nsw::GBTxConfig::setResetChannelsOff(){
     // Set input reset channels off
     // Todo: There should be a configured setting to determine which channels are used, via a mask
     // reset("paResetGroup0",0x00);
-    reset("paResetGroup0",0x00);
-    reset("paResetGroup1",0x01); // in conf_l1_train_320_191.sh, this is kept 0x01
-    reset("paResetGroup2",0x00);
-    reset("paResetGroup3",0x00);
-    reset("paResetGroup4",0x00);
-    reset("paResetGroup5",0x00); // just in case
-    reset("paResetGroup6",0x00); // just in case
+    if (m_gbtxType.find("mmg")!=std::string::npos){
+        reset("paResetGroup0",0x00);
+        reset("paResetGroup1",0x01); // in conf_l1_train_320_191.sh, this is kept 0x01
+        reset("paResetGroup2",0x00);
+        reset("paResetGroup3",0x00);
+        reset("paResetGroup4",0x00);
+        reset("paResetGroup5",0x00); // just in case
+        reset("paResetGroup6",0x00); // just in case
+    }
+    else if (m_gbtxType.find("stg")!=std::string::npos){
+        reset("paResetGroup0",0x00);
+        reset("paResetGroup1",0x00);
+        reset("paResetGroup2",0x00);
+        reset("paResetGroup3",0x00);
+        reset("paResetGroup4",0x00);
+        reset("paResetGroup5",0x00);
+        reset("paResetGroup6",0x00);
+    }
+    else{
+        nsw::InvalidGBTxTrainingType issue(ERS_HERE,m_gbtxType);
+        ers::error(issue);
+        throw issue;
+    }
 }
 
 void nsw::GBTxConfig::setTrainingRegistersOn(){
@@ -226,23 +251,37 @@ void nsw::GBTxConfig::setTrainingRegistersOn(){
     reset("paMode",0b1);
 
     // Set the phase alignment training
-    reset("paTrainGroup0",0xFF);
-    reset("paTrainGroup1",0xFF);
-    reset("paTrainGroup2",0xFF);
-    reset("paTrainGroup3",0xFF);
-    reset("paTrainGroup4",0xFF);
-    reset("paTrainGroup5",0x00);
-    reset("paTrainGroup6",0x00);
+    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+        reset("paTrainGroup0",0xFF);
+        reset("paTrainGroup1",0xFF);
+        reset("paTrainGroup2",0xFF);
+        reset("paTrainGroup3",0xFF);
+        reset("paTrainGroup4",0xFF);
+        reset("paTrainGroup5",0x00);
+        reset("paTrainGroup6",0x00);
+    }
+    else{
+        nsw::InvalidGBTxTrainingType issue(ERS_HERE,m_gbtxType);
+        ers::error(issue);
+        throw issue;
+    }
 }
 
 void nsw::GBTxConfig::setTrainingRegistersOff(){
     // Turn off phase alignment
     // Todo: There should be a configured setting to determine which channels are used, via a mask
-    reset("paTrainGroup0",0x00);
-    reset("paTrainGroup1",0x00);
-    reset("paTrainGroup2",0x00);
-    reset("paTrainGroup3",0x00);
-    reset("paTrainGroup4",0x00);
-    reset("paTrainGroup5",0x00);
-    reset("paTrainGroup6",0x00);
+    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+        reset("paTrainGroup0",0x00);
+        reset("paTrainGroup1",0x00);
+        reset("paTrainGroup2",0x00);
+        reset("paTrainGroup3",0x00);
+        reset("paTrainGroup4",0x00);
+        reset("paTrainGroup5",0x00);
+        reset("paTrainGroup6",0x00);
+    }
+    else{
+        nsw::InvalidGBTxTrainingType issue(ERS_HERE,m_gbtxType);
+        ers::error(issue);
+        throw issue;
+    }
 }

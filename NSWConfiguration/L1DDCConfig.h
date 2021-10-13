@@ -33,6 +33,7 @@ class L1DDCConfig {
     std::size_t m_portToGBTx;
     std::size_t m_portFromGBTx;
     std::size_t m_elinkId;
+    std::string m_boardType;
     bool m_trainGBTxPhaseAlignment;
     int m_trainGBTxPhaseWaitTime;
     std::string m_felixServerIp;
@@ -70,6 +71,11 @@ class L1DDCConfig {
      * Simple configuration for standalone use
      */
     explicit L1DDCConfig(const nsw::GBTxSingleConfig& config);
+
+    /**
+     * Set up GBTx objects
+     */
+    void initGBTx();
 
     /**
      * \brief Get the port to Gbtx
@@ -114,7 +120,7 @@ class L1DDCConfig {
     int trainGBTxPhaseWaitTime() const {return m_trainGBTxPhaseWaitTime;}
 
     /**
-     * \brief Return whether to train the GBTx phase alignment has been configured
+     * \brief Return whether to train the GBTx phase alignment has been configured. Can be "mmg", "stg", or "none"
      *
      * \return bool train setting
      */
