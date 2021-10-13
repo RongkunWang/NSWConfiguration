@@ -81,6 +81,8 @@ namespace nsw {
   constexpr std::size_t MAX_LAYER_ID = 7;
   constexpr std::size_t NUM_LAYERS_MM   = 8;
   constexpr std::size_t NUM_LAYERS_STGC = 8;
+  constexpr std::size_t NUM_RADII_MM   = 16;
+  constexpr std::size_t NUM_RADII_STGC = 3;
 
   constexpr std::size_t MIN_SECTOR_ID = 1;
   constexpr std::size_t MAX_SECTOR_ID = 16;
@@ -133,6 +135,7 @@ namespace nsw {
     }    // namespace sfeb
 
     constexpr std::size_t NUM_SROCS = 4;
+    constexpr std::size_t NUM_PHASES_CTRL_PHASE = 8;
   }      // namespace roc
 
   namespace vmm {
@@ -248,9 +251,13 @@ namespace nsw {
     constexpr bool SCA_LITTLE_ENDIAN = false;
     constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
     constexpr std::uint32_t NUM_PFEBS              = 24;
+    constexpr std::uint32_t NUM_QUADS              = 6;
+    constexpr std::uint32_t NUM_PFEBS_PER_QUAD     = NUM_PFEBS / NUM_QUADS;
     constexpr std::uint32_t NUM_PFEB_BCID_READS    = 100;
+    constexpr std::uint32_t NUM_TRIGGER_RATE_READS = 10;
     constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
+    constexpr std::uint32_t TRIGGER_RATE_BITSHIFT  = 16;
     constexpr std::uint8_t REG_CONTROL          = 0x00;
     constexpr std::uint8_t REG_STATUS           = 0x01;
     constexpr std::uint8_t REG_L1ID             = 0x02;
@@ -261,6 +268,8 @@ namespace nsw {
     constexpr std::uint8_t REG_PFEB_BCID_23_16  = 0x07;
     constexpr std::uint8_t REG_PFEB_BCID_15_08  = 0x08;
     constexpr std::uint8_t REG_PFEB_BCID_07_00  = 0x09;
+    constexpr std::uint8_t REG_MASK_TO_0        = 0x0B;
+    constexpr std::uint8_t REG_MASK_TO_1        = 0x0C;
     [[deprecated("Should only be used with Pad_ro_ilaro_20200610.bit")]]
     constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_SS = {
       "PFEB_L4Q2_IP", "PFEB_L2Q2_IP", "PFEB_L4Q1_IP", "PFEB_L2Q1_IP",
@@ -278,6 +287,14 @@ namespace nsw {
       "PFEB_L1Q3_HO", "PFEB_L2Q3_HO", "PFEB_L3Q3_HO", "PFEB_L4Q3_HO",
       "PFEB_L3Q2_IP", "PFEB_L1Q2_IP", "PFEB_L3Q1_IP", "PFEB_L1Q1_IP",
       "PFEB_L1Q2_HO", "PFEB_L3Q2_HO", "PFEB_L1Q1_HO", "PFEB_L3Q1_HO",
+    };
+    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS = {
+      "PFEB_L1Q1_IP", "PFEB_L2Q1_IP", "PFEB_L3Q1_IP", "PFEB_L4Q1_IP",
+      "PFEB_L1Q1_HO", "PFEB_L2Q1_HO", "PFEB_L3Q1_HO", "PFEB_L4Q1_HO",
+      "PFEB_L1Q2_IP", "PFEB_L2Q2_IP", "PFEB_L3Q2_IP", "PFEB_L4Q2_IP",
+      "PFEB_L1Q2_HO", "PFEB_L2Q2_HO", "PFEB_L3Q2_HO", "PFEB_L4Q2_HO",
+      "PFEB_L1Q3_IP", "PFEB_L2Q3_IP", "PFEB_L3Q3_IP", "PFEB_L4Q3_IP",
+      "PFEB_L1Q3_HO", "PFEB_L2Q3_HO", "PFEB_L3Q3_HO", "PFEB_L4Q3_HO",
     };
   }
 
