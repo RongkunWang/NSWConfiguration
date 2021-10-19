@@ -18,6 +18,10 @@ int main(int ac, const char *av[]) {
     bool sim   = false;
     bool clock = false;
     bool feast = false;
+    std::string opc_ip   = "";
+    std::string sca_addr = "";
+    const std::string opc_ip_def   = "pcatlnswfelix01.cern.ch:48020";
+    const std::string sca_addr_def = "RimL1DDC_PRI";
     try {
       boost::program_options::options_description desc(description);
       desc.add_options()
@@ -25,9 +29,11 @@ int main(int ac, const char *av[]) {
         ("sel",   boost::program_options::value<bool>(&sel) ->default_value(false), "Bool to set sel")
         ("sel0",  boost::program_options::value<bool>(&sel0)->default_value(false), "Bool to set sel0")
         ("sel1",  boost::program_options::value<bool>(&sel1)->default_value(false), "Bool to set sel1")
-        ("feast", boost::program_options::bool_switch()->default_value(false), "Option to send feast comands")
-        ("clock", boost::program_options::bool_switch()->default_value(false), "Option to send clock comands")
+        ("feast", boost::program_options::bool_switch()->default_value(false), "Option to send feast commands")
+        ("clock", boost::program_options::bool_switch()->default_value(false), "Option to send clock commands")
         ("sim",   boost::program_options::bool_switch()->default_value(false), "Option to NOT send configurations")
+        ("opc_ip",   boost::program_options::value<std::string>(&opc_ip)  ->default_value(opc_ip_def), "OPC IP address:port")
+        ("sca_addr", boost::program_options::value<std::string>(&sca_addr)->default_value(sca_addr_def), "SCA name")
         ;
       boost::program_options::variables_map vm;
       boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), vm);
@@ -45,24 +51,22 @@ int main(int ac, const char *av[]) {
     }
 
     nsw::ConfigSender cs;
-
-    std::string opc_ip    = "pcatlnswfelix01.cern.ch:48020";
-    std::string sca_addr  = "RimL1DDC_PRI";
-    std::string gpio_pad  = sca_addr + ".gpio.feast_en1_pad";
-    std::string gpio_r1   = sca_addr + ".gpio.feast_en1_r1";
-    std::string gpio_r2   = sca_addr + ".gpio.feast_en1_r2";
-    std::string gpio_r3   = sca_addr + ".gpio.feast_en1_r3";
-    std::string gpio_r4   = sca_addr + ".gpio.feast_en1_r4";
-    std::string gpio_r5   = sca_addr + ".gpio.feast_en1_r5";
-    std::string gpio_r6   = sca_addr + ".gpio.feast_en1_r6";
-    std::string gpio_r7   = sca_addr + ".gpio.feast_en1_r7";
-    std::string gpio_r8   = sca_addr + ".gpio.feast_en1_r8";
-    std::string gpio_sel  = sca_addr + ".gpio.sca1_sel";
-    std::string gpio_sel0 = sca_addr + ".gpio.sca1_sel0";
-    std::string gpio_sel1 = sca_addr + ".gpio.sca1_sel1";
+    const std::string gpio_pad  = sca_addr + ".gpio.feast_en1_pad";
+    const std::string gpio_r1   = sca_addr + ".gpio.feast_en1_r1";
+    const std::string gpio_r2   = sca_addr + ".gpio.feast_en1_r2";
+    const std::string gpio_r3   = sca_addr + ".gpio.feast_en1_r3";
+    const std::string gpio_r4   = sca_addr + ".gpio.feast_en1_r4";
+    const std::string gpio_r5   = sca_addr + ".gpio.feast_en1_r5";
+    const std::string gpio_r6   = sca_addr + ".gpio.feast_en1_r6";
+    const std::string gpio_r7   = sca_addr + ".gpio.feast_en1_r7";
+    const std::string gpio_r8   = sca_addr + ".gpio.feast_en1_r8";
+    const std::string gpio_sel  = sca_addr + ".gpio.sca1_sel";
+    const std::string gpio_sel0 = sca_addr + ".gpio.sca1_sel0";
+    const std::string gpio_sel1 = sca_addr + ".gpio.sca1_sel1";
 
     if (feast) {
       try {
+        std::cout << "Using " << opc_ip << std::endl;
         std::cout << "Reading " << gpio_pad << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_pad))) << std::endl;
         std::cout << "Reading " << gpio_r1  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r1)))  << std::endl;
         std::cout << "Reading " << gpio_r2  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r2)))  << std::endl;
@@ -101,6 +105,7 @@ int main(int ac, const char *av[]) {
 
     if (clock) {
       try {
+        std::cout << "Using " << opc_ip << std::endl;
         std::cout << "Reading " << gpio_sel  << " : " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_sel)))  << std::endl;
         std::cout << "Reading " << gpio_sel0 <<  ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_sel0))) << std::endl;
         std::cout << "Reading " << gpio_sel1 <<  ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_sel1))) << std::endl;
