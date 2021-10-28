@@ -12,9 +12,11 @@
 #include <ers/ers.h>
 #include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const boost::property_tree::ptree& config):
   SCAConfig(config),
+  m_padtriggerfpga(config.get_child(PADTRIGGER_NAME), PADTRIGGER_NAME, PADTRIGGER_REGISTERS),
   m_L1AReadoutLatency(-1),
   m_L1AReadoutNBC(-1),
   m_L1AReadoutEnable(-1),

@@ -15,6 +15,9 @@ namespace nsw {
   /// Fool me once
   constexpr std::size_t MAX_ATTEMPTS = 5;
 
+  /// Make it clear when we are using 2 to indicate binary
+  constexpr std::size_t BASE_BIN = 2;
+
   /// Make it clear when we are using 16 to indicate hexadecimal
   constexpr std::size_t BASE_HEX = 16;
 
@@ -250,6 +253,7 @@ namespace nsw {
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
     constexpr std::uint32_t DATE_NEW_MAPPING       = 20210302;
+    constexpr std::uint32_t DATE_REGS_2021_10      = 20211000;
     constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
     constexpr std::uint32_t NUM_PFEBS              = 24;
     constexpr std::uint32_t NUM_QUADS              = 6;

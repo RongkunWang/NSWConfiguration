@@ -32,7 +32,7 @@ tdaq_add_library(nswconfigdal DAL
 
 tdaq_add_library(NSWConfig src/NSWConfig.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal
+                 tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface
 )
 
 ## Executables linked against Boost::boost

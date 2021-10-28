@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "NSWConfiguration/SCAConfig.h"
+#include "NSWConfiguration/I2cMasterConfig.h"
 
 namespace nsw {
 
@@ -25,6 +26,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     bool ConfigVTTx() const;
     bool ConfigControlRegister() const;
     uint32_t ControlRegister() const;
+    const I2cMasterConfig & getFpga() const {return m_padtriggerfpga;}
     int L1AReadoutLatency() const;
     int L1AReadoutNBC() const;
     int L1AReadoutNBCMode() const;
@@ -54,6 +56,7 @@ class PadTriggerSCAConfig: public SCAConfig {
                                     ) const;
 
  private:
+    I2cMasterConfig m_padtriggerfpga;
     int m_L1AReadoutLatency;
     int m_L1AReadoutNBC;
     int m_L1AReadoutEnable;

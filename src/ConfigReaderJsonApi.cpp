@@ -273,11 +273,16 @@ ptree JsonApi::readADDC(const std::string& element, size_t nart) const {
 }
 
 ptree JsonApi::readPadTriggerSCA(const std::string& element) const {
-    //
-    // Need to add functionality to overwrite values!
-    //
-    ptree feb = m_config.get_child(element);
-    return feb;
+    constexpr std::string_view name{"padtriggerfpga"};
+    ptree device = m_config.get_child(element);
+    ptree common = m_config.get_child("padtriggerfpga_common_config");
+    ptree specific;
+    if (device.get_child_optional(std::string(name))) {
+      specific = device.get_child(std::string(name));
+    }
+    mergeI2cMasterTree(specific, common);
+    device.put_child(std::string(name), common);
+    return device;
 }
 
 ptree JsonApi::readRouter(const std::string& element) const {
