@@ -119,6 +119,8 @@ namespace nsw::hw {
     [[nodiscard]] const I2cMasterConfig& getConfigDigital() const { return m_rocDigital; } //!< \overload
     // clang-format on
 
+    [[nodiscard]] std::string getName() const { return m_scaAddress; }
+
   private:
     /**
      * \brief Read a status register
