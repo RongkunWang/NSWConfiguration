@@ -90,23 +90,39 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 {
-  // write
-  const auto value = static_cast<uint32_t>(m_config.ControlRegister());
-  ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}",
-                       name(), nsw::padtrigger::REG_CONTROL, value));
-  writeFPGARegister(nsw::padtrigger::REG_CONTROL, value);
+  const auto& fpga = m_config.getFpga();
+  const auto& fw   = m_config.firmware_dateword();
+  ERS_INFO(fmt::format("Firmware provided: {}", fw));
 
-  // readback
-  const auto val = readFPGARegister(nsw::padtrigger::REG_CONTROL);
-  ERS_INFO(fmt::format("{}: readback of {:#02x} gives {:#08x}",
-                       name(), nsw::padtrigger::REG_CONTROL, readFPGARegister(nsw::padtrigger::REG_CONTROL)));
+  for (const auto& [rname, value_str] : fpga.getBitstreamMap()) {
 
-  // check
-  if (val != value) {
-    const std::string msg = "Found mismatch in FPGA reg readback";
-    nsw::PadTriggerReadbackMismatch issue(ERS_HERE, msg.c_str());
-    ers::error(issue);
+    // strings -> numerics
+    const auto addr  = addressFromRegisterName(rname);
+    const auto value = std::stoul(value_str, nullptr, nsw::BASE_BIN);
+
+    // backwards compatibility
+    if (addr > nsw::padtrigger::REG_CONTROL and fw < nsw::padtrigger::DATE_REGS_2021_10) {
+      ERS_INFO(fmt::format("Older firmware, will not configure {}", rname));
+      continue;
+    }
+
+    // write
+    ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", name(), addr, value));
+    writeFPGARegister(addr, value);
+
+    // readback
+    const auto val = readFPGARegister(addr);
+    ERS_INFO(fmt::format("{}: readback of {:#02x} gives {:#08x}", name(), addr, val));
+
+    // compare
+    if (val != value) {
+      const std::string msg = "Found mismatch in FPGA reg readback";
+      nsw::PadTriggerReadbackMismatch issue(ERS_HERE, msg.c_str());
+      ers::error(issue);
+    }
+
   }
+
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const
@@ -203,4 +219,19 @@ std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddres
                                                     data.data(), data.size(),
                                                     nsw::NUM_BYTES_IN_WORD32);
   return nsw::byteVectorToWord32(value, nsw::padtrigger::SCA_LITTLE_ENDIAN);
+}
+
+std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const
+{
+  std::uint8_t addr{0};
+  try {
+    const auto addr_str = name.substr(std::size_t{0}, name.find("_"));
+    addr = std::stoul(addr_str, nullptr, nsw::BASE_HEX);
+  } catch (std::exception & ex) {
+    const auto msg = fmt::format("Cannot get address from: {}", name);
+    nsw::PadTriggerConfigError issue(ERS_HERE, msg.c_str());
+    ers::error(issue);
+    throw issue;
+  }
+  return addr;
 }

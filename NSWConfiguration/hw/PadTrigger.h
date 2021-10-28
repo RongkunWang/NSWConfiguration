@@ -11,6 +11,12 @@
 #include <ers/Issue.h>
 
 ERS_DECLARE_ISSUE(nsw,
+                  PadTriggerConfigError,
+                  message,
+                  ((const char *)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   PadTriggerReadbackMismatch,
                   message,
                   ((const char *)message)
@@ -154,6 +160,15 @@ namespace nsw::hw {
      */
     [[nodiscard]] PadTriggerSCAConfig& getConfig() { return m_config; }
     [[nodiscard]] const PadTriggerSCAConfig& getConfig() const { return m_config; }  //!< overload
+
+    /**
+     * \brief Get the register address from the register name
+     *
+     * e.g., "00B_register_description" returns 0x00B
+     */
+    [[nodiscard]]
+    std::uint8_t addressFromRegisterName(const std::string& name) const;
+
 
   private:
     PadTriggerSCAConfig m_config;  //!< PadTriggerConfig object associated with this PadTrigger

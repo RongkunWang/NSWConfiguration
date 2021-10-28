@@ -1,4 +1,5 @@
 #include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/hw/PadTrigger.h"
 
 #include <utility>
 #include <string>
@@ -273,8 +274,9 @@ void nsw::NSWConfig::configurePadTriggers() {
         auto name = obj.first;
         auto configuration = obj.second;
         ERS_LOG("Sending config to: " << name);
+        const nsw::hw::PadTrigger hw{configuration};
         if (!m_simulation)
-            m_sender->sendPadTriggerSCAConfig(configuration);
+            hw.writeConfiguration();
     }
     ERS_LOG("Finished configuration of PadTriggerSCAs");
 }

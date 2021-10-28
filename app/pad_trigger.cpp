@@ -1,5 +1,6 @@
-// Program to set Pad Trigger configuration
-
+//
+// Program to read/write Pad Trigger configuration
+//
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -27,6 +28,7 @@ int main(int argc, const char *argv[])
     std::string gpio_name;
     std::string i2c_reg;
     std::string i2c_val;
+    bool dump;
     bool do_config;
     bool do_control;
     int val;
@@ -43,6 +45,8 @@ int main(int argc, const char *argv[])
          ->default_value(""), "Bitstream name to write to the FPGA. WARNING: EXPERIMENTAL.")
         ("gpio", po::value<std::string>(&gpio_name)
          ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
+        ("dump", po::bool_switch()->
+         default_value(false), "Option to dump pad trigger fpga i2c mapping")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
@@ -57,6 +61,7 @@ int main(int argc, const char *argv[])
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
+    dump       = vm["dump"]      .as<bool>();
     do_config  = vm["do_config"] .as<bool>();
     do_control = vm["do_control"].as<bool>();
     if (vm.count("help") > 0) {
@@ -68,11 +73,18 @@ int main(int argc, const char *argv[])
     const auto configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
       (fmt::format("json://{}", config_filename), "PadTriggerSCA", board_name);
     for (const auto& cfg: configs) {
-      std::cout << fmt::format("Found {} @ {} with {} -> T = {}",
+      std::cout << fmt::format("Found {} @ {}\n with {} -> T = {}",
                                cfg.getAddress(),
                                cfg.getOpcServerIp(),
                                cfg.firmware(),
                                cfg.firmware_dateword()) << std::endl;
+    }
+
+    // dump config
+    if (dump) {
+      for (const auto& cfg: configs) {
+        cfg.getFpga().dump();
+      }
     }
 
     // the hw objects
