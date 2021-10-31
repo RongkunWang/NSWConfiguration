@@ -25,9 +25,10 @@ void nsw::hw::PadTrigger::writeConfiguration() const
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
 {
   if (not m_config.ConfigRepeaters()) {
-    ERS_LOG(fmt::format("Skipping configuration of repeaters of {}", name()));
+    ERS_INFO(fmt::format("Skipping configuration of repeaters of {}", m_name));
     return;
   }
+  ERS_INFO(fmt::format("Writing configuration of repeaters of {}", m_name));
 
   for (const auto& [rep, address, value]: m_repeaterSequenceOfCommands) {
 
@@ -59,7 +60,7 @@ void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
 void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 {
   if (not m_config.ConfigVTTx()) {
-    ERS_LOG(fmt::format("Skipping configuration of VTTx of {}", name()));
+    ERS_LOG(fmt::format("Skipping configuration of VTTx of {}", m_name));
     return;
   }
 
@@ -107,12 +108,12 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
     }
 
     // write
-    ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", name(), addr, value));
+    ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, addr, value));
     writeFPGARegister(addr, value);
 
     // readback
     const auto val = readFPGARegister(addr);
-    ERS_INFO(fmt::format("{}: readback of {:#02x} gives {:#08x}", name(), addr, val));
+    ERS_INFO(fmt::format("{}: readback of {:#02x} gives {:#08x}", m_name, addr, val));
 
     // compare
     if (val != value) {
@@ -123,6 +124,24 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 
   }
 
+}
+
+void nsw::hw::PadTrigger::writeControlSubRegister(const std::string& subreg, const std::uint32_t subval) const
+{
+  const auto rname = std::string{"000_control_reg"};
+  const auto addr = addressFromRegisterName(rname);
+
+  // overwrite the bits of interest
+  const auto fpga = m_config.getFpga();
+  const auto pos  = fpga.getAddressPositions().at(rname).at(subreg);
+  const auto siz  = fpga.getAddressSizes()    .at(rname).at(subreg);
+  const auto rpos = std::size_t{nsw::NUM_BITS_IN_WORD32 - pos - siz};
+  const auto value =
+    nsw::overwriteBits(readFPGARegister(addr), subval, rpos, siz);
+
+  // write
+  ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, addr, value));
+  writeFPGARegister(addr, value);
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const
