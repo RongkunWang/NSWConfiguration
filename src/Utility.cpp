@@ -16,6 +16,37 @@ using boost::property_tree::ptree;
 // template<size_t N1, size_t N2>
 // std::bitset<N1 + N2> concatenate(std::bitset<N1> b1, std::bitset<N2> b2);
 
+std::uint32_t nsw::overwriteBits(const std::uint32_t original,
+                                 const std::uint32_t value,
+                                 const std::uint32_t position,
+                                 const std::uint32_t nbits) {
+  if (value >= (1 << nbits)) {
+    const auto err = "Value exceeds number of bits";
+    throw std::runtime_error(err);
+  }
+  if (position >= sizeof(original) * CHAR_BIT) {
+    const auto err = "Position exceeds original";
+    throw std::runtime_error(err);
+  }
+  if (nbits >= sizeof(original) * CHAR_BIT) {
+    const auto err = "nbits exceeds original";
+    throw std::runtime_error(err);
+  }
+
+  // bit mask
+  std::uint32_t mask{0};
+  for (std::uint32_t it = position; it < position + nbits; ++it) {
+    mask += (1 << it);
+  }
+
+  // update
+  std::uint32_t update{original};
+  update &= ~mask;
+  update |= (value << position);
+
+  return update;
+}
+
 std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool littleEndian) {
     std::vector<uint8_t> byteVector(nbytes);
     for (size_t i = 0; i < nbytes; i++)
@@ -27,6 +58,10 @@ std::vector<uint8_t> nsw::intToByteVector(uint32_t value, size_t nbytes, bool li
 
 std::vector<uint8_t> nsw::intToByteVector(uint8_t value, size_t nbytes, bool littleEndian) {
   return nsw::intToByteVector(static_cast<uint32_t>(value), nbytes, littleEndian);
+}
+
+unsigned nsw::reversedBits(unsigned value, size_t nbits) {
+  return static_cast<unsigned>(std::stoul(reversedBitString(value, nbits), nullptr, nsw::BASE_BIN));
 }
 
 std::string nsw::reversedBitString(unsigned value, size_t nbits) {

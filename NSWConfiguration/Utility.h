@@ -55,6 +55,19 @@ std::bitset<N1 + N2 + N3> concatenate(const std::bitset<N1>& b1, const std::bits
     return concatenate(concatenate(b1, b2), b3);
 }
 
+/**
+ * \brief Overwrite a subset of bits of an integer
+ *
+ * \param original the original integer
+ * \param value the new value to be inserted into the integer
+ * \param position the first (least significant) bit position of the new value
+ * \param nbits the number of bits to be overwritten
+ *
+ * e.g., Passing (0x00000000, 0xFF, 16, 8) returns 0x00FF0000.
+ */
+std::uint32_t overwriteBits(std::uint32_t original, std::uint32_t value,
+                            std::uint32_t position, std::uint32_t nbits);
+
 /// Returns byte vector for the value of size nbytes
 std::vector<uint8_t> intToByteVector(uint32_t value, size_t nbytes, bool littleEndian = true);
 std::vector<uint8_t> intToByteVector(uint8_t  value, size_t nbytes, bool littleEndian = true);
@@ -96,6 +109,9 @@ std::vector<std::uint8_t> integerToByteVector(const Integer val, std::size_t nBy
 
 /// Returns bit pattern for the value
 std::string bitString(unsigned value, size_t nbits);
+
+/// Reverses a bit pattern of a long and returns a long with reversed bits
+unsigned reversedBits(unsigned value, size_t nbits);
 
 /// Reverses a bit pattern of a long and returns string with reversed bits
 std::string reversedBitString(unsigned value, size_t nbits);

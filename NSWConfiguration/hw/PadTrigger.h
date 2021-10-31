@@ -116,6 +116,47 @@ namespace nsw::hw {
                                std::uint8_t regAddress,
                                std::uint8_t value) const;
 
+
+    /**
+     * \brief Write a sub-register of the control register
+     *
+     * \param subreg is the name of the sub-register
+     * \param subval is the value to write
+     */
+    void writeControlSubRegister(const std::string& subreg, std::uint32_t subval) const;
+
+    /**
+     * \brief Enable the pad trigger readout
+     */
+    void writeReadoutEnable() const
+    { writeControlSubRegister("conf_ro_en", std::uint32_t{true}); };
+
+    /**
+     * \brief Disable the pad trigger readout
+     */
+    void writeReadoutDisable() const
+    { writeControlSubRegister("conf_ro_en", std::uint32_t{false}); };
+
+    /**
+     * \brief Enable the pad trigger idle state
+     */
+    void writeStartIdleStateEnable() const
+    { writeControlSubRegister("conf_startIdleState", std::uint32_t{true}); };
+
+    /**
+     * \brief Disable the pad trigger idle state
+     */
+    void writeStartIdleStateDisable() const
+    { writeControlSubRegister("conf_startIdleState", std::uint32_t{false}); };
+
+    /**
+     * \brief Write readout BC offset (latency)
+     *
+     * \param val is the offset
+     */
+    void writeReadoutBCOffset(const std::uint32_t val) const
+    { writeControlSubRegister("conf_ro_bc_offset", val); };
+
     /**
      * \brief Read an individual pad trigger FPGA register by its address
      *

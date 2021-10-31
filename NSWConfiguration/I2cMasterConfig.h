@@ -139,6 +139,12 @@ class I2cMasterConfig {
     /// Return addresses of slaves the I2c master
     std::vector<std::string> getAddresses() const { return m_codec.getAddresses(); }
 
+    /// Return address positions of the I2c master
+    const i2c::AddressRegisterSizeMap& getAddressPositions() const { return m_codec.m_addr_reg_pos; }
+
+    /// Return address sizes of the I2c master
+    const i2c::AddressRegisterSizeMap& getAddressSizes() const { return m_codec.m_addr_reg_size; }
+
     /// Return total size of registers in an i2c address
     size_t getTotalSize(const std::string& address) const { return m_codec.getTotalSize(address); }
 
