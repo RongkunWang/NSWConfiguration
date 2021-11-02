@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_set>
 
 #include <fmt/core.h>
 
@@ -188,6 +189,46 @@ std::string dumpTree(const boost::property_tree::ptree &pt);
 
 std::string getPrintableGbtxConfig(std::vector<uint8_t> data);
 
+/**
+ * \brief Get all complete paths from a ptree
+ *
+ * \param tree The ptree
+ * \return std::unordered_set<std::string> Complete set of paths
+ */
+std::unordered_set<std::string> getPathsFromPtree(const boost::property_tree::ptree& tree);
+
+/**
+ * \brief Transform a map into a ptree of the form key : value
+ *
+ * \tparam Key Type of the key of the map
+ * \tparam Value Type of the value of the map
+ * \param map Map to be transformed (keys can contain '.' for nested ptrees)
+ * \return boost::property_tree::ptree Ptree representation of the map
+ */
+template<typename Key, typename Value>
+boost::property_tree::ptree transformMapToPtree(const std::map<Key, Value>& map) {
+  boost::property_tree::ptree result;
+  for (const auto& [key, value] : map) {
+    result.put(key, value);
+  }
+  return result;
+}
+
+/**
+ * \brief Transform a ptree into a map
+ * 
+ * \tparam Value Type of the value of the map
+ * \param tree Tree to be transformed (nested structures will be converted to keys with '.')
+ * \return boost::property_tree::ptree Map representation of the ptree
+ */
+template<typename Value>
+std::map<std::string, Value> transformPtreetoMap(const boost::property_tree::ptree& tree) {
+  std::map<std::string, Value> result{};
+  for (const auto& key : getPathsFromPtree(tree)) {
+    result[key] = tree.get<Value>(key);
+  }
+  return result;
+}
 }  // namespace nsw
 
 namespace boost::property_tree {

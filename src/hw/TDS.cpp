@@ -132,3 +132,30 @@ std::vector<std::uint8_t> nsw::hw::TDS::readRegister(const std::uint8_t regAddre
     fmt::format("{}.{}.{}", m_scaAddress, m_config.getName(), registerName);
   return nsw::hw::SCA::readI2c(OpcManager::getConnection(m_opcserverIp), fullNodeName, sizeInBytes);
 }
+
+void nsw::hw::TDS::writeValues(const std::map<std::string, unsigned int>& values) const
+{
+  const auto valuesTree = transformMapToPtree(values);
+
+  const auto configConverter =
+    ConfigConverter<ConfigConversionType::TDS>(valuesTree, ConfigType::VALUE_BASED);
+  const auto config =
+    nsw::I2cMasterConfig(configConverter.getFlatRegisterBasedConfig(m_config.getBitstreamMap()),
+                         m_config.getName(),
+                         TDS_REGISTERS,
+                         true);
+
+  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+
+  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, config);
+}
+
+void nsw::hw::TDS::writeValue(const std::string& name, const unsigned int value) const
+{
+  writeValues({std::pair{name, value}});
+}
+
+unsigned int nsw::hw::TDS::readValue(const std::string& name) const
+{
+  return std::cbegin(readValues(std::array{name}))->second;
+}

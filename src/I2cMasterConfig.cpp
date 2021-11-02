@@ -1,5 +1,6 @@
 #include "NSWConfiguration/I2cMasterConfig.h"
 
+#include <iterator>
 #include <map>
 #include <cmath>
 #include <iostream>
@@ -112,12 +113,23 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
 
 i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildPartialConfig(const ptree& config) const {
     i2c::AddressBitstreamMap bitstreams;
-    std::transform(std::begin(config), std::end(config), std::inserter(bitstreams, std::end(bitstreams)), [&config] (const auto& pair) -> std::pair<std::string, std::string> {
+    // Lambda that defines the transformation
+    std::transform(std::begin(config), std::end(config), std::inserter(bitstreams, std::end(bitstreams)), [this, &config] (const auto& pair) -> std::pair<std::string, std::string> {
         const std::string address = pair.first;
-        const unsigned int value = config.get<unsigned int>(address);
-        // FIXME: Size?
-        const std::bitset<8> bs(value);
-        return {address, bs.to_string()};
+        if (address.find("READONLY") != std::string::npos) {
+            nsw::WriteToReadOnlyRegister issue(ERS_HERE, address);
+            ers::error(issue);
+            throw issue;
+        }
+        const auto value = config.get<unsigned int>(address);
+        constexpr auto MAX_SIZE = std::size_t{128};
+        const std::bitset<MAX_SIZE> bs(value);
+        const auto registerSize =
+            std::accumulate(std::cbegin(m_addr_reg.at(address)),
+                            std::cend(m_addr_reg.at(address)),
+                            std::size_t{0},
+                            [](const auto result, const auto& pair) { return result + pair.second; });
+        return {address, bs.to_string().substr(MAX_SIZE - registerSize, MAX_SIZE)};
     });
     return bitstreams;
 }

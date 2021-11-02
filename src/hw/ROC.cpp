@@ -1,5 +1,7 @@
 #include "NSWConfiguration/hw/ROC.h"
 
+#include <algorithm>
+#include <cstdint>
 #include <iterator>
 #include <stdexcept>
 
@@ -11,6 +13,8 @@
 
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
+#include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/hw/Helper.h"
 #include "NSWConfiguration/hw/SCAInterface.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
@@ -144,13 +148,72 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
     fmt::format("{}.gpio.bitBanger", m_scaAddress), sclLine, sdaLine, regAddress, DELAY);
 }
 
+void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values) const
+{
+  const auto valuesTree = transformMapToPtree(values);
+
+  // Get keys from map. Will be replaced by std::views::keys(map)
+  const auto paths = [&values]() {
+    std::vector<std::string> keys{};
+    keys.reserve(values.size());
+    std::transform(std::cbegin(values),
+                   std::cend(values),
+                   std::back_inserter(keys),
+                   [](const auto& pair) { return pair.first; });
+    return keys;
+  }();
+  const auto isAnalog = internal::ROC::namesAnalog(paths);
+
+  // Lambda to const init the converted config. Pulls in this, the values and isAnalog
+  const auto config = [this, &valuesTree, &isAnalog]() {
+    if (isAnalog) {
+      const auto configConverter =
+        ConfigConverter<ConfigConversionType::ROC_ANALOG>(valuesTree, ConfigType::VALUE_BASED);
+      return nsw::I2cMasterConfig(
+        configConverter.getFlatRegisterBasedConfig(m_rocAnalog.getBitstreamMap()),
+        ROC_ANALOG_NAME,
+        ROC_ANALOG_REGISTERS,
+        true);
+    }
+    const auto configConverter =
+      ConfigConverter<ConfigConversionType::ROC_DIGITAL>(valuesTree, ConfigType::VALUE_BASED);
+    return nsw::I2cMasterConfig(
+      configConverter.getFlatRegisterBasedConfig(m_rocDigital.getBitstreamMap()),
+      ROC_DIGITAL_NAME,
+      ROC_DIGITAL_REGISTERS,
+      true);
+  }();
+
+  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+
+  if (isAnalog) {
+    constexpr bool ACTIVE = true;
+    setPllResetN(opcConnection, ACTIVE);
+  }
+  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, config);
+  if (isAnalog) {
+    constexpr bool INACTIVE = false;
+    setPllResetN(opcConnection, INACTIVE);
+  }
+}
+
+void nsw::hw::ROC::writeValue(const std::string& name, const unsigned int value) const
+{
+  writeValues({std::pair{name, value}});
+}
+
+unsigned int nsw::hw::ROC::readValue(const std::string& name) const
+{
+  return std::cbegin(readValues(std::array{name}))->second;
+}
+
 void nsw::hw::ROC::enableVmmCaptureInputs() const
 {
   boost::property_tree::ptree tree;
   tree.put_child("reg008vmmEnable",
                  m_rocDigital.getConfig().get_child("reg008vmmEnable"));
   const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(tree, ConfigType::REGISTER_BASED);
-  const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(m_rocDigital);
+  const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(m_rocDigital.getBitstreamMap());
   writeRegister("reg008vmmEnable", translatedPtree.get<std::uint8_t>("reg008vmmEnable"));
 }
 
@@ -228,4 +291,22 @@ void nsw::hw::ROC::setReset(const OpcClientPtr& opcConnection,
   // Active = Low
   nsw::hw::SCA::sendGPIO(
     opcConnection, fmt::format("{}.gpio.{}", m_scaAddress, resetName), not state);
+}
+
+std::uint8_t nsw::hw::ROC::getRegAddress(const std::string& regName, const bool isAnalog)
+{
+  if (isAnalog) {
+    if (ROC_ANALOG_REGISTERS.find(regName) == std::end(ROC_ANALOG_REGISTERS)) {
+      throw std::logic_error(fmt::format("Did not find register {}", regName));
+    }
+    return static_cast<std::uint8_t>(
+      static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_ANALOG_REGISTERS),
+                                              ROC_ANALOG_REGISTERS.find(regName))) +
+      ROC_DIGITAL_REGISTERS.size());
+  }
+  if (ROC_DIGITAL_REGISTERS.find(regName) == std::end(ROC_DIGITAL_REGISTERS)) {
+    throw std::logic_error(fmt::format("Did not find register {}", regName));
+  }
+  return static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_DIGITAL_REGISTERS),
+                                                  ROC_DIGITAL_REGISTERS.find(regName)));
 }
