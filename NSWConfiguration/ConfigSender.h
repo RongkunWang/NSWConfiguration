@@ -135,11 +135,6 @@ class ConfigSender {
                           const std::map<std::string, nsw::TPConfig>   & tps_map);
     void alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & addcs, const nsw::TPConfig& tp);
 
-    /// High level send function
-    uint32_t readPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig& obj);
-    void sendPadTriggerSCAControlRegister(const nsw::PadTriggerSCAConfig& obj, bool write = true);
-    void sendPadTriggerSCAConfig(const nsw::PadTriggerSCAConfig& obj);
-
     /// High level send function, and the kids
     void sendRouterConfig(const nsw::RouterConfig& obj);
     void sendRouterWaitGPIO(const nsw::RouterConfig& obj);
@@ -155,10 +150,6 @@ class ConfigSender {
     void sendSCAXRegister                (const nsw::SCAConfig& scax, uint8_t address, uint32_t message, bool quiet = false);
     uint32_t readSCAXRegisterWord        (const nsw::SCAConfig& scax, uint8_t address);
     std::vector<uint8_t> readSCAXRegister(const nsw::SCAConfig& scax, uint8_t address);
-
-    /// High level send/read functions (pad trigger)
-    void sendPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address, uint32_t message, bool quiet = false);
-    uint32_t readPadTriggerConfigRegister(const nsw::PadTriggerSCAConfig& pt, uint8_t address);
 
     /// High level send function to send configuration to all addresses under an I2cMaster
     void sendI2cMasterConfig(const std::string& opcserver_ipport, const std::string& topnode,
