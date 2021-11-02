@@ -337,6 +337,33 @@ void nsw::snooze(const std::chrono::duration<float> dur) {
   std::this_thread::sleep_for(dur);
 }
 
+std::unordered_set<std::string> nsw::getPathsFromPtree(const boost::property_tree::ptree& tree)
+{
+  std::unordered_set<std::string> result{};
+  // Lambda which takes itself as first argument to call itself recursively. Hides implementation
+  // details. (Would be a public function in Utility which is just a helper)
+  const auto walkTreeImpl = [](const auto& func,
+                                const boost::property_tree::ptree& tree,
+                                std::unordered_set<std::string>& key_set,
+                                const std::string& parent_key) {
+    if (tree.empty()) {
+      key_set.insert(parent_key);
+      return;
+    }
+    for (const auto& it : tree) {
+      std::string key = parent_key;
+      // add a separator between key segments
+      if (!key.empty()) {
+        key += '.';
+      }
+      key += it.first;
+      func(func, it.second, key_set, key);
+    }
+  };
+  walkTreeImpl(walkTreeImpl, tree, result, "");
+  return result;
+}
+
 namespace boost::property_tree {
 
   boost::optional<
@@ -346,7 +373,7 @@ namespace boost::property_tree {
     __uint128_t res = 0;
 
     for (const char c : str) {
-      if (std::isdigit(c) != 0) {
+      if (std::isdigit(c) == 0) {
         throw std::runtime_error(std::string("Non-numeric character: ") + c);
       }
       res *= 10;

@@ -11,6 +11,12 @@
 #include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
+                  WriteToReadOnlyRegister,
+                  "Cannot write to readonly register: " << message,
+                  ((std::string)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   NoSuchI2cAddress,
                   "No I2C element with this address: " << message,
                   ((const char *)message)

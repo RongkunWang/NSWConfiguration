@@ -1,9 +1,16 @@
 #ifndef NSWCONFIGURATION_HW_ROC_H
 #define NSWCONFIGURATION_HW_ROC_H
 
-#include "NSWConfiguration/FEBConfig.h"
-#include "NSWConfiguration/hw/OpcManager.h"
+#include <algorithm>
+#include <iterator>
 #include <stdexcept>
+#include <unordered_set>
+
+#include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/ConfigConverter.h"
+#include "NSWConfiguration/hw/Helper.h"
 
 namespace nsw::hw {
   /**
@@ -61,6 +68,82 @@ namespace nsw::hw {
      * \throws std::logic_error \ref regName is invalid
      */
     void writeRegister(const std::string& regName, std::uint8_t value) const;
+
+    /**
+     * \brief Write values to the ROC (either analog or digital)
+     *
+     * \param values map of name to value
+     */
+    void writeValues(const std::map<std::string, unsigned int>& values) const;
+
+    /**
+     * \brief Write a value to the ROC
+     *
+     * \param name Name of the value (value-based representation)
+     * \param value The value
+     */
+    void writeValue(const std::string& name, unsigned int value) const;
+
+    /**
+     * \brief Read a value from the ROC
+     *
+     * \param name Name of the value (value-based representation)
+     * \return Read value
+     */
+    [[nodiscard]] unsigned int readValue(const std::string& name) const;
+
+    /**
+     * \brief Read values from the ROC (either analog or digital)
+     *
+     * \param names range of names of values
+     * \tparam Range Iterable list of strings 
+     */
+    template<typename Range> // add requires with c++20
+    [[nodiscard]] std::map<std::string, unsigned int> readValues(const Range& names) const
+    {
+      const auto isAnalog = internal::ROC::namesAnalog(names);
+      // Lambda to const init the register names. Pulls in isAnalog and the names and asks the config
+      // converter for the registers for the given names
+      const auto regNames = [isAnalog, &names] {
+        std::unordered_set<std::string> result{};
+        for (const auto& name : names) {
+          if (isAnalog) {
+            result.merge(ConfigConverter<ConfigConversionType::ROC_ANALOG>::getRegsForValue(name));
+          }
+          else {
+            result.merge(ConfigConverter<ConfigConversionType::ROC_DIGITAL>::getRegsForValue(name));
+          }
+        }
+        return result;
+      }();
+
+      std::map<std::string, unsigned int> registerValues{};
+      std::transform(std::cbegin(regNames),
+                     std::cend(regNames),
+                     std::inserter(registerValues, std::begin(registerValues)),
+                     [&](const auto& regName) -> std::pair<std::string, std::uint8_t> {
+                       return {regName, readRegister(getRegAddress(regName, isAnalog))};
+                     });
+
+      // Lambda to const init the read-back values. Pulls in isAnalog, the read-back register values and the names.
+      // Asks the config converter to do the translation. TODO: Clean up config converter call (future MR)
+      const auto values = [isAnalog, &registerValues, &names]() {
+        if (isAnalog) {
+          const auto configConverter = ConfigConverter<ConfigConversionType::ROC_ANALOG>(
+            transformMapToPtree(ConfigConverter<ConfigConversionType::ROC_ANALOG>::convertRegisterToSubRegister(
+              transformMapToPtree(registerValues), names)),
+            ConfigType::REGISTER_BASED);
+          return configConverter.getValueBasedConfig();
+        }
+        const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(
+          transformMapToPtree(ConfigConverter<ConfigConversionType::ROC_DIGITAL>::convertRegisterToSubRegister(
+            transformMapToPtree(registerValues), names)),
+          ConfigType::REGISTER_BASED);
+        return configConverter.getValueBasedConfig();
+      }();
+
+      return transformPtreetoMap<unsigned int>(values);
+    }
 
     /**
      * \brief Disable all VMMs in the VMM enable register
@@ -166,6 +249,15 @@ namespace nsw::hw {
     void setReset(const OpcClientPtr& opcConnection,
                   const std::string& resetName,
                   bool state) const;
+
+    /**
+     * \brief Get the address of a named register
+     *
+     * \param regName is the name of the register
+     * \param isAnalog is it an analog register
+     * \return std::uint8_t is the address of the register
+     */
+    [[nodiscard]] static std::uint8_t getRegAddress(const std::string& regName, bool isAnalog);
 
     I2cMasterConfig m_rocAnalog;   //!< associated I2cMasterConfig for the analog part of this ROC
     I2cMasterConfig m_rocDigital;  //!< associated I2cMasterConfig for the digital part of this ROC

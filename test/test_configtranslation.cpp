@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfig_ROCAnalogValueTree_ReturnsCorrectReg
 BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigNoSubregisterNoReadbackAnalog_ROCAnalogValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyAnalog();
     const auto converter = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_ANALOG>(valueTree, nsw::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocAnalog());
+    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocAnalog().getBitstreamMap());
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase40MHz_0"), registerTree.get<int>("reg064ePllVmm0") & 0b0111'1111);
     BOOST_CHECK_EQUAL(valueTree.get<int>("ePllVmm0.ePllPhase160MHz_0") / 16, (registerTree.get<int>("reg064ePllVmm0") & 0b1000'0000) >> 7);
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(GetRegisterBasedConfigDigital_ROCDigitalValueTree_ReturnsCo
 BOOST_AUTO_TEST_CASE(getRegisterBasedConfigNoSubregisterNoReadbackDigital_ROCDigitalValueTree_ReturnsCorrectRegisterTreeWithoutSubregisters) {
     const auto valueTree = createDummyDigital();
     const auto converter = nsw::ConfigConverter<nsw::ConfigConversionType::ROC_DIGITAL>(valueTree, nsw::ConfigType::VALUE_BASED);
-    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocDigital());
+    const auto registerTree = converter.getFlatRegisterBasedConfig(getReferenceConfig().getRocDigital().getBitstreamMap());
 
     BOOST_CHECK_EQUAL(valueTree.get<int>("l1_first"), (registerTree.get<int>("reg000rocId") & 0b1000'0000) >> 7);
     BOOST_CHECK_EQUAL(valueTree.get<int>("even_parity"), (registerTree.get<int>("reg000rocId") & 0b0100'0000) >> 6);

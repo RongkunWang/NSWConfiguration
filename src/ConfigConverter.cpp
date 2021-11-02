@@ -4,6 +4,9 @@
 #include "NSWConfiguration/ConfigSender.h"
 
 #include <algorithm>
+#include <iterator>
+#include <stdexcept>
+#include <unordered_set>
 
 #include "boost/property_tree/ptree.hpp"
 
@@ -22,69 +25,7 @@ namespace nsw {
 
   template<ConfigConversionType DeviceType>
   ConfigConverter<DeviceType>::ConfigConverter(const ptree& t_config, const ConfigType t_type) :
-    m_translationMap([]() {
-      if (DeviceType == ConfigConversionType::ROC_ANALOG) {
-        return TRANSLATION_MAP_ROC_ANALOG;
-      }
-      if (DeviceType == ConfigConversionType::ROC_DIGITAL) {
-        return TRANSLATION_MAP_ROC_DIGITAL;
-      }
-      throw std::runtime_error("Not implemented");
-    }()),
-    m_registerTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::REGISTER_BASED) {
-        return t_config;
-      }
-      return convertValueToSubRegister(t_config);
-    }()),
-    m_valueTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::VALUE_BASED) {
-        return t_config;
-      }
-      return convertSubRegisterToValue(t_config);
-    }())
-  {}
-
-  template<>
-  ConfigConverter<ConfigConversionType::TDS>::ConfigConverter(const ptree& t_config,
-                                                              const ConfigType t_type) :
-    m_translationMap(TRANSLATION_MAP_TDS),
-    m_registerTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::REGISTER_BASED) {
-        return t_config;
-      }
-      return convertValueToSubRegister(t_config);
-    }()),
-    m_valueTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::VALUE_BASED) {
-        return t_config;
-      }
-      return convertSubRegisterToValue(t_config);
-    }())
-  {}
-
-  template<>
-  ConfigConverter<ConfigConversionType::ART>::ConfigConverter(const ptree& t_config,
-                                                              const ConfigType t_type) :
-    m_translationMap(TRANSLATION_MAP_ART_CORE),
-    m_registerTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::REGISTER_BASED) {
-        return t_config;
-      }
-      return convertValueToSubRegister(t_config);
-    }()),
-    m_valueTree([this, t_type, &t_config]() {
-      if (t_type == ConfigType::VALUE_BASED) {
-        return t_config;
-      }
-      return convertSubRegisterToValue(t_config);
-    }())
-  {}
-
-  template<>
-  ConfigConverter<ConfigConversionType::ART_PS>::ConfigConverter(const ptree& t_config,
-                                                                 const ConfigType t_type) :
-    m_translationMap(TRANSLATION_MAP_ART_PS),
+    m_translationMap(getTranslationMap()),
     m_registerTree([this, t_type, &t_config]() {
       if (t_type == ConfigType::REGISTER_BASED) {
         return t_config;
@@ -100,7 +41,7 @@ namespace nsw {
   {}
 
   template<ConfigConversionType DeviceType>
-  std::vector<std::string> ConfigConverter<DeviceType>::getAllPaths(const ptree& t_tree) const
+  std::vector<std::string> ConfigConverter<DeviceType>::getAllPaths(const ptree& t_tree)
   {
     const auto iterate = [&t_tree]() {
       std::vector<std::string> paths;
@@ -249,11 +190,10 @@ namespace nsw {
 
   template<ConfigConversionType DeviceType>
   [[nodiscard]] ptree ConfigConverter<DeviceType>::getFlatRegisterBasedConfig(
-    const nsw::I2cMasterConfig& t_config) const
+    const i2c::AddressBitstreamMap& t_reference) const
   {
-    const auto bitstreamMap = t_config.getBitstreamMap();
-    const auto func = [&bitstreamMap](const std::string& t_registerName) {
-      return binaryStringToInt(bitstreamMap.at(t_registerName));
+    const auto func = [&t_reference](const std::string& t_registerName) {
+      return binaryStringToInt(t_reference.at(t_registerName));
     };
 
     return readMissingRegisterParts(func);
@@ -284,6 +224,18 @@ namespace nsw {
   }
 
   template<ConfigConversionType DeviceType>
+  std::unordered_set<std::string> ConfigConverter<DeviceType>::getRegsForValue(const std::string& name)
+  {
+    std::unordered_set<std::string> result{};
+    const auto& list = getTranslationMap().at(name);
+    std::transform(std::cbegin(list),
+                   std::cend(list),
+                   std::inserter(result, std::begin(result)),
+                   [](const auto& element) { return element.m_registerName.substr(0, element.m_registerName.find('.')); });
+    return result;
+  }
+
+  template<ConfigConversionType DeviceType>
   int ConfigConverter<DeviceType>::ctz(const translationMapIntType_t<DeviceType> t_val)
   {
     return __builtin_ctz(t_val);
@@ -299,7 +251,7 @@ namespace nsw {
     if (result != SIZE_LEADING) {
       return result;
     }
-    const std::uint64_t leading = t_val >> static_cast<unsigned int>(SIZE_LEADING);
+    const std::uint64_t leading = static_cast<std::uint64_t>(t_val >> static_cast<unsigned int>(SIZE_LEADING));
     return SIZE_LEADING + __builtin_ctzll(leading);
   }
 
@@ -322,7 +274,7 @@ namespace nsw {
   translationMapIntType_t<DeviceType> ConfigConverter<DeviceType>::binaryStringToInt(
     const std::string& t_string)
   {
-    return std::stoul(t_string, nullptr, 2);
+    return static_cast<translationMapIntType_t<DeviceType>>(std::stoul(t_string, nullptr, 2));
   }
 
   template<>
@@ -339,6 +291,27 @@ namespace nsw {
     const std::string trailing = t_string.substr(64);
     return (static_cast<__uint128_t>(std::stoul(leading, nullptr, 2)) << 64U) +
            std::stoul(trailing, nullptr, 2);
+  }
+
+  template<ConfigConversionType DeviceType>
+  const translationMapType_t<DeviceType>& ConfigConverter<DeviceType>::getTranslationMap()
+  {
+    if constexpr (DeviceType == ConfigConversionType::ROC_ANALOG) {
+      return TRANSLATION_MAP_ROC_ANALOG;
+    }
+    if constexpr (DeviceType == ConfigConversionType::ROC_DIGITAL) {
+      return TRANSLATION_MAP_ROC_DIGITAL;
+    }
+    if constexpr (DeviceType == ConfigConversionType::ART) {
+      return TRANSLATION_MAP_ART_CORE;
+    }
+    if constexpr (DeviceType == ConfigConversionType::ART_PS) {
+      return TRANSLATION_MAP_ART_PS;
+    }
+    if constexpr (DeviceType == ConfigConversionType::TDS) {
+      return TRANSLATION_MAP_TDS;
+    }
+    throw std::logic_error("Unknown type. No translation map found.");
   }
 
   template class ConfigConverter<ConfigConversionType::ROC_ANALOG>;

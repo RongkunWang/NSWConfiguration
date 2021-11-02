@@ -9,6 +9,8 @@
 
 #include <fmt/core.h>
 
+#include "NSWConfiguration/Constants.h"
+
 /** \brief Defines translation between register and value based configuration entries
  *  Every value has a list of translation units which define how the value is mapped to
  *  registers.
@@ -510,305 +512,356 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_ANALOG = {
   // clang-format on
 };
 
-static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = {
-  // clang-format off
-  {"l1_first", {
-    TranslationUnitRoc{"reg000rocId.l1_first", 0b1000'0000}
-  }},
-  {"even_parity", {
-    TranslationUnitRoc{"reg000rocId.even_parity", 0b0100'0000}
-  }},
-  {"roc_id", {
-    TranslationUnitRoc{"reg000rocId.roc_id", 0b0011'1111}
-  }},
-  {"elinkSpeed.sRoc0", {
-    TranslationUnitRoc{"reg001elinkSpeed.sroc0", 0b0000'0011}
-  }},
-  {"elinkSpeed.sRoc1", {
-    TranslationUnitRoc{"reg001elinkSpeed.sroc1", 0b0000'1100}
-  }},
-  {"elinkSpeed.sRoc2", {
-    TranslationUnitRoc{"reg001elinkSpeed.sroc2", 0b0011'0000}
-  }},
-  {"elinkSpeed.sRoc3", {
-    TranslationUnitRoc{"reg001elinkSpeed.sroc3", 0b1100'0000}
-  }},
-  {"sRoc0VmmConnections.vmm0", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm0", 0b0000'0001}
-  }},
-  {"sRoc0VmmConnections.vmm1", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm1", 0b0000'0010}
-  }},
-  {"sRoc0VmmConnections.vmm2", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm2", 0b0000'0100}
-  }},
-  {"sRoc0VmmConnections.vmm3", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm3", 0b0000'1000}
-  }},
-  {"sRoc0VmmConnections.vmm4", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm4", 0b0001'0000}
-  }},
-  {"sRoc0VmmConnections.vmm5", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm5", 0b0010'0000}
-  }},
-  {"sRoc0VmmConnections.vmm6", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm6", 0b0100'0000}
-  }},
-  {"sRoc0VmmConnections.vmm7", {
-    TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm7", 0b1000'0000}
-  }},
-  {"sRoc1VmmConnections.vmm0", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm0", 0b0000'0001}
-  }},
-  {"sRoc1VmmConnections.vmm1", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm1", 0b0000'0010}
-  }},
-  {"sRoc1VmmConnections.vmm2", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm2", 0b0000'0100}
-  }},
-  {"sRoc1VmmConnections.vmm3", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm3", 0b0000'1000}
-  }},
-  {"sRoc1VmmConnections.vmm4", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm4", 0b0001'0000}
-  }},
-  {"sRoc1VmmConnections.vmm5", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm5", 0b0010'0000}
-  }},
-  {"sRoc1VmmConnections.vmm6", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm6", 0b0100'0000}
-  }},
-  {"sRoc1VmmConnections.vmm7", {
-    TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm7", 0b1000'0000}
-  }},
-  {"sRoc2VmmConnections.vmm0", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm0", 0b0000'0001}
-  }},
-  {"sRoc2VmmConnections.vmm1", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm1", 0b0000'0010}
-  }},
-  {"sRoc2VmmConnections.vmm2", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm2", 0b0000'0100}
-  }},
-  {"sRoc2VmmConnections.vmm3", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm3", 0b0000'1000}
-  }},
-  {"sRoc2VmmConnections.vmm4", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm4", 0b0001'0000}
-  }},
-  {"sRoc2VmmConnections.vmm5", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm5", 0b0010'0000}
-  }},
-  {"sRoc2VmmConnections.vmm6", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm6", 0b0100'0000}
-  }},
-  {"sRoc2VmmConnections.vmm7", {
-    TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm7", 0b1000'0000}
-  }},
-  {"sRoc3VmmConnections.vmm0", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm0", 0b0000'0001}
-  }},
-  {"sRoc3VmmConnections.vmm1", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm1", 0b0000'0010}
-  }},
-  {"sRoc3VmmConnections.vmm2", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm2", 0b0000'0100}
-  }},
-  {"sRoc3VmmConnections.vmm3", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm3", 0b0000'1000}
-  }},
-  {"sRoc3VmmConnections.vmm4", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm4", 0b0001'0000}
-  }},
-  {"sRoc3VmmConnections.vmm5", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm5", 0b0010'0000}
-  }},
-  {"sRoc3VmmConnections.vmm6", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm6", 0b0100'0000}
-  }},
-  {"sRoc3VmmConnections.vmm7", {
-    TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm7", 0b1000'0000}
-  }},
-  {"eopEnable.sRoc0", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc0_eop_enable", 0b0001'0000}
-  }},
-  {"eopEnable.sRoc1", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc1_eop_enable", 0b0010'0000}
-  }},
-  {"eopEnable.sRoc2", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc2_eop_enable", 0b0100'0000}
-  }},
-  {"eopEnable.sRoc3", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc3_eop_enable", 0b1000'0000}
-  }},
-  {"nullEventEnable.sRoc0", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc0_nullevt_enable", 0b0001'0000}
-  }},
-  {"nullEventEnable.sRoc1", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc1_nullevt_enable", 0b0010'0000}
-  }},
-  {"nullEventEnable.sRoc2", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc2_nullevt_enable", 0b0100'0000}
-  }},
-  {"nullEventEnable.sRoc3", {
-    TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc3_nullevt_enable", 0b1000'0000}
-  }},
-  {"bypassMode", {
-    TranslationUnitRoc{"reg007sRocEnable.bypass", 0b1000'0000}
-  }},
-  {"timeoutEnable", {
-    TranslationUnitRoc{"reg007sRocEnable.timeoutEnable", 0b0100'0000}
-  }},
-  {"ttcStartBits", {
-    TranslationUnitRoc{"reg007sRocEnable.TTCStartBits", 0b0011'0000}
-  }},
-  {"sRocEnable.sRoc0", {
-    TranslationUnitRoc{"reg007sRocEnable.enableSROC0", 0b0000'0001}
-  }},
-  {"sRocEnable.sRoc1", {
-    TranslationUnitRoc{"reg007sRocEnable.enableSROC1", 0b0000'0010}
-  }},
-  {"sRocEnable.sRoc2", {
-    TranslationUnitRoc{"reg007sRocEnable.enableSROC2", 0b0000'0100}
-  }},
-  {"sRocEnable.sRoc3", {
-    TranslationUnitRoc{"reg007sRocEnable.enableSROC3", 0b0000'1000}
-  }},
-  {"vmmEnable.vmm0", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm0", 0b0000'0001}
-  }},
-  {"vmmEnable.vmm1", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm1", 0b0000'0010}
-  }},
-  {"vmmEnable.vmm2", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm2", 0b0000'0100}
-  }},
-  {"vmmEnable.vmm3", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm3", 0b0000'1000}
-  }},
-  {"vmmEnable.vmm4", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm4", 0b0001'0000}
-  }},
-  {"vmmEnable.vmm5", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm5", 0b0010'0000}
-  }},
-  {"vmmEnable.vmm6", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm6", 0b0100'0000}
-  }},
-  {"vmmEnable.vmm7", {
-    TranslationUnitRoc{"reg008vmmEnable.vmm7", 0b1000'0000}
-  }},
-  {"timeout", {
-    TranslationUnitRoc{"reg009timeout.timeout"}
-  }},
-  {"tx_csel", {
-    TranslationUnitRoc{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
-  }},
-  {"bc_offset", {
-    TranslationUnitRoc{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111},
-    TranslationUnitRoc{"reg011bcOffset1.bc_offset[7:0]"}
-  }},
-  {"bc_rollover", {
-    TranslationUnitRoc{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111},
-    TranslationUnitRoc{"reg013bcRollover1.bc_rollover[7:0]"}
-  }},
-  {"eportEnable.sRoc0", {
-    TranslationUnitRoc{"reg014eportEnable.sroc0", 0b0000'0011}
-  }},
-  {"eportEnable.sRoc1", {
-    TranslationUnitRoc{"reg014eportEnable.sroc1", 0b0000'1100}
-  }},
-  {"eportEnable.sRoc2", {
-    TranslationUnitRoc{"reg014eportEnable.sroc2", 0b0011'0000}
-  }},
-  {"eportEnable.sRoc3", {
-    TranslationUnitRoc{"reg014eportEnable.sroc3", 0b1100'0000}
-  }},
-  {"timeoutStatus.vmm0", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm0", 0b0000'0001}
-  }},
-  {"timeoutStatus.vmm1", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm1", 0b0000'0010}
-  }},
-  {"timeoutStatus.vmm2", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm2", 0b0000'0100}
-  }},
-  {"timeoutStatus.vmm3", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm3", 0b0000'1000}
-  }},
-  {"timeoutStatus.vmm4", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm4", 0b0001'0000}
-  }},
-  {"timeoutStatus.vmm5", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm5", 0b0010'0000}
-  }},
-  {"timeoutStatus.vmm6", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm6", 0b0100'0000}
-  }},
-  {"timeoutStatus.vmm7", {
-    TranslationUnitRoc{"reg063timeoutStatus.vmm7", 0b1000'0000}
-  }},
-  {"busyEnable.sRoc0", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc0", 0b0000'0001}
-  }},
-  {"busyEnable.sRoc1", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc1", 0b0000'0010}
-  }},
-  {"busyEnable.sRoc2", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc2", 0b0000'0100}
-  }},
-  {"busyEnable.sRoc3", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc3", 0b0000'1000}
-  }},
-  {"tdcEnable.sRoc0", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc0", 0b0001'0000}
-  }},
-  {"tdcEnable.sRoc1", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc1", 0b0010'0000}
-  }},
-  {"tdcEnable.sRoc2", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc2", 0b0100'0000}
-  }},
-  {"tdcEnable.sRoc3", {
-    TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc3", 0b1000'0000}
-  }},
-  {"busyOnLimit", {
-    TranslationUnitRoc{"reg021busyOnLimit0.busy_on_limit[10:8]", 0b0000'0111, 0b0111'0000'0000},
-    TranslationUnitRoc{"reg022busyOnLimit1.busy_on_limit[7:0]", 0b1111'1111, 0b0000'1111'1111}
-  }},
-  {"busyOffLimit", {
-    TranslationUnitRoc{"reg023busyOffLimit0.busy_off_limit[10:8]", 0b0000'0111},
-    TranslationUnitRoc{"reg024busyOffLimit1.busy_off_limit[7:0]"}
-  }},
-  {"l1EventsWithoutComma", {
-    TranslationUnitRoc{"reg031l1EventsWithoutComma.l1_events_no_comma"}
-  }},
-  {"fakeVmmFailure.vmm0", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm0", 0b0000'0001}
-  }},
-  {"fakeVmmFailure.vmm1", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm1", 0b0000'0010}
-  }},
-  {"fakeVmmFailure.vmm2", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm2", 0b0000'0100}
-  }},
-  {"fakeVmmFailure.vmm3", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm3", 0b0000'1000}
-  }},
-  {"fakeVmmFailure.vmm4", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm4", 0b0001'0000}
-  }},
-  {"fakeVmmFailure.vmm5", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm5", 0b0010'0000}
-  }},
-  {"fakeVmmFailure.vmm6", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm6", 0b0100'0000}
-  }},
-  {"fakeVmmFailure.vmm7", {
-    TranslationUnitRoc{"reg019fakeVmmFailure.vmm7", 0b1000'0000}
-  }}
-  // clang-format on
-};
+static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = [] () {
+  TranslationMapRoc table{
+    // clang-format off
+    {"l1_first", {
+      TranslationUnitRoc{"reg000rocId.l1_first", 0b1000'0000}
+    }},
+    {"even_parity", {
+      TranslationUnitRoc{"reg000rocId.even_parity", 0b0100'0000}
+    }},
+    {"roc_id", {
+      TranslationUnitRoc{"reg000rocId.roc_id", 0b0011'1111}
+    }},
+    {"elinkSpeed.sRoc0", {
+      TranslationUnitRoc{"reg001elinkSpeed.sroc0", 0b0000'0011}
+    }},
+    {"elinkSpeed.sRoc1", {
+      TranslationUnitRoc{"reg001elinkSpeed.sroc1", 0b0000'1100}
+    }},
+    {"elinkSpeed.sRoc2", {
+      TranslationUnitRoc{"reg001elinkSpeed.sroc2", 0b0011'0000}
+    }},
+    {"elinkSpeed.sRoc3", {
+      TranslationUnitRoc{"reg001elinkSpeed.sroc3", 0b1100'0000}
+    }},
+    {"sRoc0VmmConnections.vmm0", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc0VmmConnections.vmm1", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc0VmmConnections.vmm2", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc0VmmConnections.vmm3", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc0VmmConnections.vmm4", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc0VmmConnections.vmm5", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc0VmmConnections.vmm6", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc0VmmConnections.vmm7", {
+      TranslationUnitRoc{"reg002sRoc0VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc1VmmConnections.vmm0", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc1VmmConnections.vmm1", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc1VmmConnections.vmm2", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc1VmmConnections.vmm3", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc1VmmConnections.vmm4", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc1VmmConnections.vmm5", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc1VmmConnections.vmm6", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc1VmmConnections.vmm7", {
+      TranslationUnitRoc{"reg003sRoc1VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc2VmmConnections.vmm0", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc2VmmConnections.vmm1", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc2VmmConnections.vmm2", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc2VmmConnections.vmm3", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc2VmmConnections.vmm4", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc2VmmConnections.vmm5", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc2VmmConnections.vmm6", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc2VmmConnections.vmm7", {
+      TranslationUnitRoc{"reg004sRoc2VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"sRoc3VmmConnections.vmm0", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm0", 0b0000'0001}
+    }},
+    {"sRoc3VmmConnections.vmm1", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm1", 0b0000'0010}
+    }},
+    {"sRoc3VmmConnections.vmm2", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm2", 0b0000'0100}
+    }},
+    {"sRoc3VmmConnections.vmm3", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm3", 0b0000'1000}
+    }},
+    {"sRoc3VmmConnections.vmm4", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm4", 0b0001'0000}
+    }},
+    {"sRoc3VmmConnections.vmm5", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm5", 0b0010'0000}
+    }},
+    {"sRoc3VmmConnections.vmm6", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm6", 0b0100'0000}
+    }},
+    {"sRoc3VmmConnections.vmm7", {
+      TranslationUnitRoc{"reg005sRoc3VmmConnections.vmm7", 0b1000'0000}
+    }},
+    {"eopEnable.sRoc0", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc0_eop_enable", 0b0001'0000}
+    }},
+    {"eopEnable.sRoc1", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc1_eop_enable", 0b0010'0000}
+    }},
+    {"eopEnable.sRoc2", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc2_eop_enable", 0b0100'0000}
+    }},
+    {"eopEnable.sRoc3", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc3_eop_enable", 0b1000'0000}
+    }},
+    {"nullEventEnable.sRoc0", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc0_nullevt_enable", 0b0001'0000}
+    }},
+    {"nullEventEnable.sRoc1", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc1_nullevt_enable", 0b0010'0000}
+    }},
+    {"nullEventEnable.sRoc2", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc2_nullevt_enable", 0b0100'0000}
+    }},
+    {"nullEventEnable.sRoc3", {
+      TranslationUnitRoc{"reg006eopAndNullEventEnable.sroc3_nullevt_enable", 0b1000'0000}
+    }},
+    {"bypassMode", {
+      TranslationUnitRoc{"reg007sRocEnable.bypass", 0b1000'0000}
+    }},
+    {"timeoutEnable", {
+      TranslationUnitRoc{"reg007sRocEnable.timeoutEnable", 0b0100'0000}
+    }},
+    {"ttcStartBits", {
+      TranslationUnitRoc{"reg007sRocEnable.TTCStartBits", 0b0011'0000}
+    }},
+    {"sRocEnable.sRoc0", {
+      TranslationUnitRoc{"reg007sRocEnable.enableSROC0", 0b0000'0001}
+    }},
+    {"sRocEnable.sRoc1", {
+      TranslationUnitRoc{"reg007sRocEnable.enableSROC1", 0b0000'0010}
+    }},
+    {"sRocEnable.sRoc2", {
+      TranslationUnitRoc{"reg007sRocEnable.enableSROC2", 0b0000'0100}
+    }},
+    {"sRocEnable.sRoc3", {
+      TranslationUnitRoc{"reg007sRocEnable.enableSROC3", 0b0000'1000}
+    }},
+    {"vmmEnable.vmm0", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm0", 0b0000'0001}
+    }},
+    {"vmmEnable.vmm1", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm1", 0b0000'0010}
+    }},
+    {"vmmEnable.vmm2", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm2", 0b0000'0100}
+    }},
+    {"vmmEnable.vmm3", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm3", 0b0000'1000}
+    }},
+    {"vmmEnable.vmm4", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm4", 0b0001'0000}
+    }},
+    {"vmmEnable.vmm5", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm5", 0b0010'0000}
+    }},
+    {"vmmEnable.vmm6", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm6", 0b0100'0000}
+    }},
+    {"vmmEnable.vmm7", {
+      TranslationUnitRoc{"reg008vmmEnable.vmm7", 0b1000'0000}
+    }},
+    {"timeout", {
+      TranslationUnitRoc{"reg009timeout.timeout"}
+    }},
+    {"tx_csel", {
+      TranslationUnitRoc{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
+    }},
+    {"bc_offset", {
+      TranslationUnitRoc{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111},
+      TranslationUnitRoc{"reg011bcOffset1.bc_offset[7:0]"}
+    }},
+    {"bc_rollover", {
+      TranslationUnitRoc{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111},
+      TranslationUnitRoc{"reg013bcRollover1.bc_rollover[7:0]"}
+    }},
+    {"eportEnable.sRoc0", {
+      TranslationUnitRoc{"reg014eportEnable.sroc0", 0b0000'0011}
+    }},
+    {"eportEnable.sRoc1", {
+      TranslationUnitRoc{"reg014eportEnable.sroc1", 0b0000'1100}
+    }},
+    {"eportEnable.sRoc2", {
+      TranslationUnitRoc{"reg014eportEnable.sroc2", 0b0011'0000}
+    }},
+    {"eportEnable.sRoc3", {
+      TranslationUnitRoc{"reg014eportEnable.sroc3", 0b1100'0000}
+    }},
+    {"timeoutStatus.vmm0", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm0", 0b0000'0001}
+    }},
+    {"timeoutStatus.vmm1", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm1", 0b0000'0010}
+    }},
+    {"timeoutStatus.vmm2", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm2", 0b0000'0100}
+    }},
+    {"timeoutStatus.vmm3", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm3", 0b0000'1000}
+    }},
+    {"timeoutStatus.vmm4", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm4", 0b0001'0000}
+    }},
+    {"timeoutStatus.vmm5", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm5", 0b0010'0000}
+    }},
+    {"timeoutStatus.vmm6", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm6", 0b0100'0000}
+    }},
+    {"timeoutStatus.vmm7", {
+      TranslationUnitRoc{"reg063timeoutStatus.vmm7", 0b1000'0000}
+    }},
+    {"busyEnable.sRoc0", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc0", 0b0000'0001}
+    }},
+    {"busyEnable.sRoc1", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc1", 0b0000'0010}
+    }},
+    {"busyEnable.sRoc2", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc2", 0b0000'0100}
+    }},
+    {"busyEnable.sRoc3", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.busy_enable_sroc3", 0b0000'1000}
+    }},
+    {"tdcEnable.sRoc0", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc0", 0b0001'0000}
+    }},
+    {"tdcEnable.sRoc1", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc1", 0b0010'0000}
+    }},
+    {"tdcEnable.sRoc2", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc2", 0b0100'0000}
+    }},
+    {"tdcEnable.sRoc3", {
+      TranslationUnitRoc{"reg020busyAndTdcEnable.tdc_enable_sroc3", 0b1000'0000}
+    }},
+    {"busyOnLimit", {
+      TranslationUnitRoc{"reg021busyOnLimit0.busy_on_limit[10:8]", 0b0000'0111, 0b0111'0000'0000},
+      TranslationUnitRoc{"reg022busyOnLimit1.busy_on_limit[7:0]", 0b1111'1111, 0b0000'1111'1111}
+    }},
+    {"busyOffLimit", {
+      TranslationUnitRoc{"reg023busyOffLimit0.busy_off_limit[10:8]", 0b0000'0111},
+      TranslationUnitRoc{"reg024busyOffLimit1.busy_off_limit[7:0]"}
+    }},
+    {"l1EventsWithoutComma", {
+      TranslationUnitRoc{"reg031l1EventsWithoutComma.l1_events_no_comma"}
+    }},
+    {"fakeVmmFailure.vmm0", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm0", 0b0000'0001}
+    }},
+    {"fakeVmmFailure.vmm1", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm1", 0b0000'0010}
+    }},
+    {"fakeVmmFailure.vmm2", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm2", 0b0000'0100}
+    }},
+    {"fakeVmmFailure.vmm3", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm3", 0b0000'1000}
+    }},
+    {"fakeVmmFailure.vmm4", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm4", 0b0001'0000}
+    }},
+    {"fakeVmmFailure.vmm5", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm5", 0b0010'0000}
+    }},
+    {"fakeVmmFailure.vmm6", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm6", 0b0100'0000}
+    }},
+    {"fakeVmmFailure.vmm7", {
+      TranslationUnitRoc{"reg019fakeVmmFailure.vmm7", 0b1000'0000}
+    }},
+    {"seu.status", {
+      TranslationUnitRoc{"reg044seu_READONLY.seu", 0b0000'0001}
+    }},
+    {"seu.counter", {
+      TranslationUnitRoc{"reg053seuCounter_READONLY.seu_counter"}
+    }}
+    // clang-format on
+  };
+  constexpr std::size_t FIRST_REG_VMM_CAPTURE = 32;
+  for (std::size_t vmmId = 0; vmmId < nsw::MAX_NUMBER_OF_VMM; vmmId++) {
+    table.merge(TranslationMapRoc{
+      {fmt::format("vmmCaptureStatus.vmm{}.fifoFullError", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}vmmCapture{}Status_READONLY.fifo_full_err", FIRST_REG_VMM_CAPTURE + vmmId, vmmId), 0b0001'0000}
+      }},
+      {fmt::format("vmmCaptureStatus.vmm{}.coherencyError", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}vmmCapture{}Status_READONLY.coherency_err", FIRST_REG_VMM_CAPTURE + vmmId, vmmId), 0b0000'1000}
+      }},
+      {fmt::format("vmmCaptureStatus.vmm{}.decoderError", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}vmmCapture{}Status_READONLY.dec_err", FIRST_REG_VMM_CAPTURE + vmmId, vmmId), 0b0000'0100}
+      }},
+      {fmt::format("vmmCaptureStatus.vmm{}.misalignmentError", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}vmmCapture{}Status_READONLY.misaligned_err", FIRST_REG_VMM_CAPTURE + vmmId, vmmId), 0b0000'0010}
+      }},
+      {fmt::format("vmmCaptureStatus.vmm{}.aligned", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}vmmCapture{}Status_READONLY.aligned", FIRST_REG_VMM_CAPTURE + vmmId, vmmId), 0b0000'0001}
+      }}
+    });
+  }
+  constexpr std::size_t FIRST_REG_SROC_STATUS = 40;
+  for (std::size_t srocId = 0; srocId < nsw::roc::NUM_SROCS; srocId++) {
+    table.merge(TranslationMapRoc{
+      {fmt::format("sRocStatus.sRoc{}.ttcFifoFull", srocId), {
+        TranslationUnitRoc{fmt::format("reg{:03}sRoc{}Status_READONLY.ttc_fifo_full", FIRST_REG_SROC_STATUS + srocId, srocId), 0b0000'0100}
+      }},
+      {fmt::format("sRocStatus.sRoc{}.encoderError", srocId), {
+        TranslationUnitRoc{fmt::format("reg{:03}sRoc{}Status_READONLY.enc_err", FIRST_REG_SROC_STATUS + srocId, srocId), 0b0000'0010}
+      }},
+      {fmt::format("sRocStatus.sRoc{}.eventFull", srocId), {
+        TranslationUnitRoc{fmt::format("reg{:03}sRoc{}Status_READONLY.event_full", FIRST_REG_SROC_STATUS + srocId, srocId), 0b0000'0001}
+      }}
+    });
+  }
+  constexpr std::size_t FIRST_REG_VMM_PARITY = 45;
+  for (std::size_t vmmId = 0; vmmId < nsw::MAX_NUMBER_OF_VMM; vmmId++) {
+    table.merge(TranslationMapRoc{
+      {fmt::format("vmmParityCounter.vmm{}", vmmId), {
+        TranslationUnitRoc{fmt::format("reg{:03}parityCounterVmm{}_READONLY.parity_counter", FIRST_REG_VMM_PARITY + vmmId, vmmId)}
+      }}
+    });
+  }
+  return table;
+}();
 
 static const TranslationMapTds TRANSLATION_MAP_TDS = []() {
   // FIXME: Origin of magic numbers: I2cRegisterMappings.h
@@ -864,6 +917,24 @@ static const TranslationMapTds TRANSLATION_MAP_TDS = []() {
     }},
     {"timer", {
       TranslationUnitTds{"register12.timer", 0xFF00'0000}
+    }},
+    {"Monitor_Strip64", {
+      TranslationUnitTds{"register14_READONLY.Monitor_Strip64", 0x7FFF'F000'0000}
+    }},
+    {"Monitor_Strip0", {
+      TranslationUnitTds{"register14_READONLY.Monitor_Strip0", 0x000'07FF'FF00}
+    }},
+    {"SER_lock", {
+      TranslationUnitTds{"register14_READONLY.SER_lock", 0x0000'0000'0002}
+    }},
+    {"Pll_lock", {
+      TranslationUnitTds{"register14_READONLY.Pll_lock", 0x0000'0000'0001}
+    }},
+    {"strip_trigger_bcid", {
+      TranslationUnitTds{"register15_READONLY.strip_trigger_bcid", 0x0FFF'0000}
+    }},
+    {"strip_trigger_band_phid", {
+      TranslationUnitTds{"register15_READONLY.strip_trigger_band_phid", 0x0000'1FFF}
     }}
   };
   // clang-format on
@@ -898,6 +969,13 @@ static const TranslationMapTds TRANSLATION_MAP_TDS = []() {
     const auto key = fmt::format("Pad_Chan{:x}", i + 96);
     table[fmt::format("{}_Delay", key)] = std::vector{
       TranslationUnitTds{fmt::format("register11.{}", key), __uint128_t{0x1F} << i * 8}};
+  }
+  for (std::size_t i = 0; i < 16; i++) {
+    constexpr auto N_ELEMENTS_PER_BLOCK = 81;
+    const auto end = (N_ELEMENTS_PER_BLOCK) * (i + 1) - 1;
+    const auto start = N_ELEMENTS_PER_BLOCK * i;
+    table[fmt::format("CRC_CONFIG[{}:{}]", end, start)] = std::vector{TranslationUnitTds{
+      fmt::format("register13_READONLY.CRC[{}:{}]", end, start), __uint128_t{0xFF} << i * 8u}};
   }
   return table;
 }();

@@ -14,11 +14,13 @@
 #include "NSWConfiguration/Utility.h"
 
 namespace nsw {
-  /** \brief Used to infer the conversion map
+  /**
+   * \brief Used to infer the conversion map
    */
   enum class ConfigConversionType { ROC_ANALOG, ROC_DIGITAL, TDS, VMM, ART, ART_PS };
 
-  /** \brief Type of configuration
+  /**
+   * \brief Type of configuration
    */
   enum class ConfigType { REGISTER_BASED, VALUE_BASED };
 
@@ -88,14 +90,17 @@ namespace nsw {
 
   /**
    * \brief Converts between register-based and value-based configurations
+   *
    * \tparam DeviceType Device type
    */
   template<ConfigConversionType DeviceType>
   class ConfigConverter
   {
-    /** \brief Struct holding ptree and mask
-     *  Conversion without sub-registers needs to save both the new ptree as well as
-     *  keeping track of the parts (sub-registers) which were set.
+    /**
+     * \brief Struct holding ptree and mask
+     *
+     * Conversion without sub-registers needs to save both the new ptree as well as
+     * keeping track of the parts (sub-registers) which were set.
      */
     struct TranslatedConfig {
       boost::property_tree::ptree m_ptree;  ///< translated ptree
@@ -104,119 +109,210 @@ namespace nsw {
     };
 
   public:
-    /** \brief Create object from ptree
-     * Constructor to initialize object
-     *  \param t_config configuration to be converted
-     *  \param t_type type of configuration (register or value-based)
+    /**
+     * \brief Constructor
+     *
+     * \param t_config configuration to be converted
+     * \param t_type type of configuration (register or value-based)
      */
     explicit ConfigConverter(const boost::property_tree::ptree& t_config, ConfigType t_type);
 
-    /** \brief Obtain value-based ptree of configuration
+    /**
+     * \brief Obtain value-based ptree of configuration
+     *
      * The value-based ptree does not contain register values but configuration
-     *  values. For example, clock phases are a single value and not split across
-     *  registers. Values belonging to similar things, e.g. a single VMM, are grouped.
-     *  \return value-based ptree
+     * values. For example, clock phases are a single value and not split across
+     * registers. Values belonging to similar things, e.g. a single VMM, are grouped.
+     *
+     * \return value-based ptree
      */
     [[nodiscard]] boost::property_tree::ptree getValueBasedConfig() const;
 
-    /** \brief Obtain register-based ptree of configuration with subregisters
-     *  The register-based ptree with sub-registers corresponds to the traditional
-     *  representation of the configuration. Every register contains named
-     *  sub-registers with their corresponding value.
-     *  \return register-based ptree
+    /**
+     * \brief Obtain register-based ptree of configuration with subregisters
+     *
+     * The register-based ptree with sub-registers corresponds to the traditional
+     * representation of the configuration. Every register contains named
+     * sub-registers with their corresponding value.
+     *
+     * \return register-based ptree
      */
     [[nodiscard]] boost::property_tree::ptree getSubRegisterBasedConfig() const;
 
-    /** \brief Obtain register-based ptree of configuration without subregisters
-     *  The register-based ptree without sub-registers has a single value per register.
-     *  Missing values per register are read back from the hardware.
-     *  \param t_opcIp IP of the OPC server
-     *  \param t_scaAddress SCA address of FE item in Opc address space
-     *  \return register-based ptree
+    /**
+     * \brief Obtain register-based ptree of configuration without subregisters
+     *
+     * The register-based ptree without sub-registers has a single value per register.
+     * Missing values per register are read back from the hardware.
+     *
+     * \param t_opcIp IP of the OPC server
+     * \param t_scaAddress SCA address of FE item in Opc address space
+     * \return register-based ptree
      */
     [[nodiscard]] boost::property_tree::ptree getFlatRegisterBasedConfig(
       const std::string& t_opcIp,
       const std::string& t_scaAddress) const;
 
-    /** \brief Obtain register-based ptree of configuration without subregisters
-     *  The register-based ptree without sub-registers has a single value per register.
-     *  Missing values per register are read from the supplied ptree.
-     *  \param t_config reference ptree for missing values
-     *  \return register-based ptree
+    /**
+     * \brief Obtain register-based ptree of configuration without subregisters
+     *
+     * The register-based ptree without sub-registers has a single value per register.
+     * Missing values per register are read from the supplied ptree.
+     *
+     * \param t_reference reference bitstream map
+     * \return register-based ptree
      */
     [[nodiscard]] boost::property_tree::ptree getFlatRegisterBasedConfig(
-      const nsw::I2cMasterConfig& t_config) const;
+      const i2c::AddressBitstreamMap& t_reference) const;
+
+    /**
+     * \brief Get all registers for a value
+     *
+     * \param name Name of a value
+     * \return std::unordered_set<std::string> Set of all registers
+     */
+    static std::unordered_set<std::string> getRegsForValue(const std::string& name);
+
+    /**
+     * \brief Convert register-based configuration ptree to a subregister-based ptree
+     *
+     * 1. Find all entries for registers in translation maps
+     * 2. Filter the subresgisters based on t_values (only subregisters contributing to
+     *    the requested values are put into the output tree)
+     *
+     * \tparam Range Iterable range
+     * \param t_config register-based configuration
+     * \param t_values range of reference values
+     * \return value-based configuration
+     */
+    template<typename Range> // add requires with c++20
+    [[nodiscard]] static std::map<std::string, translationMapIntType_t<DeviceType>>
+    convertRegisterToSubRegister(const boost::property_tree::ptree& t_config,
+                                 const Range& t_values)
+    {
+      const auto allPaths = getAllPaths(t_config);
+
+      const auto& translationMap = getTranslationMap();
+      std::vector<typename std::decay_t<decltype(translationMap)>::mapped_type::value_type> units{};
+      for (const auto& path : allPaths) {
+        bool found = false;
+        for (const auto& [valueName, element] : translationMap) {
+          const auto item =
+            std::find_if(std::begin(element), std::end(element), [&path](const auto& t_unit) {
+              return path == t_unit.m_registerName.substr(0, t_unit.m_registerName.find('.'));
+            });
+          if (item != std::end(element)) {
+            units.push_back(*item);
+            found = true;
+          }
+        }
+        if (not found) {
+          throw std::runtime_error(
+            fmt::format("Did not find register {} in translation map", path));
+        }
+      }
+
+      std::map<std::string, translationMapIntType_t<DeviceType>> subregisterBasedMap{};
+      for (const auto& unit : units) {
+        if (std::any_of(std::cbegin(t_values), std::cend(t_values), [&unit](const auto& valueName) {
+              const auto& element = getTranslationMap().at(valueName);
+              return std::any_of(
+                std::cbegin(element), std::cend(element), [&unit](const auto& unitRequired) {
+                  return unit.m_registerName == unitRequired.m_registerName;
+                });
+            })) {
+          subregisterBasedMap[unit.m_registerName] =
+            (t_config.get<translationMapIntType_t<DeviceType>>(unit.m_registerName.substr(0, unit.m_registerName.find('.'))) &
+            unit.m_maskRegister) >> ctz(unit.m_maskRegister);
+        }
+      }
+
+      return subregisterBasedMap;
+    }
 
   private:
-    /** \brief Convert register-based configuration ptree to value-based ptree
-     *  The conversion in this direction is slower as it should not be used while configuring
+    /**
+     * \brief Convert register-based configuration ptree to value-based ptree
      *
-     *  1. Get all paths from ptree
-     *  2. Iterate through paths of ptree and
-     *     a) Find the correct entry in TRANSLATION_MAP
-     *        (key is now TranslationUnit.m_RegisterName)
-     *     b) Calculate value: Shift value in old ptree by number of trailing zeros in maskValue
-     *        to the left.
-     *     c) Check if register is already in new ptree
-     *        yes: Add it to the value
-     *        no:  Put it into the new ptree
-     *  \param t_config register-based configuration
-     *  \return value-based configuration
+     * The conversion in this direction is slower as it should not be used while configuring
+     * 1. Get all paths from ptree
+     * 2. Iterate through paths of ptree and
+     *    a) Find the correct entry in TRANSLATION_MAP
+     *       (key is now TranslationUnit.m_RegisterName)
+     *    b) Calculate value: Shift value in old ptree by number of trailing zeros in maskValue
+     *       to the left.
+     *    c) Check if register is already in new ptree
+     *       yes: Add it to the value
+     *       no:  Put it into the new ptree
+     *
+     * \param t_config register-based configuration
+     * \return value-based configuration
      */
     [[nodiscard]] boost::property_tree::ptree convertSubRegisterToValue(
       const boost::property_tree::ptree& t_config) const;
 
-    /** \brief Convert value-based configuration ptree to register-based ptree
-     *  The returned register-based ptree contains sub-registers.
+    /**
+     * \brief Convert value-based configuration ptree to register-based ptree
      *
-     *  1. Get all paths from input ptree
-     *  2. Validate that all paths are in TRANSLATION_MAP
-     *  3. Iterate through paths of input ptree and caluclate for each translation unit
-     *     value & translationUnit.m_maskValue. This value needs to be shifted to the right by the
-     *     number of trailing zeros of the mask. Put this value into TranslationUnit.m_RegisterName
-     *     in new ptree. (TranslationUnit = TRANSLATION_MAP[path_input])
-     *  \param t_config value-based configuration
-     *  \return register-based configuration with sub-registers
+     * The returned register-based ptree contains sub-registers.
+     * 1. Get all paths from input ptree
+     * 2. Validate that all paths are in TRANSLATION_MAP
+     * 3. Iterate through paths of input ptree and caluclate for each translation unit
+     *    value & translationUnit.m_maskValue. This value needs to be shifted to the right by the
+     *    number of trailing zeros of the mask. Put this value into TranslationUnit.m_RegisterName
+     *    in new ptree. (TranslationUnit = TRANSLATION_MAP[path_input])
+     *
+     * \param t_config value-based configuration
+     * \return register-based configuration with sub-registers
      */
     [[nodiscard]] boost::property_tree::ptree convertValueToSubRegister(
       const boost::property_tree::ptree& t_config) const;
 
-    /** \brief Convert value-based configuration ptree to register-based ptree
-     *  The returned register-based ptree contains no sub-registers. The total mask per register
-     * keeps track which part of the register are set.
+    /**
+     * \brief Convert value-based configuration ptree to register-based ptree
      *
-     *  1. Get all paths from input ptree
-     *  2. Validate that all paths are in TRANSLATION_MAP
-     *  3. a) Iterate through paths of input ptree and caluclate for each translation unit
-     *        value & translationUnit.m_maskValue. This value needs to be shifted to the right by
+     * The returned register-based ptree contains no sub-registers. The total mask per register
+     * keeps track which part of the register are set.
+     * 1. Get all paths from input ptree
+     * 2. Validate that all paths are in TRANSLATION_MAP
+     * 3. a) Iterate through paths of input ptree and caluclate for each translation unit
+     *       value & translationUnit.m_maskValue. This value needs to be shifted to the right by
      * the number of trailing zeros of the mask. b) Check if register
      * (TranslationUnit.m_RegisterName) already exists in new ptree: yes: Add it to the existing
      * value no:  Put this value into TranslationUnit.m_RegisterName into the new ptree c) Keep
      * track of the total mask applied per register \param t_config value-based configuration
-     *  \return register-based configuration without sub-registers and total mask per register
+     *
+     * \return register-based configuration without sub-registers and total mask per register
      */
     [[nodiscard]] TranslatedConfig convertValueToFlatRegister(
       const boost::property_tree::ptree& t_config) const;
 
-    /** \brief Get all paths in a ptree
-     *  \param t_tree input ptree
-     *  \return vector of all paths
+    /**
+     * \brief Get all paths in a ptree
+     *
+     * \param t_tree input ptree
+     * \return vector of all paths
      */
-    [[nodiscard]] std::vector<std::string> getAllPaths(
-      const boost::property_tree::ptree& t_tree) const;
+    [[nodiscard]] static std::vector<std::string> getAllPaths(
+      const boost::property_tree::ptree& t_tree);
 
-    /** \brief Check that all paths exist in translation map
-     *  \param t_paths vector of all paths in ptree
-     *  \throw std::runtime_error not all paths present in translation map
+    /**
+     * \brief Check that all paths exist in translation map
+     *
+     * \param t_paths vector of all paths in ptree
+     * \throw std::runtime_error not all paths present in translation map
      */
     void checkPaths(const std::vector<std::string>& t_paths) const;
 
-    /** \brief Internal function to read back missing parts of registers
-     *  Loops over converted configuration and calls t_func to obtain the reference value if a
-     *  part of the register is missing.
-     *  \tparam Func callable function parameter
-     *  \param t_func callable which takes a string as parameter and returns an uint8_t
-     *  \throw std::runtime_error not all paths present in translation map
+    /**
+     * \brief Internal function to read back missing parts of registers
+     *
+     * Loops over converted configuration and calls t_func to obtain the reference value if a
+     * part of the register is missing.
+     *
+     * \tparam Func callable function parameter
+     * \param t_func callable which takes a string as parameter and returns an uint8_t
+     * \throw std::runtime_error not all paths present in translation map
      */
     template<typename Func>
     [[nodiscard]] boost::property_tree::ptree readMissingRegisterParts(const Func& t_func) const
@@ -283,6 +379,13 @@ namespace nsw {
      * \return translationMapIntType_t<DeviceType> integer
      */
     static translationMapIntType_t<DeviceType> binaryStringToInt(const std::string& t_string);
+
+    /**
+     * \brief Get the translation map for each \ref DeviceType
+     *
+     * \return translationMapType_t<DeviceType> translation map
+     */
+    static const translationMapType_t<DeviceType>& getTranslationMap();
 
     translationMapType_t<DeviceType>
       m_translationMap;  ///< map used for translation (analog, digital, tds, ...)
