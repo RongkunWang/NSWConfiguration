@@ -17,40 +17,12 @@
 nsw::PadTriggerSCAConfig::PadTriggerSCAConfig(const boost::property_tree::ptree& config):
   SCAConfig(config),
   m_padtriggerfpga(config.get_child(PADTRIGGER_NAME), PADTRIGGER_NAME, PADTRIGGER_REGISTERS),
-  m_L1AReadoutLatency(-1),
-  m_L1AReadoutNBC(-1),
-  m_L1AReadoutEnable(-1),
-  m_pFEBBCIDOffset(-1),
-  m_StartIdleState(-1),
-  m_OCREnable(-1),
-  m_TTCCalib(-1),
-  m_SelfTriggerEnable(-1),
   m_LatencyScanStart(-1),
   m_LatencyScanNBC(-1)
 {}
 
 void nsw::PadTriggerSCAConfig::dump() {
     // std::cout << std::endl;
-}
-
-uint32_t nsw::PadTriggerSCAConfig::ControlRegister() const {
-  uint32_t reg = 0;
-  if (firmware() == "Pad_ro_ilaro_20200610.bit") {
-    reg += (L1AReadoutLatency() << BIT_OLDFW_L1AReadoutLatency);
-    reg += (L1AReadoutNBCMode() << BIT_OLDFW_L1AReadoutNBCMode);
-    reg += (pFEBBCIDOffset()    << BIT_OLDFW_pFEBBCIDOffset);
-    reg += (L1AReadoutEnable()  << BIT_OLDFW_L1AReadoutEnable);
-  } else {
-    reg += (L1AReadoutLatency() << BIT_L1AReadoutLatency);
-    reg += (L1AReadoutNBCMode() << BIT_L1AReadoutNBCMode);
-    reg += (L1AReadoutEnable()  << BIT_L1AReadoutEnable);
-    reg += (pFEBBCIDOffset()    << BIT_pFEBBCIDOffset);
-    reg += (StartIdleState()    << BIT_StartIdleState);
-    reg += (OCREnable()         << BIT_OCREnable);
-    reg += (TTCCalib()          << BIT_TTCCalib);
-    reg += (SelfTriggerEnable() << BIT_SelfTriggerEnable);
-  }
-  return reg;
 }
 
 std::vector<uint32_t> nsw::PadTriggerSCAConfig::PFEBBCIDs(uint32_t val_07_00,
@@ -77,68 +49,6 @@ std::vector<uint32_t> nsw::PadTriggerSCAConfig::PFEBBCIDs(uint32_t val_07_00,
   return bcids;
 }
 
-int nsw::PadTriggerSCAConfig::L1AReadoutLatency() const {
-  if (m_L1AReadoutLatency == -1)
-    return m_config.get<int>("L1AReadoutLatency");
-  return m_L1AReadoutLatency;
-}
-
-int nsw::PadTriggerSCAConfig::L1AReadoutNBC() const {
-  if (m_L1AReadoutNBC == -1)
-    return m_config.get<int>("L1AReadoutNBC");
-  return m_L1AReadoutNBC;
-}
-
-int nsw::PadTriggerSCAConfig::L1AReadoutNBCMode() const {
-  if (L1AReadoutNBC() == -1)
-    return -1;
-  else if (L1AReadoutNBC() == 1)
-    return 0;
-  else if (L1AReadoutNBC() == 2)
-    return 1;
-  else if (L1AReadoutNBC() == 3)
-    return 2;
-  auto msg = "L1AReadoutNBCMode is confused by NBC = " + std::to_string(L1AReadoutNBC());
-  throw std::runtime_error(msg);
-}
-
-int nsw::PadTriggerSCAConfig::L1AReadoutEnable() const {
-  if (m_L1AReadoutEnable == -1)
-    return m_config.get<int>("L1AReadoutEnable");
-  return m_L1AReadoutEnable;
-}
-
-int nsw::PadTriggerSCAConfig::pFEBBCIDOffset() const {
-  if (m_pFEBBCIDOffset == -1)
-    return m_config.get<int>("pFEBBCIDOffset");
-  return m_pFEBBCIDOffset;
-}
-
-int nsw::PadTriggerSCAConfig::StartIdleState() const {
-  if (m_StartIdleState == -1)
-    return m_config.get<int>("StartIdleState");
-  return m_StartIdleState;
-}
-
-int nsw::PadTriggerSCAConfig::OCREnable() const {
-  if (m_OCREnable == -1)
-    return m_config.get<int>("OCREnable");
-  return m_OCREnable;
-}
-
-int nsw::PadTriggerSCAConfig::TTCCalib() const {
-  if (m_TTCCalib == -1)
-    return m_config.get<int>("TTCCalib");
-  return m_TTCCalib;
-}
-
-int nsw::PadTriggerSCAConfig::SelfTriggerEnable() const {
-  if (m_SelfTriggerEnable == -1) {
-    return m_config.get<int>("SelfTriggerEnable");
-  }
-  return m_SelfTriggerEnable;
-}
-
 int nsw::PadTriggerSCAConfig::LatencyScanStart() const {
   if (m_LatencyScanStart == -1)
     return m_config.get<int>("LatencyScanStart");
@@ -157,10 +67,6 @@ bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
 
 bool nsw::PadTriggerSCAConfig::ConfigVTTx() const {
   return m_config.get<bool>("ConfigVTTx");
-}
-
-bool nsw::PadTriggerSCAConfig::ConfigControlRegister() const {
-  return m_config.get<bool>("ConfigControlRegister");
 }
 
 std::string nsw::PadTriggerSCAConfig::firmware() const {
