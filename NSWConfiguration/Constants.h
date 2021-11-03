@@ -183,6 +183,7 @@ namespace nsw {
 
   namespace mmtp {
     constexpr std::chrono::seconds FIBER_ALIGN_SLEEP{3};
+    constexpr std::size_t NUM_FIBER_PER_MICROPOD  = 12;
     constexpr std::size_t FIBER_ALIGN_ATTEMPTS    = 10;
     constexpr std::size_t FIBER_ALIGN_N_READS     = 100;
     constexpr std::size_t PIPELINE_OVERFLOW_READS = 10;
@@ -228,6 +229,8 @@ namespace nsw {
     constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH_HYST = 0x23;
     constexpr std::uint8_t REG_VMM_MASK_DRAIN_PERIOD    = 0x24;
     constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
+    constexpr std::uint8_t REG_HORX_ENV_MON_ADDR        = 0x26;
+    constexpr std::uint8_t REG_HORX_ENV_MON_DATA        = 0x27;
     constexpr std::array<std::string_view, NUM_ADDCS> ORDERED_ADDCS = {
       "ADDC_L1P6_IPR",
       "ADDC_L1P3_IPL",

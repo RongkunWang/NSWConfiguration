@@ -17,6 +17,8 @@ set(TDAQ_DB_PROJECT muons)
 # set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
 # set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 
+find_package(ROOT REQUIRED COMPONENTS Core Tree RIO)
+
 remove_definitions(-DERS_NO_DEBUG)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
@@ -43,6 +45,12 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST)
     LINK_LIBRARIES Boost::boost tdaq-common::ers
   )
 endforeach()
+
+## Executables linked against nswconfig, nswhwinterface, and Boost::program_options
+## and ROOOOT
+set(NSWCONFIG_EXE_WITH_BOOST_PO_AND_ROOT
+  tp_mon_env
+    )
 
 ## Executables linked against nswconfig, nswhwinterface, and Boost::program_options
 set(NSWCONFIG_EXE_WITH_BOOST_PO
@@ -76,11 +84,23 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED
   tds_frame2Router  # nsw_tds_frame2Router
   )
 
+
 foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
   tdaq_add_executable(${appsrc} app/${appsrc}.cpp
     LINK_LIBRARIES nswconfig
     LINK_LIBRARIES nswhwinterface
     LINK_LIBRARIES Boost::program_options
+  )
+endforeach()
+
+foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_AND_ROOT)
+  tdaq_add_executable(${appsrc} app/${appsrc}.cpp
+    LINK_LIBRARIES nswconfig
+    LINK_LIBRARIES nswhwinterface
+    LINK_LIBRARIES Boost::program_options
+    ROOT::Core
+    ROOT::Tree
+    ROOT::RIO
   )
 endforeach()
 

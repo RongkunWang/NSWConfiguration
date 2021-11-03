@@ -135,6 +135,9 @@ int nsw::TPConfig::L1ALatencyScanStart() const {
 int nsw::TPConfig::L1ALatencyScanEnd() const {
     return m_config.get("L1ALatencyScanEnd", int{50});
 }
+int nsw::TPConfig::HorxEnvMonAddr() const {
+    return m_config.get("HorxEnvMonAddr", int{0});
+}
 
 void nsw::TPConfig::setARTWindowCenter(int val) {
   m_config.put("ARTWindowCenter", val);
@@ -174,6 +177,19 @@ void nsw::TPConfig::setL1ALatencyScanStart(int val) {
 }
 void nsw::TPConfig::setL1ALatencyScanEnd(int val) {
   m_config.put("L1ALatencyScanEnd", val);
+}
+// tx/rx
+// microPod(1-3)
+// temp/loss/fiber(0-11)
+void nsw::TPConfig::setHorxEnvMonAddr(const bool tx, const std::uint8_t microPod, const bool temp, const bool loss, const std::uint8_t fiber) {
+  int val = (microPod - 1 + (tx ? 0 : 3)) << 4;
+  if (temp) {
+  } else if (loss) {
+    val += 1;
+  } else {
+    val += nsw::mmtp::NUM_FIBER_PER_MICROPOD + 1 - fiber;
+  }
+  m_config.put("HorxEnvMonAddr", val);
 }
 
 nsw::TPConfig::~TPConfig() {
