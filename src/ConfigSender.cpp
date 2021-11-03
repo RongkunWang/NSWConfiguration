@@ -982,14 +982,15 @@ void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     // Collect registers to be written
     //
     std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
-      {nsw::mmtp::REG_ADDC_EMU_DISABLE, static_cast<uint32_t>(true)},
-      {nsw::mmtp::REG_L1A_LATENCY,      static_cast<uint32_t>(tp.ARTWindowCenter())},
-      {nsw::mmtp::REG_L1A_WIN_UPPER,    static_cast<uint32_t>(tp.ARTWindowLeft())},
-      {nsw::mmtp::REG_L1A_WIN_LOWER,    static_cast<uint32_t>(tp.ARTWindowRight())},
-      {nsw::mmtp::REG_L1A_CONTROL,      nsw::mmtp::L1A_RESET_ENABLE},
-      {nsw::mmtp::REG_L1A_CONTROL,      nsw::mmtp::L1A_RESET_DISABLE},
-      {nsw::mmtp::REG_FIBER_BC_OFFSET,  static_cast<uint32_t>(tp.FiberBCOffset())},
-      {nsw::mmtp::REG_INPUT_PHASE,      static_cast<uint32_t>(tp.GlobalInputPhase())},
+      {nsw::mmtp::REG_ADDC_EMU_DISABLE,  static_cast<uint32_t>(true)},
+      {nsw::mmtp::REG_L1A_LATENCY,       static_cast<uint32_t>(tp.ARTWindowCenter())},
+      {nsw::mmtp::REG_L1A_WIN_UPPER,     static_cast<uint32_t>(tp.ARTWindowLeft())},
+      {nsw::mmtp::REG_L1A_WIN_LOWER,     static_cast<uint32_t>(tp.ARTWindowRight())},
+      {nsw::mmtp::REG_L1A_CONTROL,       nsw::mmtp::L1A_RESET_ENABLE},
+      {nsw::mmtp::REG_L1A_CONTROL,       nsw::mmtp::L1A_RESET_DISABLE},
+      {nsw::mmtp::REG_FIBER_BC_OFFSET,   static_cast<uint32_t>(tp.FiberBCOffset())},
+      {nsw::mmtp::REG_INPUT_PHASE,       static_cast<uint32_t>(tp.GlobalInputPhase())},
+      {nsw::mmtp::REG_HORX_ENV_MON_ADDR, static_cast<uint32_t>(tp.GlobalInputPhase())},
     };
     if (tp.GlobalInputOffset() != -1)
       list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_INPUT_PHASEOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));

@@ -48,6 +48,7 @@ class TPConfig: public SCAConfig {
     bool EnableChannelRates() const;
     int L1ALatencyScanStart() const;
     int L1ALatencyScanEnd() const;
+    int HorxEnvMonAddr() const;
 
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
@@ -62,6 +63,7 @@ class TPConfig: public SCAConfig {
     void setEnableChannelRates(bool val);
     void setL1ALatencyScanStart(int val);
     void setL1ALatencyScanEnd(int val);
+    void setHorxEnvMonAddr(bool tx, std::uint8_t microPod, bool temp, bool loss, std::uint8_t fiber);
 };
 
 }  // namespace nsw

@@ -229,6 +229,8 @@ std::map<std::string, Value> transformPtreetoMap(const boost::property_tree::ptr
   }
   return result;
 }
+std::vector<std::string> tokenizeString(const std::string& s, const std::string& delimiter);
+
 }  // namespace nsw
 
 namespace boost::property_tree {

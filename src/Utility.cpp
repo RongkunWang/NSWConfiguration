@@ -159,7 +159,6 @@ uint32_t nsw::byteVectorToWord32(std::vector<uint8_t> vec, bool littleEndian) {
   }
   return *reinterpret_cast<uint32_t*>(vec.data());
 }
-
 std::string nsw::vectorToHexString(std::vector<uint8_t> vec, bool littleEndian) {
     std::stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
@@ -309,6 +308,19 @@ std::string nsw::getPrintableGbtxConfig(std::vector<uint8_t> data){
     ss<<'\n';
     return ss.str();
 }
+
+std::vector<std::string> nsw::tokenizeString(const std::string& s, const std::string& delimiter) {
+  std::vector<std::string> outVec;
+  size_t last = 0;
+  size_t next = 0;
+  while ((next = s.find(delimiter, last)) != std::string::npos) {
+    outVec.push_back(s.substr(last, next-last));
+    last = next + 1;
+  }
+  outVec.push_back(s.substr(last));
+  return outVec;
+}
+
 
 bool nsw::isLargeSector(const std::string& sector_name) {
   //
