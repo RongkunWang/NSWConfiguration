@@ -195,6 +195,12 @@ namespace nsw::hw {
                                   std::uint8_t regAddress) const;
 
     /**
+     * \brief Read and decode the PFEB BCID status registers
+     */
+    [[nodiscard]]
+    std::vector<std::uint32_t> readPFEBBCIDs() const;
+
+    /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
      *
      * Both const and non-const overloads are provided

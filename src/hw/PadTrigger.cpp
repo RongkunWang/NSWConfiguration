@@ -240,6 +240,14 @@ std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddres
   return nsw::byteVectorToWord32(value, nsw::padtrigger::SCA_LITTLE_ENDIAN);
 }
 
+std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBBCIDs() const
+{
+  const auto bcids_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_23_16);
+  const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
+  const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
+  return m_config.PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
+}
+
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const
 {
   std::uint8_t addr{0};
