@@ -60,15 +60,22 @@ struct PrintData {
 };
 
 template <class T> 
-void printLine(const std::string rowName, std::vector<T> const v, const int cellWidth) {
-  std::cout << std::setw(cellWidth) << std::left << rowName << "|";
+void printLine(const std::string rowName,
+    std::vector<T> const v,
+    const int cellWidth,
+    const std::string delimiter) {
+  std::cout << std::setw(cellWidth) << std::left << rowName << delimiter;
   for (const auto l : v) {
-    std::cout << std::setw(cellWidth) << std::left << l << "|";
+    std::cout << std::setw(cellWidth) << std::left << l << delimiter;
   }
   std::cout << std::endl;
 }
 
-void printTable(const PrintData ptab, const bool transpose, const int fold, const int cellWidth) {
+void printTable(const PrintData ptab,
+    const bool transpose,
+    const int fold,
+    const int cellWidth,
+    const std::string delimiter) {
   if (transpose) {
     size_t iglob = 0;
     while(iglob < ptab.row.size()) {
@@ -79,13 +86,13 @@ void printTable(const PrintData ptab, const bool transpose, const int fold, cons
         tmp_row.push_back(ptab.row[i]);
       }
 
-      printLine("", tmp_row, cellWidth);
+      printLine("", tmp_row, cellWidth, delimiter);
       for (size_t j = 0; j < ptab.column.size(); ++j) {
         std::vector<float> v;
         for (size_t i = iglob; i < iupper; ++i) { 
           v.push_back(ptab.value[i][j]);
         }
-        printLine(ptab.column[j], v, cellWidth);
+        printLine(ptab.column[j], v, cellWidth, delimiter);
       }
       iglob = iupper;
       for (int i = 0; i < (fold + 1) * (cellWidth + 1); ++i) {
@@ -95,9 +102,9 @@ void printTable(const PrintData ptab, const bool transpose, const int fold, cons
     }
   } else {
     // folding not implemented yet
-    printLine("", ptab.column, cellWidth);
+    printLine("", ptab.column, cellWidth, delimiter);
     for (size_t i = 0; i < ptab.row.size(); ++i) {
-      printLine(ptab.row[i], ptab.value[i], cellWidth);
+      printLine(ptab.row[i], ptab.value[i], cellWidth, delimiter);
     }
   }
 }
@@ -294,7 +301,7 @@ void loop(const Input& input, TreeData& data, TTree& tree) {
     std::cout <<  "******************************************" << std::endl;
 
     if (input.printTable) {
-      printTable(ptab, true, input.nsector, input.cellWidth);
+      printTable(ptab, true, input.nsector, input.cellWidth, " ");
     }
 
     tree.AutoSave("SaveSelf");
