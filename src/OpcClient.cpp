@@ -166,7 +166,7 @@ std::uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int sc
     std::bitset<ROC_REGISTER_SIZE> registerValue;
 
     for (std::size_t i = 0; i < ROC_REGISTER_SIZE; ++i) {
-        registerValue[ROC_REGISTER_SIZE-1-i] = interestingPinSda[i+2];
+        registerValue.set(ROC_REGISTER_SIZE-1-i, interestingPinSda.at(i+2));
     }
 
     return static_cast<uint8_t>(registerValue.to_ulong());

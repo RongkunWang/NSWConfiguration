@@ -30,7 +30,7 @@ void nsw::ConfigSender::addOpcClientIfNew(const std::string& opcserver_ipport) {
     }
 }
 
-void nsw::ConfigSender::sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, uint8_t* data, size_t data_size) {
+void nsw::ConfigSender::sendSpiRaw(const std::string& opcserver_ipport, const std::string& node, const uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeSpiSlaveRaw(node, data, data_size);
 }
@@ -67,7 +67,7 @@ uint8_t nsw::ConfigSender::readBackRocAnalog(const std::string& opcserver_ipport
     return readBackRoc(opcserver_ipport, fullNode, nsw::roc::mmfe8::analog::SCL_LINE_PIN, nsw::roc::mmfe8::analog::SDA_LINE_PIN, registerAddress, delay);
 }
 
-void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, uint8_t* data, size_t data_size) {
+void nsw::ConfigSender::sendI2cRaw(const std::string opcserver_ipport, const std::string node, const uint8_t* data, size_t data_size) {
     addOpcClientIfNew(opcserver_ipport);
     m_clients[opcserver_ipport]->writeI2cRaw(node, data, data_size);
 }
@@ -94,7 +94,7 @@ std::vector<uint8_t> nsw::ConfigSender::readI2c(const std::string& opcserver_ipp
 }
 
 std::vector<uint8_t> nsw::ConfigSender::readI2cAtAddress(const std::string& opcserver_ipport,
-    const std::string& node, uint8_t* address, size_t address_size, size_t number_of_bytes) {
+    const std::string& node, const uint8_t* address, size_t address_size, size_t number_of_bytes) {
     // Write only the address without data
     nsw::ConfigSender::sendI2cRaw(opcserver_ipport, node, address, address_size);
 
@@ -170,7 +170,7 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
 
     for (auto vmm : feb.getVmms()) {
         setVMMConfigurationStatusInfoDCS(feb, vmm);
-        auto data = vmm.getByteVector();
+        const auto data = vmm.getByteVector();
         std::vector<uint8_t> dat;
         for (int i = 0; i < 216; i++) {
           dat.push_back(0x84);
@@ -186,23 +186,24 @@ void nsw::ConfigSender::sendVmmConfig(const nsw::FEBConfig& feb) {
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
 }
 
-void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, size_t vmm_id) {
+void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, const size_t vmm_id) {
     // Set Vmm Configuration Enable
-    std::vector<uint8_t> data = {0xff};
-    auto opc_ip = feb.getOpcServerIp();
-    auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
-    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
+    // std::vector<uint8_t> data = {0xff};
+    const auto opc_ip = feb.getOpcServerIp();
+    const auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
+    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  {0xff});
 
-    auto vmm = feb.getVmms()[vmm_id];
+    const auto& vmm = feb.getVmm(vmm_id);
+    // FIXME TODO should this modify the config, or a copy of the config?
     setVMMConfigurationStatusInfoDCS(feb, vmm);
-    auto vmmdata = vmm.getByteVector();
+    const auto vmmdata = vmm.getByteVector();
     ERS_DEBUG(1, "Sending I2c configuration to " << feb.getAddress() << ".spi." << vmm.getName());
     sendSpiRaw(opc_ip, feb.getAddress() + ".spi." + vmm.getName() , vmmdata.data(), vmmdata.size());
     ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(vmm.getBitString()));
 
     // Set Vmm Acquisition Enable
-    data = {0x0};
-    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  data);
+    // data = {0x0};
+    sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  {0x0});
 }
 
 void nsw::ConfigSender::sendIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich, std::vector<uint8_t>& data){
@@ -302,8 +303,7 @@ bool nsw::ConfigSender::sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const ns
             break;
         }
         if (data.at(i)!=currentConfig.at(i)) {
-            ERS_LOG("Unexpected bit read back during GBTx configuration");                                                                                                                                                 
-            ERS_DEBUG(2, "==> Configuration readback is BAD");
+            ERS_LOG("Unexpected bit read back during GBTx configuration");
             return false;
         }
     }
@@ -1193,12 +1193,21 @@ std::vector<short unsigned int> nsw::ConfigSender::readAnalogInputConsecutiveSam
 
 std::vector<short unsigned int> nsw::ConfigSender::readVmmPdoConsecutiveSamples(FEBConfig& feb,
     size_t vmm_id, size_t n_samples) {
-    auto opc_ip      = feb.getOpcServerIp();
-    auto feb_address = feb.getAddress();
-    auto& vmms       = feb.getVmms();
+    const auto opc_ip      = feb.getOpcServerIp();
+    const auto feb_address = feb.getAddress();
+    // auto& vmms       = feb.getVmms();
 
-    vmms[vmm_id].setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
-    vmms[vmm_id].setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+    // FIXME TODO unsafe access for any board that has first VMM not
+    // at position 0.
+    // Calling code should be safe, or internally here it should be
+    // made more robust
+    // vmms.at(vmm_id).setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
+    // vmms.at(vmm_id).setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
+
+    // Internally getVmm handles the offset to extract the correct VMM
+    auto& vmm = feb.getVmm(vmm_id);
+    vmm.setGlobalRegister("sbmx", 1);  // Route analog monitor to pdo output
+    vmm.setGlobalRegister("sbfp", 1);  // Enable PDO output buffers (more stable reading)
 
     sendVmmConfigSingle(feb, vmm_id);
 
