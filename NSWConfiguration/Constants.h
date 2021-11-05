@@ -139,6 +139,7 @@ namespace nsw {
 
     constexpr std::size_t NUM_SROCS = 4;
     constexpr std::size_t NUM_PHASES_CTRL_PHASE = 8;
+    constexpr std::size_t NUM_PHASES_EPLL_TDS_40MHZ = 128;
   }      // namespace roc
 
   namespace vmm {
