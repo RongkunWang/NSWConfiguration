@@ -78,6 +78,11 @@ namespace nsw::hw {
     void writeFPGAConfiguration() const;
 
     /**
+     * \brief Write a common delay to all PFEB inputs
+     */
+    void writePFEBCommonDelay(std::uint32_t value) const;
+
+    /**
      * \brief Write a value to a pad trigger GPIO
      *
      * \param name is the name of the GPIO
