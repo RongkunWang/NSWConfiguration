@@ -197,6 +197,19 @@ void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
   nsw::hw::SCA::sendI2cRaw(opcConnection, m_scaAddressFPGA, payload.data(), payload.size());
 }
 
+void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
+{
+  std::uint32_t word{0};
+  constexpr std::uint32_t bits{nsw::padtrigger::NUM_BITS_PER_PFEB_BCID};
+  for (auto it = nsw::NUM_BITS_IN_WORD32 / bits; it > 0; --it) {
+    word += (value << it*bits);
+  }
+  ERS_INFO(fmt::format("Writing PFEB delay word {:#010x}", word));
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word);
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word);
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word);
+}
+
 bool nsw::hw::PadTrigger::readGPIO(const std::string& name) const
 {
   const auto addr = fmt::format("{}.{}.{}", m_scaAddress, "gpio", name);
