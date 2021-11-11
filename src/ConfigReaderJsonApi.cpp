@@ -6,6 +6,8 @@
 #include <ers/ers.h>
 
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/optional/optional.hpp>
+
 
 #include <fmt/core.h>
 
@@ -215,9 +217,83 @@ ptree JsonApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, siz
 
 ptree JsonApi::readL1DDC(const std::string& element) const {
     // Read an L1DDC branch from the configuration ptree
-    ERS_LOG("JsonApi::readL1DDC, element=" << element);
-    // ptree with configuration for just this element
+    ERS_LOG(fmt::format("JsonApi::readL1DDC, element={}.",element));
+
+    // get configuration for specific board
     ptree feb = m_config.get_child(element);
+    const std::string boardType = feb.get<std::string>("boardType", "none");
+    if (boardType=="none"){
+        nsw::ConfigIssue issue(ERS_HERE, "boardType is unspecified in L1DDC configuration. Check the JSON.");
+        ers::fatal(issue);
+        throw issue;
+    }
+
+    // check for common L1DDC configuration
+    const auto common = m_config.get_child_optional("l1ddc_common_config");
+    if (!common){
+        nsw::ConfigIssue issue(ERS_HERE, "l1ddc_common_config is unspecified in configuration. Check the JSON.");
+        ers::fatal(issue);
+        throw issue;
+    }
+
+    // get the possible GBTx configurations. These don't need to all be provided
+    const auto mmg_gbtx0  = common.get().get_child_optional("mmg_gbtx0");
+    const auto mmg_gbtx1  = common.get().get_child_optional("mmg_gbtx1");
+    const auto mmg_gbtx2  = common.get().get_child_optional("mmg_gbtx2");
+    const auto sfeb_gbtx0 = common.get().get_child_optional("sfeb_gbtx0");
+    const auto sfeb_gbtx1 = common.get().get_child_optional("sfeb_gbtx1");
+    const auto pfeb_gbtx0 = common.get().get_child_optional("pfeb_gbtx0");
+    const auto pfeb_gbtx1 = common.get().get_child_optional("pfeb_gbtx1");
+    const auto rim_gbtx0 = common.get().get_child_optional("rim_gbtx0");
+    const auto rim_gbtx1 = common.get().get_child_optional("rim_gbtx1");
+
+    if (boardType=="mmg"){
+        // Check that the required common configuration exists
+        if (!mmg_gbtx0){
+            nsw::ConfigIssue issue(ERS_HERE, "mmg_gbtx0 is unspecified in common configuration, but there is a mmg type L1DDC to configure. Check the JSON.");
+            ers::fatal(issue);
+            throw issue;
+        }
+        feb.put_child("mmg_gbtx0",mmg_gbtx0.get());
+    }
+    else if (boardType=="rim"){
+        // Check that the required common configuration exists
+        if (!rim_gbtx0){
+            nsw::ConfigIssue issue(ERS_HERE, "rim_gbtx0 is unspecified in common configuration, but there is a rim type L1DDC to configure. Check the JSON.");
+            ers::fatal(issue);
+            throw issue;
+        }
+        feb.put_child("rim_gbtx0",rim_gbtx0.get());
+    }
+    else if (boardType=="sfeb"){
+        if (!sfeb_gbtx0||!sfeb_gbtx1){
+            nsw::ConfigIssue issue(ERS_HERE, "sfeb_gbtx0 is unspecified in common configuration, but there is a sfeb type L1DDC to configure. Check the JSON.");
+            ers::fatal(issue);
+            throw issue;
+        }
+        feb.put_child("sfeb_gbtx0",sfeb_gbtx0.get());
+        feb.put_child("sfeb_gbtx1",sfeb_gbtx1.get());
+    }
+    else if (boardType=="pfeb"){
+        if (!pfeb_gbtx0||!pfeb_gbtx1){
+            nsw::ConfigIssue issue(ERS_HERE, "pfeb_gbtx0 is unspecified in common configuration, but there is a pfeb type L1DDC to configure. Check the JSON.");
+            ers::fatal(issue);
+            throw issue;
+        }
+        feb.put_child("pfeb_gbtx0",pfeb_gbtx0.get());
+        feb.put_child("pfeb_gbtx1",pfeb_gbtx1.get());
+    }
+    else if (boardType=="rim_stgc"){
+        nsw::ConfigIssue issue(ERS_HERE, "rim_stgc configuration not implemented yet");
+        ers::fatal(issue);
+        throw issue;
+    }
+    else{
+        nsw::ConfigIssue issue(ERS_HERE, fmt::format("boardType={} is invalid. Check the JSON.",boardType).c_str());
+        ers::fatal(issue);
+        throw issue;
+    }
+
     return feb;
 }
 

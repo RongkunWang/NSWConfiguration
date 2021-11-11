@@ -27,7 +27,7 @@ ERS_DECLARE_ISSUE(nsw,
 
 
 namespace nsw {
-    constexpr std::size_t NUM_GBTX_REGISTERS = 436;
+    constexpr std::size_t NUM_GBTX_WRITABLE_REGISTERS = 436;
 }
 
 namespace nsw{
@@ -57,7 +57,7 @@ namespace nsw{
 
 class GBTxConfig{
 private: 
-    std::array<uint8_t,nsw::NUM_GBTX_REGISTERS> m_config{};
+    std::array<uint8_t,nsw::NUM_GBTX_WRITABLE_REGISTERS> m_config{};
     std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
     std::string m_gbtxType;
 
@@ -136,6 +136,14 @@ public:
      * \param shift bit shift of the setting
      */
     void setRegister(std::size_t r, std::uint8_t value, std::size_t shift);
+
+    /**
+     * \brief Return true if m_gbtxType contains string type
+     * 
+     * \param type a string which describes the GBTx type
+     * \return bool whether the GBTx type matches the argument
+     */
+    bool isType(const std::string& type) const {return m_gbtxType.find(type)!=std::string::npos;}
 
     /**
      * \brief Return configuration as vector
