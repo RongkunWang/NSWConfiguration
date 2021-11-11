@@ -29,14 +29,22 @@ namespace nsw {
 class L1DDCConfig {
  private:
     GBTxConfig m_gbtx0;
+    GBTxConfig m_gbtx1;
 
     std::size_t m_portToGBTx;
     std::size_t m_portFromGBTx;
     std::size_t m_elinkId;
     std::string m_boardType;
+    bool m_configureGBTx1;
+    bool m_configureGBTx0;
     bool m_trainGBTxPhaseAlignment;
     int m_trainGBTxPhaseWaitTime;
+    int m_i2cDelay;
+    int m_configOption;
+    int m_i2cBlockSize;
     std::string m_felixServerIp;
+    std::string m_opcServerIp;
+    std::string m_opcNodeId;
     std::string m_name;
 
  public:
@@ -75,7 +83,7 @@ class L1DDCConfig {
     /**
      * Set up GBTx objects
      */
-    void initGBTx();
+    void initGBTx(const boost::property_tree::ptree& config);
 
     /**
      * \brief Get the port to Gbtx
@@ -113,11 +121,54 @@ class L1DDCConfig {
     std::string getFelixServerIp() const {return m_felixServerIp;}
 
     /**
+     * \brief Get whether to config gbtx
+     *
+     * \param gbtxId GBTx ID
+     * \return bool
+     */
+    bool getConfigureGBTx(const std::size_t gbtxId) const {return (gbtxId==0)?m_configureGBTx0:m_configureGBTx1;}
+
+    /**
+     * \brief Get the IP address of the opc server
+     *
+     * \return std::string opc IP address
+     */
+    std::string getOpcServerIp() const {return m_opcServerIp;}
+
+    /**
+     * \brief Get the node ID
+     *
+     * \return std::string opc IP address
+     */
+    std::string getOpcNodeId() const {return m_opcNodeId;}
+
+    /**
      * \brief Return the time to wait while training the GBTx phase alignment
      *
-     * \return int train time in us
+     * \return int train wait time in us
      */
     int trainGBTxPhaseWaitTime() const {return m_trainGBTxPhaseWaitTime;}
+
+    /**
+     * \brief Return config option
+     *
+     * \return int config option
+     */
+    int configOption() const {return m_configOption;}
+
+    /**
+     * \brief Return the block size for i2c configuration
+     *
+     * \return int I2C configuration block size in bytes
+     */
+    int i2cBlockSize() const {return m_i2cBlockSize;}
+
+    /**
+     * \brief Return the time to wait during i2c configuration
+     *
+     * \return int delay time in us
+     */
+    int i2cDelay() const {return m_i2cDelay;}
 
     /**
      * \brief Return whether to train the GBTx phase alignment has been configured. Can be "mmg", "stg", or "none"
@@ -132,7 +183,7 @@ class L1DDCConfig {
      * \param gbtxId GBTx ID
      * \return std::vector<uint8_t> bytestream
      */
-    std::vector<std::uint8_t> getGbtxBytestream(std::size_t gbtxId) const;
+    std::vector<std::uint8_t> getGBTxBytestream(std::size_t gbtxId) const;
 
     /**
      * \brief Update config objects in each GBTx instance to start training e-links

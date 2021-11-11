@@ -72,23 +72,43 @@ class ConfigSender {
     void sendTdsConfig(const nsw::FEBConfig& feb, bool reset_tds = false);
 
     /**
-     * \brief Send data with ICHandler
+     * \brief Send GBTx data with ICHandler
      * 
      * 
      * \param l1ddc L1DDC config object
      * \param ich IChandler object
      * \param data Data to be sent
      */
-    void sendIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich, std::vector<uint8_t>& data);
+    void sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich, const std::vector<uint8_t>& data);
 
     /**
-     * \brief Read data with ICHandler
+     * \brief Read GBTx data with ICHandler
      * 
      * 
      * \param l1ddc L1DDC config object
      * \param ich IChandler object
      */
-    std::vector<uint8_t> readIcConfig(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const;
+    std::vector<uint8_t> readIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const;
+
+
+    /**
+     * \brief Send GBTx data with ICHandler
+     * 
+     * 
+     * \param l1ddc L1DDC config object
+     * \param ich IChandler object
+     * \param data Data to be sent
+     */
+    void sendI2cConfigGBTx(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId, const std::vector<uint8_t>& data);
+
+    /**
+     * \brief Read GBTx data with ICHandler
+     * 
+     * 
+     * \param l1ddc L1DDC config object
+     * \param ich IChandler object
+     */
+    std::vector<uint8_t> readI2cConfigGBTx(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId);
 
     /**
      * \brief Configure the GBTx's of a given L1DDC
@@ -113,17 +133,27 @@ class ConfigSender {
      * \param l1ddc L1DDC config object
      * \param gbtxId GBTx ID
      */
-    std::vector<uint8_t> readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId) const;
+    std::vector<uint8_t> readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId);
 
     /**
-     * \brief Helper function that sends GBTX configuration and reads it back. 
+     * \brief Helper function that sends GBTx configuration using IC channel and reads it back. 
      * 
      * \param ich IC Handler instance
      * \param data Data to be sent
      * \return true if the read-back configuration matches the input
      * \return false if the read-back configuration does not match the input
      */
-    bool sendGBTxConfigHelperFunctionReturnTrueIfCorrect(const nsw::L1DDCConfig& l1ddc, IChandler& ich,std::vector<uint8_t>& data);
+    bool sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, IChandler& ich,const std::vector<uint8_t>& data);
+
+    /**
+     * \brief Helper function that sends GBTx configuration using I2C and reads it back. 
+     * 
+     * \param l1ddc object
+     * \param data Data to be sent
+     * \return true if the read-back configuration matches the input
+     * \return false if the read-back configuration does not match the input
+     */
+    bool sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId, const std::vector<uint8_t>& data);
 
 
     /// Send configuration to ADDC and its ARTs

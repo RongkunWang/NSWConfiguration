@@ -46,6 +46,8 @@ namespace nsw {
 
     struct GBTxSingleConfig{
         std::string iPath;
+        std::string opcServerIp;
+        std::string opcNodeId;
         std::string felixServerIp;
         std::size_t portToGBTx;
         std::size_t portFromGBTx;

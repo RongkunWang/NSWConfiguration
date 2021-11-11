@@ -24,7 +24,7 @@ void nsw::GBTxConfig::setRegister(const std::size_t r, const std::uint8_t value,
         ers::error(issue);
         throw issue;
     }
-    if (r>=NUM_GBTX_REGISTERS){
+    if (r>=NUM_GBTX_WRITABLE_REGISTERS){
         nsw::NSWBoardIssue issue(ERS_HERE, "Tried to configure GBTx register number above the maximum: " + std::to_string(r));
         ers::error(issue);
         throw issue;
@@ -86,7 +86,7 @@ void nsw::GBTxConfig::setConfigFromFile(const std::string& iPath){
         std::string line;
         std::size_t iLine = 0;
         while ( getline (ifile,line) ) {
-            if (iLine>=nsw::NUM_GBTX_REGISTERS){
+            if (iLine>=nsw::NUM_GBTX_WRITABLE_REGISTERS){
                 nsw::NSWBoardIssue issue(ERS_HERE, "Text config file is too long!");
                 ers::error(issue);
                 throw issue;
@@ -114,7 +114,7 @@ std::string nsw::GBTxConfig::getPrintableConfig() const {
     // Return nicely formatted string with configuration details
     std::stringstream ss;
     ss<<"\nreg |";
-    for (std::size_t i=0; i<NUM_GBTX_REGISTERS; i++){
+    for (std::size_t i=0; i<NUM_GBTX_WRITABLE_REGISTERS; i++){
         if (i%16==0) {
             ss<<std::dec<<'\n'<<i;
             if (i<10) {ss<<" ";}
@@ -178,7 +178,7 @@ void nsw::GBTxConfig::setResetChannelsOn(){
     // Todo: There should be a configured setting to determine which channels are used, via a mask
     // set("paResetGroup0",0xFF);
     // This mode is not recommended for environments were SEUs are a concern.
-    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+    if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0xFF);
         reset("paResetGroup2",0xFF);
@@ -198,7 +198,7 @@ void nsw::GBTxConfig::setResetChannelsOff(){
     // Set input reset channels off
     // Todo: There should be a configured setting to determine which channels are used, via a mask
     // reset("paResetGroup0",0x00);
-    if (m_gbtxType.find("mmg")!=std::string::npos){
+    if (isType("mmg")){
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0x01); // in conf_l1_train_320_191.sh, this is kept 0x01
         reset("paResetGroup2",0x00);
@@ -207,7 +207,7 @@ void nsw::GBTxConfig::setResetChannelsOff(){
         reset("paResetGroup5",0x00); // just in case
         reset("paResetGroup6",0x00); // just in case
     }
-    else if (m_gbtxType.find("stg")!=std::string::npos){
+    else if (isType("pfeb") || isType("sfeb") || isType("rim")){
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0x00);
         reset("paResetGroup2",0x00);
@@ -251,7 +251,7 @@ void nsw::GBTxConfig::setTrainingRegistersOn(){
     reset("paMode",0b1);
 
     // Set the phase alignment training
-    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+    if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
         reset("paTrainGroup0",0xFF);
         reset("paTrainGroup1",0xFF);
         reset("paTrainGroup2",0xFF);
@@ -270,7 +270,7 @@ void nsw::GBTxConfig::setTrainingRegistersOn(){
 void nsw::GBTxConfig::setTrainingRegistersOff(){
     // Turn off phase alignment
     // Todo: There should be a configured setting to determine which channels are used, via a mask
-    if (m_gbtxType.find("mmg")!=std::string::npos || m_gbtxType.find("stg")!=std::string::npos){
+    if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
         reset("paTrainGroup0",0x00);
         reset("paTrainGroup1",0x00);
         reset("paTrainGroup2",0x00);
