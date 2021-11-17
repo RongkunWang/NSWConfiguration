@@ -143,6 +143,9 @@ int main (int argc, char** argv){
         }
         // pick names for configuration
         for (auto & name : reader.getAllElementNames()) {
+             std::cout<<"READING: "<<name<<std::endl;
+             if (name.find("L1DDC")==std::string::npos) continue;
+             std::cout<<"CONFIGURING: "<<name<<std::endl;
              boost::property_tree::ptree config = reader.readConfig(name);
              l1ddc_configs.emplace_back(config);
         }
