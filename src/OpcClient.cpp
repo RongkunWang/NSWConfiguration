@@ -7,6 +7,8 @@
 #include <utility>
 #include <fstream>
 #include <bitset>
+#include <chrono>
+#include <thread>
 
 #include <fmt/core.h>
 
@@ -280,18 +282,28 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t num
     UaoClientForOpcUaSca::I2cSlave i2cnode(m_session.get(), UaNodeId(node.c_str(), 2));
 
     std::vector<uint8_t> result;
-    try {
-        UaByteString output;
-        i2cnode.readSlave(static_cast<std::uint8_t>(number_of_bytes), output);
-        ERS_DEBUG(4, "node: " << node << ", bytes to read: " << number_of_bytes);
-        // copy array contents in a vector
-        result.assign(output.data(), output.data() + number_of_bytes);
-    } catch (const std::exception& e) {
-        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, e.what());
+    bool success{false};
+    std::size_t retry{0};
+    while (!success && retry < MAX_RETRY) {
+        try {
+            UaByteString output;
+            i2cnode.readSlave(static_cast<std::uint8_t>(number_of_bytes), output);
+            ERS_DEBUG(4, "node: " << node << ", bytes to read: " << number_of_bytes);
+            // copy array contents in a vector
+            result.assign(output.data(), output.data() + number_of_bytes);
+            success = true;
+        } catch (const std::exception& e) {
+            ERS_LOG(fmt::format("readI2c of {} failed, attempt {}/{}: {}.",
+                                node, retry + 1, MAX_RETRY, e.what()));
+            retry++;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
+    if (!success) {
+        nsw::OpcReadWriteIssue issue(ERS_HERE, m_server_ipport, node, "readI2c failed");
         ers::warning(issue);
         throw issue;
     }
-
     return result;
 }
 
