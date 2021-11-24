@@ -32,30 +32,25 @@ void nsw::NSWConfig::substituteConf(const ptree& tree) {
 void nsw::NSWConfig::configureRc() {
     // TODO(cyildiz): Instead of reading all front ends from the database,
     // we should find the ones that are at the same links with the swROD
-    auto frontend_names = m_reader->getAllElementNames();
+    const auto frontend_names = m_reader->getAllElementNames();
 
     ERS_LOG("The following front ends will be configured now:\n");
-    for (auto & name : frontend_names) {
+    for (const auto& name : frontend_names) {
       try {
-        auto element = nsw::getElementType(name);
+        const auto element = nsw::getElementType(name);
         ERS_LOG(name << ", an instance of " << element);
-        auto this_pair = std::make_pair(name, m_reader->readConfig(name));
-        if      (element == "ADDC")          m_addcs     .emplace(this_pair);
-        else if (element == "Router")        m_routers   .emplace(this_pair);
-        else if (element == "PadTriggerSCA") m_ptscas    .emplace(this_pair);
-        else if (element == "TP")            m_tps       .emplace(this_pair);
-        else if (element == "TPCarrier")     m_tpcarriers.emplace(this_pair);
-        else if (element == "L1DDC")         m_l1ddcs    .emplace(this_pair);
+        const auto this_pair = std::make_pair(name, m_reader->readConfig(name));
+        if      (element == "ADDC")          { m_addcs     .emplace(this_pair); }
+        else if (element == "Router")        { m_routers   .emplace(this_pair); }
+        else if (element == "PadTriggerSCA") { m_ptscas    .emplace(this_pair); }
+        else if (element == "TP")            { m_tps       .emplace(this_pair); }
+        else if (element == "TPCarrier")     { m_tpcarriers.emplace(this_pair); }
+        else if (element == "L1DDC")         { m_l1ddcs    .emplace(this_pair); }
         else {
           m_frontends.emplace(this_pair);
         }
-      } catch (std::exception & e) {
-        std::stringstream ss;
-        ss << " Skipping FE: " << name
-           << " - Problem constructing configuration due to : "
-           << e.what();
-        nsw::NSWConfigIssue issue(ERS_HERE, ss.str());
-        ERS_INFO(ss.str());
+      } catch (const std::exception& e) {
+        nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Problem constructing configuration due to : {}", e.what()));
         ers::fatal(issue);
       }
     }
@@ -105,7 +100,7 @@ void nsw::NSWConfig::configureFEBs() {
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
             // TODO: This should be an error
-            ers::fatal(issue);
+            ers::error(issue);
         }
     }
 }
@@ -368,7 +363,7 @@ void nsw::NSWConfig::enableVmmCaptureInputs() {
             thread.get();
         } catch (std::exception & ex) {
             nsw::NSWConfigIssue issue(ERS_HERE, "Enabling of VMMs failed due to : " + std::string(ex.what()));
-            ers::fatal(issue);
+            ers::error(issue);
         }
     }
 }
