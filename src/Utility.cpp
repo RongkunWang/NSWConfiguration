@@ -20,7 +20,8 @@ std::uint32_t nsw::overwriteBits(const std::uint32_t original,
                                  const std::uint32_t value,
                                  const std::uint32_t position,
                                  const std::uint32_t nbits) {
-  if (value >= (1 << nbits)) {
+  constexpr std::uint32_t one{1};
+  if (value >= (one << nbits)) {
     const auto err = "Value exceeds number of bits";
     throw std::runtime_error(err);
   }
@@ -36,7 +37,7 @@ std::uint32_t nsw::overwriteBits(const std::uint32_t original,
   // bit mask
   std::uint32_t mask{0};
   for (std::uint32_t it = position; it < position + nbits; ++it) {
-    mask += (1 << it);
+    mask += (one << it);
   }
 
   // update

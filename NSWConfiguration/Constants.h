@@ -279,24 +279,6 @@ namespace nsw {
     constexpr std::uint8_t REG_PFEB_BCID_07_00  = 0x09;
     constexpr std::uint8_t REG_MASK_TO_0        = 0x0B;
     constexpr std::uint8_t REG_MASK_TO_1        = 0x0C;
-    [[deprecated("Should only be used with Pad_ro_ilaro_20200610.bit")]]
-    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_SS = {
-      "PFEB_L4Q2_IP", "PFEB_L2Q2_IP", "PFEB_L4Q1_IP", "PFEB_L2Q1_IP",
-      "PFEB_L2Q2_HO", "PFEB_L4Q2_HO", "PFEB_L2Q1_HO", "PFEB_L4Q1_HO",
-      "PFEB_L2Q3_HO", "PFEB_L1Q3_HO", "PFEB_L4Q3_HO", "PFEB_L3Q3_HO",
-      "PFEB_L1Q3_IP", "PFEB_L2Q3_IP", "PFEB_L3Q3_IP", "PFEB_L4Q3_IP",
-      "PFEB_L3Q2_HO", "PFEB_L1Q2_HO", "PFEB_L3Q1_HO", "PFEB_L1Q1_HO",
-      "PFEB_L1Q2_IP", "PFEB_L3Q2_IP", "PFEB_L1Q1_IP", "PFEB_L3Q1_IP",
-    };
-    [[deprecated("Should only be used with Pad_ro_ilaro_20200610.bit")]]
-    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_OLDFW_LS = {
-      "PFEB_L4Q2_HO", "PFEB_L2Q2_HO", "PFEB_L4Q1_HO", "PFEB_L2Q1_HO",
-      "PFEB_L2Q2_IP", "PFEB_L4Q2_IP", "PFEB_L2Q1_IP", "PFEB_L4Q1_IP",
-      "PFEB_L2Q3_IP", "PFEB_L1Q3_IP", "PFEB_L4Q3_IP", "PFEB_L3Q3_IP",
-      "PFEB_L1Q3_HO", "PFEB_L2Q3_HO", "PFEB_L3Q3_HO", "PFEB_L4Q3_HO",
-      "PFEB_L3Q2_IP", "PFEB_L1Q2_IP", "PFEB_L3Q1_IP", "PFEB_L1Q1_IP",
-      "PFEB_L1Q2_HO", "PFEB_L3Q2_HO", "PFEB_L1Q1_HO", "PFEB_L3Q1_HO",
-    };
     constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS = {
       "PFEB_L1Q1_IP", "PFEB_L2Q1_IP", "PFEB_L3Q1_IP", "PFEB_L4Q1_IP",
       "PFEB_L1Q1_HO", "PFEB_L2Q1_HO", "PFEB_L3Q1_HO", "PFEB_L4Q1_HO",
