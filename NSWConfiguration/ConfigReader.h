@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include <ers/ers.h>
 
 #include "NSWConfiguration/ConfigReaderApi.h"
 #include "NSWConfiguration/Utility.h"
@@ -62,6 +63,13 @@ class ConfigReader {
                 << "Can't read config file due to : " << e.what() << std::endl;
       std::cout << "Exiting..." << std::endl;
       exit(0);
+    }
+
+    // check
+    if (name.find(" ") != std::string::npos) {
+      const auto msg = fmt::format("'{}' has whitespace", name);
+      nsw::ConfigIssue issue(ERS_HERE, msg.c_str());
+      ers::fatal(issue);
     }
 
     // parse input names
