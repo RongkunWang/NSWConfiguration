@@ -25,13 +25,17 @@ nsw::NSWConfigRc::NSWConfigRc(bool simulation) : m_simulation {simulation} {
 bool nsw::NSWConfigRc::simulationFromIS() {
     // Grab the simulation bool from IS
     // Can manually write to this variable from the command line:
-    // > is_write -p part-BB5-Calib -n Setup.NSW.simulation -t Boolean -v 1 -i 0
-    if (is_dictionary->contains("Setup.NSW.simulation") ){
+    const auto param_is_sim = fmt::format("{}.simulation", m_is_db_name);
+    if (is_dictionary->contains(param_is_sim) ){
         ISInfoDynAny any;
-        is_dictionary->getValue("Setup.NSW.simulation", any);
+        is_dictionary->getValue(param_is_sim, any);
         auto val = any.getAttributeValue<bool>(0);
         ERS_INFO("Simulation from IS: " << val);
         return val;
+    } else {
+      const auto is_cmd =
+        fmt::format("is_write -p ${{TDAQ_PARTITION}} -n {} -t Boolean -v 1 -i 0", param_is_sim);
+      ERS_INFO(fmt::format("'simulation' not found in IS. Perhaps you forgot: {}", is_cmd));
     }
     return false;
 }
@@ -42,6 +46,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
     const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
     const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
+    m_is_db_name = nswConfigApp->get_dbISName();
 
     // Retrieve the ipc partition
     m_ipcpartition = rcSvc.getIPCPartition();

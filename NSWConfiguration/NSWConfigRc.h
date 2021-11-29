@@ -53,6 +53,8 @@ class NSWConfigRc: public daq::rc::Controllable {
     bool m_simulation;
     bool m_simulation_lock{false};
 
+    std::string m_is_db_name; //!< Name of the IS server to retrieve NSW parameters from
+
     IPCPartition m_ipcpartition;
     std::unique_ptr<ISInfoDictionary> is_dictionary;
 
