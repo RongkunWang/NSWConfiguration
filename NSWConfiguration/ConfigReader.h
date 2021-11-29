@@ -53,17 +53,9 @@ class ConfigReader {
   template <class T>
   static std::vector<T> makeObjects(const std::string& cfg, const std::string& element_type,
     const std::string& name = "") {
+
     // create config reader
-    nsw::ConfigReader reader1(cfg);
-    try {
-      auto config1 = reader1.readConfig();
-    }
-    catch (std::exception & e) {
-      std::cout << "Make sure the json is formed correctly. "
-                << "Can't read config file due to : " << e.what() << std::endl;
-      std::cout << "Exiting..." << std::endl;
-      exit(0);
-    }
+    nsw::ConfigReader reader(cfg);
 
     // check
     if (name.find(" ") != std::string::npos) {
@@ -87,27 +79,26 @@ class ConfigReader {
         names.emplace(name);
       }
     } else {
-      names = reader1.getAllElementNames();
+      names = reader.getAllElementNames();
     }
 
     // make objects
     std::vector<T> configs;
-    std::cout << "Adding:" << std::endl;
+    ERS_LOG("Adding objects...");
     for (auto & nm : names) {
       try {
         if (nsw::getElementType(nm) == element_type) {
-          configs.emplace_back(reader1.readConfig(nm));
-          std::cout << " " << nm;
-          if (configs.size() % 4 == 0)
-            std::cout << std::endl;
+          configs.emplace_back(reader.readConfig(nm));
+          ERS_LOG("Added " << nm);
         }
       }
       catch (std::exception & e) {
-        std::cout << nm << " - ERROR: Skipping this FE!"
-                  << " - Problem constructing configuration due to : " << e.what() << std::endl;
+        const auto msg = fmt::format(
+          "{} - WARNING: Skipping this FE! Problem constructing configuration: {}", nm, e.what());
+        nsw::ConfigIssue issue(ERS_HERE, msg.c_str());
+        ers::warning(issue);
       }
     }
-    std::cout << std::endl;
 
     return configs;
   }
