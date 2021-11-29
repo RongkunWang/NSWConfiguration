@@ -296,6 +296,10 @@ namespace nsw {
     constexpr std::chrono::seconds RESET_PAUSE{1};
   }
 
+  namespace l1ddc {
+    constexpr std::chrono::milliseconds GBTX_TRAINING_TIME{10};
+  } // namespace l1ddc
+
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_CONSTANTS_H_

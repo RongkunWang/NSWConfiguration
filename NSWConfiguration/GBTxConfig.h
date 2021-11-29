@@ -56,17 +56,18 @@ namespace nsw{
 */
 
 class GBTxConfig{
-private: 
-    std::array<uint8_t,nsw::NUM_GBTX_WRITABLE_REGISTERS> m_config{};
-    std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
-    std::string m_gbtxType;
-
 public: 
+    enum class Mode {
+        IC,
+        I2C
+    };
 
     /**
      * \brief Construct a new GBTxConfig object
+     *
+     * \param mode IC or I2C mode
      */
-    GBTxConfig();
+    explicit GBTxConfig(Mode mode);
 
     /**
      * \brief Construct a new GBTxConfig object
@@ -194,6 +195,13 @@ public:
      */
     std::uint8_t reg(const std::size_t i) const {return m_config.at(i);}
 
+    Mode getMode() const { return m_mode; }
+
+private: 
+    Mode m_mode;
+    std::array<uint8_t,nsw::NUM_GBTX_WRITABLE_REGISTERS> m_config{};
+    std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
+    std::string m_gbtxType;
 
 };
 

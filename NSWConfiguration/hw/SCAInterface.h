@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_HW_SCA_H
 #define NSWCONFIGURATION_HW_SCA_H
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include <memory>
@@ -79,6 +80,26 @@ namespace nsw::hw::SCA {
                                              const std::string& node,
                                              const std::uint8_t* address,
                                              size_t addressSize,
+                                             size_t numberOfBytes = 1);
+
+  /**
+   * \brief Read back I2c register at an address with a sleep between send and read
+   *
+   * First, write the address without data, wait and then read the data.
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \param address I2c address to be read in bytes
+   * \param addressSize number of bytes in \ref address array
+   * \param sleep time to sleep in microseconds
+   * \param numberOfBytes number of bytes to be read
+   * \return std::vector<std::uint8_t> Byte vector containing the data
+   */
+  std::vector<std::uint8_t> readI2cAtAddress(const OpcClientPtr& opcConnection,
+                                             const std::string& node,
+                                             const std::uint8_t* address,
+                                             size_t addressSize,
+                                             std::chrono::microseconds sleep,
                                              size_t numberOfBytes = 1);
 
   /**

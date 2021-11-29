@@ -10,7 +10,8 @@
 #include <sstream>
 #include <fmt/core.h>
 
-nsw::GBTxConfig::GBTxConfig() :
+nsw::GBTxConfig::GBTxConfig(const nsw::GBTxConfig::Mode mode) :
+    m_mode(mode),
     m_gbtxType("none"),
     m_registerMaps(compiledGbtxRegisterMap())
 {
@@ -179,7 +180,6 @@ void nsw::GBTxConfig::setResetChannelsOn(){
     // set("paResetGroup0",0xFF);
     // This mode is not recommended for environments were SEUs are a concern.
     if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
-        reset("paResetGroup0",0x00);
         reset("paResetGroup1",0xFF);
         reset("paResetGroup2",0xFF);
         reset("paResetGroup3",0xFF);
@@ -252,7 +252,6 @@ void nsw::GBTxConfig::setTrainingRegistersOn(){
 
     // Set the phase alignment training
     if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
-        reset("paTrainGroup0",0xFF);
         reset("paTrainGroup1",0xFF);
         reset("paTrainGroup2",0xFF);
         reset("paTrainGroup3",0xFF);

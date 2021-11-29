@@ -72,8 +72,9 @@ class L1DDCConfig {
      * }
      *
      * \param config configuration ptree (see example above)
+     * \param phase2 Use phase 2 configuration through IC
      */
-    explicit L1DDCConfig(const boost::property_tree::ptree& config);
+    explicit L1DDCConfig(const boost::property_tree::ptree& config, bool phase2 = false);
 
     /**
      * Simple configuration for standalone use
@@ -194,6 +195,14 @@ class L1DDCConfig {
      * \brief Update config objects in each GBTx instance to stop training e-links
      */
     void trainGbtxsOff();
+
+    /**
+     * \brief Get the GBTx configuration for a given id
+     *
+     * \param gbtxId Number of the requested GBTx
+     * \return GBTxConfig The GBTx config
+     */
+    const GBTxConfig& getGBTxConfig(std::size_t gbtxId) const;
 
 };
 }  // namespace nsw

@@ -3,10 +3,21 @@
 #include <string>
 #include <boost/optional.hpp>
 
+#include "NSWConfiguration/GBTxConfig.h"
 #include "NSWConfiguration/Utility.h"
 
-nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbtx0(),m_gbtx1() {
-
+nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config, const bool phase2) :
+    m_gbtx0(nsw::GBTxConfig::Mode::IC),
+    m_gbtx1([&config, &phase2]() {
+        if (not phase2) {
+            return nsw::GBTxConfig(nsw::GBTxConfig::Mode::I2C);
+        }
+        if (config.get("boardType", "none") != "mmg") {
+            return nsw::GBTxConfig(nsw::GBTxConfig::Mode::I2C);
+        }
+        return nsw::GBTxConfig(nsw::GBTxConfig::Mode::IC);
+    }())
+{
     ERS_DEBUG(2, "Constructor for nsw::L1DDCConfig::L1DDCConfig\n");
 
     try {
@@ -43,8 +54,8 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
 }
 
 nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
-    m_gbtx0(),
-    m_gbtx1(),
+    m_gbtx0(nsw::GBTxConfig::Mode::IC),
+    m_gbtx1(nsw::GBTxConfig::Mode::I2C),
     m_portToGBTx(config.portToGBTx),
     m_boardType(config.boardType),
     m_portFromGBTx(config.portFromGBTx),
@@ -170,4 +181,17 @@ void nsw::L1DDCConfig::trainGbtxsOff(){
     m_gbtx0.setResetChannelsOff();
     m_gbtx0.setTrainingRegistersOff();
     // Todo: gbtx 1, 2
+}
+
+const nsw::GBTxConfig& nsw::L1DDCConfig::getGBTxConfig(const std::size_t gbtxId) const
+{
+    if (gbtxId == 0) {
+        return m_gbtx0;
+    }
+    if (gbtxId == 1) {
+        return m_gbtx1;
+    }
+    nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("No support for GBTx{}", gbtxId));
+    ers::error(issue);
+    throw issue;
 }

@@ -2,7 +2,11 @@
 
 #include "NSWConfiguration/Utility.h"
 
+#include <thread>
+
 #include <fmt/core.h>
+
+using namespace std::chrono_literals;
 
 void nsw::hw::SCA::sendI2cRaw(const OpcClientPtr& opcConnection,
                               const std::string& node,
@@ -44,8 +48,20 @@ std::vector<std::uint8_t> nsw::hw::SCA::readI2cAtAddress(const OpcClientPtr& opc
                                                          const size_t addressSize,
                                                          const size_t numberOfBytes)
 {
+  return readI2cAtAddress(opcConnection, node, address, addressSize, 0us, numberOfBytes);
+}
+
+std::vector<std::uint8_t> nsw::hw::SCA::readI2cAtAddress(const OpcClientPtr& opcConnection,
+                                                         const std::string& node,
+                                                         const std::uint8_t* address,
+                                                         const size_t addressSize,
+                                                         std::chrono::microseconds sleep,
+                                                         const size_t numberOfBytes)
+{
   // Write only the address without data
   nsw::hw::SCA::sendI2cRaw(opcConnection, node, address, addressSize);
+
+  std::this_thread::sleep_for(sleep);
 
   // Read back data into the vector readdata
   std::vector<std::uint8_t> readdata = nsw::hw::SCA::readI2c(opcConnection, node, numberOfBytes);
