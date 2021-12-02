@@ -25,6 +25,7 @@ int main (int argc, char** argv){
     string opcNodeId="none";
     string iPath="none";
     string boardType="none";
+    string name="";
     int portToGBTx=-1;
     int portFromGBTx=-1;
     int elinkId=-1;
@@ -50,6 +51,7 @@ int main (int argc, char** argv){
         if (!strcmp(argv[i],"--sleep")) trainGBTxPhaseWaitTime=atoi(argv[i+1]);
         if (!strcmp(argv[i],"--board")) boardType=argv[i+1];
         if (!strcmp(argv[i],"--config")) iPath=argv[i+1];
+        if (!strcmp(argv[i],"--name")) name=argv[i+1];
     }
 
     // check inputs
@@ -77,6 +79,7 @@ int main (int argc, char** argv){
         cout<<"         |      --node   | OPC node ID for GBTx2\n";
         cout<<"         |      --elink  | FELIX e-link number in decimal for GBTx. For example 62 if you want to configure link 0x3E\n";
         cout<<"         |      --sleep  | Optional: number of seconds to wait for training\n";
+        cout<<"         |      --name   | Optional: comma-separated L1DDC names to consider (for json, not xml)\n";
         cout<<"\nExample uses:\n";
         cout<<"configure_gbtx --felix pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62 -c config.txt\n";
         cout<<"configure_gbtx -t --felix pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62 -c config.txt\n";
@@ -95,6 +98,7 @@ int main (int argc, char** argv){
     cout<<"# board type:    "<<boardType<<endl;
     cout<<"#------------------------------------------------#\n";
     cout<<"# sleep:         "<<trainGBTxPhaseWaitTime<<endl;
+    cout<<"# name:          "<<name<<endl;
     cout<<"##################################################\n";
     std::vector<nsw::L1DDCConfig> l1ddc_configs;
 
@@ -134,20 +138,9 @@ int main (int argc, char** argv){
             cout<<"the JSON file will take precident over the -t  \n";
             cout<<"--------------------------------------------------\n";
         }
-        nsw::ConfigReader reader("json://" + iPath);
-        try {
-            reader.readConfig();
-        } catch (std::exception & e) {
-            std::cout<<"ERROR: Can't read config file due to : "<<e.what()<<std::endl;
-            exit(0);
-        }
-        // pick names for configuration
-        for (auto & name : reader.getAllElementNames()) {
-             std::cout<<"READING: "<<name<<std::endl;
-             if (name.find("L1DDC")==std::string::npos) continue;
-             std::cout<<"CONFIGURING: "<<name<<std::endl;
-             boost::property_tree::ptree config = reader.readConfig(name);
-             l1ddc_configs.emplace_back(config);
+        l1ddc_configs = nsw::ConfigReader::makeObjects<nsw::L1DDCConfig>("json://" + iPath, "L1DDC", name);
+        for (const auto& l1ddc: l1ddc_configs) {
+            std::cout << "CONFIGURING: " << l1ddc.getName() << std::endl;
         }
     }
     else{
