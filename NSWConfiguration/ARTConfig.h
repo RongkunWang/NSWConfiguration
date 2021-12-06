@@ -45,6 +45,7 @@ class ARTConfig {
 
     size_t NPhase() const { return n_phase; }
     std::string PhaseToString(uint phase) const;
+    bool SkipConfigure() const;
     bool MustConfigure() const;
     std::size_t TP_GBTxAlignmentBit() const;
     int TP_GBTxAlignmentSleepTime() const;
