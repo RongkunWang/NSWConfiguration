@@ -17,6 +17,10 @@ nsw::ARTConfig::ARTConfig(const ptree& config):
     // std::cout << "ART Constructor!" << std::endl;
 }
 
+bool nsw::ARTConfig::SkipConfigure() const {
+    return m_config.get("SkipConfigure", false);
+}
+
 bool nsw::ARTConfig::MustConfigure() const {
     return m_config.get("MustConfigure", true);
 }

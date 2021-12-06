@@ -196,6 +196,12 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
     auto local_sender = std::make_unique<nsw::ConfigSender>();
     auto configuration = m_addcs.at(name);
     for (size_t iart = 0; iart < nsw::NUM_ART_PER_ADDC; iart++) {
+      if(configuration.getART(iart).SkipConfigure()){
+          nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Skipping config: {0}.art{1}", name, iart));
+          ers::warning(issue);
+         continue;
+      }
+
       try {
         if (!m_simulation) {
           local_sender->sendAddcConfig(configuration, static_cast<int>(iart));
@@ -205,11 +211,7 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
         if (configuration.getART(iart).MustConfigure()) {
           throw;
         } else {
-          const std::string msg = "Allowed to fail: "
-            + name
-            + ".art" + std::to_string(iart)
-            + ": " + std::string(ex.what());
-          nsw::NSWConfigIssue issue(ERS_HERE, msg);
+          nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Allowed to fail: {0}.art{1}: {2}", name, iart, ex.what()));
           ers::warning(issue);
         }
       }
