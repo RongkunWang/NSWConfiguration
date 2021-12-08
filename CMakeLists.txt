@@ -148,9 +148,10 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
 )
 
 tdaq_add_library(nswhwinterface
-                #  src/hw/DeviceManager.cpp # Placeholder for future
+                 src/hw/DeviceManager.cpp # Placeholder for future
                  src/hw/OpcManager.cpp
                  src/hw/SCAInterface.cpp
+                 src/hw/FEB.cpp
                  src/hw/ROC.cpp
                  src/hw/VMM.cpp
                  src/hw/TDS.cpp

@@ -1,135 +1,164 @@
 #include "NSWConfiguration/hw/DeviceManager.h"
 
-namespace nsw::hw {
-  template<>
-  void DeviceManager::add<nsw::FEBConfig>(const nsw::FEBConfig& config)
-  {
-    addFeb(config);
+#include <future>
+
+nsw::hw::DeviceManager::DeviceManager(const bool multithreaded) : m_multithreaded(multithreaded) {}
+
+void nsw::hw::DeviceManager::addFeb(const nsw::FEBConfig& config)
+{
+  m_febs.emplace_back(config);
+}
+
+void nsw::hw::DeviceManager::addAddc(const nsw::ADDCConfig& config)
+{
+  for (std::size_t counter = 0; counter < config.getARTs().size(); counter++) {
+    m_arts.emplace_back(config, counter);
   }
+}
 
-  template<>
-  void DeviceManager::add<nsw::ADDCConfig>(const nsw::ADDCConfig& config)
-  {
-    addAddc(config);
-  }
+void nsw::hw::DeviceManager::addTp(const nsw::TPConfig& config)
+{
+  m_tps.emplace_back(config);
+}
 
-  template<>
-  void DeviceManager::add<nsw::TPConfig>(const nsw::TPConfig& config)
-  {
-    addTp(config);
-  }
+void nsw::hw::DeviceManager::addRouter(const nsw::RouterConfig& config)
+{
+  m_routers.emplace_back(config);
+}
 
-  template<>
-  void DeviceManager::add<nsw::RouterConfig>(const nsw::RouterConfig& config)
-  {
-    addRouter(config);
-  }
+void nsw::hw::DeviceManager::addPadTrigger(const nsw::PadTriggerSCAConfig& config)
+{
+  m_padTriggers.emplace_back(config);
+}
 
-  template<>
-  void DeviceManager::add<nsw::PadTriggerSCAConfig>(const nsw::PadTriggerSCAConfig& config)
-  {
-    addPadTrigger(config);
-  }
+void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
+{
+  m_tpCarriers.emplace_back(config);
+}
 
-  template<>
-  void DeviceManager::add<nsw::TPCarrierConfig>(const nsw::TPCarrierConfig& config)
-  {
-    addTpCarrier(config);
-  }
-
-  template<>
-  void DeviceManager::add<nsw::FEBConfig>(const std::vector<nsw::FEBConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addFeb(config);
-    }
-  }
-
-  template<>
-  void DeviceManager::add<nsw::ADDCConfig>(const std::vector<nsw::ADDCConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addAddc(config);
-    }
-  }
-
-  template<>
-  void DeviceManager::add<nsw::TPConfig>(const std::vector<nsw::TPConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addTp(config);
-    }
-  }
-
-  template<>
-  void DeviceManager::add<nsw::RouterConfig>(const std::vector<nsw::RouterConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addRouter(config);
-    }
-  }
-
-  template<>
-  void DeviceManager::add<nsw::PadTriggerSCAConfig>(
-    const std::vector<nsw::PadTriggerSCAConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addPadTrigger(config);
-    }
-  }
-
-  template<>
-  void DeviceManager::add<nsw::TPCarrierConfig>(const std::vector<nsw::TPCarrierConfig>& configs)
-  {
-    for (const auto& config : configs) {
-      addTpCarrier(config);
-    }
-  }
-
-  void DeviceManager::addFeb(const nsw::FEBConfig& config)
-  {
-    m_rocs.emplace_back(config);
-    for (std::size_t counter = 0; counter < config.getTdss().size(); counter++) {
-      m_tdss.emplace_back(config, counter);
-    }
-    for (std::size_t counter = 0; counter < config.getVmms().size(); counter++) {
-      m_vmms.emplace_back(config, counter);
-    }
-  }
-
-  void DeviceManager::addAddc(const nsw::ADDCConfig& config)
-  {
-    for (std::size_t counter = 0; counter < config.getARTs().size(); counter++) {
-      m_arts.emplace_back(config, counter);
-    }
-  }
-
-  void DeviceManager::addTp(const nsw::TPConfig& config) { m_tps.emplace_back(config); }
-
-  void DeviceManager::addRouter(const nsw::RouterConfig& config) { m_routers.emplace_back(config); }
-
-  void DeviceManager::addPadTrigger(const nsw::PadTriggerSCAConfig& config)
-  {
-    m_padTriggers.emplace_back(config);
-  }
-
-  void DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
-  {
-    m_tpCarriers.emplace_back(config);
-  }
-
-  void DeviceManager::configure()
-  {
-    const auto conf = [](auto& devices) {
-      for (auto& device : devices) {
-        device.writeConfiguration();
+void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) const
+{
+  const auto conf = [this](const auto& devices, const auto... params) {
+    // C++20
+    // applyFunc(
+    //   m_febs,
+    //   [params](const auto& device) { device.writeConfiguration(params...); },
+    //   [](const auto& ex) {
+    //     nsw::NSWHWConfigIssue issue(
+    //       ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
+    //     ers::fatal(issue);
+    //   });
+    try {
+      if (m_multithreaded) {
+        std::vector<std::future<void>> threads{};
+        threads.reserve(devices.size());
+        for (const auto& device : devices) {
+          threads.push_back(std::async(
+            std::launch::async,
+            [](const auto& deviceLocal, const auto... paramsLocal) {
+              deviceLocal.writeConfiguration(paramsLocal...);
+            },
+            device,
+            params...));
+        }
+        for (auto& thread : threads) {
+          thread.get();
+        }
+      } else {
+        for (const auto& device : devices) {
+          device.writeConfiguration(params...);
+        }
       }
-    };
-    conf(m_rocs);
-    conf(m_vmms);
-    conf(m_tdss);
-    conf(m_tps);
-    conf(m_routers);
-    conf(m_padTriggers);
+    } catch (std::exception& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
+      // TODO: This should be an error
+      ers::fatal(issue);
+    }
+  };
+  conf(
+    m_febs,
+    std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
+    std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) !=
+      std::cend(options),
+    std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options));
+  conf(m_arts);
+  conf(m_tps);
+  conf(m_routers);
+  conf(m_padTriggers);
+  conf(m_tpCarriers);
+}
+
+void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
+{
+  // C++20
+  // applyFunc(
+  //   m_febs,
+  //   [](const auto& device) { device.getRoc().enableVmmCaptureInputs(); },
+  //   [](const auto& ex) {
+  //     nsw::NSWHWConfigIssue issue(
+  //       ERS_HERE, fmt::format("Enabling VMM capture inputs failed due to: {}", ex.what()));
+  //     ers::fatal(issue);
+  //   });
+  try {
+    if (m_multithreaded) {
+      std::vector<std::future<void>> threads{};
+      threads.reserve(m_febs.size());
+      for (const auto& feb : m_febs) {
+        threads.push_back(std::async(
+          std::launch::async,
+          [](const auto& febLocal) { febLocal.getRoc().enableVmmCaptureInputs(); },
+          feb));
+      }
+      for (auto& thread : threads) {
+        thread.get();
+      }
+    } else {
+      for (const auto& feb : m_febs) {
+        feb.getRoc().enableVmmCaptureInputs();
+      }
+    }
+  } catch (std::exception& ex) {
+    nsw::NSWHWConfigIssue issue(
+      ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
+    // TODO: This should be an error
+    ers::fatal(issue);
   }
-}  // namespace nsw::hw
+}
+
+void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
+{
+  // C++20
+  // applyFunc(
+  //   m_febs,
+  //   [](const auto& device) { device.getRoc().disableVmmCaptureInputs(); },
+  //   [](const auto& ex) {
+  //     nsw::NSWHWConfigIssue issue(
+  //       ERS_HERE, fmt::format("Disabling VMM capture inputs failed due to: {}", ex.what()));
+  //     ers::fatal(issue);
+  //   });
+  try {
+    if (m_multithreaded) {
+      std::vector<std::future<void>> threads{};
+      threads.reserve(m_febs.size());
+      for (const auto& feb : m_febs) {
+        threads.push_back(std::async(
+          std::launch::async,
+          [](const auto& febLocal) { febLocal.getRoc().disableVmmCaptureInputs(); },
+          feb));
+      }
+      for (auto& thread : threads) {
+        thread.get();
+      }
+    } else {
+      for (const auto& feb : m_febs) {
+        feb.getRoc().disableVmmCaptureInputs();
+      }
+    }
+  } catch (std::exception& ex) {
+    nsw::NSWHWConfigIssue issue(
+      ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
+    // TODO: This should be an error
+    ers::fatal(issue);
+  }
+}

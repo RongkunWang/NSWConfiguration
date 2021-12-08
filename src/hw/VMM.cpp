@@ -18,11 +18,11 @@ nsw::hw::VMM::VMM(const FEBConfig& config, const std::size_t numVmm) :
   m_rocAnalogName(config.getRocAnalog().getName())
 {}
 
-void nsw::hw::VMM::writeConfiguration() const
+void nsw::hw::VMM::writeConfiguration(const bool resetVmm) const
 {
   // Set Vmm Configuration Enable
-  constexpr uint8_t VMM_ACC_DISABLE = 0xff;
-  constexpr uint8_t VMM_ACC_ENABLE = 0x00;
+  constexpr std::uint8_t VMM_ACC_DISABLE = 0xff;
+  constexpr std::uint8_t VMM_ACC_ENABLE = 0x00;
   const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
 
   // Set Vmm Acquisition Disable
@@ -30,14 +30,25 @@ void nsw::hw::VMM::writeConfiguration() const
     fmt::format("{}.{}.reg122vmmEnaInv", m_scaAddress, m_rocAnalogName);
   nsw::hw::SCA::sendI2c(opcConnection, scaRocVmmReadoutAddress, {VMM_ACC_DISABLE});
 
-  const auto data = m_config.getByteVector();
+  const auto writeVmmConfig = [this, &opcConnection](const auto& config) {
+    const auto data = config.getByteVector();
 
-  ERS_LOG("Sending configuration to " << m_scaAddress << ".spi." << m_config.getName());
+    ERS_DEBUG(4, "Sending configuration to " << m_scaAddress << ".spi." << config.getName());
 
-  nsw::hw::SCA::sendSpiRaw(opcConnection,
-                           fmt::format("{}.spi.{}", m_scaAddress, m_config.getName()),
-                           data.data(),
-                           data.size());
+    nsw::hw::SCA::sendSpiRaw(opcConnection,
+                             fmt::format("{}.spi.{}", m_scaAddress, config.getName()),
+                             data.data(),
+                             data.size());
+  };
+
+  if (resetVmm) {
+    auto configCopy{m_config};
+    constexpr std::uint32_t RESET_VMM = 3; 
+    configCopy.setGlobalRegister("reset", RESET_VMM);
+    writeVmmConfig(configCopy);
+  }
+
+  writeVmmConfig(m_config);
 
   ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(m_config.getBitString()));
 

@@ -22,27 +22,7 @@ namespace nsw::hw {
     /**
      * \brief Constructor from a \ref FEBConfig object
      */
-    explicit FEB(const nsw::FEBConfig& config) :
-      m_roc(config),
-      m_vmms([&config]() {
-        std::vector<VMM> vmms;
-        vmms.reserve(config.getVmms().size());
-        for (const auto& vmm : config.getVmms()) {
-          vmms.emplace_back(vmm);
-        }
-        return vmms;
-      }()),
-      m_tdss([&config]() {
-        std::vector<TDS> tdss;
-        tdss.reserve(config.getTdss().size());
-        for (const auto& tds : config.getTdss()) {
-          tdss.emplace_back(tds);
-        }
-        return tdss;
-      }()),
-      m_firstVmm(config.getFirstVmmIndex()),
-      m_firstTds(config.getFirstTdsIndex())
-    {}
+    explicit FEB(const nsw::FEBConfig& config);
 
     /**
      * \brief Get the \ref ROC object
@@ -83,6 +63,14 @@ namespace nsw::hw {
      */
     [[nodiscard]] std::string getOpcNodeId() const { return m_opcNodeId; }
 
+    /**
+     * \brief Configure a FEB
+     *
+     * \param resetVmm Reset VMMs
+     * \param resetTds Reset TDSs
+     * \param disableVmmCaptureInputs Disable VMM capture inputs after configuring ROC (THEY STAY DISABLED) 
+     */
+    void writeConfiguration(bool resetVmm = false, bool resetTds = false, bool disableVmmCaptureInputs = false) const;
   private:
     ROC m_roc;                //!< ROC assiociated to this FEB
     std::vector<VMM> m_vmms;  //!< VMMs assiociated to this FEB
