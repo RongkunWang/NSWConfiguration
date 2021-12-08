@@ -6,6 +6,8 @@
 #include <memory>
 
 // Header to the RC online services
+#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/hw/DeviceManager.h"
 #include "RunControl/Common/OnlineServices.h"
 
 #include "dal/ResourceSet.h"
@@ -39,15 +41,15 @@ void nsw::NSWConfig::configureRc() {
       try {
         const auto element = nsw::getElementType(name);
         ERS_LOG(name << ", an instance of " << element);
-        const auto this_pair = std::make_pair(name, m_reader->readConfig(name));
-        if      (element == "ADDC")          { m_addcs     .emplace(this_pair); }
-        else if (element == "Router")        { m_routers   .emplace(this_pair); }
-        else if (element == "PadTriggerSCA") { m_ptscas    .emplace(this_pair); }
-        else if (element == "TP")            { m_tps       .emplace(this_pair); }
-        else if (element == "TPCarrier")     { m_tpcarriers.emplace(this_pair); }
-        else if (element == "L1DDC")         { m_l1ddcs    .emplace(this_pair); }
+        auto this_pair = std::make_pair(name, m_reader->readConfig(name));
+        if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
+        else if (element == "Router")        { m_deviceManager.add(RouterConfig{this_pair.second}); }
+        else if (element == "PadTriggerSCA") { m_deviceManager.add(PadTriggerSCAConfig{this_pair.second}); }
+        else if (element == "TP")            { m_tps.emplace(this_pair); }
+        else if (element == "TPCarrier")     { m_deviceManager.add(TPCarrierConfig{this_pair.second}); }
+        else if (element == "L1DDC")         { m_l1ddcs.emplace(this_pair); }
         else {
-          m_frontends.emplace(this_pair);
+          m_deviceManager.add(FEBConfig{this_pair.second});
         }
       } catch (const std::exception& e) {
         nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Problem constructing configuration due to : {}", e.what()));
@@ -56,86 +58,30 @@ void nsw::NSWConfig::configureRc() {
     }
 
     configureL1DDCs();        // Configure all l1ddc's
-    configureFEBs();          // Configure all front-ends
+    if (!m_simulation) {
+        std::vector<nsw::hw::DeviceManager::Options> result{hw::DeviceManager::Options::DISABLE_VMM_CAPTURE_INPUTS};
+        if (m_resetvmm) {
+            result.push_back(hw::DeviceManager::Options::RESET_VMM);
+        }
+        if (m_resettds) {
+            result.push_back(hw::DeviceManager::Options::RESET_TDS);
+        }
+        m_deviceManager.configure(result);  // Configure all FEBs, Routers, and TPCarriers
+    }
     configureADDCs();         // Configure all ADDCs
-    configureRouters();       // Configure all Routers
-    configurePadTriggers();   // Configure all Pad Triggers
     configureTPs();           // Configure all Trigger processors
-    configureTPCarriers();    // Configure all Trigger processor carriers
     alignADDCsToTP();         // Adjust MMTP serializers based on ART data
     ERS_LOG("End");
 }
 
 void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
-    m_frontends.clear();
     m_addcs.clear();
     m_l1ddcs.clear();
-    m_routers.clear();
     m_ptscas.clear();
     m_tps.clear();
-    m_tpcarriers.clear();
     // m_reader.reset();
     ERS_INFO("End");
-}
-
-
-void nsw::NSWConfig::configureFEBs() {
-    ERS_INFO("reset VMM: "   << m_resetvmm);
-    ERS_INFO("reset TDS: "   << m_resettds);
-    ERS_INFO("max threads: " << m_max_threads);
-    m_threads->clear();
-    for (const auto& kv : m_frontends) {
-        while (too_many_threads())
-            usleep(500000);
-        m_threads->push_back(std::async(std::launch::async,
-                                        &nsw::NSWConfig::configureFEB,
-                                        this,
-                                        kv.first));
-    }
-    // wait
-    for (auto& thread : *m_threads) {
-        try {
-            thread.get();
-        } catch (std::exception & ex) {
-            nsw::NSWConfigIssue issue(ERS_HERE, "Configuration of FEB failed due to : " + std::string(ex.what()));
-            // TODO: This should be an error
-            ers::error(issue);
-        }
-    }
-}
-
-void nsw::NSWConfig::configureFEB(const std::string& name) {
-    auto local_sender = std::make_unique<nsw::ConfigSender>();
-    ERS_INFO("Configuring front end " + name);
-    if (m_frontends.count(name) == 0) {
-        std::string err = "FEB has bad name: " + name;
-        nsw::NSWConfigIssue issue(ERS_HERE, err);
-        ers::error(issue);
-    }
-    auto configuration = m_frontends.at(name);
-    if (!m_simulation) {
-        local_sender->sendRocConfig(configuration);
-        local_sender->disableVmmCaptureInputs(configuration);
-        if (m_resetvmm) {
-            std::vector <unsigned> reset_ori;
-            for (auto & vmm : configuration.getVmms()) {
-                reset_ori.push_back(vmm.getGlobalRegister("reset"));  // Set reset bits to 1
-                vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
-            }
-            local_sender->sendVmmConfig(configuration);
-
-            size_t i = 0;
-            for (auto & vmm : configuration.getVmms()) {
-                vmm.setGlobalRegister("reset", reset_ori.at(i++));  // Set reset bits to original
-            }
-        }
-        local_sender->sendVmmConfig(configuration);
-
-        local_sender->sendTdsConfig(configuration, m_resettds);
-    }
-    usleep(100000);
-    ERS_LOG("Sending config to: " << name);
 }
 
 void nsw::NSWConfig::configureL1DDCs() {
@@ -227,56 +173,6 @@ void nsw::NSWConfig::alignADDCsToTP() {
     ERS_LOG("Finished checking alignment of ADDCs to TP");
 }
 
-void nsw::NSWConfig::configureRouters() {
-    ERS_LOG("Configuring all Routers");
-    m_threads->clear();
-    for (const auto& kv : m_routers) {
-        while (too_many_threads())
-            usleep(500000);
-        m_threads->push_back(std::async(std::launch::async,
-                                        &nsw::NSWConfig::configureRouter,
-                                        this,
-                                        kv.first));
-    }
-    for (auto& thread : *m_threads) {
-        try {
-            thread.get();
-        } catch (std::exception & ex) {
-            std::string message = "Skipping Router due to : " + std::string(ex.what());
-            nsw::NSWConfigIssue issue(ERS_HERE, message);
-            ers::fatal(issue);
-        }
-    }
-    ERS_LOG("Finished configuration of Routers");
-}
-
-void nsw::NSWConfig::configureRouter(const std::string& name) {
-    ERS_LOG("Configuring Router: " + name);
-    if (m_routers.count(name) == 0) {
-        std::string err = "Router has bad name: " + name;
-        nsw::NSWConfigIssue issue(ERS_HERE, err);
-        ers::error(issue);
-    }
-    auto local_sender = std::make_unique<nsw::ConfigSender>();
-    auto configuration = m_routers.at(name);
-    if (!m_simulation)
-        local_sender->sendRouterConfig(configuration);
-    ERS_LOG("Finished config to: " << name);
-}
-
-void nsw::NSWConfig::configurePadTriggers() {
-    ERS_LOG("Configuring all PadTriggerSCAs");
-    for (auto obj : m_ptscas) {
-        auto name = obj.first;
-        auto configuration = obj.second;
-        ERS_LOG("Sending config to: " << name);
-        const nsw::hw::PadTrigger hw{configuration};
-        if (!m_simulation)
-            hw.writeConfiguration();
-    }
-    ERS_LOG("Finished configuration of PadTriggerSCAs");
-}
-
 void nsw::NSWConfig::configureTPs() {
     ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
     for (const auto& kv : m_tps) {
@@ -285,41 +181,6 @@ void nsw::NSWConfig::configureTPs() {
             m_sender->sendTPConfig(configuration);
         }
         ERS_LOG("Finished config to: " << kv.first);
-    }
-}
-
-void nsw::NSWConfig::configureTPCarriers() {
-    ERS_LOG("Configuring TPCarriers. Total number: " << m_tpcarriers.size() );
-    for (const auto& kv : m_tpcarriers) {
-        auto configuration = m_tpcarriers.at(kv.first);
-        if (!m_simulation) {
-            m_sender->sendTPCarrierConfig(configuration);
-        }
-        ERS_LOG("Finished config to: " << kv.first);
-    }
-}
-
-void nsw::NSWConfig::configureVMMs() {
-    ERS_INFO("Configuring VMMs");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendVmmConfig(configuration);
-        }
-        ERS_LOG("Sending VMM config to: " << name);
-    }
-}
-
-void nsw::NSWConfig::configureROCs() {
-    ERS_INFO("Configuring ROCs");
-    for (auto fe : m_frontends) {
-        auto name = fe.first;
-        auto configuration = fe.second;
-        if (!m_simulation) {
-            m_sender->sendRocConfig(configuration);
-        }
-        ERS_LOG("Sending ROC config to: " << name);
     }
 }
 
@@ -344,57 +205,11 @@ bool nsw::NSWConfig::too_many_threads() {
 }
 
 void nsw::NSWConfig::enableVmmCaptureInputs() {
-    const auto func = [this] (const std::string& t_name) {
-        const auto configuration = m_frontends.at(t_name);
-        nsw::ConfigSender configSender;
-        if (!m_simulation) {
-          configSender.enableVmmCaptureInputs(configuration);
-        }
-    };
-    m_threads->clear();
-    for (const auto& kv : m_frontends) {
-        while (too_many_threads())
-            usleep(500000);
-        m_threads->push_back(std::async(std::launch::async,
-                                        func,
-                                        kv.first));
-    }
-    // wait
-    for (auto& thread : *m_threads) {
-        try {
-            thread.get();
-        } catch (std::exception & ex) {
-            nsw::NSWConfigIssue issue(ERS_HERE, "Enabling of VMMs failed due to : " + std::string(ex.what()));
-            ers::error(issue);
-        }
-    }
+    m_deviceManager.enableVmmCaptureInputs();
 }
 
 void nsw::NSWConfig::disableVmmCaptureInputs() {
-    const auto func = [this] (const std::string& t_name) {
-        const auto configuration = m_frontends.at(t_name);
-        nsw::ConfigSender configSender;
-        if (!m_simulation) {
-          configSender.disableVmmCaptureInputs(configuration);
-        }
-    };
-    m_threads->clear();
-    for (const auto& kv : m_frontends) {
-        while (too_many_threads())
-            usleep(500000);
-        m_threads->push_back(std::async(std::launch::async,
-                                        func,
-                                        kv.first));
-    }
-    // wait
-    for (auto& thread : *m_threads) {
-        try {
-            thread.get();
-        } catch (std::exception & ex) {
-            nsw::NSWConfigIssue issue(ERS_HERE, "Disabling of VMMs failed due to : " + std::string(ex.what()));
-            ers::warning(issue);
-        }
-    }
+    m_deviceManager.disableVmmCaptureInputs();
 }
 
 void nsw::NSWConfig::enableMmtpChannelRates(bool enable) const {

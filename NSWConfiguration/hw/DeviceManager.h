@@ -1,35 +1,47 @@
 #ifndef NSWCONFIGURATION_HW_DEVICEMANAGER
 #define NSWCONFIGURATION_HW_DEVICEMANAGER
 
+// #include <exception> // C++20
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+// #include <execution> // C++20
+// #include <ranges> // C++20
 
 #include "NSWConfiguration/hw/PadTrigger.h"
-#include "NSWConfiguration/hw/ROC.h"
-#include "NSWConfiguration/hw/TDS.h"
-#include "NSWConfiguration/hw/VMM.h"
+#include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/ART.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/Router.h"
 #include "NSWConfiguration/hw/TP.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
 
+ERS_DECLARE_ISSUE(nsw,
+                  NSWHWConfigIssue,
+                  message,
+                  ((std::string)message)
+                  )
 namespace nsw::hw {
   class DeviceManager
   {
-    template<typename... Bases>
-    struct Visitor : Bases... {
-      using Bases::operator()...;
-    };
-
-#if !defined(__GNUG__)
-    template<class... Bases>
-    Visitor(Bases...) -> Visitor<Bases...>;
-#endif
-
   public:
+    /**
+     * \brief Construct a new Device Manager object
+     *
+     * \param multithreaded Configure multithreaded 
+     */
+    explicit DeviceManager(bool multithreaded = true);
+
+    /**
+     * \brief Options for configuring devices
+     *
+     */
+    enum class Options {
+      RESET_VMM,
+      RESET_TDS,
+      DISABLE_VMM_CAPTURE_INPUTS
+    };
     /**
      * \brief Add a config to the manager
      *
@@ -37,22 +49,56 @@ namespace nsw::hw {
      * \param config config object
      */
     template<typename Config>
-    void add([[maybe_unused]] const Config& config)
+    void add(const Config& config)
     {
-      throw std::runtime_error("Unknown config type. Provide a <Device>Config object.");
+      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::VMMConfig>,
+                    "VMM configs are added through the parent FEBConfig object");
+      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::I2cMasterConfig>,
+                    "ROC and TDS configs are added through the parent FEBConfig object");
+      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::ARTConfig>,
+                    "ART configs are added through the parent ADDCConfig object");
+      static_assert(std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::PadTriggerSCAConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>,
+                    "Unknown config type. Provide a <Device>Config object");
+      if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig>) {
+        addFeb(config);
+      }
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig>) {
+        addAddc(config);
+      }
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig>) {
+        addTp(config);
+      }
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig>) {
+        addRouter(config);
+      }
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::PadTriggerSCAConfig>) {
+        addPadTrigger(config);
+      }
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>) {
+        addTpCarrier(config);
+      }
+      else {
+        throw std::logic_error("If you see me, fix the static asserts above me!");
+      }
     }
 
     /**
-     * \brief Add a vector of configs of one type to the manager
+     * \brief Add a range of configs of one type to the manager
      *
-     * \tparam Config <Device>Config class
-     * \param configs vector of config objects
+     * \param configs range of config objects
      */
-    template<typename Config>
-    void add([[maybe_unused]] const std::vector<Config>& configs)
-    {
-      throw std::runtime_error("Unknown config type. Provide a <Device>Config object.");
-    }
+    // C++20
+    // void add(const std::ranges::range auto& configs)
+    // {
+    //   for (const auto& config : configs) {
+    //     add(config);
+    //   }
+    // }
 
     /**
      * \brief Add objects to the manager
@@ -63,44 +109,34 @@ namespace nsw::hw {
     template<typename... Configs>
     void add(const Configs&... configs)
     {
-      Visitor visitor{
-        [&](const nsw::FEBConfig& config) { addFeb(config); },
-        [&](const nsw::ADDCConfig& config) { addAddc(config); },
-        [&](const nsw::TPConfig& config) { addTp(config); },
-        [&](const nsw::RouterConfig& config) { addRouter(config); },
-        [&](const nsw::PadTriggerSCAConfig& config) { addPadTrigger(config); },
-        [&](const nsw::TPCarrierConfig& config) { addTpCarrier(config); },
-        [&](const nsw::VMMConfig&) {
-          throw std::runtime_error("VMM configs are added through the parent FEBConfig object");
-        },
-        [&](const nsw::I2cMasterConfig&) {
-          throw std::runtime_error(
-            "ROC and TDS configs are added through the parent FEBConfig object");
-        },
-        [&](const nsw::ARTConfig&) {
-          throw std::runtime_error("ART configs are added through the parent ADDCConfig object");
-        },
-        [&](const auto&) {
-          throw std::runtime_error("Unknown config type. Provide a <Device>Config object.");
-        }};
-      (Visitor(configs), ...);
+      (add(configs), ...);
     }
 
     /**
      * \brief Configure all devices
      *
+     * \param options A set of options to be applied
      */
-    void configure();
+    void configure(const std::vector<Options>& options = {}) const;
+
+    /**
+     * \brief Enable VMM capture inputs of all ROCs
+     */
+    void enableVmmCaptureInputs() const;
+
+    /**
+     * \brief Disable VMM capture inputs of all ROCs
+     */
+    void disableVmmCaptureInputs() const;
 
   private:
-    std::vector<nsw::hw::ROC> m_rocs;
-    std::vector<nsw::hw::VMM> m_vmms;
-    std::vector<nsw::hw::TDS> m_tdss;
-    std::vector<ART> m_arts;
-    std::vector<TP> m_tps;
-    std::vector<Router> m_routers;
-    std::vector<PadTrigger> m_padTriggers;
-    std::vector<TPCarrier> m_tpCarriers;
+    bool m_multithreaded;
+    std::vector<nsw::hw::FEB> m_febs{};
+    std::vector<ART> m_arts{};
+    std::vector<TP> m_tps{};
+    std::vector<Router> m_routers{};
+    std::vector<PadTrigger> m_padTriggers{};
+    std::vector<TPCarrier> m_tpCarriers{};
 
     /**
      * \brief Add ROC, TDSs, and VMMs from FEBConfig object
@@ -143,7 +179,53 @@ namespace nsw::hw {
      * \param config config object
      */
     void addTpCarrier(const nsw::TPCarrierConfig& config);
+
+    /**
+     * @brief Apply a function to a range of devices and handle exceptions
+     * 
+     * @param devices Range of devices
+     * @param func Function to be applied
+     * @param exceptionHandler Function to handle exceptions
+     */
+    // C++20
+    // template<std::ranges::range Range>
+    // void applyFunc(const Range &devices,
+    //                const std::regular_invocable<typename Range::value_type> auto &func,
+    //                const std::regular_invocable<std::exception> auto &exceptionHandler) {
+    // {
+    //   std::exception_ptr eptr{};
+    //   const auto funcWithExceptionHandler = [&func, &eptr] (const auto& device) mutable {
+    //     try {
+    //       func(device);
+    //     }
+    //     catch (...) {
+    //       eptr = std::current_exception();
+    //     }
+    //   };
+    //   const auto funcWithPolicy = [&funcWithExceptionHandler, &devices] (const auto policy) {
+    //     std::for_each(policy, std::cbegin(devices), std::cend(devices), funcWithExceptionHandler);
+    //   };
+
+    //   // Call the function
+    //   if (m_multithreaded) {
+    //     funcWithPolicy(std::execution::par_unseq);
+    //   }
+    //   else {
+    //     funcWithPolicy(std::execution::seq);
+    //   }
+
+    //   // Handle exceptions
+    //   if (eptr) {
+    //     try {
+    //       std::rethrow_exception(eptr);
+    //     }
+    //     catch (const std::exception& e) {
+    //       exceptionHandler(e);
+    //     }
+    //   }
+    // }
   };
+
 }  // namespace nsw::hw
 
 #endif

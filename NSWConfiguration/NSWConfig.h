@@ -12,6 +12,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Types.h"
+#include "NSWConfiguration/hw/DeviceManager.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -106,16 +107,6 @@ class NSWConfig {
     void enableMmtpChannelRates(bool enable) const;
 
 private:
-    //! Configure ROCs in all FEBs in m_frontends
-    void configureROCs();
-
-    //! Configure VMMs in all FEBs in m_frontends
-    void configureVMMs();
-
-    //! Configure all front ends in m_frontends
-    void configureFEBs();
-    void configureFEB(const std::string& name);
-
     //! Count how many threads are running
     size_t active_threads();
     bool too_many_threads();
@@ -129,23 +120,18 @@ private:
     void configureL1DDCs();
     void configureL1DDC(const nsw::L1DDCConfig& l1ddc);
 
-    //! Configure all Routers, Pad Triggers, and Trigger Processors
-    void configureRouters();
-    void configureRouter(const std::string& name);
-    void configurePadTriggers();
+    //! Configure all Trigger Processors
     void configureTPs();
-    void configureTPCarriers();
 
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
-    std::map<std::string, FEBConfig>           m_frontends;   //! Each element is [frontend_name, frontend_config]
-    std::map<std::string, ADDCConfig>          m_addcs;       //!
-    std::map<std::string, RouterConfig>        m_routers;     //!
+    std::map<std::string, ADDCConfig>          m_addcs;       //! Each element is [frontend_name, frontend_config]
     std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
     std::map<std::string, TPConfig>            m_tps;         //!
-    std::map<std::string, TPCarrierConfig>     m_tpcarriers;  //!
     std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
+
+    hw::DeviceManager m_deviceManager;
 
     // Database connection string
     std::string m_dbcon;
