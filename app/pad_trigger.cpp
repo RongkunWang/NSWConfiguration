@@ -31,6 +31,7 @@ int main(int argc, const char *argv[])
     bool dump;
     bool do_config;
     bool do_control;
+    bool toggleIdleState;
     int val;
 
     // options
@@ -51,6 +52,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
          default_value(false), "Option to send Pad Trigger control register (built from json)")
+        ("toggleIdleState", po::bool_switch()->
+         default_value(false), "Option to toggle the Pad Trigger idle state in the control register")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -61,9 +64,10 @@ int main(int argc, const char *argv[])
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    dump       = vm["dump"]      .as<bool>();
-    do_config  = vm["do_config"] .as<bool>();
-    do_control = vm["do_control"].as<bool>();
+    dump            = vm["dump"]           .as<bool>();
+    do_config       = vm["do_config"]      .as<bool>();
+    do_control      = vm["do_control"]     .as<bool>();
+    toggleIdleState = vm["toggleIdleState"].as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -145,6 +149,13 @@ int main(int argc, const char *argv[])
     if (do_control) {
       for (const auto& hw: hws) {
         hw.writeFPGAConfiguration();
+      }
+    }
+
+    // idle state
+    if (toggleIdleState) {
+      for (const auto& hw: hws) {
+        hw.toggleIdleState();
       }
     }
 

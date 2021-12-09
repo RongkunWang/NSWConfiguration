@@ -91,6 +91,11 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 {
+  if (not m_config.ConfigFPGA()) {
+    ERS_INFO(fmt::format("Skipping configuration of FPGA of {}", m_name));
+    return;
+  }
+
   const auto& fpga = m_config.getFpga();
   const auto& fw   = m_config.firmware_dateword();
   ERS_INFO(fmt::format("Firmware provided: {}", fw));
@@ -142,6 +147,13 @@ void nsw::hw::PadTrigger::writeControlSubRegister(const std::string& subreg, con
   // write
   ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, addr, value));
   writeFPGARegister(addr, value);
+}
+
+void nsw::hw::PadTrigger::toggleIdleState() const
+{
+  writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
+  writeControlSubRegister("conf_startIdleState", std::uint32_t{true});
+  writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const

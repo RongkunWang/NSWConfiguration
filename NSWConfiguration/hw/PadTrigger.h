@@ -131,6 +131,11 @@ namespace nsw::hw {
     void writeControlSubRegister(const std::string& subreg, std::uint32_t subval) const;
 
     /**
+     * \brief Toggle (write) the idle state from 1 to 0
+     */
+    void toggleIdleState() const;
+
+    /**
      * \brief Enable the pad trigger readout
      */
     void writeReadoutEnable() const
