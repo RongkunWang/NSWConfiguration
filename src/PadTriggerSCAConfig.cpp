@@ -61,6 +61,10 @@ int nsw::PadTriggerSCAConfig::LatencyScanNBC() const {
   return m_LatencyScanNBC;
 }
 
+bool nsw::PadTriggerSCAConfig::ConfigFPGA() const {
+  return m_config.get("ConfigFPGA", true);
+}
+
 bool nsw::PadTriggerSCAConfig::ConfigRepeaters() const {
   return m_config.get<bool>("ConfigRepeaters");
 }

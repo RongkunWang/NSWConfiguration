@@ -22,6 +22,7 @@ class PadTriggerSCAConfig: public SCAConfig {
     void dump();
     std::string firmware() const;
     uint32_t firmware_dateword() const;
+    bool ConfigFPGA() const;
     bool ConfigRepeaters() const;
     bool ConfigVTTx() const;
     const I2cMasterConfig & getFpga() const {return m_padtriggerfpga;}
