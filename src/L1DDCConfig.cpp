@@ -16,6 +16,7 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
         m_felixServerIp  = config.get<std::string>("FelixServerIp");
         m_opcServerIp    = config.get<std::string>("OpcServerIp");
         m_opcNodeId      = config.get<std::string>("OpcNodeId");
+        m_boardType      = config.get<std::string>("boardType");
     }
     catch (const boost::property_tree::ptree_bad_path&){
         nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
@@ -37,7 +38,6 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
 
     // TODO: Future configuration for GBTx1, GBTx2 can go here
     // Determine board type and init apropriate gbtx
-    m_boardType = config.get("boardType", "none");
     initGBTx(config);
 
 }
@@ -114,12 +114,6 @@ void nsw::L1DDCConfig::initGBTx(const boost::property_tree::ptree& config){
             m_gbtx1.setType("pfeb1");
             m_gbtx1.setConfigFromPTree(gbtx1Config);
         }
-    }
-    else if (m_boardType=="rim"){
-        // Not implemented yet
-        nsw::NSWL1DDCIssue issue(ERS_HERE, "RIM L1DDC not implemented yet");
-        ers::error(issue);
-        throw issue;
     }
     else{
         nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("Invalid L1DDC board type: {}. Check configuration for L1DDC",m_boardType));
