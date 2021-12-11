@@ -1103,7 +1103,9 @@ void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     //
     for (auto element : list_of_messages) {
       // found the skipped reg, skipping
-      if (skippedReg.find(element.first) != skippedReg.end()) continue;
+      if (skippedReg.find(element.first) != skippedReg.end()) {
+        continue;
+      }
       sendSCAXRegister(tp, element.first, element.second, quiet);
     }
 
