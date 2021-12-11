@@ -32,11 +32,11 @@ class SCAConfig {
 
     std::string getOpcServerIp() const {return m_opcserver_ip;}
     std::string getAddress() const {return m_address;}
-    template <typename T> inline
+    template <typename T>
     std::set<T> SkipRegisters() const {
       std::set<T> r;
       if ( m_config.count("SkipRegisters") != 0) {
-        for (const auto item& : m_config.get_child("SkipRegisters")) {
+        for (const auto& item : m_config.get_child("SkipRegisters")) {
           r.insert(item.second.get_value<T>());
         }
       }
