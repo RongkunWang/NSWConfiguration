@@ -36,7 +36,7 @@ class SCAConfig {
     std::set<T> SkipRegisters() const {
       std::set<T> r;
       if ( m_config.count("SkipRegisters") != 0) {
-        for (const auto item : m_config.get_child("SkipRegisters")) {
+        for (const auto item& : m_config.get_child("SkipRegisters")) {
           r.insert(item.second.get_value<T>());
         }
       }
