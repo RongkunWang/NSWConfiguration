@@ -1097,7 +1097,7 @@ void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     if (tp.VmmMaskDrainPeriod() != -1)
       list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    static_cast<uint32_t>(tp.VmmMaskDrainPeriod())));
 
-    auto skippedReg = tp.SkipRegisters<uint8_t>();
+    const auto skippedReg = tp.SkipRegisters<std::uint8_t>();
     //
     // Write registers
     //
