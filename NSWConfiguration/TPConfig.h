@@ -50,19 +50,6 @@ class TPConfig: public SCAConfig {
     int L1ALatencyScanEnd() const;
     int HorxEnvMonAddr() const;
 
-    // template <typename T> inline
-    // std::set<T> SkipRegisters() const {
-      // std::set<T> r;
-      // std::cout << m_config.count("SkipRegisters") << std::endl;
-      // if ( m_config.count("SkipRegisters") != 0) {
-        // std::cout << "skip regisers exist" << std::endl;
-        // for (const auto item : m_config.get_child("SkipRegisters")) {
-          // r.insert(item.second.get_value<T>());
-        // }
-      // }
-      // return r;
-    // }
-
     void setARTWindowCenter(int val);
     void setARTWindowLeft(int val);
     void setARTWindowRight(int val);
