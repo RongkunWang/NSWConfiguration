@@ -38,7 +38,7 @@ void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
 
 void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) const
 {
-  const auto conf = [this](const auto& devices, const auto... params) {
+  const auto conf = [this](const auto& devices, const std::string& deviceName, const auto... params) {
     // C++20
     // applyFunc(
     //   m_febs,
@@ -48,6 +48,7 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
     //       ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
     //     ers::fatal(issue);
     //   });
+    ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
     try {
       if (m_multithreaded) {
         std::vector<std::future<void>> threads{};
@@ -76,17 +77,18 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
       ers::fatal(issue);
     }
   };
+
   conf(
-    m_febs,
+    m_febs, "FEB",
     std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
     std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) !=
       std::cend(options),
     std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options));
-  conf(m_arts);
-  conf(m_tps);
-  conf(m_routers);
-  conf(m_padTriggers);
-  conf(m_tpCarriers);
+  conf(m_arts, "ART");
+  conf(m_tps, "TP");
+  conf(m_routers, "Router");
+  conf(m_padTriggers, "Pad Trigger");
+  conf(m_tpCarriers, "TP Carrier");
 }
 
 void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
