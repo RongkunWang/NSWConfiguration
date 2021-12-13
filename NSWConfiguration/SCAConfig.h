@@ -4,6 +4,7 @@
 #define NSWCONFIGURATION_SCACONFIG_H_
 
 #include <string>
+#include <set>
 
 #include "ers/Issue.h"
 
@@ -31,6 +32,17 @@ class SCAConfig {
 
     std::string getOpcServerIp() const {return m_opcserver_ip;}
     std::string getAddress() const {return m_address;}
+    template <typename T>
+    std::set<T> SkipRegisters() const {
+      static_assert(std::is_integral_v<T>, "type must be an integral number");
+      std::set<T> r;
+      if ( m_config.count("SkipRegisters") != 0) {
+        for (const auto& item : m_config.get_child("SkipRegisters")) {
+          r.insert(item.second.get_value<T>());
+        }
+      }
+      return r;
+    }
 
     boost::property_tree::ptree getConfig() const {return m_config;}
 };
