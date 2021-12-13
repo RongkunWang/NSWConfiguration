@@ -34,7 +34,7 @@ class SCAConfig {
     std::string getAddress() const {return m_address;}
     template <typename T>
     std::set<T> SkipRegisters() const {
-        static_assert(std::is_integral_v<T>, "type must be an integral number");
+      static_assert(std::is_integral_v<T>, "type must be an integral number");
       std::set<T> r;
       if ( m_config.count("SkipRegisters") != 0) {
         for (const auto& item : m_config.get_child("SkipRegisters")) {
