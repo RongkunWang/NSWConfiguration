@@ -17,8 +17,6 @@
 #include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/GBTxConfig.h"
-#include "NSWConfiguration/PadTriggerSCAConfig.h"
-#include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
 
 #include "ic-over-netio/IChandler.h"
@@ -164,15 +162,6 @@ class ConfigSender {
     void alignArtGbtxMmtp(const std::map<std::string, nsw::ADDCConfig> & addcs_map,
                           const std::map<std::string, nsw::TPConfig>   & tps_map);
     void alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & addcs, const nsw::TPConfig& tp);
-
-    /// High level send function, and the kids
-    void sendRouterConfig(const nsw::RouterConfig& obj);
-    void sendRouterWaitGPIO(const nsw::RouterConfig& obj);
-    bool sendRouterCheckGPIO(const nsw::RouterConfig& obj);
-    void sendRouterSetSCAID(const nsw::RouterConfig& obj);
-    void sendRouterSoftReset(const nsw::RouterConfig& obj,
-                             std::chrono::seconds reset_hold  = nsw::router::RESET_HOLD,
-                             std::chrono::seconds reset_sleep = nsw::router::RESET_SLEEP);
 
     /// High level send/read functions (SCAX, TP, TPCarrier)
     void sendTPConfig(const nsw::TPConfig& tp, bool quiet = false);
