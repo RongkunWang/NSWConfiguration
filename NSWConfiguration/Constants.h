@@ -263,7 +263,7 @@ namespace nsw {
     constexpr std::uint32_t NUM_QUADS              = 6;
     constexpr std::uint32_t NUM_PFEBS_PER_QUAD     = NUM_PFEBS / NUM_QUADS;
     constexpr std::uint32_t NUM_PFEB_BCID_READS    = 100;
-    constexpr std::uint32_t NUM_TRIGGER_RATE_READS = 3;
+    constexpr std::uint32_t NUM_TRIGGER_RATE_READS = 2;
     constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
     constexpr std::uint32_t TRIGGER_RATE_BITSHIFT  = 16;
