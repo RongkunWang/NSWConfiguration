@@ -23,6 +23,14 @@ namespace nsw::hw {
     explicit Router(const RouterConfig& config);
 
     /**
+     * \brief Name of router object
+     *
+     * \returns a name of the object
+     */
+    [[nodiscard]]
+    std::string getName() const { return m_name; };
+
+    /**
      * \brief Send a value to a particular Router GPIO
      */
     void sendGPIO(const std::string& name, bool val) const;
@@ -77,6 +85,7 @@ namespace nsw::hw {
     RouterConfig m_config;
     std::string m_opcserverIp;  //!< address and port of the Opc Server
     std::string m_scaAddress;   //!< SCA address of Router item in the Opc address space
+    std::string m_name;         //!< Name composed of OPC and SCA addresses
 
     static constexpr size_t m_num_gpios = 32;
     static constexpr std::array<std::string_view, m_num_gpios> m_ordered_gpios = {
