@@ -6,10 +6,13 @@
 
 #include <stdexcept>
 #include <iomanip>
+#include <fmt/core.h>
 
 nsw::hw::Router::Router(const RouterConfig& config) :
   m_config(config), m_opcserverIp(config.getOpcServerIp()), m_scaAddress(config.getAddress())
-{}
+{
+  m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
+}
 
 bool nsw::hw::Router::readGPIO(const std::string& name) const
 {
