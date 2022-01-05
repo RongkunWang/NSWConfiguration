@@ -11,15 +11,15 @@ message(STATUS "  IPO_SUPPORTED::${IPO_SUPPORTED}")
 
 add_subdirectory(extern)
 
-tdaq_package() #This will make a package called NSWConfiguration
+tdaq_package()
 set(TDAQ_DB_PROJECT muons)
-
-# set(OPC_OPEN62541_PATH ${open62541-compat_SOURCE_DIR} "")
-# set(UAOCLIENTFOROPCUASCA_PATH ${uaoclientforopcuasca_SOURCE_DIR} "")
 
 find_package(ROOT REQUIRED COMPONENTS Core Tree RIO)
 
-remove_definitions(-DERS_NO_DEBUG)
+option(ENABLE_NSW_DEBUG "Compile with all DEBUG messages" OFF)
+if(ENABLE_NSW_DEBUG)
+  remove_definitions(-DERS_NO_DEBUG)
+endif()
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
   NAMESPACE nsw::dal
