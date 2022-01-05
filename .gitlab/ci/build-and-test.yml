@@ -1,102 +1,11 @@
 ## GitLab CI template for NSW DAQ build and test jobs
-## Must be a single file because aliases and job names
-## aren't shared between templates...
+## Import the common build jobs, and use the definitions for the
+## NSWConfiguration specific test jobs
 
-variables:
-  ARTIFACTS_DIR: ${CI_PROJECT_DIR}/artifacts
-  CMAKE_DIR: ${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE}/ci-build
-  BUILD_TYPE: Debug
-  FELIX_RELEASE_BASE: /cvmfs/atlas-online-nightlies.cern.ch/felix/releases
-  FELIX_RELEASE: felix-04-01-01-stand-alone
-
-.build_setup: &build_setup |-
-  git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.cern.ch/atlas-muon-nsw-daq/nsw-build-scripts.git ${CMAKE_DIR}
-  yum install -y ninja-build python3
-  source /cvmfs/atlas.cern.ch/repo/sw/tdaq/tools/cmake_tdaq/bin/cm_setup.sh ${TDAQ_RELEASE} ${COMPILER_PROFILE}
-  mkdir -p ${ARTIFACTS_DIR}
-  export INSTALL_DIR=${ARTIFACTS_DIR}/${TDAQ_RELEASE}/installed
-  export TESTS_BIN_DIR=${ARTIFACTS_DIR}/tests/${TDAQ_RELEASE}/${COMPILER_PROFILE}
-
-.cmake_prep: &cmake_prep |-
-  pushd ${CMAKE_DIR}
-  git describe --abbrev=4 --dirty --always --tags
-  git rev-parse --abbrev-ref HEAD
-  cp -rfp CMakeLists.txt.in CMakeLists.txt
-  ln -sf ../${CI_PROJECT_NAME} .
-  export TDAQ_VERSION=$(echo $TDAQ_RELEASE | awk '{split($$0,a,"-"); printf("%d.%d.%d",a[2],a[3],a[4]);}')
-
-#### Build jobs #####################################################################
-# Base template for all build jobs
-.build:
-  image: gitlab-registry.cern.ch/atlas-tdaq-software/tdaq_ci:centos7
-  tags:
-    - cvmfs
-  stage: build
-  before_script:
-    - echo 'Build job ${CI_JOB_NAME} started'
-    - *build_setup
-    - *cmake_prep
-  script:
-    - |
-        cmake -GNinja -B${TDAQ_RELEASE} -S. \
-              -DTDAQ_VERSION=${TDAQ_VERSION} \
-              -DENABLE_NSW_STATIC_CHECKS=ON \
-              -DENABLE_NSW_ASAN=ON \
-              -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              -DFELIX_DIR=${FELIX_RELEASE_BASE}/${FELIX_RELEASE} \
-              ${CMAKE_JOB_OPTIONS}
-    - cmake --build ${TDAQ_RELEASE} -- ${MAKE_OPTIONS}
-    - cmake --build ${TDAQ_RELEASE} --target install
-    - mkdir -p ${TESTS_BIN_DIR}
-    - rsync -ahXc ${TDAQ_RELEASE}/${CI_PROJECT_NAME}/test* ${TESTS_BIN_DIR}/
-    - popd
-    - |
-        rm -rf artifacts/${TDAQ_RELEASE}/cmake
-        rm -rf artifacts/${TDAQ_RELEASE}/CMakeLists.txt
-        rm -rf artifacts/${TDAQ_RELEASE}/${CI_PROJECT_NAME} || true
-
-  after_script:
-    - echo 'Build job ${CI_JOB_NAME} finished'
-    - ls -l artifacts/*
-  artifacts:
-    expire_in: 4 hours
-    paths:
-      - artifacts
-
-#
-# Build jobs
-#
-
-## Current stable TDAQ release
-build:stable:
-  extends: .build
-  allow_failure: false
-  rules:
-    - when: always
-  parallel:
-    matrix:
-      - COMPILER_PROFILE: [x86_64-centos7-gcc10-opt, x86_64-centos7-gcc8-opt]
-        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
-
-## Unstable TDAQ releases, allowed to fail
-build:legacy:
-  extends: build:stable
-  allow_failure: true
-  parallel:
-    matrix:
-      - TDAQ_RELEASE: [tdaq-09-02-01, tdaq-09-04-00]
-
-## Nightly TDAQ releases, allowed to fail
-build:nightly:
-  extends: build:stable
-  allow_failure: true
-  variables:
-    TDAQ_RELEASE: tdaq-99-00-00
-  parallel:
-    matrix:
-      - COMPILER_PROFILE: [x86_64-centos7-gcc11-opt, x86_64-centos7-gcc8-opt]
-        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
+include:
+  - project: 'atlas-muon-nsw-daq/nsw-build-scripts'
+    ref: master
+    file: '.gitlab/ci/build.yml'
 
 #### Unit test jobs #################################################################
 .test:
@@ -104,7 +13,7 @@ build:nightly:
   stage: test
   before_script:
     - yum install -y python3
-    - *build_setup
+    - !reference [.build_setup]
   script:
     - unset PYTHONPATH
     - unset PYTHONHOME
@@ -125,19 +34,16 @@ test:stable:
   needs:
     - build:stable
   parallel:
-    matrix:
-      - COMPILER_PROFILE: x86_64-centos7-gcc8-opt
-        FELIX_RELEASE: [felix-04-01-01-stand-alone, felix-04-02-00-b3-stand-alone]
+    !reference [.stable, parallel]
 
 ## Unstable TDAQ releases, allowed to fail
-test:legacy:
+test:alternate:
   extends: .test
   allow_failure: true
   needs:
-    - build:legacy
+    - build:alternate
   parallel:
-    matrix:
-      - TDAQ_RELEASE: [tdaq-09-02-01, tdaq-09-04-00]
+    !reference [.alternate, parallel]
 
 ## Nightly TDAQ releases, allowed to fail
 test:nightly:
@@ -146,4 +52,17 @@ test:nightly:
   needs:
     - build:nightly
   variables:
-    TDAQ_RELEASE: tdaq-99-00-00
+    !reference [.nightly, variables]
+  parallel:
+    !reference [.nightly, parallel]
+
+## Production version tests
+test:release:
+  extends: test:stable
+  allow_failure: true
+  needs:
+    - build:release
+  rules:
+    - !reference [.release, rules]
+  parallel:
+    !reference [.release, parallel]
