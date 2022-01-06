@@ -2,13 +2,11 @@
 ## Configuration for CI/CD for NSWConfiguration
 
 variables:
-    GIT_STRATEGY: fetch
-    GIT_SUBMODULE_STRATEGY: recursive
-    GIT_SSL_NO_VERIFY: "true"
-    TDAQ_RELEASE: tdaq-09-03-00
-    COMPILER_PROFILE: x86_64-centos7-gcc8-opt
-    MAKE_OPTIONS: -j3
-    CMAKE_JOB_OPTIONS: -DNSW_STANDALONE_CI_BUILD=ON
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SSL_NO_VERIFY: "true"
+  MAKE_OPTIONS: -j3
+  CMAKE_JOB_OPTIONS: -DNSW_STANDALONE_CI_BUILD=ON
 
 stages:
   - build
@@ -18,7 +16,7 @@ stages:
 
 include:
   - project: 'atlas-muon-nsw-daq/nsw-build-scripts'
-    ref: master
+    ref: 'master'
     file: '.gitlab/ci/code-quality.yml'
   - .gitlab/ci/build-and-test.yml
 
