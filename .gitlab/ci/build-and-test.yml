@@ -33,6 +33,8 @@ test:stable:
   allow_failure: false
   needs:
     - build:stable
+  rules:
+    - !reference [.stable, rules]
   parallel:
     !reference [.stable, parallel]
 
@@ -42,6 +44,8 @@ test:alternate:
   allow_failure: true
   needs:
     - build:alternate
+  rules:
+    - !reference [.alternate, rules]
   parallel:
     !reference [.alternate, parallel]
 
@@ -51,6 +55,8 @@ test:nightly:
   allow_failure: true
   needs:
     - build:nightly
+  rules:
+    - !reference [.nightly, rules]
   variables:
     !reference [.nightly, variables]
   parallel:
@@ -58,7 +64,7 @@ test:nightly:
 
 ## Production version tests
 test:release:
-  extends: test:stable
+  extends: .test
   allow_failure: true
   needs:
     - build:release
