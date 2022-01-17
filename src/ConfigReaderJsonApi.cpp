@@ -34,7 +34,7 @@ std::set<std::string> JsonApi::getAllElementNames() const {
 }
 
 std::set<std::string> JsonApi::getAllElementNamesFromJson() const {
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTriggerSCA.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*|L1DDC.*|.*RimL1DDC.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTrigger.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*|L1DDC.*|.*RimL1DDC.*", m_config);
 }
 
 
@@ -353,7 +353,7 @@ ptree JsonApi::readADDC(const std::string& element, size_t nart) const {
     return feb;
 }
 
-ptree JsonApi::readPadTriggerSCA(const std::string& element) const {
+ptree JsonApi::readPadTrigger(const std::string& element) const {
     constexpr std::string_view name{"padtriggerfpga"};
     ptree device = m_config.get_child(element);
     ptree common = m_config.get_child("padtriggerfpga_common_config");

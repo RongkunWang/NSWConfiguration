@@ -69,7 +69,7 @@ class JsonApi: public ConfigReaderApi {
 
   boost::property_tree::ptree readL1DDC(const std::string& element) const override;
   boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const override;
-  boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const override;
+  boost::property_tree::ptree readPadTrigger(const std::string& element) const override;
   boost::property_tree::ptree readRouter(const std::string& element) const override;
   boost::property_tree::ptree readSTGCTP(const std::string& element) const override;
   boost::property_tree::ptree readTP(const std::string& element) const override;

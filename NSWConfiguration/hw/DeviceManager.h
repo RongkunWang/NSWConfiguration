@@ -9,7 +9,6 @@
 // #include <execution> // C++20
 // #include <ranges> // C++20
 
-#include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/ART.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
@@ -61,7 +60,7 @@ namespace nsw::hw {
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::PadTriggerSCAConfig> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>,
                     "Unknown config type. Provide a <Device>Config object");
       if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig>) {
@@ -76,7 +75,7 @@ namespace nsw::hw {
       else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig>) {
         addRouter(config);
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::PadTriggerSCAConfig>) {
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger>) {
         addPadTrigger(config);
       }
       else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>) {
@@ -167,11 +166,11 @@ namespace nsw::hw {
     void addRouter(const nsw::RouterConfig& config);
 
     /**
-     * \brief Add PadTrigger from PadTriggerSCAConfig object
+     * \brief Add PadTrigger object
      *
      * \param config config object
      */
-    void addPadTrigger(const nsw::PadTriggerSCAConfig& config);
+    void addPadTrigger(const nsw::hw::PadTrigger& config);
 
     /**
      * \brief Add TP Carrier from TPCarrierConfig object

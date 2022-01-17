@@ -107,7 +107,7 @@ namespace nsw {
     "STGCTP",
     "TP",
     "ADDC",
-    "PadTriggerSCA",
+    "PadTrigger",
     "Router",
     "GBTX",
     "L1DDC",

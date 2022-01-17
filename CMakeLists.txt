@@ -134,7 +134,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/VMMCodec.cpp src/VMMConfig.cpp
                  src/L1DDCConfig.cpp
                  src/FEBConfig.cpp src/ARTConfig.cpp
-                 src/ADDCConfig.cpp src/PadTriggerSCAConfig.cpp
+                 src/ADDCConfig.cpp
                  src/TPConfig.cpp src/TPCarrierConfig.cpp
                  src/RouterConfig.cpp
                  src/ConfigConverter.cpp

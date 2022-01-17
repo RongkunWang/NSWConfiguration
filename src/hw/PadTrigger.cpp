@@ -1,15 +1,20 @@
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/SCAInterface.h"
+#include "NSWConfiguration/I2cRegisterMappings.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
 
 #include <ers/ers.h>
 #include <fmt/core.h>
 #include <stdexcept>
+#include <regex>
 
-nsw::hw::PadTrigger::PadTrigger(const PadTriggerSCAConfig& config) :
-  m_config(config), m_opcserverIp(config.getOpcServerIp()), m_scaAddress(config.getAddress())
+nsw::hw::PadTrigger::PadTrigger(const boost::property_tree::ptree& config):
+  m_ptree{config},
+  m_opcserverIp{config.get<std::string>("OpcServerIp")},
+  m_scaAddress{config.get<std::string>("OpcNodeId")},
+  m_padtriggerfpga{config.get_child(PADTRIGGER_NAME), PADTRIGGER_NAME, PADTRIGGER_REGISTERS}
 {
   m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
   m_scaAddressFPGA = fmt::format("{}.fpga.fpga", m_scaAddress);
@@ -24,7 +29,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
 {
-  if (not m_config.ConfigRepeaters()) {
+  if (not ConfigRepeaters()) {
     ERS_INFO(fmt::format("Skipping configuration of repeaters of {}", m_name));
     return;
   }
@@ -59,7 +64,7 @@ void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
 
 void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 {
-  if (not m_config.ConfigVTTx()) {
+  if (not ConfigVTTx()) {
     ERS_LOG(fmt::format("Skipping configuration of VTTx of {}", m_name));
     return;
   }
@@ -91,13 +96,13 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 {
-  if (not m_config.ConfigFPGA()) {
+  if (not ConfigFPGA()) {
     ERS_INFO(fmt::format("Skipping configuration of FPGA of {}", m_name));
     return;
   }
 
-  const auto& fpga = m_config.getFpga();
-  const auto& fw   = m_config.firmware_dateword();
+  const auto& fpga = getFpga();
+  const auto& fw   = firmware_dateword();
   ERS_INFO(fmt::format("Firmware provided: {}", fw));
 
   for (const auto& [rname, value_str] : fpga.getBitstreamMap()) {
@@ -137,7 +142,7 @@ void nsw::hw::PadTrigger::writeControlSubRegister(const std::string& subreg, con
   const auto addr = addressFromRegisterName(rname);
 
   // overwrite the bits of interest
-  const auto fpga = m_config.getFpga();
+  const auto fpga = getFpga();
   const auto pos  = fpga.getAddressPositions().at(rname).at(subreg);
   const auto siz  = fpga.getAddressSizes()    .at(rname).at(subreg);
   const auto rpos = std::size_t{nsw::NUM_BITS_IN_WORD32 - pos - siz};
@@ -270,7 +275,7 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBBCIDs() const
   const auto bcids_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_23_16);
   const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
   const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
-  return m_config.PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
+  return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
 }
 
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const
@@ -286,4 +291,62 @@ std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& nam
     throw issue;
   }
   return addr;
+}
+
+std::uint32_t nsw::hw::PadTrigger::firmware_dateword() const {
+
+  std::uint32_t dateword = 0;
+  const std::string& fw = firmware();
+
+  // extract YYYY*MM*DD from firmware()
+  //   [0-9]{N} means "N digits"
+  //   .?       means "zero or one characters"
+  const std::regex yyyy_mm_dd("[0-9]{4}.?[0-9]{2}.?[0-9]{2}");
+  std::smatch matches;
+  std::regex_search(fw, matches, yyyy_mm_dd);
+
+  // check result
+  if (matches.size() != 1) {
+    ERS_INFO(fmt::format("Cannot extract YYYYMMDD from {}, returning {}", fw, dateword));
+    return dateword;
+  }
+
+  // convert YYYY*MM*DD to YYYYMMDD
+  for (const auto& match: matches) {
+    const std::regex non_numeric("[^0-9]");
+    const std::string datestr =
+      std::regex_replace(std::string(match), non_numeric, "");
+    dateword = static_cast<uint32_t>(std::stoul(datestr));
+    break;
+  }
+
+  // return
+  return dateword;
+}
+
+std::vector<std::uint32_t> nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_00,
+                                                          std::uint32_t val_15_08,
+                                                          std::uint32_t val_23_16
+                                                          ) const {
+  std::vector<std::uint32_t> bcids_07_00 = {};
+  std::vector<std::uint32_t> bcids_15_08 = {};
+  std::vector<std::uint32_t> bcids_23_16 = {};
+  std::vector<std::uint32_t> bcids  = {};
+  size_t bit_position = 0;
+  while (bit_position < nsw::NUM_BITS_IN_WORD32) {
+    bcids_07_00.push_back( (val_07_00 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bcids_15_08.push_back( (val_15_08 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bcids_23_16.push_back( (val_23_16 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    bit_position += nsw::padtrigger::NUM_BITS_PER_PFEB_BCID;
+  }
+  for (const auto bcid: bcids_07_00) {
+    bcids.push_back(bcid);
+  }
+  for (const auto bcid: bcids_15_08) {
+    bcids.push_back(bcid);
+  }
+  for (const auto bcid: bcids_23_16) {
+    bcids.push_back(bcid);
+  }
+  return bcids;
 }

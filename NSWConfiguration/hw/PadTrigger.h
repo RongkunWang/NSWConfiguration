@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "NSWConfiguration/PadTriggerSCAConfig.h"
+#include "NSWConfiguration/I2cMasterConfig.h"
 
 #include <ers/Issue.h>
 
@@ -39,7 +39,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref PadTriggerConfig object
      */
-    explicit PadTrigger(const PadTriggerSCAConfig& config);
+    explicit PadTrigger(const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of pad trigger object
@@ -47,7 +47,7 @@ namespace nsw::hw {
      * \returns a name of the object
      */
     [[nodiscard]]
-    std::string name() const {return m_name;};
+    std::string getName() const { return m_name; };
 
     /**
      * \brief Read the full PadTrigger address space
@@ -215,8 +215,15 @@ namespace nsw::hw {
      *
      * Both const and non-const overloads are provided
      */
-    [[nodiscard]] PadTriggerSCAConfig& getConfig() { return m_config; }
-    [[nodiscard]] const PadTriggerSCAConfig& getConfig() const { return m_config; }  //!< overload
+    [[nodiscard]] boost::property_tree::ptree& getConfig() { return m_ptree; }
+    [[nodiscard]] const boost::property_tree::ptree& getConfig() const { return m_ptree; }  //!< overload
+
+    /**
+     * \brief Get the \ref associated I2cMasterConfig object
+     */
+    [[nodiscard]]
+    const I2cMasterConfig & getFpga() const
+    { return m_padtriggerfpga; };
 
     /**
      * \brief Get the register address from the register name
@@ -226,13 +233,71 @@ namespace nsw::hw {
     [[nodiscard]]
     std::uint8_t addressFromRegisterName(const std::string& name) const;
 
+    /**
+     * \brief Convert the "firmware" string into an integer
+     *
+     * e.g., "2021.01.01" returns 20210101
+     */
+    [[nodiscard]]
+    std::uint32_t firmware_dateword() const;
+
+    /**
+     * \brief Get the "firmware" provided by the user configuration
+     */
+    [[nodiscard]]
+    std::string firmware() const
+    { return m_ptree.get<std::string>("firmware"); };
+
+    /**
+     * \brief Get the "ConfigFPGA" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool ConfigFPGA() const
+    { return m_ptree.get("ConfigFPGA", true); };
+
+    /**
+     * \brief Get the "ConfigRepeaters" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool ConfigRepeaters() const
+    { return m_ptree.get<bool>("ConfigRepeaters"); };
+
+    /**
+     * \brief Get the "ConfigVTTx" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool ConfigVTTx() const
+    { return m_ptree.get<bool>("ConfigVTTx"); };
+
+
+    /**
+     * \brief Get the "LatencyScanStart" if provided by the user configuration
+     */
+    std::uint32_t LatencyScanStart() const
+    { return m_ptree.get<std::uint32_t>("LatencyScanStart"); };
+
+    /**
+     * \brief Get the "LatencyScanNBC" if provided by the user configuration
+     */
+    std::uint32_t LatencyScanNBC() const
+    { return m_ptree.get<std::uint32_t>("LatencyScanNBC"); };
+
+    /**
+     * \brief Decode a vector of PFEB BCIDs from the three PFEB BCID registers
+     */
+    std::vector<std::uint32_t> PFEBBCIDs(std::uint32_t val_07_00,
+                                         std::uint32_t val_15_08,
+                                         std::uint32_t val_23_16
+                                         ) const;
+
 
   private:
-    PadTriggerSCAConfig m_config;  //!< PadTriggerConfig object associated with this PadTrigger
-    std::string m_opcserverIp;     //!< Address and port of OPC Server
-    std::string m_scaAddress;      //!< SCA address of PadTrigger item in the OPC address space
-    std::string m_scaAddressFPGA;  //!< SCA address of PadTrigger FPGA i2c
-    std::string m_name;            //!< Name composed of OPC and SCA addresses
+    boost::property_tree::ptree m_ptree; //!< ptree object associated with this PadTrigger
+    std::string m_opcserverIp;           //!< Address and port of OPC Server
+    std::string m_scaAddress;            //!< SCA address of PadTrigger item in the OPC address space
+    std::string m_scaAddressFPGA;        //!< SCA address of PadTrigger FPGA i2c
+    std::string m_name;                  //!< Name composed of OPC and SCA addresses
+    I2cMasterConfig m_padtriggerfpga;    //!< I2cMasterConfig object from user configuration
 
     static constexpr std::array<std::uint8_t, 2> m_vttxs{1, 2};
     static constexpr std::array<std::uint8_t, 1> m_vttx_datas{0xC7};

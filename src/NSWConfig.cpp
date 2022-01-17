@@ -6,7 +6,6 @@
 #include <memory>
 
 // Header to the RC online services
-#include "NSWConfiguration/PadTriggerSCAConfig.h"
 #include "NSWConfiguration/hw/DeviceManager.h"
 #include "RunControl/Common/OnlineServices.h"
 
@@ -44,7 +43,7 @@ void nsw::NSWConfig::configureRc() {
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
         if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
         else if (element == "Router")        { m_deviceManager.add(RouterConfig{this_pair.second}); }
-        else if (element == "PadTriggerSCA") { m_deviceManager.add(PadTriggerSCAConfig{this_pair.second}); }
+        else if (element == "PadTrigger")    { m_deviceManager.add(nsw::hw::PadTrigger{this_pair.second}); }
         else if (element == "TP")            { m_tps.emplace(this_pair); }
         else if (element == "TPCarrier")     { m_deviceManager.add(TPCarrierConfig{this_pair.second}); }
         else if (element == "L1DDC")         { m_l1ddcs.emplace(this_pair); }
@@ -78,7 +77,7 @@ void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
     m_addcs.clear();
     m_l1ddcs.clear();
-    m_ptscas.clear();
+    m_pts.clear();
     m_tps.clear();
     // m_reader.reset();
     ERS_INFO("End");
