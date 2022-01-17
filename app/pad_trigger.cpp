@@ -74,27 +74,20 @@ int main(int argc, const char *argv[])
     }
 
     // make objects from json
-    const auto configs = nsw::ConfigReader::makeObjects<nsw::PadTriggerSCAConfig>
-      (fmt::format("json://{}", config_filename), "PadTriggerSCA", board_name);
-    for (const auto& cfg: configs) {
-      std::cout << fmt::format("Found {} @ {}\n with {} -> T = {}",
-                               cfg.getAddress(),
-                               cfg.getOpcServerIp(),
-                               cfg.firmware(),
-                               cfg.firmware_dateword()) << std::endl;
+    const auto hws = nsw::ConfigReader::makeObjects<nsw::hw::PadTrigger>
+      (fmt::format("json://{}", config_filename), "PadTrigger", board_name);
+    for (const auto& hw: hws) {
+      std::cout << fmt::format("Found {}\n with {} -> T = {}",
+                               hw.getName(),
+                               hw.firmware(),
+                               hw.firmware_dateword()) << std::endl;
     }
 
     // dump config
     if (dump) {
-      for (const auto& cfg: configs) {
-        cfg.getFpga().dump();
+      for (const auto& hw: hws) {
+        hw.getFpga().dump();
       }
-    }
-
-    // the hw objects
-    std::vector<nsw::hw::PadTrigger> hws;
-    for (const auto& cfg: configs) {
-      hws.emplace_back(nsw::hw::PadTrigger(cfg));
     }
 
     // fpga bitstream
@@ -112,10 +105,10 @@ int main(int argc, const char *argv[])
     if (gpio_name != "") {
       for (const auto& hw: hws) {
         if (val != -1) {
-          std::cout << fmt::format("{} -> write {}", hw.name(), val) << std::endl;
+          std::cout << fmt::format("{} -> write {}", hw.getName(), val) << std::endl;
           hw.writeGPIO(gpio_name, static_cast<bool>(val));
         }
-        std::cout << fmt::format("{} -> read {}", hw.name(), hw.readGPIO(gpio_name)) << std::endl;
+        std::cout << fmt::format("{} -> read {}", hw.getName(), hw.readGPIO(gpio_name)) << std::endl;
       }
     }
 
@@ -126,7 +119,7 @@ int main(int argc, const char *argv[])
         if (i2c_val != "") {
           const auto i2c_val_32 = static_cast<uint32_t>(std::stol(i2c_val, nullptr, nsw::BASE_HEX));
           std::cout << fmt::format("Writing {}: register address {} with value {}",
-                                   hw.name(),i2c_reg, i2c_val) << std::endl;
+                                   hw.getName(), i2c_reg, i2c_val) << std::endl;
           hw.writeFPGARegister(i2c_reg_08, i2c_val_32);
         }
         const auto val = hw.readFPGARegister(i2c_reg_08);

@@ -33,7 +33,7 @@ class ConfigReaderApi {
 
   /// Get names of all Front end elements in the configuration
   /// The base class method iterates through config ptree and finds all
-  /// elements that start with MMFE8, PFEB, SFEB, ADDC, PadTriggerSCA, Router in the name.
+  /// elements that start with MMFE8, PFEB, SFEB, ADDC, PadTrigger, Router in the name.
   /// The results contain the full path of the element in the ptree
   virtual std::set<std::string> getAllElementNames() const = 0;
 
@@ -68,7 +68,7 @@ class ConfigReaderApi {
 
   virtual boost::property_tree::ptree readL1DDC(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const = 0;
-  virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readPadTrigger(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readRouter(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readSTGCTP(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readTP(const std::string& element) const = 0;

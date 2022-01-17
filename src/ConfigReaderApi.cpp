@@ -40,8 +40,8 @@ ptree ConfigReaderApi::read(const std::string& element) {
         return readL1DDC(element);
     } else if (type == "ADDC") {
         return readADDC(element, 2);
-    } else if (type == "PadTriggerSCA") {
-        return readPadTriggerSCA(element);
+    } else if (type == "PadTrigger") {
+        return readPadTrigger(element);
     } else if (type == "Router") {
         return readRouter(element);
     }

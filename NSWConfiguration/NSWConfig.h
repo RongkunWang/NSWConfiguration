@@ -127,7 +127,7 @@ private:
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
     std::map<std::string, ADDCConfig>          m_addcs;       //! Each element is [frontend_name, frontend_config]
-    std::map<std::string, PadTriggerSCAConfig> m_ptscas;      //!
+    std::map<std::string, nsw::hw::PadTrigger> m_pts;         //!
     std::map<std::string, TPConfig>            m_tps;         //!
     std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
 

@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(GetElementType_ElementNameInInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("A.SFEB.B") == "SFEB");
     BOOST_TEST(nsw::getElementType("A.TP.B") == "TP");
     BOOST_TEST(nsw::getElementType("A.ADDC.B") == "ADDC");
-    BOOST_TEST(nsw::getElementType("A.PadTriggerSCA.B") == "PadTriggerSCA");
+    BOOST_TEST(nsw::getElementType("A.PadTrigger.B") == "PadTrigger");
     BOOST_TEST(nsw::getElementType("A.Router.B") == "Router");
 }
 

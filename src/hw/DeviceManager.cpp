@@ -26,7 +26,7 @@ void nsw::hw::DeviceManager::addRouter(const nsw::RouterConfig& config)
   m_routers.emplace_back(config);
 }
 
-void nsw::hw::DeviceManager::addPadTrigger(const nsw::PadTriggerSCAConfig& config)
+void nsw::hw::DeviceManager::addPadTrigger(const nsw::hw::PadTrigger& config)
 {
   m_padTriggers.emplace_back(config);
 }
