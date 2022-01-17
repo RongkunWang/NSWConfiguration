@@ -158,6 +158,8 @@ tdaq_add_library(nswhwinterface
                  src/hw/ART.cpp
                  src/hw/PadTrigger.cpp
                  src/hw/Router.cpp
+                 src/hw/SCAX.cpp
+                 src/hw/STGCTP.cpp
                  src/hw/TP.cpp
                  src/hw/TPCarrier.cpp
   LINK_LIBRARIES nswconfig

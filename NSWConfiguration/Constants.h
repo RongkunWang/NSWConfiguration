@@ -104,6 +104,7 @@ namespace nsw {
     "SFEB6",
     "SFEB",
     "TPCarrier",
+    "STGCTP",
     "TP",
     "ADDC",
     "PadTriggerSCA",
@@ -179,6 +180,13 @@ namespace nsw {
     constexpr std::uint8_t REG_RJOUT_SEL = 0x01;
     const std::map<std::string, uint32_t> REGS = {
       {"RJOUT_SEL", 0x01},
+    };
+  }
+
+  namespace stgctp {
+    constexpr std::uint8_t REG_SECTOR = 0x02;
+    const std::map<std::string, uint32_t> REGS = {
+      {"sector", REG_SECTOR},
     };
   }
 

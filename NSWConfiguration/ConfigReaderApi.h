@@ -70,6 +70,7 @@ class ConfigReaderApi {
   virtual boost::property_tree::ptree readADDC(const std::string& element, size_t nart) const = 0;
   virtual boost::property_tree::ptree readPadTriggerSCA(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readRouter(const std::string& element) const = 0;
+  virtual boost::property_tree::ptree readSTGCTP(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readTP(const std::string& element) const = 0;
   virtual boost::property_tree::ptree readTPCarrier(const std::string& element) const = 0;
 
