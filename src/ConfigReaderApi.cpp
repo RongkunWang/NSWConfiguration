@@ -32,6 +32,8 @@ ptree ConfigReaderApi::read(const std::string& element) {
         return readSFEB6(element);
     } else if (type == "TPCarrier") {
         return readTPCarrier(element);
+    } else if (type == "STGCTP") {
+        return readSTGCTP(element);
     } else if (type == "TP") {
         return readTP(element);
     } else if (type == "L1DDC") {

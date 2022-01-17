@@ -44,6 +44,11 @@ ptree JsonApi::readTPCarrier(const std::string& element) const {
     return tree;
 }
 
+ptree JsonApi::readSTGCTP(const std::string& element) const {
+    ERS_LOG("Reading configuration for STGCTP: " << element);
+    return m_config.get_child(element);
+}
+
 ptree JsonApi::readTP(const std::string& element) const {
     ERS_LOG("Reading configuration for TP: " << element);
     ptree tree = m_config.get_child(element);

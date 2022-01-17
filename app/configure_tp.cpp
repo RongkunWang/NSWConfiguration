@@ -8,10 +8,11 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/hw/STGCTP.h"
 
 #include <boost/program_options.hpp>
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 namespace po = boost::program_options;
 namespace pt = boost::property_tree;
@@ -42,36 +43,27 @@ int main(int ac, const char *av[]) {
         std::cout << desc << std::endl;
         return 1;
     }
+    const auto json_filename = fmt::format("json://{}", config_filename);
 
-    // Testing json parsing
-    nsw::ConfigReader reader_tp("json://" + config_filename);
-    reader_tp.readConfig();
-    auto tp_config_tree = pt::ptree();
-    try {
-      tp_config_tree = reader_tp.readConfig(tp_name);
-    }
-    catch (std::exception &e) {
-      std::cout << "Make sure the json is formed correctly. "
-                << "Can't read config file due to : " << e.what() << std::endl;
-      std::cout << "Exiting..." << std::endl;
-      exit(0);
+    // STGC TP
+    const auto stgc_tps = nsw::ConfigReader::makeObjects<nsw::hw::STGCTP>(json_filename, "STGCTP", tp_name);
+    for (const auto& tp: stgc_tps) {
+      std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
+      tp.writeConfiguration();
     }
 
-    std::cout << "Parsed ptree, about to build TPConfig" << std::endl;
-
-    nsw::TPConfig tp(tp_config_tree);
-    tp.dump();
-
-    // setRegisterValue(std::string master, std::string slave, uint32_t value);
-    // getRegisterValue(std::string master, std::string slave);
-
-    nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
-
-    std::cout << "Created a ConfigSender" << std::endl;
-    if (!dry_run)
+    // MM TP
+    const auto mm_tps = nsw::ConfigReader::makeObjects<nsw::TPConfig>(json_filename, "TP", tp_name);
+    for (const auto& tp: mm_tps) {
+      std::cout << fmt::format("Found MM TP {}/{}", tp.getOpcServerIp(), tp.getAddress()) << std::endl;
+    }
+    nsw::ConfigSender cs;
+    for (const auto& tp: mm_tps) {
+      tp.dump();
+      if (!dry_run) {
         cs.sendTPConfig(tp);
-
-    std::cout << "... Done with configure_tp" << std::endl;
+      }
+    }
 
     return 0;
 }
