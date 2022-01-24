@@ -34,6 +34,8 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
     m_i2cDelay                = config.get("i2cDelay",10000);
     m_i2cBlockSize            = config.get("i2cBlockSize",16);
     m_configOption            = config.get("configOption",0);
+    m_GBTxPhaseOutputDBPath   = config.get("GBTxPhaseOutputDBPath","");
+    m_nodeName                = config.get("nodeName","defaultL1ddcNode");
     ERS_DEBUG(2,"L1DDC read GBTx training settings (note, these may be default values): toggle = "<<m_trainGBTxPhaseAlignment<<" and wait time = "<<m_trainGBTxPhaseWaitTime);
 
     // TODO: Future configuration for GBTx1, GBTx2 can go here

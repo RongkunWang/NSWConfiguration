@@ -1,6 +1,7 @@
 #include "NSWConfiguration/GBTxConfig.h"
 #include "NSWConfiguration/GBTxRegisterMap.h"
 #include "NSWConfiguration/Types.h"
+#include "NSWConfiguration/Utility.h"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -9,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 #include <fmt/core.h>
+
+namespace pt = boost::property_tree;
 
 nsw::GBTxConfig::GBTxConfig() :
     m_gbtxType("none"),
@@ -69,7 +72,7 @@ void nsw::GBTxConfig::set(const std::string& name, const std::size_t value){
     }
 }
 
-void nsw::GBTxConfig::setConfigFromPTree(const boost::property_tree::ptree& pt){
+void nsw::GBTxConfig::setConfigFromPTree(const pt::ptree& pt){
     // update registers with ptree info
     ERS_DEBUG(2, ">> About to loop over ptree");
     for (const auto& it: pt){
@@ -140,7 +143,7 @@ void nsw::GBTxConfig::setConfig(const std::vector<uint8_t>& config) {
     }
 }
 
-std::vector<uint8_t> nsw::GBTxConfig::parsePhasesFromConfig(const std::vector<uint8_t>& config) {
+std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>& config) {
     // Parse full GBTx config, return phases
     // See page 199 and bits named "phaseSelectOutGroup*"
     // Each channel phase is 4 bits long, so two channels per byte
@@ -160,6 +163,33 @@ std::vector<uint8_t> nsw::GBTxConfig::parsePhasesFromConfig(const std::vector<ui
         ret.push_back(chanA); // check the order
         ret.push_back(chanB);
     }
+
+    // print table of phases
+    std::stringstream ss;
+    ss<<"\n[GBTx Phases Read Back]\n";
+    ss<<"Channel   0   1   2   3   4   5   6   7 \n";
+    for (std::size_t i=0; i<ret.size(); i++){
+        if (i%8==0) ss<<"Group "<<i/8<<" ";
+        ss<<"| ";
+        ss << std::hex << static_cast<int>(ret.at(i)) << std::dec << " ";
+        if ((i-7)%8==0) ss<<'\n';
+    }
+    ERS_LOG(ss.str());
+
+    return ret;
+}
+
+pt::ptree nsw::GBTxConfig::getPhasesTree(const std::vector<uint8_t>& config) {
+    // Parse full GBTx config, return phases as tree
+    pt::ptree ret;
+    const std::vector<uint8_t> phaseList = getPhasesVector(config);
+    for (std::size_t i=0; i<phaseList.size(); i++){
+        const int group = i/8;
+        const int chan = i%8;
+        const std::string setting = fmt::format("paPhaseSelectGroup{}Channel{}",group,chan);
+        ret.push_back(pt::ptree::value_type(setting,std::to_string(phaseList.at(i))));
+    }
+    ERS_DEBUG(5, ">>>> Tree of trained phases: "<<nsw::dumpTree(ret));
     return ret;
 }
 

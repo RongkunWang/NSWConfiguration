@@ -177,7 +177,14 @@ public:
      * 
      * \return std::vector<uint8_t> list of phase values
      */
-     static std::vector<uint8_t> parsePhasesFromConfig(const std::vector<uint8_t>& config) ;
+     static std::vector<uint8_t> getPhasesVector(const std::vector<uint8_t>& config) ;
+
+    /**
+     * \brief Parse full GBTx config, return phases
+     * 
+     * \return boost::property_tree::ptree phase values keyed by setting names
+     */
+     static boost::property_tree::ptree getPhasesTree(const std::vector<uint8_t>& config) ;
 
     /**
      * \brief Return the number of registers
