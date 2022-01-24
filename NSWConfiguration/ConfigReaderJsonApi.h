@@ -16,6 +16,13 @@
 #include "ers/Issue.h"
 
 ERS_DECLARE_ISSUE(nsw,
+                  MissingGBTxCommonConfig,
+                  "Missing node for "<<gbtx<<" in common configuration, but there is a "<<boardType<<" type L1DDC to configure. Check the JSON.",
+                  ((std::string)gbtx)
+                  ((std::string)boardType)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   ROCConfigBadNode,
                   "No such node in roc common configuration: " << message,
                   ((const char *)message)

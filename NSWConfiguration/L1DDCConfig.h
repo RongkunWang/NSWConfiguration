@@ -35,6 +35,7 @@ class L1DDCConfig {
     std::size_t m_portFromGBTx;
     std::size_t m_elinkId;
     std::string m_boardType;
+    std::string m_GBTxPhaseOutputDBPath;
     bool m_configureGBTx1;
     bool m_configureGBTx0;
     bool m_trainGBTxPhaseAlignment;
@@ -46,6 +47,7 @@ class L1DDCConfig {
     std::string m_opcServerIp;
     std::string m_opcNodeId;
     std::string m_name;
+    std::string m_nodeName;
 
  public:
 
@@ -105,6 +107,20 @@ class L1DDCConfig {
      * \return std::size_t elink ID
      */
     std::size_t getElinkId() const {return m_elinkId;}
+
+    /**
+     * \brief Get the name of GBTx phase output directory.
+     *
+     * \return std::string name of output directory for GBTx phases
+     */
+    std::string getGBTxPhaseOutputDBPath() const {return m_GBTxPhaseOutputDBPath;}
+
+    /**
+     * \brief Get the name of l1ddc node in json file. 
+     *
+     * \return std::string name of l1ddc node
+     */
+    std::string getNodeName() const {return m_nodeName;}
 
     /**
      * \brief Get the name of l1ddc. The format is L1DDC:felixServerIp/portToGBTx/portFromGBTx/elinkId

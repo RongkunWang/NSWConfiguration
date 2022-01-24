@@ -1,6 +1,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <ctime>
 
 #include <ers/ers.h>
 
@@ -17,6 +19,7 @@
 
 #include <thread>
 #include "boost/property_tree/ptree.hpp"
+#include <boost/property_tree/json_parser.hpp>
 
 using boost::property_tree::ptree;
 
@@ -490,6 +493,12 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     // Currently, configure GBTx0
     ERS_INFO("Configuring "<<l1ddc.getName());
 
+    boost::property_tree::ptree phaseTree; // Store phases for each GBTx
+    const std::time_t now = std::time(nullptr);
+    phaseTree.push_front(ptree::value_type("created", std::to_string(now)));
+    phaseTree.push_front(ptree::value_type("nameL1DDC", l1ddc.getName()));
+    phaseTree.push_front(ptree::value_type("nodeL1DDC", l1ddc.getNodeName()));
+
     std::vector<int> GBTxToConfigure;
     if (l1ddc.getConfigureGBTx(0)) GBTxToConfigure.push_back(0);
     if (l1ddc.getConfigureGBTx(1)) GBTxToConfigure.push_back(1);
@@ -505,6 +514,7 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
             sendGBTxConfig(l1ddcCopy,GBTxNumber);
             // wait while registers train
             ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us for "<<l1ddc.getName());
+            ERS_LOG("Path = "<<l1ddc.getGBTxPhaseOutputDBPath());
             nsw::snooze(std::chrono::microseconds{l1ddc.trainGBTxPhaseWaitTime()});
             // send stop training configuration
             l1ddcCopy.trainGbtxsOff();
@@ -512,19 +522,18 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
 
             // Print out phases
             const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,GBTxNumber);
-            const std::vector<uint8_t> phases = nsw::GBTxConfig::parsePhasesFromConfig(config);
-            std::stringstream ss;
-            ss<<"\nFor: "<<l1ddc.getName()<<"\n";
-            ss<<"\n[GBTx Phases Read Back]\n";
-            ss<<"Channel   0   1   2   3   4   5   6   7 \n";
-            for (std::size_t i=0; i<phases.size(); i++){
-                if (i%8==0) ss<<"Group "<<i/8<<" ";
-                ss<<"| ";
-                ss << std::hex << static_cast<int>(phases.at(i)) << std::dec << " ";
-                if ((i-7)%8==0) ss<<'\n';
-            }
-            ERS_LOG(ss.str());
+            const boost::property_tree::ptree phases = nsw::GBTxConfig::getPhasesTree(config);
+            phaseTree.put_child(fmt::format("GBTx{}",GBTxNumber),phases);
         }
+    }
+
+    // Save phases to output file
+    if (l1ddc.getGBTxPhaseOutputDBPath()!=""){
+        std::string outputFileName = fmt::format("{}/{}.json",l1ddc.getGBTxPhaseOutputDBPath(),l1ddc.getNodeName());
+        std::ofstream oFile;
+        oFile.open(outputFileName);
+        boost::property_tree::json_parser::write_json(oFile, phaseTree);
+        ERS_LOG("Wrote GBTx phase output to "<<outputFileName);
     }
 
     ERS_LOG("Finished config for "<<l1ddc.getName());

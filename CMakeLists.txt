@@ -145,6 +145,8 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  tdaq-common::ers
                  ic_comms
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
+    PRIVATE
+                 stdc++fs
 )
 
 tdaq_add_library(nswhwinterface

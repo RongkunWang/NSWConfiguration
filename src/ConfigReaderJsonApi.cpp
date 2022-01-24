@@ -6,6 +6,7 @@
 #include <ers/ers.h>
 
 #include <boost/property_tree/json_parser.hpp>
+#include <filesystem>
 #include <boost/optional/optional.hpp>
 
 
@@ -220,6 +221,26 @@ ptree JsonApi::readFEB(const std::string& element, size_t nvmm, size_t ntds, siz
     return feb;
 }
 
+const ptree gbtxMergeConfig(const boost::optional<const ptree&> target,
+                           const boost::optional<ptree&> source){
+    // Merge configuration from tree source into tree target, overwriting target
+    ptree ret;
+    if (target){
+        const ptree pTarget = target.get();
+        for (const auto& it: pTarget){
+            ret.put_child(it.first,it.second);
+        }
+    }
+    if (source){
+        const ptree pSource = source.get();
+        for (const auto& it: pSource){
+            ret.put_child(it.first,it.second);
+        }
+    }
+    ERS_DEBUG(5, ">>>> Tree of merged/updated settings: "<<nsw::dumpTree(ret)); // not printing
+    return ret;
+}
+
 ptree JsonApi::readL1DDC(const std::string& element) const {
     // Read an L1DDC branch from the configuration ptree
     ERS_LOG(fmt::format("JsonApi::readL1DDC, element={}.",element));
@@ -241,7 +262,10 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
         throw issue;
     }
 
-    // get the possible GBTx configurations. These don't need to all be provided
+    // add node name to child
+    feb.push_back(ptree::value_type("nodeName", element));
+
+    // Get the GBTx common configurations, which differ for each type of GBTx
     const auto mmg_gbtx0  = common.get().get_child_optional("mmg_gbtx0");
     const auto mmg_gbtx1  = common.get().get_child_optional("mmg_gbtx1");
     const auto mmg_gbtx2  = common.get().get_child_optional("mmg_gbtx2");
@@ -252,51 +276,67 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const auto rim_gbtx0 = common.get().get_child_optional("rim_gbtx0");
     const auto rim_gbtx1 = common.get().get_child_optional("rim_gbtx1");
 
+    // Get the specific GBTx configurations for this FEB, which will overwrite the common configurations
+    const auto gbtx0 = feb.get_child_optional("GBTx0");
+    const auto gbtx1 = feb.get_child_optional("GBTx1");
+    const auto gbtx2 = feb.get_child_optional("GBTx2");
+
     if (boardType=="mmg"){
-        // Check that the required common configuration exists
         if (!mmg_gbtx0){
-            nsw::ConfigIssue issue(ERS_HERE, "mmg_gbtx0 is unspecified in common configuration, but there is a mmg type L1DDC to configure. Check the JSON.");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "mmg_gbtx0","mmg");
             ers::fatal(issue);
             throw issue;
         }
-        feb.put_child("mmg_gbtx0",mmg_gbtx0.get());
+        const ptree p_mmg_gbtx0 = gbtxMergeConfig(mmg_gbtx0,gbtx0);
+        feb.put_child("mmg_gbtx0",p_mmg_gbtx0);
     }
     else if (boardType=="rim"){
-        // Check that the required common configuration exists
         if (!rim_gbtx0){
-            nsw::ConfigIssue issue(ERS_HERE, "rim_gbtx0 is unspecified in common configuration, but there is a rim type L1DDC to configure. Check the JSON.");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "rim_gbtx0","rim");
             ers::fatal(issue);
             throw issue;
         }
-        feb.put_child("rim_gbtx0",rim_gbtx0.get());
+        const ptree p_rim_gbtx0 = gbtxMergeConfig(rim_gbtx0,gbtx0);
+        feb.put_child("rim_gbtx0",p_rim_gbtx0);
     }
     else if (boardType=="sfeb"){
         if (!sfeb_gbtx0||!sfeb_gbtx1){
-            nsw::ConfigIssue issue(ERS_HERE, "sfeb_gbtx0 is unspecified in common configuration, but there is a sfeb type L1DDC to configure. Check the JSON.");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "sfeb_gbtx0","sfeb");
             ers::fatal(issue);
             throw issue;
         }
-        feb.put_child("sfeb_gbtx0",sfeb_gbtx0.get());
-        feb.put_child("sfeb_gbtx1",sfeb_gbtx1.get());
+        const ptree p_sfeb_gbtx0 = gbtxMergeConfig(sfeb_gbtx0,gbtx0);
+        const ptree p_sfeb_gbtx1 = gbtxMergeConfig(sfeb_gbtx1,gbtx1);
+        feb.put_child("sfeb_gbtx0",p_sfeb_gbtx0);
+        feb.put_child("sfeb_gbtx1",p_sfeb_gbtx1);
     }
     else if (boardType=="pfeb"){
         if (!pfeb_gbtx0||!pfeb_gbtx1){
-            nsw::ConfigIssue issue(ERS_HERE, "pfeb_gbtx0 is unspecified in common configuration, but there is a pfeb type L1DDC to configure. Check the JSON.");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "pfeb_gbtx0","pfeb");
             ers::fatal(issue);
             throw issue;
         }
-        feb.put_child("pfeb_gbtx0",pfeb_gbtx0.get());
-        feb.put_child("pfeb_gbtx1",pfeb_gbtx1.get());
-    }
-    else if (boardType=="rim_stgc"){
-        nsw::ConfigIssue issue(ERS_HERE, "rim_stgc configuration not implemented yet");
-        ers::fatal(issue);
-        throw issue;
+        const ptree p_pfeb_gbtx0 = gbtxMergeConfig(pfeb_gbtx0,gbtx0);
+        const ptree p_pfeb_gbtx1 = gbtxMergeConfig(pfeb_gbtx1,gbtx1);
+        feb.put_child("pfeb_gbtx0",p_pfeb_gbtx0);
+        feb.put_child("pfeb_gbtx1",p_pfeb_gbtx1);
     }
     else{
         nsw::ConfigIssue issue(ERS_HERE, fmt::format("boardType={} is invalid. Check the JSON.",boardType).c_str());
         ers::fatal(issue);
         throw issue;
+    }
+
+    // Optional path to write trained phases to a directory of JSON files
+    const auto GBTxPhaseOutputDBPath = common.get().get_child_optional("GBTxPhaseOutputDBPath");
+
+    if (GBTxPhaseOutputDBPath){
+        std::string path = m_config.get_child("l1ddc_common_config").get<std::string>("GBTxPhaseOutputDBPath");
+        std::filesystem::path dir(path);
+        if (!std::filesystem::exists(dir)){
+            std::filesystem::create_directory(dir);
+        }
+        feb.put_child("GBTxPhaseOutputDBPath",GBTxPhaseOutputDBPath.get());
     }
 
     return feb;
