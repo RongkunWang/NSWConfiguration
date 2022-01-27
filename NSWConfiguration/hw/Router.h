@@ -1,9 +1,11 @@
 #ifndef NSWCONFIGURATION_HW_ROUTER_H
 #define NSWCONFIGURATION_HW_ROUTER_H
 
+#include <chrono>
+
 #include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
-#include <chrono>
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -20,7 +22,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref RouterConfig object
      */
-    explicit Router(const RouterConfig& config);
+    Router(nsw::OpcManager& manager, const RouterConfig& config);
 
     /**
      * \brief Name of router object
@@ -92,6 +94,7 @@ namespace nsw::hw {
     const RouterConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     RouterConfig m_config;
     std::string m_opcserverIp;  //!< address and port of the Opc Server
     std::string m_scaAddress;   //!< SCA address of Router item in the Opc address space

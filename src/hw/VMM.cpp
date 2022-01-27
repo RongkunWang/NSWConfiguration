@@ -11,7 +11,8 @@
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/hw/SCAInterface.h"
 
-nsw::hw::VMM::VMM(const FEBConfig& config, const std::size_t numVmm) :
+nsw::hw::VMM::VMM(OpcManager& manager, const FEBConfig& config, const std::size_t numVmm) :
+  m_opcManager{manager},
   m_config(config.getVmms().at(numVmm)),
   m_opcserverIp(config.getOpcServerIp()),
   m_scaAddress(config.getAddress()),
@@ -23,7 +24,7 @@ void nsw::hw::VMM::writeConfiguration(const bool resetVmm) const
   // Set Vmm Configuration Enable
   constexpr std::uint8_t VMM_ACC_DISABLE = 0xff;
   constexpr std::uint8_t VMM_ACC_ENABLE = 0x00;
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   // Set Vmm Acquisition Disable
   const auto scaRocVmmReadoutAddress =

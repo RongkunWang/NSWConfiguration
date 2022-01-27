@@ -4,7 +4,7 @@
 
 #include <fmt/core.h>
 
-void nsw::hw::SCA::sendI2cRaw(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2cRaw(const nsw::internal::OpcClientPtr& opcConnection,
                               const std::string& node,
                               const std::uint8_t* data,
                               const size_t dataSize)
@@ -12,33 +12,33 @@ void nsw::hw::SCA::sendI2cRaw(const OpcClientPtr& opcConnection,
   opcConnection->writeI2cRaw(node, data, dataSize);
 }
 
-void nsw::hw::SCA::sendI2c(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2c(const nsw::internal::OpcClientPtr& opcConnection,
                            const std::string& node,
                            const std::vector<std::uint8_t>& vdata)
 {
   opcConnection->writeI2cRaw(node, vdata.data(), vdata.size());
 }
 
-void nsw::hw::SCA::sendGPIO(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendGPIO(const nsw::internal::OpcClientPtr& opcConnection,
                             const std::string& node,
                             const bool data)
 {
   opcConnection->writeGPIO(node, data);
 }
 
-bool nsw::hw::SCA::readGPIO(const OpcClientPtr& opcConnection, const std::string& node)
+bool nsw::hw::SCA::readGPIO(const nsw::internal::OpcClientPtr& opcConnection, const std::string& node)
 {
   return opcConnection->readGPIO(node);
 }
 
-std::vector<std::uint8_t> nsw::hw::SCA::readI2c(const OpcClientPtr& opcConnection,
+std::vector<std::uint8_t> nsw::hw::SCA::readI2c(const nsw::internal::OpcClientPtr& opcConnection,
                                                 const std::string& node,
                                                 const size_t numberOfBytes)
 {
   return opcConnection->readI2c(node, numberOfBytes);
 }
 
-std::vector<std::uint8_t> nsw::hw::SCA::readI2cAtAddress(const OpcClientPtr& opcConnection,
+std::vector<std::uint8_t> nsw::hw::SCA::readI2cAtAddress(const nsw::internal::OpcClientPtr& opcConnection,
                                                          const std::string& node,
                                                          const std::uint8_t* address,
                                                          const size_t addressSize,
@@ -52,7 +52,7 @@ std::vector<std::uint8_t> nsw::hw::SCA::readI2cAtAddress(const OpcClientPtr& opc
   return readdata;
 }
 
-void nsw::hw::SCA::sendI2cAtAddress(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2cAtAddress(const nsw::internal::OpcClientPtr& opcConnection,
                                     const std::string& node,
                                     const std::vector<std::uint8_t>& address,
                                     std::vector<std::uint8_t> data)
@@ -64,7 +64,7 @@ void nsw::hw::SCA::sendI2cAtAddress(const OpcClientPtr& opcConnection,
   nsw::hw::SCA::sendI2cRaw(opcConnection, node, data.data(), data.size());
 }
 
-void nsw::hw::SCA::sendI2cMasterSingle(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2cMasterSingle(const nsw::internal::OpcClientPtr& opcConnection,
                                        const std::string& topnode,
                                        const nsw::I2cMasterConfig& cfg,
                                        const std::string& regAddress)
@@ -76,7 +76,7 @@ void nsw::hw::SCA::sendI2cMasterSingle(const OpcClientPtr& opcConnection,
     opcConnection, fmt::format("{}.{}", topnode, cfg.getName()), data, regAddress);
 }
 
-void nsw::hw::SCA::sendI2cMasterSingle(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2cMasterSingle(const nsw::internal::OpcClientPtr& opcConnection,
                                        const std::string& node,
                                        const std::vector<std::uint8_t>& data,
                                        const std::string& regAddress)
@@ -89,7 +89,7 @@ void nsw::hw::SCA::sendI2cMasterSingle(const OpcClientPtr& opcConnection,
   sendI2cRaw(opcConnection, address, data.data(), data.size());
 }
 
-void nsw::hw::SCA::sendI2cMasterConfig(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendI2cMasterConfig(const nsw::internal::OpcClientPtr& opcConnection,
                                        const std::string& topnode,
                                        const nsw::I2cMasterConfig& cfg)
 {
@@ -107,7 +107,7 @@ void nsw::hw::SCA::sendI2cMasterConfig(const OpcClientPtr& opcConnection,
   }
 }
 
-void nsw::hw::SCA::sendSpiRaw(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendSpiRaw(const nsw::internal::OpcClientPtr& opcConnection,
                               const std::string& node,
                               const std::uint8_t* data,
                               const size_t dataSize)
@@ -115,14 +115,14 @@ void nsw::hw::SCA::sendSpiRaw(const OpcClientPtr& opcConnection,
   opcConnection->writeSpiSlaveRaw(node, data, dataSize);
 }
 
-std::vector<std::uint8_t> nsw::hw::SCA::readSpi(const OpcClientPtr& opcConnection,
+std::vector<std::uint8_t> nsw::hw::SCA::readSpi(const nsw::internal::OpcClientPtr& opcConnection,
                                                 const std::string& node,
                                                 size_t dataSize)
 {
   return opcConnection->readSpiSlave(node, dataSize);
 }
 
-void nsw::hw::SCA::sendSpi(const OpcClientPtr& opcConnection,
+void nsw::hw::SCA::sendSpi(const nsw::internal::OpcClientPtr& opcConnection,
                            const std::string& node,
                            const std::vector<std::uint8_t>& vdata)
 {

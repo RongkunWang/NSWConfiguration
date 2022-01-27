@@ -1,20 +1,20 @@
 #include "NSWConfiguration/hw/FEB.h"
 
-nsw::hw::FEB::FEB(const nsw::FEBConfig& config) :
-  m_roc(config),
-  m_vmms([&config]() {
+nsw::hw::FEB::FEB(OpcManager& manager, const nsw::FEBConfig& config) :
+  m_roc(manager, config),
+  m_vmms([&config, &manager]() {
     std::vector<VMM> vmms;
     vmms.reserve(config.getVmms().size());
     for (std::size_t iVmm = 0; iVmm < config.getVmms().size(); iVmm++) {
-      vmms.emplace_back(config, iVmm);
+      vmms.emplace_back(manager, config, iVmm);
     }
     return vmms;
   }()),
-  m_tdss([&config]() {
+  m_tdss([&config, &manager]() {
     std::vector<TDS> tdss;
     tdss.reserve(config.getTdss().size());
     for (std::size_t iTds = 0; iTds < config.getTdss().size(); iTds++) {
-      tdss.emplace_back(config, iTds);
+      tdss.emplace_back(manager, config, iTds);
     }
     return tdss;
   }()),

@@ -3,7 +3,7 @@
 #include "NSWConfiguration/hw/SCAX.h"
 #include <fmt/core.h>
 
-void nsw::hw::SCAX::writeRegister(const OpcClientPtr& opcConnection,
+void nsw::hw::SCAX::writeRegister(const internal::OpcClientPtr& opcConnection,
                                   const std::string& node,
                                   const std::uint32_t regAddress,
                                   const std::uint32_t value)
@@ -20,7 +20,7 @@ void nsw::hw::SCAX::writeRegister(const OpcClientPtr& opcConnection,
                            payload.size());
 }
 
-std::uint32_t nsw::hw::SCAX::readRegister(const OpcClientPtr& opcConnection,
+std::uint32_t nsw::hw::SCAX::readRegister(const internal::OpcClientPtr& opcConnection,
                                           const std::string& node,
                                           const std::uint32_t regAddress)
 {
@@ -33,7 +33,7 @@ std::uint32_t nsw::hw::SCAX::readRegister(const OpcClientPtr& opcConnection,
   return nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN);
 }
 
-void nsw::hw::SCAX::writeAndReadbackRegister(const OpcClientPtr& opcConnection,
+void nsw::hw::SCAX::writeAndReadbackRegister(const internal::OpcClientPtr& opcConnection,
                                              const std::string& node,
                                              const std::uint32_t regAddress,
                                              const std::uint32_t value)

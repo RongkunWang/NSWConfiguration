@@ -6,6 +6,7 @@
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -24,7 +25,7 @@ namespace nsw::hw {
     /**
      * \brief Constructor from a \ref FEBConfig object and a TDS ID
      */
-    TDS(const nsw::FEBConfig& config, std::size_t numTds);
+    TDS(nsw::OpcManager& manager, const nsw::FEBConfig& config, std::size_t numTds);
 
     /**
      * \brief Read the full TDS address space
@@ -141,6 +142,7 @@ namespace nsw::hw {
     [[nodiscard]] const I2cMasterConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     I2cMasterConfig m_config;   //!< I2cMasterConfig object associated with this TDS
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of FE item in Opc address space

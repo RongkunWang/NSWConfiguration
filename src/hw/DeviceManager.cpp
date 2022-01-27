@@ -6,34 +6,34 @@ nsw::hw::DeviceManager::DeviceManager(const bool multithreaded) : m_multithreade
 
 void nsw::hw::DeviceManager::addFeb(const nsw::FEBConfig& config)
 {
-  m_febs.emplace_back(config);
+  m_febs.emplace_back(m_opcManager, config);
 }
 
 void nsw::hw::DeviceManager::addAddc(const nsw::ADDCConfig& config)
 {
   for (std::size_t counter = 0; counter < config.getARTs().size(); counter++) {
-    m_arts.emplace_back(config, counter);
+    m_arts.emplace_back(m_opcManager, config, counter);
   }
 }
 
 void nsw::hw::DeviceManager::addTp(const nsw::TPConfig& config)
 {
-  m_tps.emplace_back(config);
+  m_tps.emplace_back(m_opcManager, config);
 }
 
 void nsw::hw::DeviceManager::addRouter(const nsw::RouterConfig& config)
 {
-  m_routers.emplace_back(config);
+  m_routers.emplace_back(m_opcManager, config);
 }
 
-void nsw::hw::DeviceManager::addPadTrigger(const nsw::hw::PadTrigger& config)
+void nsw::hw::DeviceManager::addPadTrigger(const boost::property_tree::ptree& config)
 {
-  m_padTriggers.emplace_back(config);
+  m_padTriggers.emplace_back(m_opcManager, config);
 }
 
 void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
 {
-  m_tpCarriers.emplace_back(config);
+  m_tpCarriers.emplace_back(m_opcManager, config);
 }
 
 void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) const

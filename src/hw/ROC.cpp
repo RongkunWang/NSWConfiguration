@@ -19,7 +19,8 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
 
-nsw::hw::ROC::ROC(const nsw::FEBConfig& config) :
+nsw::hw::ROC::ROC(OpcManager& manager, const nsw::FEBConfig& config) :
+  m_opcManager{manager},
   m_rocAnalog(config.getRocAnalog()),
   m_rocDigital(config.getRocDigital()),
   m_opcserverIp(config.getOpcServerIp()),
@@ -31,7 +32,7 @@ void nsw::hw::ROC::writeConfiguration() const
   constexpr bool INACTIVE = false;
   constexpr bool ACTIVE = true;
 
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   setCoreResetN(opcConnection, ACTIVE);
   setPllResetN(opcConnection, ACTIVE);
   setSResetN(opcConnection, ACTIVE);
@@ -107,7 +108,7 @@ void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t 
     return std::string{ROC_DIGITAL_NAME};
   }();
 
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   if (isAnalog) {
     constexpr bool ACTIVE = true;
@@ -143,7 +144,7 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
     }
     return {nsw::roc::sfeb::digital::SCL_LINE_PIN, nsw::roc::sfeb::digital::SDA_LINE_PIN};
   }();
-  const auto& opcConnection = nsw::OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   return opcConnection->readRocRaw(
     fmt::format("{}.gpio.bitBanger", m_scaAddress), sclLine, sdaLine, regAddress, DELAY);
 }
@@ -184,7 +185,7 @@ void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values
       true);
   }();
 
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   if (isAnalog) {
     constexpr bool ACTIVE = true;
@@ -258,12 +259,12 @@ std::uint8_t nsw::hw::ROC::readStatusRegister(const std::uint8_t regAddress) con
   return readRegister(regAddress);
 }
 
-void nsw::hw::ROC::setSResetN(const OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setSResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocSResetN", state);
 }
 
-void nsw::hw::ROC::setPllResetN(const OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setPllResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocPllResetN", state);
 
@@ -279,12 +280,12 @@ void nsw::hw::ROC::setPllResetN(const OpcClientPtr& opcConnection, const bool st
   }
 }
 
-void nsw::hw::ROC::setCoreResetN(const OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setCoreResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocCoreResetN", state);
 }
 
-void nsw::hw::ROC::setReset(const OpcClientPtr& opcConnection,
+void nsw::hw::ROC::setReset(const nsw::internal::OpcClientPtr& opcConnection,
                             const std::string& resetName,
                             const bool state) const
 {

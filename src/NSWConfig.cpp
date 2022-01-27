@@ -43,7 +43,7 @@ void nsw::NSWConfig::configureRc() {
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
         if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
         else if (element == "Router")        { m_deviceManager.add(RouterConfig{this_pair.second}); }
-        else if (element == "PadTrigger")    { m_deviceManager.add(nsw::hw::PadTrigger{this_pair.second}); }
+        else if (element == "PadTrigger")    { m_deviceManager.add(this_pair.second); }
         else if (element == "TP")            { m_tps.emplace(this_pair); }
         else if (element == "TPCarrier")     { m_deviceManager.add(TPCarrierConfig{this_pair.second}); }
         else if (element == "L1DDC")         { m_l1ddcs.emplace(this_pair); }

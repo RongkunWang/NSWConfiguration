@@ -1,8 +1,10 @@
 #ifndef NSWCONFIGURATION_HW_SCAX_H
 #define NSWCONFIGURATION_HW_SCAX_H
 
-#include "NSWConfiguration/hw/SCAInterface.h"
 #include <ers/Issue.h>
+
+#include "NSWConfiguration/hw/OpcClientPtr.h"
+#include "NSWConfiguration/hw/SCAInterface.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   SCAXReadbackMismatch,
@@ -19,7 +21,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeRegister(const OpcClientPtr& opcConnection,
+  void writeRegister(const internal::OpcClientPtr& opcConnection,
                      const std::string& node,
                      const std::uint32_t regAddress,
                      const std::uint32_t value);
@@ -31,7 +33,7 @@ namespace nsw::hw::SCAX {
    * \param node name of the OPC node
    * \param regAddress register address
    */
-  std::uint32_t readRegister(const OpcClientPtr& opcConnection,
+  std::uint32_t readRegister(const internal::OpcClientPtr& opcConnection,
                              const std::string& node,
                              const std::uint32_t regAddress);
 
@@ -43,7 +45,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeAndReadbackRegister(const OpcClientPtr& opcConnection,
+  void writeAndReadbackRegister(const internal::OpcClientPtr& opcConnection,
                                 const std::string& node,
                                 const std::uint32_t regAddress,
                                 const std::uint32_t value);

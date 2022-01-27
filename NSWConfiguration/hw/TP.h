@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -25,7 +26,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref TPConfig object
      */
-    explicit TP(const TPConfig& config);
+    TP(nsw::OpcManager& manager, const TPConfig& config);
 
     /**
      * \brief Read the full TP address space
@@ -65,6 +66,7 @@ namespace nsw::hw {
     [[nodiscard]] const TPConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     TPConfig m_config;          //!< TPConfig object associated with this TP
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of TP item in Opc address space

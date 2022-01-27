@@ -78,9 +78,17 @@ int main(int argc, const char *argv[]) {
                                     (uint8_t)(std::stol(i2c_val,  0, 16) & 0xff)};
 
     // make objects from json
-    auto board_configs = nsw::ConfigReader::makeObjects<nsw::hw::PadTrigger>
+    auto board_configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>
       ("json://" + config_filename, "PadTrigger");
-    for (auto & board : board_configs) {
+
+    // the hw objects
+    nsw::OpcManager opcManager{};
+    std::vector<nsw::hw::PadTrigger> hws;
+    hws.reserve(board_configs.size());
+    for (const auto& cfg: board_configs) {
+      hws.emplace_back(nsw::hw::PadTrigger(opcManager, cfg));
+    }
+    for (auto & board : hws) {
         std::cout << fmt::format("Found {}. Configuring Repeater {}", board.getName(), rep) << std::endl;
     }
     std::cout << std::endl;
@@ -88,7 +96,7 @@ int main(int argc, const char *argv[]) {
     std::cout << std::endl;
 
     // loop over pad triggers
-    for (auto & board : board_configs) {
+    for (auto & board : hws) {
 
         const auto gpio = fmt::format("gpio-repeaterChip{}", rep);
         const auto rep8 = static_cast<std::uint8_t>(std::stoul(rep));

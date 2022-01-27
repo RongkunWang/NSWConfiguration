@@ -60,7 +60,7 @@ namespace nsw::hw {
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger> ||
+                      std::is_same_v<std::decay_t<decltype(config)>, boost::property_tree::ptree> ||
                       std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>,
                     "Unknown config type. Provide a <Device>Config object");
       if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig>) {
@@ -75,7 +75,7 @@ namespace nsw::hw {
       else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig>) {
         addRouter(config);
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger>) {
+      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, boost::property_tree::ptree>) {
         addPadTrigger(config);
       }
       else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>) {
@@ -130,6 +130,7 @@ namespace nsw::hw {
 
   private:
     bool m_multithreaded;
+    OpcManager m_opcManager{};
     std::vector<nsw::hw::FEB> m_febs{};
     std::vector<ART> m_arts{};
     std::vector<TP> m_tps{};
@@ -170,7 +171,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addPadTrigger(const nsw::hw::PadTrigger& config);
+    void addPadTrigger(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add TP Carrier from TPCarrierConfig object
