@@ -66,35 +66,37 @@ macro(build_LogIt)
 
   target_include_directories(LogIt SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/LogIt/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:extern/include>
   )
 
   target_link_directories(LogIt BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/LogIt>
-    $<INSTALL_INTERFACE:lib>
+    $<INSTALL_INTERFACE:extern/lib>
   )
 
   install(TARGETS LogIt
-    DESTINATION lib
+    DESTINATION extern/lib
     )
 
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/LogIt/include/
-    DESTINATION include/LogIt
+    DESTINATION extern/include/LogIt
     FILES_MATCHING PATTERN "*.h*"
     )
 
   install(TARGETS LogIt
     EXPORT LogIt
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include/LogIt
+    ARCHIVE DESTINATION extern/lib
+    LIBRARY DESTINATION extern/lib
+    RUNTIME DESTINATION extern/bin
+    INCLUDES DESTINATION extern/include/LogIt
+    PUBLIC_HEADER DESTINATION extern/include/LogIt
+    PRIVATE_HEADER DESTINATION extern/include/LogIt
   )
 
   install(EXPORT LogIt
     FILE LogIt.cmake
     NAMESPACE LogIt::
-    DESTINATION lib/cmake/LogIt
+    DESTINATION extern/lib/cmake/LogIt
   )
 
   set(logit_SOURCE_DIR  ${logit_SOURCE_DIR}  PARENT_SCOPE)
