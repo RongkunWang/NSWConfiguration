@@ -247,17 +247,6 @@ bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l
 
     std::vector<uint8_t> currentConfig = readIcConfigGBTx(l1ddc,ich);
 
-    // shift received data up by some number
-    // TODO: the readCfg function should be fixed to avoid this shift
-    // IC Handler currently adds one byte
-    constexpr int rxShift = 1;
-    for (std::size_t j=0; j<rxShift; j++){
-        for (std::size_t i=currentConfig.size()-1; i>0; i--) {
-            currentConfig.at(i) = currentConfig.at(i-1);
-        }
-        currentConfig.at(0)=0;
-    }
-
     ERS_DEBUG(2, "\n==> Configuration, read from GBTx, after uploading new configuration:");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(currentConfig)<<'\n');
 
@@ -457,20 +446,7 @@ std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l
         ERS_DEBUG(2, "==> Configuration to be read from GBTx"<<gbtxId);
 
         IChandler ich(felixServerIp, portToGBTx, portFromGBTx, elinkId);
-        std::vector<uint8_t> config = readIcConfigGBTx(l1ddc,ich);
-
-        // shift received data up by some number
-        // TODO: the readCfg function should be fixed to avoid this shift
-        // IC Handler currently adds one byte
-        constexpr int rxShift = 1;
-        for (std::size_t j=0; j<rxShift; j++){
-            for (std::size_t i=config.size()-1; i>0; i--) {
-                config.at(i) = config.at(i-1);
-            }
-            config.at(0)=0;
-        }
-
-        return config;
+        return readIcConfigGBTx(l1ddc,ich);
     }
     else if (gbtxId==1){
         return readI2cConfigGBTx(l1ddc,1);
