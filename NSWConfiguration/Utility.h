@@ -215,6 +215,14 @@ boost::property_tree::ptree transformMapToPtree(const std::map<Key, Value>& map)
 }
 
 /**
+ * \brief Get environment variable
+ *
+ * \param name of environment variable
+ * \return std::string environment variable
+ */
+std::string getenv(const std::string& env_var);
+
+/**
  * \brief Transform a ptree into a map
  * 
  * \tparam Value Type of the value of the map

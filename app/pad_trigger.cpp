@@ -21,7 +21,6 @@ double xilinx_temperature_conversion(uint32_t temp);
 
 int main(int argc, const char *argv[]) 
 {
-    std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
     std::string config_filename;
     std::string board_name;
     std::string bitstream;
@@ -39,7 +38,7 @@ int main(int argc, const char *argv[])
     desc.add_options()
         ("help,h", "produce help message")
         ("config_file,c", po::value<std::string>(&config_filename)
-         ->default_value(config_files+"config_json/191/A12/padTrigger.json"), "Configuration file path")
+         ->default_value(""), "Config file path. REQUIRED. Can also set by `export JSON=XXX`")
         ("name,n", po::value<std::string>(&board_name)
          ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
         ("bitstream,b", po::value<std::string>(&bitstream)
@@ -71,6 +70,18 @@ int main(int argc, const char *argv[])
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
+    }
+
+    // check for json
+    if (config_filename.empty()) {
+      config_filename = nsw::getenv("JSON");
+      if (config_filename.empty()) {
+        std::cout << desc << std::endl;;
+        return 1;
+      } else {
+        std::cout << fmt::format("Using environment JSON: {}",
+                                 config_filename) << std::endl;
+      }
     }
 
     // make objects from json

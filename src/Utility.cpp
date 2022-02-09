@@ -350,6 +350,14 @@ void nsw::snooze(const std::chrono::duration<float> dur) {
   std::this_thread::sleep_for(dur);
 }
 
+std::string nsw::getenv(const std::string& env_var) {
+  const auto ret = std::getenv(env_var.c_str());
+  if (ret == nullptr) {
+    return "";
+  }
+  return std::string(ret);
+}
+
 std::unordered_set<std::string> nsw::getPathsFromPtree(const boost::property_tree::ptree& tree)
 {
   std::unordered_set<std::string> result{};
