@@ -26,28 +26,34 @@ namespace nsw {
 * It can also be updated to configure the SCA
 */
 
+struct GBTxContainer {
+    GBTxConfig GBTx;
+    bool configureGBTx{};
+    bool ecElinkTrain{};
+    GBTxContainer(GBTxConfig gbtx, const bool configure, const bool ecTrain) 
+        : GBTx(gbtx), configureGBTx(configure), ecElinkTrain(ecTrain)
+    {}
+};
+
 class L1DDCConfig {
  private:
-    GBTxConfig m_gbtx0;
-    GBTxConfig m_gbtx1;
 
-    std::size_t m_portToGBTx;
-    std::size_t m_portFromGBTx;
-    std::size_t m_elinkId;
-    std::string m_boardType;
-    std::string m_GBTxPhaseOutputDBPath;
-    bool m_configureGBTx1;
-    bool m_configureGBTx0;
-    bool m_trainGBTxPhaseAlignment;
-    int m_trainGBTxPhaseWaitTime;
-    int m_i2cDelay;
-    int m_configOption;
-    int m_i2cBlockSize;
-    std::string m_felixServerIp;
-    std::string m_opcServerIp;
-    std::string m_opcNodeId;
-    std::string m_name;
-    std::string m_nodeName;
+    std::size_t m_portToGBTx{};
+    std::size_t m_portFromGBTx{};
+    std::size_t m_elinkId{};
+    std::string m_boardType{};
+    std::string m_GBTxPhaseOutputDBPath{};
+    std::vector<GBTxContainer> m_GBTxContainers{};
+    bool m_trainGBTxPhaseAlignment{};
+    int m_trainGBTxPhaseWaitTime{};
+    int m_i2cDelay{};
+    int m_configOption{};
+    int m_i2cBlockSize{};
+    std::string m_felixServerIp{};
+    std::string m_opcServerIp{};
+    std::string m_opcNodeId{};
+    std::string m_name{};
+    std::string m_nodeName{};
 
  public:
 
@@ -83,9 +89,28 @@ class L1DDCConfig {
     explicit L1DDCConfig(const nsw::GBTxSingleConfig& config);
 
     /**
-     * Set up GBTx objects
+     * Set up all GBTx objects
      */
-    void initGBTx(const boost::property_tree::ptree& config);
+    void initGBTxs(const boost::property_tree::ptree& config);
+
+    /**
+     * Set up individual GBTx
+     */
+    void initGBTx(const boost::property_tree::ptree& config, const std::size_t gbtxId);
+
+    /**
+     * Get number of GBTx objects
+     */
+    int getNumberGBTx() const {return m_GBTxContainers.size();}
+
+    /**
+     * \brief Get GBTx of given number
+     *
+     * \param gbtxId GBTx ID
+     * \return GBTx
+     */
+    const GBTxConfig& getGBTx(const std::size_t i) const {return m_GBTxContainers.at(i).GBTx;}
+    GBTxConfig& getGBTx(const std::size_t i) {return m_GBTxContainers.at(i).GBTx;} //!< \overload
 
     /**
      * \brief Get the port to Gbtx
@@ -142,7 +167,7 @@ class L1DDCConfig {
      * \param gbtxId GBTx ID
      * \return bool
      */
-    bool getConfigureGBTx(const std::size_t gbtxId) const {return (gbtxId==0)?m_configureGBTx0:m_configureGBTx1;}
+    bool getConfigureGBTx(const std::size_t gbtxId) const {return (gbtxId<getNumberGBTx())?m_GBTxContainers.at(gbtxId).configureGBTx:false;}
 
     /**
      * \brief Get the IP address of the opc server

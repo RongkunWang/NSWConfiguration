@@ -59,7 +59,8 @@ class GBTxConfig{
 private: 
     std::array<uint8_t,nsw::NUM_GBTX_WRITABLE_REGISTERS> m_config{};
     std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
-    std::string m_gbtxType;
+    std::string m_gbtxType{};
+    bool m_active{};
 
 public: 
 
@@ -103,6 +104,12 @@ public:
      * \param value value to be set
      */
     void set(const std::string& name, const std::size_t value);
+
+    /**
+     * \brief Set the EC e-link phase training register on to begin training EC
+     * \param on wether to set on or off
+     */
+    void setEcTrainingRegisters(const bool on);
 
     /**
      * \brief Set the e-link phase training registers on to begin training
@@ -171,6 +178,18 @@ public:
      * \return std::string formatted config
      */
     std::string getPrintableConfig() const;
+
+    /**
+     * \brief Return whether GBTx is active (set during config)
+     * 
+     * \return bool
+     */
+     bool isActive() const {return m_active;}
+
+    /**
+     * \brief Set active flag
+     */
+     void setActive() {m_active = true;}
 
     /**
      * \brief Parse full GBTx config, return phases

@@ -340,16 +340,16 @@ std::vector<uint8_t> nsw::ConfigSender::readI2cConfigGBTx(const nsw::L1DDCConfig
 bool nsw::ConfigSender::sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, const std::size_t gbtxId, const std::vector<uint8_t>& data){
     // Upload configuration to GBTx using I2C, read back and confirm config
     // return 1 if config read back correctly
-    ERS_DEBUG(2, "\n==> Configuration to be uploaded to the GBTx1");
+    ERS_DEBUG(2, "\n==> Configuration to be uploaded via IC to the GBTx");
     ERS_DEBUG(2, nsw::getPrintableGbtxConfig(data)<<'\n');
 
     // Upload configuration
-    ERS_DEBUG(2, "\n==> Uploading configuration to GBTx1");
+    ERS_DEBUG(2, "\n==> Uploading configuration to GBTx");
     sendI2cConfigGBTx(l1ddc,gbtxId,data);
-    ERS_DEBUG(2, "\n==> Done uploading configuration to GBTx1");
+    ERS_DEBUG(2, "\n==> Done uploading configuration to GBTx");
 
     // Read back configuration
-    ERS_DEBUG(2, "\n==> Reading back configuration from GBTx1");
+    ERS_DEBUG(2, "\n==> Reading back configuration from GBTx");
     const std::vector<uint8_t> currentConfig = readI2cConfigGBTx(l1ddc,gbtxId);
 
     // Check readback
@@ -368,7 +368,7 @@ bool nsw::ConfigSender::sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& 
             break;
         }
         if (data.at(i)!=currentConfig.at(i)) {
-            ERS_LOG("Unexpected bit read back during GBTx1 configuration");                                                                                                                                                 
+            ERS_LOG("Unexpected bit read back via IC during GBTx configuration");                                                                                                                                                 
             ERS_DEBUG(2, "==> Configuration readback is BAD");
             return false;
         }
@@ -406,7 +406,7 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
             throw issue;
         }
     }
-    else if (gbtxId==1){
+    else if (gbtxId==1 || gbtxId==2){
         // Try sending configuration and check the readback
         // If the readback doesn't match, for nTries, raise error
         std::size_t nTries = MAX_ATTEMPTS;
@@ -419,11 +419,6 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
             ers::error(issue);
             throw issue;
         }
-    }
-    else if (gbtxId==2){
-        nsw::NSWSenderIssue issue(ERS_HERE, "GBTx2 configuration not defined yet");
-        ers::error(issue);
-        throw issue;
     }
     else{
         nsw::NSWSenderIssue issue(ERS_HERE, "Invalid GBTx ID while sending GBTx Configuration");
@@ -452,9 +447,7 @@ std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l
         return readI2cConfigGBTx(l1ddc,1);
     }
     else if (gbtxId==2){
-        nsw::NSWSenderIssue issue(ERS_HERE, "GBTx2 configuration not defined yet");
-        ers::error(issue);
-        throw issue;
+        return readI2cConfigGBTx(l1ddc,2);
     }
     else{
         nsw::NSWSenderIssue issue(ERS_HERE, "Invalid GBTx ID while sending GBTx Configuration");
@@ -475,31 +468,34 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     phaseTree.push_front(ptree::value_type("nameL1DDC", l1ddc.getName()));
     phaseTree.push_front(ptree::value_type("nodeL1DDC", l1ddc.getNodeName()));
 
-    std::vector<int> GBTxToConfigure;
+    std::vector<std::size_t> GBTxToConfigure;
     if (l1ddc.getConfigureGBTx(0)) GBTxToConfigure.push_back(0);
     if (l1ddc.getConfigureGBTx(1)) GBTxToConfigure.push_back(1);
-    for (int GBTxNumber : GBTxToConfigure){
+    if (l1ddc.getConfigureGBTx(2)) GBTxToConfigure.push_back(2);
+    for (std::size_t gbtxId : GBTxToConfigure){
+        ERS_LOG(fmt::format("\nConfiguring GBTx number {}",gbtxId));
         // Initial configuration with default values
-        sendGBTxConfig(l1ddc,GBTxNumber);
+        sendGBTxConfig(l1ddc,gbtxId);
         if (l1ddc.trainGBTxPhaseAlignment()){
-            ERS_LOG("\nConfigSender::sendL1DDCConfig Training GBTx phase alignment for "<<l1ddc.getName());
+            ERS_LOG("\nTraining GBTx phase alignment for "<<l1ddc.getName());
             // Make a non-const copy
             L1DDCConfig l1ddcCopy(l1ddc);
             // send start training configuration
             l1ddcCopy.trainGbtxsOn();
-            sendGBTxConfig(l1ddcCopy,GBTxNumber);
+            sendGBTxConfig(l1ddcCopy,gbtxId);
             // wait while registers train
             ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us for "<<l1ddc.getName());
             ERS_LOG("Path = "<<l1ddc.getGBTxPhaseOutputDBPath());
             nsw::snooze(std::chrono::microseconds{l1ddc.trainGBTxPhaseWaitTime()});
             // send stop training configuration
             l1ddcCopy.trainGbtxsOff();
-            sendGBTxConfig(l1ddcCopy,GBTxNumber);
+            sendGBTxConfig(l1ddcCopy,gbtxId);
 
             // Print out phases
-            const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,GBTxNumber);
+            const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId);
+            ERS_LOG(fmt::format("Phase table for {} GBTx{}",l1ddc.getName(),gbtxId));
             const boost::property_tree::ptree phases = nsw::GBTxConfig::getPhasesTree(config);
-            phaseTree.put_child(fmt::format("GBTx{}",GBTxNumber),phases);
+            phaseTree.put_child(fmt::format("GBTx{}",gbtxId),phases);
         }
     }
 

@@ -10,6 +10,7 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
 
     std::unordered_map<std::string,gbtx::regMap> registerMaps;
 
+    registerMaps["paTrainEC"]                       = gbtx::regMap{"paTrainEC","Train EC channel",{0,1,2},{245,245,245}};
     registerMaps["paTrainGroup6"]                   = gbtx::regMap{"paTrainGroup6","Train channels (0-7)",{0,0,0},{222,223,224}};
     registerMaps["paTrainGroup5"]                   = gbtx::regMap{"paTrainGroup5","Train channels (0-7)",{0,0,0},{198,199,200}};
     registerMaps["paTrainGroup4"]                   = gbtx::regMap{"paTrainGroup4","Train channels (0-7)",{0,0,0},{174,175,176}};
@@ -18,6 +19,7 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["paTrainGroup1"]                   = gbtx::regMap{"paTrainGroup1","Train channels (0-7)",{0,0,0},{102,103,104}};
     registerMaps["paTrainGroup0"]                   = gbtx::regMap{"paTrainGroup0","Train channels (0-7)",{0,0,0},{78,79,80}};
 
+    registerMaps["paResetEC"]                       = gbtx::regMap{"paResetEC","Reset EC channel",{0,1,2},{251,251,251}};
     registerMaps["paResetGroup0"]                   = gbtx::regMap{"paResetGroup0","Reset channels (0-7)",{0,0,0},{84,85,86}};
     registerMaps["paResetGroup1"]                   = gbtx::regMap{"paResetGroup1","Reset channels (0-7)",{0,0,0},{108,109,110}};
     registerMaps["paResetGroup2"]                   = gbtx::regMap{"paResetGroup2","Reset channels (0-7)",{0,0,0},{132,133,134}};
@@ -289,7 +291,6 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["clkDriveStrength0"]               = gbtx::regMap{"clkDriveStrength0","set clock drive strength group 0",{4},{329}};
     registerMaps["rxDisableDecoderTMR"]             = gbtx::regMap{"rxDisableDecoderTMR","Disable TMR in FEC decoder",{1},{49}};
     registerMaps["driveStrength3"]                  = gbtx::regMap{"driveStrength3","set drive strength group 3",{4},{328}};
-    registerMaps["paResetEC"]                       = gbtx::regMap{"paResetEC","Reset EC channel",{0,1,2},{251,251,251}};
     registerMaps["paMode"]                          = gbtx::regMap{"paMode","Phase-aligner track mode",{0,2,4},{62,62,62}};
     registerMaps["cmPsReferenceSelect"]             = gbtx::regMap{"cmPsReferenceSelect","Selects Phase-Shifter reference clock",{0,2,4},{282,282,282}};
     registerMaps["selHiByteTX0"]                    = gbtx::regMap{"selHiByteTX0","select HiByte in bypassed Eport TX group0",{0,1,2},{249,249,249}};
@@ -341,7 +342,6 @@ std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
     registerMaps["driveStrength2"]                  = gbtx::regMap{"driveStrength2","set drive strength group 2",{0},{328}};
     registerMaps["driveStrength1"]                  = gbtx::regMap{"driveStrength1","set drive strength group 1",{4},{327}};
     registerMaps["driveStrength0"]                  = gbtx::regMap{"driveStrength0","set drive strength group 0",{0},{327}};
-    registerMaps["paTrainEC"]                       = gbtx::regMap{"paTrainEC","Train EC channel",{0,1,2},{245,245,245}};
     registerMaps["txSwitchesControl"]               = gbtx::regMap{"txSwitchesControl","Select data path through TX logic",{0,0,0},{29,30,31}};
     registerMaps["testOutputSelect"]                = gbtx::regMap{"testOutputSelect","Selects the signal to drive testOutput",{0},{280}};
     registerMaps["txForceLockState"]                = gbtx::regMap{"txForceLockState","Force serialiser control to locked state",{4},{32}};

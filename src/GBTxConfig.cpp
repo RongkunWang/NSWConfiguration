@@ -15,6 +15,7 @@ namespace pt = boost::property_tree;
 
 nsw::GBTxConfig::GBTxConfig() :
     m_gbtxType("none"),
+    m_active(false),
     m_registerMaps(compiledGbtxRegisterMap())
 {
 }
@@ -156,6 +157,7 @@ std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>
         // For group 1, register 403: ...
     constexpr std::size_t minPhaseRegister = 399;
     constexpr std::size_t maxPhaseRegister = 426+1;
+    constexpr std::size_t ecPhaseRegister  = 398;
     std::vector<uint8_t> ret;
     for (std::size_t i=minPhaseRegister; i<maxPhaseRegister; i++){
         const uint8_t chanA = config.at(i)%16; // last 4 bits
@@ -163,17 +165,20 @@ std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>
         ret.push_back(chanA); // check the order
         ret.push_back(chanB);
     }
+    // insert EC phase at the end
+    ret.push_back(config.at(ecPhaseRegister)%16);
 
     // print table of phases
     std::stringstream ss;
     ss<<"\n[GBTx Phases Read Back]\n";
     ss<<"Channel   0   1   2   3   4   5   6   7 \n";
-    for (std::size_t i=0; i<ret.size(); i++){
+    for (std::size_t i=0; i<ret.size()-1; i++){
         if (i%8==0) ss<<"Group "<<i/8<<" ";
         ss<<"| ";
         ss << std::hex << static_cast<int>(ret.at(i)) << std::dec << " ";
         if ((i-7)%8==0) ss<<'\n';
     }
+    ss<<"EC: "<< std::hex << static_cast<int>(ret.back()) << std::dec;
     ERS_LOG(ss.str());
 
     return ret;
@@ -183,12 +188,14 @@ pt::ptree nsw::GBTxConfig::getPhasesTree(const std::vector<uint8_t>& config) {
     // Parse full GBTx config, return phases as tree
     pt::ptree ret;
     const std::vector<uint8_t> phaseList = getPhasesVector(config);
-    for (std::size_t i=0; i<phaseList.size(); i++){
+    for (std::size_t i=0; i<phaseList.size()-1; i++){
         const int group = i/8;
         const int chan = i%8;
         const std::string setting = fmt::format("paPhaseSelectGroup{}Channel{}",group,chan);
         ret.push_back(pt::ptree::value_type(setting,std::to_string(phaseList.at(i))));
     }
+    // The final phase is the EC phase
+    ret.push_back(pt::ptree::value_type("paPhaseSelectEC",std::to_string(phaseList.at(phaseList.size()-1))));
     ERS_DEBUG(5, ">>>> Tree of trained phases: "<<nsw::dumpTree(ret));
     return ret;
 }
@@ -209,6 +216,7 @@ void nsw::GBTxConfig::setResetChannelsOn(){
     // set("paResetGroup0",0xFF);
     // This mode is not recommended for environments were SEUs are a concern.
     if (isType("mmg") || isType("pfeb") || isType("sfeb") || isType("rim")){
+        reset("paResetEC",0x01);
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0xFF);
         reset("paResetGroup2",0xFF);
@@ -229,6 +237,7 @@ void nsw::GBTxConfig::setResetChannelsOff(){
     // Todo: There should be a configured setting to determine which channels are used, via a mask
     // reset("paResetGroup0",0x00);
     if (isType("mmg")){
+        reset("paResetEC",0x00);
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0x01); // in conf_l1_train_320_191.sh, this is kept 0x01
         reset("paResetGroup2",0x00);
@@ -238,6 +247,7 @@ void nsw::GBTxConfig::setResetChannelsOff(){
         reset("paResetGroup6",0x00); // just in case
     }
     else if (isType("pfeb") || isType("sfeb") || isType("rim")){
+        reset("paResetEC",0x00);
         reset("paResetGroup0",0x00);
         reset("paResetGroup1",0x00);
         reset("paResetGroup2",0x00);
@@ -251,6 +261,11 @@ void nsw::GBTxConfig::setResetChannelsOff(){
         ers::error(issue);
         throw issue;
     }
+}
+
+void nsw::GBTxConfig::setEcTrainingRegisters(const bool on){
+    // Train the EC e-link phase aligner
+    reset("paTrainEC",static_cast<std::uint8_t>(on));
 }
 
 void nsw::GBTxConfig::setTrainingRegistersOn(){
