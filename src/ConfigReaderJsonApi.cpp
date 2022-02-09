@@ -282,13 +282,17 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const auto gbtx2 = feb.get_child_optional("GBTx2");
 
     if (boardType=="mmg"){
-        if (!mmg_gbtx0){
-            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "mmg_gbtx0","mmg");
+        if (!mmg_gbtx0||!mmg_gbtx1||!mmg_gbtx2){
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "mmg_gbtx0 or mmg_gbtx1 or mmg_gbtx2","mmg");
             ers::fatal(issue);
             throw issue;
         }
         const ptree p_mmg_gbtx0 = gbtxMergeConfig(mmg_gbtx0,gbtx0);
+        const ptree p_mmg_gbtx1 = gbtxMergeConfig(mmg_gbtx1,gbtx1);
+        const ptree p_mmg_gbtx2 = gbtxMergeConfig(mmg_gbtx2,gbtx2);
         feb.put_child("mmg_gbtx0",p_mmg_gbtx0);
+        feb.put_child("mmg_gbtx1",p_mmg_gbtx1);
+        feb.put_child("mmg_gbtx2",p_mmg_gbtx2);
     }
     else if (boardType=="rim"){
         if (!rim_gbtx0){
@@ -301,7 +305,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     }
     else if (boardType=="sfeb"){
         if (!sfeb_gbtx0||!sfeb_gbtx1){
-            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "sfeb_gbtx0","sfeb");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "sfeb_gbtx0 or sfeb_gbtx1","sfeb");
             ers::fatal(issue);
             throw issue;
         }
@@ -312,7 +316,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     }
     else if (boardType=="pfeb"){
         if (!pfeb_gbtx0||!pfeb_gbtx1){
-            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "pfeb_gbtx0","pfeb");
+            nsw::MissingGBTxCommonConfig issue(ERS_HERE, "pfeb_gbtx0 or pfeb_gbtx1","pfeb");
             ers::fatal(issue);
             throw issue;
         }

@@ -5,7 +5,7 @@
 
 #include "NSWConfiguration/Utility.h"
 
-nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbtx0(),m_gbtx1() {
+nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
 
     ERS_DEBUG(2, "Constructor for nsw::L1DDCConfig::L1DDCConfig\n");
 
@@ -29,8 +29,6 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
     // Optional Calibration configuration passed in ptree
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
     m_trainGBTxPhaseWaitTime  = config.get("trainGBTxPhaseWaitTime", 0);
-    m_configureGBTx0          = config.get("configureGBTx0",false);
-    m_configureGBTx1          = config.get("configureGBTx1",false);
     m_i2cDelay                = config.get("i2cDelay",10000);
     m_i2cBlockSize            = config.get("i2cBlockSize",16);
     m_configOption            = config.get("configOption",0);
@@ -38,15 +36,13 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) : m_gbt
     m_nodeName                = config.get("nodeName","defaultL1ddcNode");
     ERS_DEBUG(2,"L1DDC read GBTx training settings (note, these may be default values): toggle = "<<m_trainGBTxPhaseAlignment<<" and wait time = "<<m_trainGBTxPhaseWaitTime);
 
-    // TODO: Future configuration for GBTx1, GBTx2 can go here
     // Determine board type and init apropriate gbtx
-    initGBTx(config);
+    initGBTxs(config);
+    ERS_DEBUG(4, "Finished initializing L1DDC");
 
 }
 
 nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
-    m_gbtx0(),
-    m_gbtx1(),
     m_portToGBTx(config.portToGBTx),
     m_boardType(config.boardType),
     m_portFromGBTx(config.portFromGBTx),
@@ -60,9 +56,12 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     // This constructor is used by configure_gbtx to load the configuration from an XML file
     // It only configures gbtx0
 
+
     if (m_boardType=="mmg"||m_boardType=="pfeb"||m_boardType=="rim"){
-        m_gbtx0.setType(m_boardType);
-        m_gbtx0.setConfigFromFile(config.iPath);
+        m_GBTxContainers.emplace_back(GBTxConfig(),true,true);
+        getGBTx(0).setType(m_boardType);
+        getGBTx(0).setConfigFromFile(config.iPath);
+        getGBTx(0).setActive();
     }
     else{
         nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("Invalid L1DDC board type: {}. Check configuration for L1DDC",m_boardType));
@@ -72,69 +71,61 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
 
 }
 
-void nsw::L1DDCConfig::initGBTx(const boost::property_tree::ptree& config){
+void nsw::L1DDCConfig::initGBTx(const boost::property_tree::ptree& config, const std::size_t gbtxId){
+    // Configure individual GBTx of type and gbtxId using config
+    ERS_DEBUG(4, fmt::format("Setting up GBTx on L1DDC {} as {} type using GBTx{} configuration",m_name,m_boardType,gbtxId));
+    std::string type = fmt::format("{}{}",m_boardType,gbtxId); // format is mmg0, mmg1, mmg2, pfeb0, sfeb1, etc
+    std::string configTreeName = fmt::format("{}_gbtx{}",m_boardType,gbtxId); // format is sfeb_gbtx0, mmg_gbtx0 etc
+    ERS_DEBUG(4, fmt::format("Using configTreeName: {}",configTreeName));
+    getGBTx(gbtxId).setType(type);
+    ERS_DEBUG(4, fmt::format("Setting GBTx{} from config ptree",gbtxId));
+    getGBTx(gbtxId).setConfigFromPTree(config.get_child(configTreeName));
+    getGBTx(gbtxId).setActive();
+    ERS_DEBUG(4, fmt::format("Finished setting up GBTx on L1DDC {} as {} type using GBTx{} configuration",m_name,m_boardType,gbtxId));
+}
+
+void nsw::L1DDCConfig::initGBTxs(const boost::property_tree::ptree& config){
     // Set up GBTx objects
     // Configuration and training behavior depend on which board type
-    if (m_boardType=="mmg"){
-        ERS_DEBUG(4, fmt::format("Configuring {} as MMG L1DDC with GBTx Configurations:",m_name));
-        const boost::property_tree::ptree gbtx0Config = config.get_child("mmg_gbtx0");
-        ERS_DEBUG(5, nsw::dumpTree(gbtx0Config));
-        m_gbtx0.setType("mmg0");
-        m_gbtx0.setConfigFromPTree(gbtx0Config);
-    }
-    else if (m_boardType=="rim"){
-        ERS_DEBUG(2, fmt::format("Configuring {} as RIM L1DDC with GBTx Configurations:",m_name));
-        const boost::property_tree::ptree gbtx0Config = config.get_child("rim_gbtx0");
-        ERS_DEBUG(5, nsw::dumpTree(gbtx0Config));
-        m_gbtx0.setType("rim0");
-        m_gbtx0.setConfigFromPTree(gbtx0Config);
-    }
-    else if (m_boardType=="sfeb"){
-        ERS_DEBUG(2, fmt::format("Configuring {} as sfeb L1DDC with GBTx Configurations:",m_name));
-        const boost::property_tree::ptree gbtx0Config = config.get_child("sfeb_gbtx0");
-        m_gbtx0.setType("sfeb0");
-        m_gbtx0.setConfigFromPTree(gbtx0Config);
-        // Optional configuration for GBTx1
-        if (m_configureGBTx1){
-            ERS_DEBUG(2, fmt::format("Configuring {} as sfeb L1DDC with GBTx1 Configurations:",m_name));
-            const boost::property_tree::ptree gbtx1Config = config.get_child("sfeb_gbtx1");
-            m_gbtx1.setType("sfeb1");
-            m_gbtx1.setConfigFromPTree(gbtx1Config);
-        }
-    }
-    else if (m_boardType=="pfeb"){
-        ERS_DEBUG(2, fmt::format("Configuring {} as pfeb L1DDC with GBTx Configurations:",m_name));
-        const boost::property_tree::ptree gbtx0Config = config.get_child("pfeb_gbtx0");
-        m_gbtx0.setType("pfeb0");
-        m_gbtx0.setConfigFromPTree(gbtx0Config);
-        // Optional configuration for GBTx1
-        // The difference between pfeb and sfeb is that the GBTx1 on the pfeb is not connected to VTRX.
-        // However it should still be configured to prevent noise
-        if (m_configureGBTx1){
-            ERS_DEBUG(2, fmt::format("Configuring {} as pfeb L1DDC with GBTx1 Configurations:",m_name));
-            const boost::property_tree::ptree gbtx1Config = config.get_child("pfeb_gbtx1");
-            m_gbtx1.setType("pfeb1");
-            m_gbtx1.setConfigFromPTree(gbtx1Config);
-        }
-    }
+    std::size_t  nGBTx{};
+    if (m_boardType=="mmg")       nGBTx = l1ddc::MMG_L1DDC_NUMBER_GBTx;
+    else if (m_boardType=="rim")  nGBTx = l1ddc::RIM_L1DDC_NUMBER_GBTx;
+    else if (m_boardType=="sfeb") nGBTx = l1ddc::SFEB_L1DDC_NUMBER_GBTx;
+    else if (m_boardType=="pfeb") nGBTx = l1ddc::PFEB_L1DDC_NUMBER_GBTx;
     else{
         nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("Invalid L1DDC board type: {}. Check configuration for L1DDC",m_boardType));
         ers::error(issue);
         throw issue;
     }
+
+    for (std::size_t gbtxId=0; gbtxId<nGBTx; gbtxId++){
+        ERS_DEBUG(2,fmt::format("Initializing GBTx{}",gbtxId));
+        std::string configureGBTxSettingName = fmt::format("configureGBTx{}",gbtxId);
+        std::string ecElinkTrainSettingName = fmt::format("ecElinkTrain{}",gbtxId);
+        ERS_DEBUG(4,fmt::format("configureGBTxSettingName={}, ecElinkTrainSettingName={}",configureGBTxSettingName,ecElinkTrainSettingName));
+        m_GBTxContainers.emplace_back(GBTxConfig(),config.get(configureGBTxSettingName,false),config.get(ecElinkTrainSettingName,false));
+        ERS_DEBUG(4,"Done");
+        if (!m_GBTxContainers.at(gbtxId).configureGBTx) continue;
+        initGBTx(config,gbtxId);
+    }
+    ERS_DEBUG(4, "Finished initializing GBTxs");
 }
 
 std::vector<std::uint8_t> nsw::L1DDCConfig::getGBTxBytestream(const std::size_t gbtxId) const {
     // Return the configuration bytestream for a given GBTx
-    ERS_LOG("get GBTx bytestream for gbtxId="<<gbtxId<<"\n");
+    ERS_LOG("Get GBTx bytestream for gbtxId="<<gbtxId<<"\n");
 
-    if (gbtxId==0||gbtxId==1) {
-        return m_gbtx0.configAsVector();
+    std::vector<std::uint8_t> ret;
+    if (gbtxId==0||gbtxId==1||gbtxId==2) {
+        ret = getGBTx(gbtxId).configAsVector();
+    }
+    else{
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Invalid GBTx number");
+        ers::error(issue);
+        throw issue;
     }
 
-    nsw::NSWL1DDCIssue issue(ERS_HERE, "GBTx's with number not 0,1 not implemented yet");
-    ers::error(issue);
-    throw issue;
+    return ret;
 }
 
 
@@ -142,28 +133,34 @@ void nsw::L1DDCConfig::trainGbtxsOn(){
     // Update config objects in each GBTx instance to start training e-links
     // The config can subsequently be read using getGbtxBytestream
     ERS_LOG("Set registers to start training GBTx phase alignment");
-
     if (!m_trainGBTxPhaseAlignment){
         nsw::NSWL1DDCIssue issue(ERS_HERE, "trainGBTxPhaseAlignment has not been set to true in the configuration. Are you sure you want to train the phase alignment?");
         ers::error(issue);
     }
-
-    m_gbtx0.setResetChannelsOn();
-    m_gbtx0.setTrainingRegistersOn();
-    // Todo: gbtx 1, 2
+    for (auto& container : m_GBTxContainers){
+        if (!container.configureGBTx) continue;
+        container.GBTx.setResetChannelsOn();
+        container.GBTx.setTrainingRegistersOn();
+        if (container.ecElinkTrain){
+            container.GBTx.setEcTrainingRegisters(true);
+        }
+    }
 }
 
 void nsw::L1DDCConfig::trainGbtxsOff(){
     // Update config objects in each GBTx instance to stop training e-links
     // The config can subsequently be read using getGbtxBytestream
     ERS_LOG("Set registers to stop training GBTx phase alignment");
-
     if (!m_trainGBTxPhaseAlignment){
         nsw::NSWL1DDCIssue issue(ERS_HERE, "trainGBTxPhaseAlignment has not been set to true in the configuration. Are you sure you want to train the phase alignment?");
         ers::error(issue);
     }
-
-    m_gbtx0.setResetChannelsOff();
-    m_gbtx0.setTrainingRegistersOff();
-    // Todo: gbtx 1, 2
+    for (auto& container : m_GBTxContainers){
+        if (!container.configureGBTx) continue;
+        container.GBTx.setResetChannelsOff();
+        container.GBTx.setTrainingRegistersOff();
+        if (container.ecElinkTrain){
+            container.GBTx.setEcTrainingRegisters(false);
+        }
+    }
 }

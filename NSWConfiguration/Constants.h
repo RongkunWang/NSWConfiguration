@@ -113,6 +113,14 @@ namespace nsw {
     "L1DDC",
   };
 
+  namespace l1ddc {
+      // Numbers of GBTx on each kind of L1DDC
+      constexpr std::size_t MMG_L1DDC_NUMBER_GBTx = 3;
+      constexpr std::size_t RIM_L1DDC_NUMBER_GBTx = 1;
+      constexpr std::size_t PFEB_L1DDC_NUMBER_GBTx = 2;
+      constexpr std::size_t SFEB_L1DDC_NUMBER_GBTx = 2;
+  }
+
   namespace roc {
     namespace mmfe8 {
       namespace digital {
