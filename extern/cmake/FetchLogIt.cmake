@@ -33,6 +33,13 @@ macro(build_LogIt)
 
   fetch_LogIt()
 
+  add_compile_options(-Wno-error -Wno-pedantic -Wno-cast-qual -w)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-discarded-qualifiers>)
+
+  if(NOT NSW_EXTERN_WARN)
+    add_compile_options(-w)
+  endif()
+
   # FetchContent_MakeAvailable(LogIt)
   ## Done to disable the default header installation location
   ## otherwise, use the above FetchContent_MakeAvailable

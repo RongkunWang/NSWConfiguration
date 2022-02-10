@@ -43,6 +43,12 @@ endif()
 
 message(STATUS "  NSWConfiguration FetchContent GIT_URL_ENDPOINT ${GIT_URL_ENDPOINT}")
 
+option(NSW_EXTERN_WARN "Enable compiler warnings for extern" OFF)
+if(NOT NSW_EXTERN_WARN)
+  ## Disable compiler warnings in all external components
+  add_compile_options(-w)
+endif()
+
 if(NOT Open62541Compat_FOUND)
   message(STATUS "Unable to find Open62541Compat, will build locally")
   include(FetchLogIt)
