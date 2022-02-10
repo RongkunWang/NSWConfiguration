@@ -45,6 +45,10 @@ macro(build_UaoClientForOpcUaSca)
   add_compile_options(-Wno-error -Wno-pedantic -Wno-cast-qual)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-discarded-qualifiers>)
 
+  if(NOT NSW_EXTERN_WARN)
+    add_compile_options(-w)
+  endif()
+
   # FetchContent_MakeAvailable(UaoClientForOpcUaSca)
   ## Done to disable the default header installation location
   ## otherwise, use the above FetchContent_MakeAvailable
