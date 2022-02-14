@@ -169,6 +169,17 @@ namespace nsw::hw::SCA {
                const std::string& node,
                const std::vector<std::uint8_t>& vdata);
 
+  /**
+   * \brief Xilinx FPGA write function
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \param bitfile_path path to bitfile
+   */
+  void writeXilinxFpga(const OpcClientPtr& opcConnection,
+                       const std::string& node,
+                       const std::string& bitfile_path);
+
 }  // namespace nsw::hw::SCA
 
 #endif

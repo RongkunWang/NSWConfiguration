@@ -128,3 +128,10 @@ void nsw::hw::SCA::sendSpi(const OpcClientPtr& opcConnection,
 {
   opcConnection->writeSpiSlaveRaw(node, vdata.data(), vdata.size());
 }
+
+void nsw::hw::SCA::writeXilinxFpga(const OpcClientPtr& opcConnection,
+                                   const std::string& node,
+                                   const std::string& bitfile_path)
+{
+  opcConnection->writeXilinxFpga(node, bitfile_path);
+}
