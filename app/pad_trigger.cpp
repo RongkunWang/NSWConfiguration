@@ -23,13 +23,13 @@ int main(int argc, const char *argv[])
 {
     std::string config_filename;
     std::string board_name;
-    std::string bitstream;
     std::string gpio_name;
     std::string i2c_reg;
     std::string i2c_val;
     bool dump;
     bool do_config;
     bool do_control;
+    bool uploadBitfile;
     bool toggleIdleState;
     int val;
 
@@ -41,12 +41,12 @@ int main(int argc, const char *argv[])
          ->default_value(""), "Config file path. REQUIRED. Can also set by `export JSON=XXX`")
         ("name,n", po::value<std::string>(&board_name)
          ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
-        ("bitstream,b", po::value<std::string>(&bitstream)
-         ->default_value(""), "Bitstream name to write to the FPGA. WARNING: EXPERIMENTAL.")
         ("gpio", po::value<std::string>(&gpio_name)
          ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
         ("dump", po::bool_switch()->
          default_value(false), "Option to dump pad trigger fpga i2c mapping")
+        ("uploadBitfile,b", po::bool_switch()->
+         default_value(false), "Option to upload bitfile to FPGA via JTAG. WARNING: EXPERIMENTAL")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
@@ -66,6 +66,7 @@ int main(int argc, const char *argv[])
     dump            = vm["dump"]           .as<bool>();
     do_config       = vm["do_config"]      .as<bool>();
     do_control      = vm["do_control"]     .as<bool>();
+    uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
     toggleIdleState = vm["toggleIdleState"].as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
@@ -101,17 +102,6 @@ int main(int argc, const char *argv[])
       }
     }
 
-    // fpga bitstream
-    if (bitstream != "") {
-      if (!file_exists(bitstream)) {
-        throw std::runtime_error(fmt::format("File doesnt exist: {}", bitstream));
-      }
-      std::cout << "FPGA bitstreams not supported at this time!" << std::endl;
-      return 1;
-      // for (auto & board: configs)
-      //   cs.sendFPGA(board.getOpcServerIp(), board.getAddress(), bitstream);
-    }
-
     // GPIO read/write
     if (gpio_name != "") {
       for (const auto& hw: hws) {
@@ -139,6 +129,13 @@ int main(int argc, const char *argv[])
           const auto temp = val & 0xfff;
           std::cout << fmt::format(" -> {}C", xilinx_temperature_conversion(temp)) << std::endl;
         }
+      }
+    }
+
+    // fpga bitstream
+    if (uploadBitfile) {
+      for (const auto& hw: hws) {
+        hw.writeJTAGBitfileConfiguration();
       }
     }
 

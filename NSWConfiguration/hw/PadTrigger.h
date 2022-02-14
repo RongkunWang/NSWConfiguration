@@ -73,6 +73,11 @@ namespace nsw::hw {
     void writeVTTxConfiguration() const;
 
     /**
+     * \brief Write the bitfile to the PadTrigger FPGA
+     */
+    void writeJTAGBitfileConfiguration() const;
+
+    /**
      * \brief Write the PadTrigger FPGA configuration
      */
     void writeFPGAConfiguration() const;
@@ -296,6 +301,7 @@ namespace nsw::hw {
     std::string m_opcserverIp;           //!< Address and port of OPC Server
     std::string m_scaAddress;            //!< SCA address of PadTrigger item in the OPC address space
     std::string m_scaAddressFPGA;        //!< SCA address of PadTrigger FPGA i2c
+    std::string m_scaAddressJTAG;        //!< SCA address of PadTrigger FPGA JTAG
     std::string m_name;                  //!< Name composed of OPC and SCA addresses
     I2cMasterConfig m_padtriggerfpga;    //!< I2cMasterConfig object from user configuration
 

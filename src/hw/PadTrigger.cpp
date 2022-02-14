@@ -18,6 +18,7 @@ nsw::hw::PadTrigger::PadTrigger(const boost::property_tree::ptree& config):
 {
   m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
   m_scaAddressFPGA = fmt::format("{}.fpga.fpga", m_scaAddress);
+  m_scaAddressJTAG = fmt::format("{}.jtag.fpga", m_scaAddress);
 }
 
 void nsw::hw::PadTrigger::writeConfiguration() const
@@ -92,6 +93,14 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
   }
 
+}
+
+void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
+{
+  const std::string& fw = firmware();
+  ERS_INFO(fmt::format("Firmware provided: {}", fw));
+  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  nsw::hw::SCA::writeXilinxFpga(opcConnection, m_scaAddressJTAG, fw);
 }
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
