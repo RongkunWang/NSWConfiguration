@@ -120,15 +120,22 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
     const auto addr  = addressFromRegisterName(rname);
     const auto value = std::stoul(value_str, nullptr, nsw::BASE_BIN);
 
-    // backwards compatibility
-    if (addr > nsw::padtrigger::REG_CONTROL and fw < nsw::padtrigger::DATE_REGS_2021_10) {
-      ERS_INFO(fmt::format("Older firmware, will not configure {}", rname));
-      continue;
-    }
-
     // write
-    ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, addr, value));
-    writeFPGARegister(addr, value);
+    ERS_INFO(fmt::format("{}: writing to {} ({:#02x}) with {:#08x}", m_name, rname, addr, value));
+    try {
+      writeFPGARegister(addr, value);
+    } catch (const std::exception & ex) {
+      if (addr == nsw::padtrigger::REG_CONTROL) {
+        throw;
+      } else {
+        const auto msg = fmt::format(
+          "{}: Failed to write to {}. This usually indicates an older firmware version. Skipping!",
+          m_name, rname);
+        nsw::PadTriggerConfigError issue(ERS_HERE, msg.c_str());
+        ers::warning(issue);
+        break;
+      }
+    }
 
     // readback
     const auto val = readFPGARegister(addr);
