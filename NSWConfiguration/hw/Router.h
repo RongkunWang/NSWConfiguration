@@ -36,6 +36,11 @@ namespace nsw::hw {
     void sendGPIO(const std::string& name, bool val) const;
 
     /**
+     * \brief Send a value to a particular Router GPIO, and read back
+     */
+    void sendAndReadbackGPIO(const std::string& name, bool val) const;
+
+    /**
      * \brief Read a value from a particular Router GPIO
      */
     bool readGPIO(const std::string& name) const;
@@ -51,20 +56,25 @@ namespace nsw::hw {
     void writeConfiguration() const;
 
     /**
+     * \brief Send a soft reset to the Router, and check GPIOs
+     */
+    void writeSoftResetAndCheckGPIO() const;
+
+    /**
      * \brief Send a soft reset to the Router
      */
     void writeSoftReset(const std::chrono::seconds reset_hold  = nsw::router::RESET_HOLD,
                         const std::chrono::seconds reset_sleep = nsw::router::RESET_SLEEP) const;
 
     /**
-     * \brief Wait patiently for the status of Router GPIOs to be good
+     * \brief Check the status of Router GPIOs a few times
      */
-    void writeWaitGPIO() const;
+    bool checkGPIOsAFewTimes() const;
 
     /**
      * \brief Check the status of Router GPIOs
      */
-    bool writeCheckGPIO() const;
+    bool checkGPIOs() const;
 
     /**
      * \brief Configure the Router GPIOs which control the SCA ID

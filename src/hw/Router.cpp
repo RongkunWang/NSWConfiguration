@@ -28,6 +28,15 @@ void nsw::hw::Router::sendGPIO(const std::string& name, const bool val) const
   nsw::hw::SCA::sendGPIO(opcConnection, addr, val);
 }
 
+void nsw::hw::Router::sendAndReadbackGPIO(const std::string& name, const bool val) const
+{
+  sendGPIO(name, val);
+  if (readGPIO(name) != val) {
+    const auto msg = fmt::format("{} readback wrong for {}", m_name, name);
+    ers::warning(nsw::RouterConfigIssue(ERS_HERE, msg));
+  }
+}
+
 std::map<std::string, bool> nsw::hw::Router::readConfiguration() const
 {
   std::map<std::string, bool> result;
@@ -39,95 +48,71 @@ std::map<std::string, bool> nsw::hw::Router::readConfiguration() const
 
 void nsw::hw::Router::writeConfiguration() const
 {
-  writeSoftReset();
-  writeWaitGPIO();
+  writeSoftResetAndCheckGPIO();
   writeSetSCAID();
+}
+
+void nsw::hw::Router::writeSoftResetAndCheckGPIO() const
+{
+  for (std::size_t rst = 0; rst < nsw::router::MAX_RESETS; ++rst) {
+    writeSoftReset();
+    if (checkGPIOsAFewTimes()) {
+      return;
+    }
+    ERS_INFO(fmt::format("Trying another reset for {}", m_name));
+    nsw::snooze(nsw::router::PAUSE_BETWEEN_RESETS);
+  }
+
+  const auto msg = fmt::format("{} configuration failed", m_name);
+  ers::warning(nsw::RouterConfigIssue(ERS_HERE, msg));
 }
 
 void nsw::hw::Router::writeSoftReset(const std::chrono::seconds reset_hold,
                                      const std::chrono::seconds reset_sleep) const
 {
-  ERS_LOG(m_scaAddress << ": toggling soft reset");
+  ERS_LOG(m_name << ": toggling soft reset");
 
   // Set Router control mode to SCA mode: Line 17 in excel
-  sendGPIO("ctrlMod0", false);
-  sendGPIO("ctrlMod1", false);
-  ERS_LOG(m_scaAddress << "/ctrlMod0" << " " << readGPIO("ctrlMod0"));
-  ERS_LOG(m_scaAddress << "/ctrlMod1" << " " << readGPIO("ctrlMod1"));
+  sendAndReadbackGPIO("ctrlMod0", false);
+  sendAndReadbackGPIO("ctrlMod1", false);
 
   // Enable soft reset: Line 11 in excel
-  sendGPIO("softReset", true);
-  ERS_LOG(m_scaAddress << "/softReset" << " " << readGPIO("softReset"));
-  std::this_thread::sleep_for(reset_hold);
+  sendAndReadbackGPIO("softReset", true);
+  nsw::snooze(reset_hold);
 
   // Disable soft reset
-  sendGPIO("softReset", false);
-  ERS_LOG(m_scaAddress << "/softReset" << " " << readGPIO("softReset"));
-  std::this_thread::sleep_for(reset_sleep);
+  sendAndReadbackGPIO("softReset", false);
+  nsw::snooze(reset_sleep);
 }
 
-void nsw::hw::Router::writeWaitGPIO() const
+bool nsw::hw::Router::checkGPIOsAFewTimes() const
 {
-  //
-  // check GPIOs as many times as necessary,
-  //   but no more times than allowed
-  //
-  for (size_t checks = 0; checks < nsw::router::MAX_GPIO_CHECKS; ++checks) {
-    if (writeCheckGPIO()) {
-      return;
+  for (std::size_t checks = 0; checks < nsw::router::MAX_GPIO_CHECKS; ++checks) {
+    if (checkGPIOs()) {
+      return true;
     }
-    ERS_INFO("Waiting for "
-             << getConfig().getOpcServerIp()
-             << "/"
-             << getConfig().getAddress());
-    std::this_thread::sleep_for(nsw::router::RESET_PAUSE);
+    ERS_INFO(fmt::format("Waiting for {}", m_name));
+    nsw::snooze(nsw::router::PAUSE_AFTER_RESET);
   }
-
-  //
-  // you shouldnt be here!
-  // crash if the user requests it
-  //
-  if (getConfig().CrashOnConfigFailure()) {
-    const auto msg = getConfig().getOpcServerIp()
-      + "/"
-      + getConfig().getAddress()
-      + " Configuration error. Crashing.";
-    nsw::RouterConfigIssue issue(ERS_HERE, msg.c_str());
-    ers::fatal(issue);
-    throw issue;
-  }
-
-  //
-  // otherwise, alert the user
-  //
-  const auto msg = "Giving up on "
-    + getConfig().getOpcServerIp()
-    + "/"
-    + getConfig().getAddress();
-  ERS_INFO(msg);
+  return false;
 }
 
-bool nsw::hw::Router::writeCheckGPIO() const
+bool nsw::hw::Router::checkGPIOs() const
 {
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
   bool ok = true;
 
   // Read SCA IO status back: Line 6 & 8 in excel
   // (only need to match with star mark bits)
   for (const auto& [name, exp] : m_gpio_checks) {
-    const auto long_name = m_scaAddress + "/" + std::string(name);
+    const auto long_name = fmt::format("{}/{}", m_name, name);
     const bool obs = readGPIO(std::string(name));
     const bool yay = obs == exp;
-    std::stringstream msg;
-    msg << std::left << std::setw(34) << long_name
-        << " ::"
-        << " Expected = " << exp
-        << " Observed = " << obs
-        << " -> " << (yay ? "Good" : "Bad");
+    const auto msg = fmt::format("{:<54} :: Expected = {}, Observed = {} -> {}",
+                                 long_name, exp, obs, (yay ? "Good" : "Bad"));
     if (yay) {
-      ERS_LOG(msg.str());
+      ERS_LOG(msg);
     } else {
-      ERS_INFO(msg.str());
+      ERS_INFO(msg);
       ok = false;
     }
   }
@@ -139,27 +124,17 @@ void nsw::hw::Router::writeSetSCAID() const
 {
   // Get ID from config object
   const auto scaid = static_cast<unsigned>(getConfig().id());
-  const auto id_sector_str = nsw::bitString(static_cast<unsigned>(getConfig().id_sector()), 4);
-  const auto id_layer_str  = nsw::bitString(static_cast<unsigned>(getConfig().id_layer()),  3);
-  const auto id_endcap_str = nsw::bitString(static_cast<unsigned>(getConfig().id_endcap()), 1);
 
   // Announce
-  ERS_LOG (m_scaAddress << ": ID (sector) = 0b" << id_sector_str);
-  ERS_LOG (m_scaAddress << ": ID (layer)  = 0b" << id_layer_str);
-  ERS_LOG (m_scaAddress << ": ID (endcap) = 0b" << id_endcap_str);
-  ERS_INFO(m_scaAddress << ": -> ID"
-           << " = 0b" << id_sector_str << id_layer_str << id_endcap_str
-           << " = 0x" << std::hex << scaid << std::dec
-           << " = "   << scaid);
+  ERS_LOG (fmt::format("{}: ID (sector) = {:#06b}", m_name, getConfig().id_sector()));
+  ERS_LOG (fmt::format("{}: ID (layer)  = {:#05b}", m_name, getConfig().id_layer()));
+  ERS_LOG (fmt::format("{}: ID (endcap) = {:#03b}", m_name, getConfig().id_endcap()));
+  ERS_INFO(fmt::format("{}: -> ID = {:#010b} = {:#x} = {}", m_name, scaid, scaid, scaid));
 
   // Set ID
   for (std::size_t bit = 0; bit < NUM_BITS_IN_BYTE; bit++) {
     const bool this_bit = ((scaid >> bit) & 0b1);
-    const auto gpio = "routerId" + std::to_string(bit);
-    sendGPIO(gpio, this_bit);
-    ERS_LOG(m_scaAddress
-            << ": Set ID bit " << bit
-            << " = " << this_bit
-            << " => Readback = " << readGPIO(gpio));
+    const auto gpio = fmt::format("routerId{}", bit);
+    sendAndReadbackGPIO(gpio, this_bit);
   }
 }
