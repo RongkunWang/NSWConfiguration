@@ -7,7 +7,7 @@
 #include <ers/ers.h>
 
 #include "NSWConfiguration/Constants.h"
-#include "ic-over-netio/IChandler.h"
+#include "ic-handler/IChandler.h"
 
 #include "NSWConfiguration/ConfigSender.h"
 
@@ -209,7 +209,7 @@ void nsw::ConfigSender::sendVmmConfigSingle(const nsw::FEBConfig& feb, const siz
     sendI2c(opc_ip, sca_roc_address_analog + ".reg122vmmEnaInv",  {0x0});
 }
 
-void nsw::ConfigSender::sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich, const std::vector<uint8_t>& data){
+void nsw::ConfigSender::sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich, const std::vector<uint8_t>& data){
     // Send data with IChandler
     // Raise intelligible error if IChandler crashes
     try {
@@ -222,7 +222,7 @@ void nsw::ConfigSender::sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandle
     }
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const {
+std::vector<uint8_t> nsw::ConfigSender::readIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich) const {
     // Read data with IChandler
     // Raise intelligible error if IChandler crashes
     try {
@@ -236,7 +236,7 @@ std::vector<uint8_t> nsw::ConfigSender::readIcConfigGBTx(const nsw::L1DDCConfig&
 }
 
 
-bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, IChandler& ich,const std::vector<uint8_t>& data){
+bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich,const std::vector<uint8_t>& data){
     // Upload configuration to GBTx using IC channel, read back and check config
     // return 1 if config read back correctly
 
@@ -386,12 +386,11 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     const std::vector<uint8_t> data = l1ddc.getGBTxBytestream(gbtxId);
     // generate bytestream
     if (gbtxId==0){
-        const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
-        const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
-        const std::size_t elinkId      = l1ddc.getElinkId();
-        const std::string felixServerIp= l1ddc.getFelixServerIp();
+        const std::string flxNetwork   = l1ddc.getFlxNetwork();
+        const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
+        const std::uint64_t fid_tohost = l1ddc.getFidToHost();
         // send configuration over i2c
-        IChandler ich(felixServerIp, portToGBTx, portFromGBTx, elinkId);
+        ic::fct::IChandler ich(flxNetwork,fid_toflx,fid_tohost);
 
         // Try sending configuration and check the readback
         // If the readback doesn't match, for nTries, raise error
@@ -429,18 +428,13 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
 
 std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId){
     // read back gbtx configuration
-    ERS_LOG("Sending configuration for GBTx number="<<gbtxId<<" for "<<l1ddc.getName()<<"\n");
+    ERS_LOG(fmt::format("Reading bytestream for {} on GBTx{}",l1ddc.getName(),gbtxId));
     // get information from l1ddc
-    const std::size_t portToGBTx   = l1ddc.getPortToGbtx();
-    const std::size_t portFromGBTx = l1ddc.getPortFromGbtx();
-    const std::size_t elinkId      = l1ddc.getElinkId();
-    const std::string felixServerIp= l1ddc.getFelixServerIp();
+    const std::string flxNetwork   = l1ddc.getFlxNetwork();
+    const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
+    const std::uint64_t fid_tohost = l1ddc.getFidToHost();
     if (gbtxId==0){
-        ERS_DEBUG(2, "Reading bytestream for "<<l1ddc.getName());
-
-        ERS_DEBUG(2, "==> Configuration to be read from GBTx"<<gbtxId);
-
-        IChandler ich(felixServerIp, portToGBTx, portFromGBTx, elinkId);
+        ic::fct::IChandler ich(flxNetwork,fid_toflx,fid_tohost);
         return readIcConfigGBTx(l1ddc,ich);
     }
     else if (gbtxId==1){

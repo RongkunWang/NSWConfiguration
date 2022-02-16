@@ -136,7 +136,6 @@ std::string vectorToHexString(std::vector<uint8_t> vec, bool littleEndian = fals
 /// Converts vector of values to string of bits
 std::string vectorToBitString(std::vector<uint8_t> vec, bool littleEndian = false);
 
-
 /// Build bitstream from an vector of name-size pairs, and a property tree with matching names and values
 std::string buildBitstream(const std::vector<std::pair<std::string, size_t>>& name_sizes, const boost::property_tree::ptree& config);
 

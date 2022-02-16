@@ -12,7 +12,7 @@ endif()
 
 if(NSW_STANDALONE_CI_BUILD)
   message(STATUS " Executing a standalone CI build, fetching NSW dependencies")
-  option(NSW_CI_BUILD_USE_EXTERNAL_ICOVERNETIO CACHE ON)
+  option(NSW_CI_BUILD_USE_EXTERNAL_ICHANDLER CACHE ON)
   set(NSW_DEP_FETCH_METHOD "ci" CACHE INTERNAL "")
   set(NSWCONFIG_FETCH_METHOD "${NSW_DEP_FETCH_METHOD}" CACHE INTERNAL "")
 endif()

@@ -12,7 +12,7 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/L1DDCConfig.h"
-#include "ic-over-netio/IChandler.h"
+#include "ic-handler/IChandler.h"
 
 using namespace std;
 
@@ -20,20 +20,19 @@ using namespace std;
 int main (int argc, char** argv){
 
     // required settings
-    string felixServerIp="none";
+    string flxNetwork="none";
     string opcServerIp="none";
     string opcNodeId="none";
     string iPath="none";
     string boardType="none";
     string name="";
-    int portToGBTx=-1;
-    int portFromGBTx=-1;
-    int elinkId=-1;
-    int trainGBTxPhaseWaitTime=1;
+    uint64_t fid_toflx=-1;
+    uint64_t fid_tohost=-1;
+    std::size_t trainGBTxPhaseWaitTime=1;
 
     // Check if reading or writing or training
     string mode="none";
-    for (int i = 0; i < argc; i++){
+    for (std::size_t i = 0; i < argc; i++){
         if      (!strcmp(argv[i],"-t")) mode="train";
         else if (!strcmp(argv[i],"-w")) mode="write";
         else if (!strcmp(argv[i],"-h")) mode="help";
@@ -41,13 +40,12 @@ int main (int argc, char** argv){
     }
     // get required settings
 
-    for (int i = 0; i < argc; i++){
-        if (!strcmp(argv[i],"--opc")) felixServerIp=argv[i+1];
+    for (std::size_t i = 0; i < argc; i++){
+        if (!strcmp(argv[i],"--opc")) flxNetwork=argv[i+1];
         if (!strcmp(argv[i],"--node")) opcNodeId=argv[i+1];
         if (!strcmp(argv[i],"--felix")) opcServerIp=argv[i+1];
-        if (!strcmp(argv[i],"--iport")) portToGBTx=atoi(argv[i+1]);
-        if (!strcmp(argv[i],"--oport")) portFromGBTx=atoi(argv[i+1]);
-        if (!strcmp(argv[i],"--elink")) elinkId=atoi(argv[i+1]);
+        if (!strcmp(argv[i],"--toflx")) fid_toflx=stoull(argv[i+1],nullptr,0);
+        if (!strcmp(argv[i],"--tohost")) fid_tohost=stoull(argv[i+1],nullptr,0);
         if (!strcmp(argv[i],"--sleep")) trainGBTxPhaseWaitTime=atoi(argv[i+1]);
         if (!strcmp(argv[i],"--board")) boardType=argv[i+1];
         if (!strcmp(argv[i],"--config")) iPath=argv[i+1];
@@ -57,13 +55,13 @@ int main (int argc, char** argv){
     // check inputs
     if (mode=="none"){
         cout<<"Please run with -w,-t,-s, or -h for help\n";
-        cout<<"Example: --felix pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62 --board mmg \n";
+        cout<<"Example: configure_gbtx -w  --toflx WWW --tohost XXX --felix YYY --opc QQQ --board mmg --config CONFIG \n";
         return 0;
     }
 
     if (mode=="help"){
         cout<<"NAME\n   configure_gbtx - write to and read from GBTx through netio\n";
-        cout<<"SYNOPSIS\n   configure_gbtx [-w,-t,-s,-h]... --iport WWW --oport XXX --felix YYY --opc QQQ --elink ZZZ --board mmg --config CONFIG \n";
+        cout<<"SYNOPSIS\n   configure_gbtx [-w,-t,-s,-h]... --toflx WWW --tohost XXX --felix YYY --opc QQQ --board mmg --config CONFIG \n";
         cout<<"-t       | Write configuration and train GBTx e-links\n";
         cout<<"-w       | Just write configuration\n";
         cout<<"-s       | Simulation mode: load configuration file to check for errors\n";
@@ -72,17 +70,13 @@ int main (int argc, char** argv){
         cout<<"         | 2) Or:     *.xml, consisting of line separated hex bytes (GBTx1 only)\n";
         cout<<"         |    If using the 'xml' format, the following options are required:\n";
         cout<<"         |      --board  | Required board type: mmg, stgc, or rim_stgc\n";
-        cout<<"         |      --iport  | Input port for GBTx. For example, 12340\n";
-        cout<<"         |      --oport  | Output port for GBTx. For example, 12350\n";
-        cout<<"         |      --felix  | Address/name for FELIX machine. For example, pcatlnswfelix10.cern.ch\n";
+        cout<<"         |      --toflx  | FID, used to send data to FELIX, for example 0x16b00000007e0000\n";
+        cout<<"         |      --tohost | FID, used to receive data from FELIX, for example 0x16b00000007e8000\n";
+        cout<<"         |      --felix  | IP address or network for FELIX communication. For example, vlan413\n";
         cout<<"         |      --opc    | Address/name for machine running OPC. For example, pcatlnswfelix10.cern.ch\n";
         cout<<"         |      --node   | OPC node ID for GBTx2\n";
-        cout<<"         |      --elink  | FELIX e-link number in decimal for GBTx. For example 62 if you want to configure link 0x3E\n";
         cout<<"         |      --sleep  | Optional: number of seconds to wait for training\n";
         cout<<"         |      --name   | Optional: comma-separated L1DDC names to consider (for json, not xml)\n";
-        cout<<"\nExample uses:\n";
-        cout<<"configure_gbtx --felix pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62 -c config.txt\n";
-        cout<<"configure_gbtx -t --felix pcatlnswfelix10.cern.ch --iport 12340 --oport 12350 --elink 62 -c config.txt\n";
         cout<<endl;
         return 0;
     }
@@ -90,10 +84,9 @@ int main (int argc, char** argv){
 
     cout<<"##################################################\n";
     cout<<"# Mode:          "<<mode.c_str()<<endl;
-    cout<<"# felixServerIp: "<<felixServerIp<<endl;
-    cout<<"# portToGBTx:    "<<portToGBTx<<endl;
-    cout<<"# portFromGBTx:  "<<portFromGBTx<<endl;
-    cout<<"# elinkId:       "<<elinkId<<endl;
+    cout<<"# flxNetwork:    "<<flxNetwork<<endl;
+    cout<<"# fid_toflx:    "<<fid_toflx<<endl;
+    cout<<"# fid_tohost:  "<<fid_tohost<<endl;
     cout<<"# config file:   "<<iPath<<endl;
     cout<<"# board type:    "<<boardType<<endl;
     cout<<"#------------------------------------------------#\n";
@@ -104,8 +97,8 @@ int main (int argc, char** argv){
 
     // Configure with xml file
     if (iPath.find(".xml")!=string::npos){
-        if (felixServerIp=="none"||portToGBTx==-1||portFromGBTx==-1||elinkId==-1||boardType=="none"||opcServerIp=="none"||opcNodeId=="none"){
-            cout<<"Please set required inputs.\nExample: --felix pcatlnswfelix10.cern.ch --opc pcatlnswfelix10.cern.ch --node XXX --iport 12340 --oport 12350 --elink 62 --board mmg --config CONFIG.json\n";
+        if (flxNetwork=="none"||fid_toflx==-1||fid_tohost==-1||boardType=="none"||opcServerIp=="none"||opcNodeId=="none"){
+            cout<<"Please set required inputs.\nExample: --felix vlan413 --opc pcatlnswfelix10.cern.ch --node XXX --toflx 0x16b00000007e0000 --tohost 0x16b00000007e8000 --board mmg --config CONFIG.json\n";
             return 0;
         }
 
@@ -113,10 +106,9 @@ int main (int argc, char** argv){
             .iPath = iPath,
             .opcServerIp = opcServerIp,
             .opcNodeId = opcNodeId,
-            .felixServerIp = felixServerIp,
-            .portToGBTx = portToGBTx,
-            .portFromGBTx = portFromGBTx,
-            .elinkId = elinkId,
+            .flxNetwork = flxNetwork,
+            .fid_toflx = fid_toflx,
+            .fid_tohost = fid_tohost,
             .boardType = boardType,
             .trainGBTxPhaseAlignment = (mode=="train"),
             .trainGBTxPhaseWaitTime = trainGBTxPhaseWaitTime
@@ -128,8 +120,8 @@ int main (int argc, char** argv){
     // Read configuration from json
     else if (iPath.find(".json")!=string::npos){
         // Check that unneeded and confusing options not provided:
-        if (felixServerIp!="none"||portToGBTx!=-1||portFromGBTx!=-1||elinkId!=-1||boardType!="none"){
-            cout<<"Note that the options for felix, opc, node, iport, oport, elink, and board should be provided by the json and not the command line.\nPlease remove them and re-run.\n";
+        if (flxNetwork!="none"||fid_toflx!=-1||fid_tohost!=-1||boardType!="none"){
+            cout<<"Note that the options for felix, opc, network or IP, toflx, tohost, and board should be provided by the json and not the command line.\nPlease remove them and re-run.\n";
             return 0;
         }
         if (mode=="train"){
