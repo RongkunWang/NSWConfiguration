@@ -48,10 +48,9 @@ namespace nsw {
         std::string iPath;
         std::string opcServerIp;
         std::string opcNodeId;
-        std::string felixServerIp;
-        std::size_t portToGBTx;
-        std::size_t portFromGBTx;
-        std::size_t elinkId;
+        std::string flxNetwork;
+        std::uint64_t fid_toflx;
+        std::uint64_t fid_tohost;
         std::string boardType;
         bool trainGBTxPhaseAlignment;
         int trainGBTxPhaseWaitTime;

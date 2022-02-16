@@ -10,13 +10,17 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
     ERS_DEBUG(2, "Constructor for nsw::L1DDCConfig::L1DDCConfig\n");
 
     try {
-        m_portToGBTx     = config.get<std::size_t>("portToGBTx");
-        m_portFromGBTx   = config.get<std::size_t>("portFromGBTx");
-        m_elinkId        = config.get<std::size_t>("elinkId");
-        m_felixServerIp  = config.get<std::string>("FelixServerIp");
         m_opcServerIp    = config.get<std::string>("OpcServerIp");
         m_opcNodeId      = config.get<std::string>("OpcNodeId");
         m_boardType      = config.get<std::string>("boardType");
+
+        //flxNetwork IP address of interface used to communicate with FELIX
+        //fid_toflx toflx FID, used to send data to FELIX
+        //fid_tohost tohost FID, used to receive data from FELIX
+        m_flxNetwork    = config.get<std::string>("FelixNetwork");
+        m_fid_toflx     = config.get<std::uint64_t>("fid_toflx");
+        m_fid_tohost    = config.get<std::uint64_t>("fid_tohost");
+
     }
     catch (const boost::property_tree::ptree_bad_path&){
         nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
@@ -24,7 +28,7 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         throw issue;
     }
 
-    m_name = fmt::format("L1DDC-{}:{}/{}/{}/{}",m_boardType,m_felixServerIp,m_portToGBTx,m_portFromGBTx,m_elinkId);
+    m_name = fmt::format("L1DDC-{}:{}/{}/{}",m_boardType,m_flxNetwork,m_fid_toflx,m_fid_tohost);
 
     // Optional Calibration configuration passed in ptree
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
@@ -43,16 +47,14 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
 }
 
 nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
-    m_portToGBTx(config.portToGBTx),
+    m_fid_toflx(config.fid_toflx),
+    m_fid_tohost(config.fid_tohost),
     m_boardType(config.boardType),
-    m_portFromGBTx(config.portFromGBTx),
-    m_elinkId(config.elinkId),
     m_trainGBTxPhaseAlignment(config.trainGBTxPhaseAlignment),
     m_trainGBTxPhaseWaitTime(config.trainGBTxPhaseWaitTime),
-    m_felixServerIp(config.felixServerIp),
+    m_flxNetwork(config.flxNetwork),
     m_opcNodeId(config.opcNodeId),
-    m_opcServerIp(config.opcServerIp),
-    m_name(fmt::format("L1DDC:{}/{}/{}/{}",config.felixServerIp,config.portToGBTx,config.portFromGBTx,config.elinkId)) {
+    m_name(fmt::format("L1DDC-{}:{}/{}/{}",config.boardType,config.flxNetwork,config.fid_toflx,config.fid_tohost)){
     // This constructor is used by configure_gbtx to load the configuration from an XML file
     // It only configures gbtx0
 

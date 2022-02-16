@@ -38,9 +38,6 @@ struct GBTxContainer {
 class L1DDCConfig {
  private:
 
-    std::size_t m_portToGBTx{};
-    std::size_t m_portFromGBTx{};
-    std::size_t m_elinkId{};
     std::string m_boardType{};
     std::string m_GBTxPhaseOutputDBPath{};
     std::vector<GBTxContainer> m_GBTxContainers{};
@@ -49,11 +46,15 @@ class L1DDCConfig {
     int m_i2cDelay{};
     int m_configOption{};
     int m_i2cBlockSize{};
-    std::string m_felixServerIp{};
     std::string m_opcServerIp{};
     std::string m_opcNodeId{};
     std::string m_name{};
     std::string m_nodeName{};
+
+    std::string m_flxNetwork{};
+    std::uint64_t m_fid_toflx{};
+    std::uint64_t m_fid_tohost{};
+
 
  public:
 
@@ -62,10 +63,9 @@ class L1DDCConfig {
      *
      * Example configuration ptree:
      * {
-     *   "felixServerIp": "pcatlnswfelix10.cern.ch",
-     *   "portToGBTx": "12340",
-     *   "portFromGBTx": "12350",
-     *   "elinkId": 62,
+     *   "FelixNetwork": "vlan413",
+     *   "FidToFlx": "0x16b0d04001be8000",
+     *   "FidToHost": "0x16b0d04001be0000",
      *   gbtx0:{
      *       "resetPLLBar":0,
      *       "enableTestBar":1,
@@ -104,6 +104,21 @@ class L1DDCConfig {
     int getNumberGBTx() const {return m_GBTxContainers.size();}
 
     /**
+     * Get fid_toflx
+     */
+    std::uint64_t getFidToFlx() const {return m_fid_toflx;}
+
+    /**
+     * Get fid_tohost
+     */
+    std::uint64_t getFidToHost() const {return m_fid_tohost;}
+
+    /**
+     * Get flxNetwork
+     */
+    std::string getFlxNetwork() const {return m_flxNetwork;}
+
+    /**
      * \brief Get GBTx of given number
      *
      * \param gbtxId GBTx ID
@@ -111,27 +126,6 @@ class L1DDCConfig {
      */
     const GBTxConfig& getGBTx(const std::size_t i) const {return m_GBTxContainers.at(i).GBTx;}
     GBTxConfig& getGBTx(const std::size_t i) {return m_GBTxContainers.at(i).GBTx;} //!< \overload
-
-    /**
-     * \brief Get the port to Gbtx
-     *
-     * \return std::size_t port
-     */
-    std::size_t getPortToGbtx() const {return m_portToGBTx;}
-
-    /**
-     * \brief Get the port from GBTx
-     *
-     * \return std::size_t port
-     */
-    std::size_t getPortFromGbtx() const {return m_portFromGBTx;}
-
-    /**
-     * \brief Get the elink ID
-     *
-     * \return std::size_t elink ID
-     */
-    std::size_t getElinkId() const {return m_elinkId;}
 
     /**
      * \brief Get the name of GBTx phase output directory.
@@ -148,18 +142,11 @@ class L1DDCConfig {
     std::string getNodeName() const {return m_nodeName;}
 
     /**
-     * \brief Get the name of l1ddc. The format is L1DDC:felixServerIp/portToGBTx/portFromGBTx/elinkId
+     * \brief Get the name of l1ddc. The format is L1DDC:flxNetwork/fid_tflx/fid_tohost
      *
      * \return std::string name of l1ddc
      */
     std::string getName() const {return m_name;}
-
-    /**
-     * \brief Get the IP address of the felix server
-     *
-     * \return std::string felix IP address
-     */
-    std::string getFelixServerIp() const {return m_felixServerIp;}
 
     /**
      * \brief Get whether to config gbtx

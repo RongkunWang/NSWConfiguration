@@ -19,7 +19,7 @@
 #include "NSWConfiguration/GBTxConfig.h"
 #include "NSWConfiguration/Constants.h"
 
-#include "ic-over-netio/IChandler.h"
+#include "ic-handler/IChandler.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   NSWSenderIssue,
@@ -77,7 +77,7 @@ class ConfigSender {
      * \param ich IChandler object
      * \param data Data to be sent
      */
-    void sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich, const std::vector<uint8_t>& data);
+    void sendIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich, const std::vector<uint8_t>& data);
 
     /**
      * \brief Read GBTx data with ICHandler
@@ -86,7 +86,7 @@ class ConfigSender {
      * \param l1ddc L1DDC config object
      * \param ich IChandler object
      */
-    std::vector<uint8_t> readIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, IChandler& ich) const;
+    std::vector<uint8_t> readIcConfigGBTx(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich) const;
 
 
     /**
@@ -141,7 +141,7 @@ class ConfigSender {
      * \return true if the read-back configuration matches the input
      * \return false if the read-back configuration does not match the input
      */
-    bool sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, IChandler& ich,const std::vector<uint8_t>& data);
+    bool sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich,const std::vector<uint8_t>& data);
 
     /**
      * \brief Helper function that sends GBTx configuration using I2C and reads it back. 
