@@ -8,7 +8,7 @@
 ERS_DECLARE_ISSUE(nsw,
                   RouterConfigIssue,
                   message,
-                  ((const char*)message)
+                  ((std::string)message)
                   )
 
 namespace nsw {

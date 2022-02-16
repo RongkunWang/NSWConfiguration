@@ -306,10 +306,13 @@ namespace nsw {
   }
 
   namespace router {
+    constexpr std::size_t MAX_RESETS = 3;
     constexpr std::size_t MAX_GPIO_CHECKS = 10;
     constexpr std::chrono::seconds RESET_HOLD{0};
     constexpr std::chrono::seconds RESET_SLEEP{1};
     constexpr std::chrono::seconds RESET_PAUSE{1};
+    constexpr std::chrono::seconds PAUSE_AFTER_RESET{1};
+    constexpr std::chrono::seconds PAUSE_BETWEEN_RESETS{2};
   }
 
 }  // namespace nsw
