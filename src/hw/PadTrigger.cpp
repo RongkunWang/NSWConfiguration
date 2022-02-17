@@ -327,10 +327,10 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readMedianPFEBBCIDs(std::size_t 
 
 std::vector<std::uint32_t> nsw::hw::PadTrigger::rotatePFEBBCIDs(const std::vector<std::uint32_t>& bcids) const
 {
-  constexpr std::uint32_t NDELAY{nsw::padtrigger::NUM_INPUT_DELAYS};
+  constexpr std::uint32_t NBCID{nsw::padtrigger::NUM_PFEB_BCIDS};
   auto rotated_bcids = std::vector<std::uint32_t>();
   for (const auto& bcid: bcids) {
-    rotated_bcids.emplace_back((bcid < NDELAY/2) ? bcid + NDELAY : bcid);
+    rotated_bcids.emplace_back((bcid < NBCID/2) ? bcid + NBCID : bcid);
   }
   return rotated_bcids;
 }
