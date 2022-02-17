@@ -287,6 +287,47 @@ namespace nsw::hw {
     std::vector<std::uint32_t> readPFEBRates() const;
 
     /**
+     * \brief Read and decode the PFEB BCID status registers.
+     *        Element i is the BCID of PFEB i.
+     */
+    [[nodiscard]]
+    std::vector<std::uint32_t> readPFEBBCIDs() const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times
+     *        Element i is a vector of the BCIDs of PFEB i.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    std::vector< std::vector<std::uint32_t> > readPFEBBCIDs(std::size_t nread) const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times, and calculate median
+     *        Element i is the median BCID of PFEB i.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    std::vector<std::uint32_t> readMedianPFEBBCIDs(std::size_t nread) const;
+
+    /**
+     * \brief Rotate a vector of PFEB BCIDs by 180 degrees.
+     *
+     * \param bcids a vector of BCIDs
+     */
+    [[nodiscard]]
+    std::vector<std::uint32_t> rotatePFEBBCIDs(const std::vector<std::uint32_t>& bcids) const;
+
+    /**
+     * \brief Check if PFEB BCIDs over the range of input delays seem reasonable or not
+     *
+     * \param bcids BCIDs of a particular PFEB
+     */
+    [[nodiscard]]
+    bool checkPFEBBCIDs(const std::vector<std::uint32_t>& bcids) const;
+
+    /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
      *
      * Both const and non-const overloads are provided
