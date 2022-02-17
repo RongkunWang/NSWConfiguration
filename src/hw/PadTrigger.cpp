@@ -294,6 +294,61 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBBCIDs() const
   return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
 }
 
+std::vector< std::vector<std::uint32_t> > nsw::hw::PadTrigger::readPFEBBCIDs(std::size_t nread) const
+{
+  if (nread == std::size_t{0}) {
+    const auto msg = "Why read the PFEB BCIDs zero times?";
+    ers::warning(nsw::PadTriggerConfusion(ERS_HERE, msg));
+  }
+  auto collated_bcids = std::vector< std::vector<std::uint32_t> >(nsw::padtrigger::NUM_PFEBS);
+  for (std::size_t iread = 0; iread < nread; iread++) {
+    const auto bcids = readPFEBBCIDs();
+    for (std::size_t it = 0; it < nsw::padtrigger::NUM_PFEBS; it++) {
+      collated_bcids.at(it).push_back(bcids.at(it));
+    }
+  }
+  return collated_bcids;
+}
+
+std::vector<std::uint32_t> nsw::hw::PadTrigger::readMedianPFEBBCIDs(std::size_t nread) const
+{
+  const auto bcids_per_pfeb = readPFEBBCIDs(nread);
+  auto median_bcids = std::vector<std::uint32_t>();
+  auto median = [](std::vector<std::uint32_t> v) {
+    std::size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin() + n, v.end());
+    return v[n];
+  };
+  for (const auto& bcids: bcids_per_pfeb) {
+    median_bcids.emplace_back(median(bcids));
+  }
+  return median_bcids;
+}
+
+std::vector<std::uint32_t> nsw::hw::PadTrigger::rotatePFEBBCIDs(const std::vector<std::uint32_t>& bcids) const
+{
+  constexpr std::uint32_t NDELAY{nsw::padtrigger::NUM_INPUT_DELAYS};
+  auto rotated_bcids = std::vector<std::uint32_t>();
+  for (const auto& bcid: bcids) {
+    rotated_bcids.emplace_back((bcid < NDELAY/2) ? bcid + NDELAY : bcid);
+  }
+  return rotated_bcids;
+}
+
+bool nsw::hw::PadTrigger::checkPFEBBCIDs(const std::vector<std::uint32_t>& bcids) const
+{
+  auto is_connected = [](std::uint32_t bcid){ return bcid != nsw::padtrigger::PFEB_BCID_DISCONNECTED; };
+  auto is_nonzero   = [](std::uint32_t bcid){ return bcid != 0; };
+  const auto rotated_bcids = rotatePFEBBCIDs(bcids);
+
+  bool any_connected    = std::any_of(bcids.cbegin(), bcids.cend(), is_connected);
+  bool any_nonzero      = std::any_of(bcids.cbegin(), bcids.cend(), is_nonzero);
+  bool all_incrementing = std::is_sorted(bcids.cbegin(), bcids.cend()) or
+                          std::is_sorted(rotated_bcids.cbegin(), rotated_bcids.cend());
+
+  return any_connected and any_nonzero and all_incrementing;
+}
+
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const
 {
   std::uint8_t addr{0};
