@@ -272,8 +272,6 @@ namespace nsw {
 
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
-    constexpr std::uint32_t DATE_NEW_MAPPING       = 20210302;
-    constexpr std::uint32_t DATE_REGS_2021_10      = 20211000;
     constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
     constexpr std::uint32_t NUM_PFEBS              = 24;
     constexpr std::uint32_t NUM_QUADS              = 6;
