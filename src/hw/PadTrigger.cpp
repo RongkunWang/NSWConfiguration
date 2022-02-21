@@ -26,6 +26,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   writeRepeatersConfiguration();
   writeVTTxConfiguration();
   writeFPGAConfiguration();
+  writeJTAGBitfileConfiguration();
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -99,8 +100,14 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
 {
   const std::string& fw = firmware();
   ERS_INFO(fmt::format("Firmware provided: {}", fw));
+  if (fw.empty()) {
+    ERS_INFO("Not uploading bitfile since firmware not provided");
+    return;
+  }
+  ERS_INFO("Uploading bitfile via SCA JTAG, this will take a minute...");
   const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
   nsw::hw::SCA::writeXilinxFpga(opcConnection, m_scaAddressJTAG, fw);
+  ERS_INFO("Upload finished");
 }
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
@@ -111,8 +118,6 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
   }
 
   const auto& fpga = getFpga();
-  const auto& fw   = firmware_dateword();
-  ERS_INFO(fmt::format("Firmware provided: {}", fw));
 
   for (const auto& [rname, value_str] : fpga.getBitstreamMap()) {
 

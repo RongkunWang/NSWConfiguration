@@ -251,7 +251,7 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::string firmware() const
-    { return m_ptree.get<std::string>("firmware"); };
+    { return m_ptree.get("firmware", std::string{""}); };
 
     /**
      * \brief Get the "ConfigFPGA" provided by the user configuration
