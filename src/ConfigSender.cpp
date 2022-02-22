@@ -470,10 +470,10 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
         ERS_LOG(fmt::format("\nConfiguring GBTx number {}",gbtxId));
         // Initial configuration with default values
         sendGBTxConfig(l1ddc,gbtxId);
+        // Make a non-const copy
+        L1DDCConfig l1ddcCopy(l1ddc);
         if (l1ddc.trainGBTxPhaseAlignment()){
             ERS_LOG("\nTraining GBTx phase alignment for "<<l1ddc.getName());
-            // Make a non-const copy
-            L1DDCConfig l1ddcCopy(l1ddc);
             // send start training configuration
             l1ddcCopy.trainGbtxsOn();
             sendGBTxConfig(l1ddcCopy,gbtxId);
@@ -484,13 +484,19 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
             // send stop training configuration
             l1ddcCopy.trainGbtxsOff();
             sendGBTxConfig(l1ddcCopy,gbtxId);
-
-            // Print out phases
-            const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId);
-            ERS_LOG(fmt::format("Phase table for {} GBTx{}",l1ddc.getName(),gbtxId));
-            const boost::property_tree::ptree phases = nsw::GBTxConfig::getPhasesTree(config);
-            phaseTree.put_child(fmt::format("GBTx{}",gbtxId),phases);
         }
+
+
+        // Print out phases
+        const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId);
+        ERS_LOG(fmt::format("Phase table for {} GBTx{}",l1ddc.getName(),gbtxId));
+        const boost::property_tree::ptree phases = nsw::GBTxConfig::getPhasesTree(config);
+        phaseTree.put_child(fmt::format("GBTx{}",gbtxId),phases);
+
+        // Readback phase lock status
+        const boost::property_tree::ptree statuses = nsw::GBTxConfig::getLockStatusTree(config);
+        phaseTree.put_child(fmt::format("lockStatus_GBTx{}",gbtxId),statuses);
+
     }
 
     // Save phases to output file

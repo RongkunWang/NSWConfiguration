@@ -144,6 +144,58 @@ void nsw::GBTxConfig::setConfig(const std::vector<uint8_t>& config) {
     }
 }
 
+std::vector<bool> nsw::GBTxConfig::getLockStatusVector(const std::vector<uint8_t>& config) {
+    // Parse full GBTx config, return phase aligner lock status
+    // See page 199 and bits named "channelLockedGroup*"
+    // Group 0: 391 [ch0, ch1, ..., ch7]
+    // Group 1: 392 [ch0, ch1, ..., ch7]
+    // Group 2: 393 [ch0, ch1, ..., ch7]
+    // Group 3: 394 [ch0, ch1, ..., ch7]
+    // Group 4: 395 [ch0, ch1, ..., ch7]
+    // Group 5: 396 [ch0, ch1, ..., ch7]
+    // Group 6: 397 [ch0, ch1, ..., ch7]
+    constexpr std::size_t minPhaseRegister = 391;
+    constexpr std::size_t maxPhaseRegister = 397+1;
+    std::vector<bool> ret;
+    for (std::size_t reg=minPhaseRegister; reg<maxPhaseRegister; reg++){
+        for (std::size_t bit=0; bit<8; bit++){
+            const bool status = (config.at(reg) >> bit) & 1;
+            ret.push_back(status); 
+        }
+    }
+
+    // print table of phases
+    std::stringstream ss;
+    ss<<"\n[GBTx Phases Aligner Locks]\n";
+    ss<<"Channel   0   1   2   3   4   5   6   7 \n";
+    for (std::size_t groupChan=0; groupChan<ret.size(); groupChan++){
+        if (groupChan%8==0) ss<<"Group "<<groupChan/8<<" ";
+        ss<<"| ";
+        if (ret.at(groupChan)) ss << "x ";
+        else ss << "  ";
+        // ss << ret.at(groupChan)?"x ":"  ";
+        if ((groupChan-7)%8==0) ss<<'\n';
+    }
+    ERS_LOG(ss.str());
+
+    return ret;
+}
+
+pt::ptree nsw::GBTxConfig::getLockStatusTree(const std::vector<uint8_t>& config) {
+    // Parse full GBTx config, return lock status as tree
+    pt::ptree ret;
+    const std::vector<bool> statuses = getLockStatusVector(config);
+    for (std::size_t i=0; i<statuses.size(); i++){
+        const int group = i/8;
+        const int chan = i%8;
+        const std::string setting = fmt::format("paLockStatusGroup{}Channel{}",group,chan);
+        ret.push_back(pt::ptree::value_type(setting,std::to_string(statuses.at(i))));
+    }
+    // The final phase is the EC phase
+    ERS_DEBUG(5, ">>>> Tree of lock statuses: "<<nsw::dumpTree(ret));
+    return ret;
+}
+
 std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>& config) {
     // Parse full GBTx config, return phases
     // See page 199 and bits named "phaseSelectOutGroup*"
@@ -159,9 +211,9 @@ std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>
     constexpr std::size_t maxPhaseRegister = 426+1;
     constexpr std::size_t ecPhaseRegister  = 398;
     std::vector<uint8_t> ret;
-    for (std::size_t i=minPhaseRegister; i<maxPhaseRegister; i++){
-        const uint8_t chanA = config.at(i)%16; // last 4 bits
-        const uint8_t chanB = config.at(i)/16; // first 4 bits
+    for (std::size_t reg=minPhaseRegister; reg<maxPhaseRegister; reg++){
+        const uint8_t chanA = config.at(reg)%16; // last 4 bits
+        const uint8_t chanB = config.at(reg)/16; // first 4 bits
         ret.push_back(chanA); // check the order
         ret.push_back(chanB);
     }
@@ -172,11 +224,11 @@ std::vector<uint8_t> nsw::GBTxConfig::getPhasesVector(const std::vector<uint8_t>
     std::stringstream ss;
     ss<<"\n[GBTx Phases Read Back]\n";
     ss<<"Channel   0   1   2   3   4   5   6   7 \n";
-    for (std::size_t i=0; i<ret.size()-1; i++){
-        if (i%8==0) ss<<"Group "<<i/8<<" ";
+    for (std::size_t groupChan=0; groupChan<ret.size()-1; groupChan++){
+        if (groupChan%8==0) ss<<"Group "<<groupChan/8<<" ";
         ss<<"| ";
-        ss << std::hex << static_cast<int>(ret.at(i)) << std::dec << " ";
-        if ((i-7)%8==0) ss<<'\n';
+        ss << std::hex << static_cast<int>(ret.at(groupChan)) << std::dec << " ";
+        if ((groupChan-7)%8==0) ss<<'\n';
     }
     ss<<"EC: "<< std::hex << static_cast<int>(ret.back()) << std::dec;
     ERS_LOG(ss.str());

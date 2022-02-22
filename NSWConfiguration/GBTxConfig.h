@@ -192,6 +192,20 @@ public:
      void setActive() {m_active = true;}
 
     /**
+     * \brief Parse full GBTx config, return phases lock status
+     * 
+     * \return std::vector<uint8_t> list of phase lock status
+     */
+     static std::vector<bool> getLockStatusVector(const std::vector<uint8_t>& config) ;
+
+    /**
+     * \brief Parse full GBTx config, return phases
+     * 
+     * \return boost::property_tree::ptree phase values keyed by setting names
+     */
+     static boost::property_tree::ptree getLockStatusTree(const std::vector<uint8_t>& config) ;
+
+    /**
      * \brief Parse full GBTx config, return phases
      * 
      * \return std::vector<uint8_t> list of phase values

@@ -9,24 +9,84 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
 
     ERS_DEBUG(2, "Constructor for nsw::L1DDCConfig::L1DDCConfig\n");
 
-    try {
+    //try {
+    //    m_opcServerIp    = config.get<std::string>("OpcServerIp");
+    //    m_opcNodeId      = config.get<std::string>("OpcNodeId");
+    //    m_boardType      = config.get<std::string>("boardType");
+
+    //    //flxNetwork IP address of interface used to communicate with FELIX
+    //    //fid_toflx toflx FID, used to send data to FELIX
+    //    //fid_tohost tohost FID, used to receive data from FELIX
+    //    m_flxNetwork    = config.get<std::string>("FelixNetwork");
+    //    m_fid_toflx     = config.get<std::uint64_t>("fid_toflx");
+    //    m_fid_tohost    = config.get<std::uint64_t>("fid_tohost");
+
+    //}
+    //catch (const boost::property_tree::ptree_bad_path&){
+    //    nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
+    //    ers::error(issue);
+    //    throw issue;
+    //}
+
+    //flxNetwork IP address of interface used to communicate with FELIX
+    //fid_toflx toflx FID, used to send data to FELIX
+    //fid_tohost tohost FID, used to receive data from FELIX
+
+    try{
         m_opcServerIp    = config.get<std::string>("OpcServerIp");
-        m_opcNodeId      = config.get<std::string>("OpcNodeId");
-        m_boardType      = config.get<std::string>("boardType");
-
-        //flxNetwork IP address of interface used to communicate with FELIX
-        //fid_toflx toflx FID, used to send data to FELIX
-        //fid_tohost tohost FID, used to receive data from FELIX
-        m_flxNetwork    = config.get<std::string>("FelixNetwork");
-        m_fid_toflx     = config.get<std::uint64_t>("fid_toflx");
-        m_fid_tohost    = config.get<std::uint64_t>("fid_tohost");
-
     }
     catch (const boost::property_tree::ptree_bad_path&){
-        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be OpcServerIp");
         ers::error(issue);
         throw issue;
     }
+
+    try{
+        m_opcNodeId      = config.get<std::string>("OpcNodeId");
+    }
+    catch (const boost::property_tree::ptree_bad_path&){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be OpcNodeId");
+        ers::error(issue);
+        throw issue;
+    }
+
+    try{
+        m_boardType      = config.get<std::string>("boardType");
+    }
+    catch (const boost::property_tree::ptree_bad_path&){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be boardType");
+        ers::error(issue);
+        throw issue;
+    }
+
+    try{
+        m_flxNetwork    = config.get<std::string>("FelixNetwork");
+    }
+    catch (const boost::property_tree::ptree_bad_path&){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be FelixNetwork");
+        ers::error(issue);
+        throw issue;
+    }
+
+    try{
+        m_fid_toflx     = config.get<std::uint64_t>("fid_toflx");
+    }
+    catch (const boost::property_tree::ptree_bad_path&){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be fid_toflx");
+        ers::error(issue);
+        throw issue;
+    }
+
+    try{
+        m_fid_tohost    = config.get<std::uint64_t>("fid_tohost");
+    }
+    catch (const boost::property_tree::ptree_bad_path&){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be fid_tohost");
+        ers::error(issue);
+        throw issue;
+    }
+
+
 
     m_name = fmt::format("L1DDC-{}:{}/{}/{}",m_boardType,m_flxNetwork,m_fid_toflx,m_fid_tohost);
 
