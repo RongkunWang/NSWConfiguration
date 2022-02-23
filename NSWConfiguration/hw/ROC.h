@@ -12,6 +12,7 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/hw/Helper.h"
+#include "NSWConfiguration/hw/ConfigurationTracker.h"
 
 namespace nsw::hw {
   /**
@@ -263,6 +264,7 @@ namespace nsw::hw {
     ROCConfig m_roc;            //!< Configuration for this ROC (holds analog and digital)
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of FE item in Opc address space
+    // mutable internal::ConfigurationTrackerMap<internal::DeviceType::ROC> m_tracker;  //!< Tracks the current configuration
     constexpr static std::array<std::uint8_t, 22>
       UNUSED_REGISTERS{15, 16, 17, 18, 25, 26, 27, 28, 29, 30, 54, 55, 56, 57, 58, 59, 60, 61, 62, 125, 126, 127};  //!< Unused ROC registers
 

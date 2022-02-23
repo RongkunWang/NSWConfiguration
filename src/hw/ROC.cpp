@@ -23,10 +23,14 @@ nsw::hw::ROC::ROC(const nsw::FEBConfig& config) :
   m_roc(config.getRoc()),
   m_opcserverIp(config.getOpcServerIp()),
   m_scaAddress(config.getAddress())
+// m_tracker(internal::ConfigurationTrackerMap<internal::DeviceType::ROC>(config.getRoc()))
 {}
 
 void nsw::hw::ROC::writeConfiguration() const
 {
+  // if (not m_tracker.checkFullWrite(m_roc)) {
+  //   ers::warning(FullConfigurationIssue(ERS_HERE, m_scaAddress));
+  // }
   constexpr bool INACTIVE = false;
   constexpr bool ACTIVE = true;
 
@@ -90,6 +94,7 @@ void nsw::hw::ROC::writeRegister(const std::uint8_t regAddress, const std::uint8
 
 void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t value) const
 {
+  // m_tracker.update(regName, value);
   const auto isAnalog = [&regName]() {
     if (ROC_ANALOG_REGISTERS.find(regName) != std::end(ROC_ANALOG_REGISTERS)) {
       return true;
