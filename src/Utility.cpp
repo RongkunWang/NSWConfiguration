@@ -426,6 +426,15 @@ namespace boost::property_tree {
       return toString_impl(toString_impl, obj);
     }();
   }
+
+ptree operator+(const ptree& lhs, const ptree& rhs)
+{
+    // TODO: Fix merging
+    ptree result(lhs);
+    result.insert(result.end(), rhs.begin(), rhs.end());
+    return result;
+}
+
 }  // namespace boost::property_tree
 
 std::ostream& operator<<(std::ostream& out, const __uint128_t x) {

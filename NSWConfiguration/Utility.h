@@ -272,6 +272,15 @@ struct translator_between<std::string, __uint128_t>
   };
 };
 
+/**
+ * \brief Merge two ptrees
+ *
+ * \param lhs first ptree 
+ * \param rhs second ptree
+ * \return ptree merged (new) ptree
+ */
+ptree operator+(const ptree& lhs, const ptree& rhs);
+
 } // namespace boost::property_tree
 
 /**
