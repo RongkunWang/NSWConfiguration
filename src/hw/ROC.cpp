@@ -20,8 +20,7 @@
 #include "NSWConfiguration/ConfigConverter.h"
 
 nsw::hw::ROC::ROC(const nsw::FEBConfig& config) :
-  m_rocAnalog(config.getRocAnalog()),
-  m_rocDigital(config.getRocDigital()),
+  m_roc(config.getRoc()),
   m_opcserverIp(config.getOpcServerIp()),
   m_scaAddress(config.getAddress())
 {}
@@ -38,12 +37,12 @@ void nsw::hw::ROC::writeConfiguration() const
 
   setSResetN(opcConnection, INACTIVE);
 
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_rocAnalog);
+  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_roc.getAnalog());
 
   setPllResetN(opcConnection, INACTIVE);
   setCoreResetN(opcConnection, INACTIVE);
 
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_rocDigital);
+  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_roc.getDigital());
 }
 
 std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
@@ -55,8 +54,7 @@ std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
        regNumber++) {
     try {
       result[regNumber] = readRegister(regNumber);
-    }
-    catch (const UnusedRegisterException&) {
+    } catch (const UnusedRegisterException&) {
       continue;
     }
   }
@@ -65,7 +63,8 @@ std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
 
 void nsw::hw::ROC::writeRegister(const std::uint8_t regAddress, const std::uint8_t value) const
 {
-  if (std::find(std::begin(UNUSED_REGISTERS), std::end(UNUSED_REGISTERS), regAddress) != std::end(UNUSED_REGISTERS)) {
+  if (std::find(std::begin(UNUSED_REGISTERS), std::end(UNUSED_REGISTERS), regAddress) !=
+      std::end(UNUSED_REGISTERS)) {
     throw UnusedRegisterException(fmt::format("Cannot read unused register {}", regAddress));
   }
   const auto isAnalog = regAddress >= ROC_DIGITAL_REGISTERS.size();
@@ -124,7 +123,8 @@ void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t 
 
 std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
 {
-  if (std::find(std::begin(UNUSED_REGISTERS), std::end(UNUSED_REGISTERS), regAddress) != std::end(UNUSED_REGISTERS)) {
+  if (std::find(std::begin(UNUSED_REGISTERS), std::end(UNUSED_REGISTERS), regAddress) !=
+      std::end(UNUSED_REGISTERS)) {
     throw UnusedRegisterException(fmt::format("Cannot read unused register {}", regAddress));
   }
   constexpr unsigned int DELAY = 2;
@@ -170,7 +170,7 @@ void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values
       const auto configConverter =
         ConfigConverter<ConfigConversionType::ROC_ANALOG>(valuesTree, ConfigType::VALUE_BASED);
       return nsw::I2cMasterConfig(
-        configConverter.getFlatRegisterBasedConfig(m_rocAnalog.getBitstreamMap()),
+        configConverter.getFlatRegisterBasedConfig(m_roc.getAnalog().getBitstreamMap()),
         ROC_ANALOG_NAME,
         ROC_ANALOG_REGISTERS,
         true);
@@ -178,7 +178,7 @@ void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values
     const auto configConverter =
       ConfigConverter<ConfigConversionType::ROC_DIGITAL>(valuesTree, ConfigType::VALUE_BASED);
     return nsw::I2cMasterConfig(
-      configConverter.getFlatRegisterBasedConfig(m_rocDigital.getBitstreamMap()),
+      configConverter.getFlatRegisterBasedConfig(m_roc.getDigital().getBitstreamMap()),
       ROC_DIGITAL_NAME,
       ROC_DIGITAL_REGISTERS,
       true);
@@ -210,10 +210,11 @@ unsigned int nsw::hw::ROC::readValue(const std::string& name) const
 void nsw::hw::ROC::enableVmmCaptureInputs() const
 {
   boost::property_tree::ptree tree;
-  tree.put_child("reg008vmmEnable",
-                 m_rocDigital.getConfig().get_child("reg008vmmEnable"));
-  const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(tree, ConfigType::REGISTER_BASED);
-  const auto translatedPtree = configConverter.getFlatRegisterBasedConfig(m_rocDigital.getBitstreamMap());
+  tree.put_child("reg008vmmEnable", m_roc.getDigital().getConfig().get_child("reg008vmmEnable"));
+  const auto configConverter =
+    ConfigConverter<ConfigConversionType::ROC_DIGITAL>(tree, ConfigType::REGISTER_BASED);
+  const auto translatedPtree =
+    configConverter.getFlatRegisterBasedConfig(m_roc.getDigital().getBitstreamMap());
   writeRegister("reg008vmmEnable", translatedPtree.get<std::uint8_t>("reg008vmmEnable"));
 }
 
@@ -300,13 +301,13 @@ std::uint8_t nsw::hw::ROC::getRegAddress(const std::string& regName, const bool 
       throw std::logic_error(fmt::format("Did not find register {}", regName));
     }
     return static_cast<std::uint8_t>(
-      static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_ANALOG_REGISTERS),
-                                              ROC_ANALOG_REGISTERS.find(regName))) +
+      static_cast<std::uint8_t>(
+        std::distance(std::cbegin(ROC_ANALOG_REGISTERS), ROC_ANALOG_REGISTERS.find(regName))) +
       ROC_DIGITAL_REGISTERS.size());
   }
   if (ROC_DIGITAL_REGISTERS.find(regName) == std::end(ROC_DIGITAL_REGISTERS)) {
     throw std::logic_error(fmt::format("Did not find register {}", regName));
   }
-  return static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_DIGITAL_REGISTERS),
-                                                  ROC_DIGITAL_REGISTERS.find(regName)));
+  return static_cast<std::uint8_t>(
+    std::distance(std::cbegin(ROC_DIGITAL_REGISTERS), ROC_DIGITAL_REGISTERS.find(regName)));
 }

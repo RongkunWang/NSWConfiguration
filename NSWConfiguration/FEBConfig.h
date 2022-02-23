@@ -10,6 +10,7 @@
 #include "NSWConfiguration/SCAConfig.h"
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/ROCConfig.h"
 
 namespace nsw {
 
@@ -23,8 +24,7 @@ namespace nsw {
 class FEBConfig: public SCAConfig {
  private:
     std::vector<VMMConfig> m_vmms;
-    I2cMasterConfig m_roc_analog;
-    I2cMasterConfig m_roc_digital;
+    ROCConfig m_roc;
     std::vector<I2cMasterConfig> m_tdss;
     std::vector<std::string> m_gpios;  // List of GPIO names in the FEB
     std::size_t m_firstVmm{nsw::MAX_NUMBER_OF_VMM};  //!< Hold the board ID of the first VMM to correctly access by index of container
@@ -54,12 +54,17 @@ class FEBConfig: public SCAConfig {
     //! Get a const reference to the \c VMMConfig object for VMM<i>, where `i` is the board position index
     const VMMConfig & getVmm(size_t i) const {return m_vmms.at(i-m_firstVmm);} //!< \overload
     const std::vector<VMMConfig> & getVmms() const {return m_vmms;}
-    const I2cMasterConfig & getRocAnalog() const {return m_roc_analog;}
-    const I2cMasterConfig & getRocDigital() const {return m_roc_digital;}
+    const ROCConfig & getRoc() const {return m_roc;}
+    const I2cMasterConfig & getRocAnalog() const {return m_roc.getAnalog();}
+    const I2cMasterConfig & getRocDigital() const {return m_roc.getDigital();}
     const std::vector<I2cMasterConfig> & getTdss() const {return m_tdss;}
 
     std::size_t getFirstVmmIndex() const {return m_firstVmm;}
     std::size_t getFirstTdsIndex() const {return m_firstTds;}
+
+    ROCConfig & getRoc() {
+        return const_cast<ROCConfig &>(static_cast<const FEBConfig&>(*this).getRoc());
+    }
 
     I2cMasterConfig & getRocAnalog() {
         return const_cast<I2cMasterConfig &>(static_cast<const FEBConfig&>(*this).getRocAnalog());

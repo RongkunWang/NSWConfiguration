@@ -7,6 +7,7 @@
 #include <unordered_set>
 
 #include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/ROCConfig.h"
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
@@ -188,8 +189,8 @@ namespace nsw::hw {
      * Both const and non-const overloads are provided
      */
     // clang-format off
-    [[nodiscard]] I2cMasterConfig& getConfigAnalog() { return m_rocAnalog; }
-    [[nodiscard]] const I2cMasterConfig& getConfigAnalog() const { return m_rocAnalog; } //!< \overload
+    [[nodiscard]] I2cMasterConfig& getConfigAnalog() { return m_roc.getAnalog(); }
+    [[nodiscard]] const I2cMasterConfig& getConfigAnalog() const { return m_roc.getAnalog(); } //!< \overload
     // clang-format on
 
     /**
@@ -198,8 +199,8 @@ namespace nsw::hw {
      * Both const and non-const overloads are provided
      */
     // clang-format off
-    [[nodiscard]] I2cMasterConfig& getConfigDigital() { return m_rocDigital; }
-    [[nodiscard]] const I2cMasterConfig& getConfigDigital() const { return m_rocDigital; } //!< \overload
+    [[nodiscard]] I2cMasterConfig& getConfigDigital() { return m_roc.getDigital(); }
+    [[nodiscard]] const I2cMasterConfig& getConfigDigital() const { return m_roc.getDigital(); } //!< \overload
     // clang-format on
 
     [[nodiscard]] std::string getName() const { return m_scaAddress; }
@@ -259,10 +260,9 @@ namespace nsw::hw {
      */
     [[nodiscard]] static std::uint8_t getRegAddress(const std::string& regName, bool isAnalog);
 
-    I2cMasterConfig m_rocAnalog;   //!< associated I2cMasterConfig for the analog part of this ROC
-    I2cMasterConfig m_rocDigital;  //!< associated I2cMasterConfig for the digital part of this ROC
-    std::string m_opcserverIp;     //!< address and port of Opc Server
-    std::string m_scaAddress;      //!< SCA address of FE item in Opc address space
+    ROCConfig m_roc;            //!< Configuration for this ROC (holds analog and digital)
+    std::string m_opcserverIp;  //!< address and port of Opc Server
+    std::string m_scaAddress;   //!< SCA address of FE item in Opc address space
     constexpr static std::array<std::uint8_t, 22>
       UNUSED_REGISTERS{15, 16, 17, 18, 25, 26, 27, 28, 29, 30, 54, 55, 56, 57, 58, 59, 60, 61, 62, 125, 126, 127};  //!< Unused ROC registers
 
