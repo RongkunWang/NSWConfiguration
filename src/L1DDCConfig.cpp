@@ -18,12 +18,12 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         //fid_toflx toflx FID, used to send data to FELIX
         //fid_tohost tohost FID, used to receive data from FELIX
         m_flxNetwork    = config.get<std::string>("FelixNetwork");
-        m_fid_toflx     = config.get<std::uint64_t>("fid_toflx");
-        m_fid_tohost    = config.get<std::uint64_t>("fid_tohost");
+        m_fid_toflx     = std::stoull(config.get<std::string>("FidToFlx"),  nullptr, nsw::BASE_AUTO);
+        m_fid_tohost    = std::stoull(config.get<std::string>("FidToHost"), nullptr, nsw::BASE_AUTO);
 
     }
-    catch (const boost::property_tree::ptree_bad_path&){
-        nsw::NSWL1DDCIssue issue(ERS_HERE, "Error getting L1DDC info from JSON. Missing entries may be portToGBTx, portFromGBTx, elinkId");
+    catch (const boost::property_tree::ptree_bad_path& ex){
+        nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("Error getting L1DDC info from JSON: {}", ex.what()));
         ers::error(issue);
         throw issue;
     }
