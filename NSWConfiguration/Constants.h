@@ -15,6 +15,9 @@ namespace nsw {
   /// Fool me once
   constexpr std::size_t MAX_ATTEMPTS = 5;
 
+  /// Make it clear when we are using 0 to indicate auto-detection (used in std::stoul, for example)
+  constexpr std::size_t BASE_AUTO = 0;
+
   /// Make it clear when we are using 2 to indicate binary
   constexpr std::size_t BASE_BIN = 2;
 
