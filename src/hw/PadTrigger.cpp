@@ -184,8 +184,11 @@ void nsw::hw::PadTrigger::toggleIdleState() const
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const
 {
-  std::map<std::uint8_t, std::uint32_t> result;
-  result.emplace(nsw::padtrigger::REG_CONTROL, readFPGARegister(nsw::padtrigger::REG_CONTROL));
+  auto result = std::map<std::uint8_t, std::uint32_t>();
+  for (const auto& [rname, ignored] : PADTRIGGER_REGISTERS) {
+    const auto addr = addressFromRegisterName(rname);
+    result.emplace(addr, readFPGARegister(addr));
+  }
   return result;
 }
 
@@ -318,6 +321,9 @@ std::uint32_t nsw::hw::PadTrigger::firmware_dateword() const {
 
   std::uint32_t dateword = 0;
   const std::string& fw = firmware();
+  if (fw.empty()) {
+    return dateword;
+  }
 
   // extract YYYY*MM*DD from firmware()
   //   [0-9]{N} means "N digits"

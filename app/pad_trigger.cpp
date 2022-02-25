@@ -21,17 +21,12 @@ double xilinx_temperature_conversion(uint32_t temp);
 
 int main(int argc, const char *argv[]) 
 {
-    std::string config_filename;
-    std::string board_name;
-    std::string gpio_name;
-    std::string i2c_reg;
-    std::string i2c_val;
-    bool dump;
-    bool do_config;
-    bool do_control;
-    bool uploadBitfile;
-    bool toggleIdleState;
-    int val;
+    std::string config_filename{""};
+    std::string board_name{""};
+    std::string gpio_name{""};
+    std::string i2c_reg{""};
+    std::string i2c_val{""};
+    int val{0};
 
     // options
     po::options_description desc(std::string("Pad trigger configuration script"));
@@ -53,6 +48,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to send Pad Trigger control register (built from json)")
         ("toggleIdleState", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger idle state in the control register")
+        ("read,r", po::bool_switch()->
+         default_value(false), "Option to read FPGA configuration and status registers")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -63,11 +60,12 @@ int main(int argc, const char *argv[])
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    dump            = vm["dump"]           .as<bool>();
-    do_config       = vm["do_config"]      .as<bool>();
-    do_control      = vm["do_control"]     .as<bool>();
-    uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
-    toggleIdleState = vm["toggleIdleState"].as<bool>();
+    const auto dump            = vm["dump"]           .as<bool>();
+    const auto do_config       = vm["do_config"]      .as<bool>();
+    const auto do_control      = vm["do_control"]     .as<bool>();
+    const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
+    const auto toggleIdleState = vm["toggleIdleState"].as<bool>();
+    const auto read            = vm["read"]           .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -157,6 +155,17 @@ int main(int argc, const char *argv[])
     if (toggleIdleState) {
       for (const auto& hw: hws) {
         hw.toggleIdleState();
+      }
+    }
+
+    // read
+    if (read) {
+      std::cout << "Read registers:" << std::endl;
+      for (const auto& hw: hws) {
+        for (const auto& [addr, val]: hw.readConfiguration()) {
+          std::cout << fmt::format("{} address {:03x}: {:#010x}", hw.getName(), addr, val)
+                    << std::endl;
+        }
       }
     }
 
