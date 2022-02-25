@@ -3,7 +3,6 @@
 
 #include <ers/Issue.h>
 
-#include "NSWConfiguration/hw/OpcClientPtr.h"
 #include "NSWConfiguration/hw/SCAInterface.h"
 
 ERS_DECLARE_ISSUE(nsw,
@@ -21,7 +20,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeRegister(const internal::OpcClientPtr& opcConnection,
+  void writeRegister(const OpcClientPtr& opcConnection,
                      const std::string& node,
                      const std::uint32_t regAddress,
                      const std::uint32_t value);
@@ -33,7 +32,7 @@ namespace nsw::hw::SCAX {
    * \param node name of the OPC node
    * \param regAddress register address
    */
-  std::uint32_t readRegister(const internal::OpcClientPtr& opcConnection,
+  std::uint32_t readRegister(const OpcClientPtr& opcConnection,
                              const std::string& node,
                              const std::uint32_t regAddress);
 
@@ -45,7 +44,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeAndReadbackRegister(const internal::OpcClientPtr& opcConnection,
+  void writeAndReadbackRegister(const OpcClientPtr& opcConnection,
                                 const std::string& node,
                                 const std::uint32_t regAddress,
                                 const std::uint32_t value);

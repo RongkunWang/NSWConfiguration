@@ -162,6 +162,8 @@ public:
 
 };
 
+using OpcClientPtr = OpcClient*;
+
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_

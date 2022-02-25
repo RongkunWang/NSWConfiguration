@@ -9,7 +9,6 @@
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/hw/OpcManager.h"
-#include "NSWConfiguration/hw/OpcClientPtr.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/hw/Helper.h"
 
@@ -222,7 +221,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setSResetN(const nsw::internal::OpcClientPtr& opcConnection, bool state) const;
+    void setSResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Reset for all PLLs
@@ -230,7 +229,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setPllResetN(const nsw::internal::OpcClientPtr& opcConnection, bool state) const;
+    void setPllResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Asynchronous reset for the ROC core
@@ -238,7 +237,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setCoreResetN(const nsw::internal::OpcClientPtr& opcConnection, bool state) const;
+    void setCoreResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Set a given reset to a given state
@@ -247,7 +246,7 @@ namespace nsw::hw {
      * \param resetName GPIO name of the reset
      * \param state true = set reset, false = release reset
      */
-    void setReset(const nsw::internal::OpcClientPtr& opcConnection,
+    void setReset(const nsw::OpcClientPtr& opcConnection,
                   const std::string& resetName,
                   bool state) const;
 

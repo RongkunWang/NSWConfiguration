@@ -259,12 +259,12 @@ std::uint8_t nsw::hw::ROC::readStatusRegister(const std::uint8_t regAddress) con
   return readRegister(regAddress);
 }
 
-void nsw::hw::ROC::setSResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setSResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocSResetN", state);
 }
 
-void nsw::hw::ROC::setPllResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setPllResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocPllResetN", state);
 
@@ -280,12 +280,12 @@ void nsw::hw::ROC::setPllResetN(const nsw::internal::OpcClientPtr& opcConnection
   }
 }
 
-void nsw::hw::ROC::setCoreResetN(const nsw::internal::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setCoreResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocCoreResetN", state);
 }
 
-void nsw::hw::ROC::setReset(const nsw::internal::OpcClientPtr& opcConnection,
+void nsw::hw::ROC::setReset(const nsw::OpcClientPtr& opcConnection,
                             const std::string& resetName,
                             const bool state) const
 {

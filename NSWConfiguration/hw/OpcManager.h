@@ -6,9 +6,20 @@
 #include <mutex>
 #include <string>
 
-#include "NSWConfiguration/OpcClient.h"
-#include "NSWConfiguration/hw/OpcClientPtr.h"
+#include <ers/ers.h>
 
+#include "NSWConfiguration/OpcClient.h"
+
+ERS_DECLARE_ISSUE(nsw,
+                  OpcManagerPingFrequency,
+                  "Cannot ping OPC connection with required frequency",
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  OpcManagerPingIssue,
+                  "Issue pinging a connection " << message << ". Sending recovery request.",
+                  ((std::string) message)
+                  )
 namespace nsw {
   class OpcManager
   {
@@ -19,9 +30,9 @@ namespace nsw {
      * \brief Get a pointer containing the OPC client
      *
      * \param deviceName Name of the device
-     * \return internal::OpcClientPtr Object containing a pointer to the OPC client
+     * \return OpcClientPtr Object containing a pointer to the OPC client
      */
-    internal::OpcClientPtr getConnection(const std::string& ipPort, const std::string& deviceName);
+    OpcClientPtr getConnection(const std::string& ipPort, const std::string& deviceName);
 
     /**
      * \brief Destroy the OPC Manager object
@@ -29,19 +40,27 @@ namespace nsw {
      * Close all existing connections and notify handed out pointers.
      */
     ~OpcManager();
+    OpcManager() = default;
     OpcManager(const OpcManager&) = delete;
     OpcManager(OpcManager&&) = delete;
     OpcManager& operator=(OpcManager&&) = delete;
     OpcManager& operator=(const OpcManager&) = delete;
+
+    /**
+     * \brief Close all connections
+     */
+    void clear();
     OpcManager() = default;
 
   private:
     /**
-     * \brief Start the timer for closing the connection
+     * \brief Ping all connections to keep them open
      *
-     * \param pointer Pointer object handed out by \ref getConnection
+     * Executes a loop to ping them every \ref PING_INTERVAL seconds
+     *
+     * \param stop Future to stop thread
      */
-    void startRemoval(internal::OpcClientPtr* pointer);
+    void pingConnections(std::future<void>&& stop) const;
 
     /**
      * \brief Create a new connection to the OPC server (one per device)
@@ -60,35 +79,15 @@ namespace nsw {
     bool exists(const Identifier& identifier) const;
 
     /**
-     * \brief Close a connection to a device
-     *
-     * \param identifier Name of the device
+     * \brief Close all connections (implementation)
      */
-    void remove(const Identifier& identifier);
+    void doClear();
 
-    /**
-     * \brief Stop the timer for closing a connection
-     *
-     * \param identifier Name of the device
-     */
-    void stopRemoval(const Identifier& identifier);
-
-    /**
-     * \brief Clean up finished removal threads
-     */
-    void cleanupThreads();
-
-    friend internal::OpcClientPtr;
-    std::map<internal::OpcClientPtr*, Identifier>
-      m_pointers{};  //<! non-owning map of provided pointers
     std::map<Identifier, std::unique_ptr<OpcClient>> m_connections{};  //<! opened connections
-    std::map<Identifier, std::promise<void>> m_promisesStop{};         //<! Promises to stop closing
-    std::map<Identifier, std::promise<void>>
-      m_promisesKill{};  //<! Promises to force stopping threads
-    constexpr static std::chrono::seconds MAX_TIME_UNSUSED{
-      10};  //<! Maximum amount of time a connection may remain open while not being used
-    std::vector<std::future<void>> m_threads{};  //<! Container holding all removal threads
-    mutable std::mutex m_mutex{};                //<! Mutex for synchronization
+    constexpr static std::chrono::seconds PING_INTERVAL{10};           //<! Delay between two pings
+    std::promise<void> m_stopBackgroundThread{};  //<! Background thread to ping all connections
+    std::future<void> m_backgroundThread{};       //<! Background thread to ping all connections
+    mutable std::mutex m_mutex{};                 //<! Mutex for synchronization
   };
 }  // namespace nsw
 
