@@ -128,6 +128,35 @@ namespace nsw::hw {
      */
     void disableVmmCaptureInputs() const;
 
+    /**
+     * \brief Get all devices of given type
+     *
+     * \tparam Device HW inerface type
+     * \return decltype(auto) Devices
+     */
+    template<typename Device>
+    decltype(auto) getDevices() const {
+      return getDevicesCommon<Device>(this);
+    }
+
+    /**
+     * \overload decltype(auto) getDevices() const
+     */
+    template<typename Device>
+    decltype(auto) getDevices() {
+      return getDevicesCommon<Device>(this);
+    }
+
+    /**
+     * \brief Get the number of devices per type
+     *
+     * \tparam Device HW inerface type
+     * \return std::size_t Number of devices
+     */
+    template<typename Device>
+    std::size_t getNumDevices() const {
+      return std::size(getDevices<Device>());
+    }
   private:
     bool m_multithreaded;
     OpcManager m_opcManager{};
@@ -179,6 +208,46 @@ namespace nsw::hw {
      * \param config config object
      */
     void addTpCarrier(const nsw::TPCarrierConfig& config);
+
+    /**
+     * \brief Implementation for /ref getDevices functions
+     *
+     * \tparam Device HW inerface type
+     * \tparam Self Pointer to this class (either const or non-const)
+     * \param self Pointer to this class
+     * \return decltype(auto) Devices
+     */
+    template<typename Device, typename Self>
+    static decltype(auto) getDevicesCommon(Self* self) {
+      static_assert(std::is_same_v<Device, nsw::hw::FEB> ||
+                      std::is_same_v<Device, nsw::hw::ART> ||
+                      std::is_same_v<Device, nsw::hw::TP> ||
+                      std::is_same_v<Device, nsw::hw::Router> ||
+                      std::is_same_v<Device, nsw::hw::PadTrigger> ||
+                      std::is_same_v<Device, nsw::hw::TPCarrier>,
+                    "Unknown type. Provide a hw interface object");
+      if constexpr (std::is_same_v<Device, nsw::hw::FEB>) {
+        return (self->m_febs);
+      }
+      else if constexpr (std::is_same_v<Device, nsw::hw::ART>) {
+        return (self->m_arts);
+      }
+      else if constexpr (std::is_same_v<Device, nsw::hw::TP>) {
+        return (self->m_tps);
+      }
+      else if constexpr (std::is_same_v<Device, nsw::hw::Router>) {
+        return (self->m_routers);
+      }
+      else if constexpr (std::is_same_v<Device, nsw::hw::PadTrigger>) {
+        return (self->m_padTriggers);
+      }
+      else if constexpr (std::is_same_v<Device, nsw::hw::TPCarrier>) {
+        return (self->m_tpCarriers);
+      }
+      else {
+        throw std::logic_error("If you see me, fix the static asserts above me!");
+      }
+    }
 
     /**
      * @brief Apply a function to a range of devices and handle exceptions
