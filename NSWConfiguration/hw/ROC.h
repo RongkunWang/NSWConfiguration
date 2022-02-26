@@ -204,6 +204,12 @@ namespace nsw::hw {
 
     [[nodiscard]] std::string getName() const { return m_scaAddress; }
 
+    /**
+     * \brief Get the Opc server IP
+     *
+     * \return std::string Opc server IP
+     */
+    [[nodiscard]] std::string getOpcServerIp() const { return m_opcserverIp; }
   private:
     /**
      * \brief Read a status register

@@ -64,6 +64,13 @@ namespace nsw::hw {
     [[nodiscard]] std::string getOpcNodeId() const { return m_opcNodeId; }
 
     /**
+     * \brief Get the Opc server IP
+     *
+     * \return std::string Opc server IP
+     */
+    [[nodiscard]] std::string getOpcServerIp() const { return m_roc.getOpcServerIp(); }
+
+    /**
      * \brief Configure a FEB
      *
      * \param resetVmm Reset VMMs

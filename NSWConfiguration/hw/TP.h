@@ -58,6 +58,13 @@ namespace nsw::hw {
       [[maybe_unused]] std::uint8_t regAddress) const;
 
     /**
+     * \brief Get the Opc server IP
+     *
+     * \return std::string Opc server IP
+     */
+    [[nodiscard]] std::string getOpcServerIp() const { return m_opcserverIp; }
+
+    /**
      * \brief Get the \ref TPConfig object associated with this TP object
      *
      * Both const and non-const overloads are provided
