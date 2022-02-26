@@ -235,7 +235,7 @@ void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
   payload.insert(std::end(payload), std::begin(addr), std::end(addr));
   payload.insert(std::end(payload), std::begin(data), std::end(data));
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddressFPGA);
   nsw::hw::SCA::sendI2cRaw(opcConnection, m_scaAddressFPGA, payload.data(), payload.size());
 }
 
@@ -288,7 +288,7 @@ std::uint8_t nsw::hw::PadTrigger::readVTTxRegister(const std::uint8_t vttx,
 std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddress) const
 {
   const std::vector<std::uint8_t> data = { regAddress };
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddressFPGA);
   const auto value = nsw::hw::SCA::readI2cAtAddress(opcConnection, m_scaAddressFPGA,
                                                     data.data(), data.size(),
                                                     nsw::NUM_BYTES_IN_WORD32);
