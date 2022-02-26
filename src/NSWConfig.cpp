@@ -1,9 +1,13 @@
 #include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 
+#include <thread>
 #include <utility>
 #include <string>
 #include <memory>
+#include <chrono>
 
 // Header to the RC online services
 #include "NSWConfiguration/hw/DeviceManager.h"
@@ -14,6 +18,7 @@
 #include "ers/ers.h"
 
 using boost::property_tree::ptree;
+using namespace std::chrono_literals;
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfig instance");
@@ -242,4 +247,58 @@ void nsw::NSWConfig::startRc() {
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     enableMmtpChannelRates(false);
+}
+
+void nsw::NSWConfig::recoverOpc() {
+  ERS_INFO("Trying to recover");
+  m_deviceManager.clearOpc();
+  const auto pingServer = [this] () {
+    const auto ping = [] (const auto& device) {
+      try {
+        auto connection = OpcClient(device.getOpcServerIp());
+        // static_cast<void>(connection.readScaOnline(device.getOpcNodeId()));
+      } catch (const nsw::OpcConnectionIssue&) {
+        ERS_INFO("Not connected");
+        return false;
+      } catch (const nsw::OpcReadWriteIssue&) {
+        ERS_INFO("Bad write");
+        return false;
+      }
+      return true;
+    };
+    if (m_deviceManager.getNumDevices<hw::FEB>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::FEB>().at(0));
+    }
+    if (m_deviceManager.getNumDevices<hw::ART>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::ART>().at(0));
+    }
+    if (m_deviceManager.getNumDevices<hw::TP>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::TP>().at(0));
+    }
+    if (m_deviceManager.getNumDevices<hw::Router>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::Router>().at(0));
+    }
+    if (m_deviceManager.getNumDevices<hw::PadTrigger>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::PadTrigger>().at(0));
+    }
+    if (m_deviceManager.getNumDevices<hw::TPCarrier>() != 0) {
+      return ping(m_deviceManager.getDevices<hw::TPCarrier>().at(0));
+    }
+    return true;
+  };
+
+  constexpr auto TIMEOUT = 1min;
+  constexpr auto INTERVAL = 5s;
+  const auto start = std::chrono::high_resolution_clock::now();
+  ERS_INFO("Start pinging OPC server");
+  while (not pingServer()) {
+    if (std::chrono::high_resolution_clock::now() - start > TIMEOUT) {
+      const auto issue = NSWConfigIssue(ERS_HERE, "Cannot recover");
+      ers::error(issue);
+      throw issue;
+    }
+    std::this_thread::sleep_for(INTERVAL);
+    ERS_INFO("Pinging server...");
+  }
+  ERS_INFO("Recovery successful");
 }

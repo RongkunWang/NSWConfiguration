@@ -167,6 +167,14 @@ namespace nsw::hw {
      * \brief Clear all OPC connections
      */
     void clearOpc();
+
+    /**
+     * \brief Set the command sender to the RC application
+     *
+     * \param sender Command sender to RC application
+     */
+    void setCommandSender(nsw::CommandSender&& sender) { m_opcManager.setCommandSender(std::move(sender)); }
+
   private:
     bool m_multithreaded;
     OpcManager m_opcManager{};

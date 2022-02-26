@@ -60,6 +60,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
 
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
     m_NSWConfig->readConf(nswConfigApp);
+    m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
     ERS_LOG("End");
 }
 
@@ -97,6 +98,11 @@ void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
   if (usrCmd.commandName() == "enableVmmCaptureInputs")
   {
     m_NSWConfig->enableVmmCaptureInputs();
+  }
+  if (usrCmd.commandName() == "recover")
+  {
+    ERS_INFO("Received recovery command");
+    m_NSWConfig->recoverOpc();
   }
 }
 

@@ -9,6 +9,7 @@
 #include <ers/ers.h>
 
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/CommandSender.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   OpcManagerPingFrequency,
@@ -51,6 +52,13 @@ namespace nsw {
      */
     void clear();
 
+    /**
+     * \brief Set the command sender to the RC application
+     *
+     * \param sender Command sender to RC application
+     */
+    void setCommandSender(nsw::CommandSender&& sender) { m_commandSender = std::move(sender); }
+
   private:
     /**
      * \brief Ping all connections to keep them open
@@ -86,6 +94,7 @@ namespace nsw {
     constexpr static std::chrono::seconds PING_INTERVAL{10};           //<! Delay between two pings
     std::promise<void> m_stopBackgroundThread{};  //<! Background thread to ping all connections
     std::future<void> m_backgroundThread{};       //<! Background thread to ping all connections
+    nsw::CommandSender m_commandSender{};         //<! Name of the application for recovery callback
     mutable std::mutex m_mutex{};                 //<! Mutex for synchronization
   };
 }  // namespace nsw
