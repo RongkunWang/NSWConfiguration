@@ -170,6 +170,13 @@ namespace nsw::hw {
     void crashId() const;
 
     /**
+     * \brief Get the Opc server IP
+     *
+     * \return std::string Opc server IP
+     */
+    [[nodiscard]] std::string getOpcServerIp() const { return m_opcserverIp; }
+
+    /**
      * \brief Get the \ref RouterConfig object associated with this Router object
      *
      * Both const and non-const overloads are provided

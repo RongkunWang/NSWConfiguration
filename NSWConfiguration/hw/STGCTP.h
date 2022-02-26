@@ -90,6 +90,13 @@ namespace nsw::hw {
      * \brief Get the "SkipRegisters" provided by the user configuration
      */
     std::set<std::uint8_t> SkipRegisters() const;
+  
+    /**
+     * \brief Get the Opc server IP
+     *
+     * \return std::string Opc server IP
+     */
+    [[nodiscard]] std::string getOpcServerIp() const { return m_opcserverIp; }
 
     /**
      * \brief Get the ptree object associated with this STGCTP object
