@@ -25,6 +25,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
+                  schema/NSWSCAService.schema.xml
+                  schema/NSWConfigurationController.schema.xml
+                  schema/NSWMonitoringController.schema.xml
+                  schema/NSWSectorController.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
   INCLUDE NSWConfigurationDal
@@ -170,7 +174,31 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
+tdaq_add_executable(NSWSCAServiceRc_main app/NSWSCAServiceRc_main.cpp src/NSWSCAServiceRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig nswconfig
+)
+
+tdaq_add_executable(NSWConfigurationControllerRc_main app/NSWConfigurationControllerRc_main.cpp src/NSWConfigurationControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
+tdaq_add_executable(NSWMonitoringControllerRc_main app/NSWMonitoringControllerRc_main.cpp src/NSWMonitoringControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
+tdaq_add_executable(NSWSectorControllerRc_main app/NSWSectorControllerRc_main.cpp src/NSWSectorControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig nswconfig
+)
+
 tdaq_add_schema(schema/NSWConfig.schema.xml)
+tdaq_add_schema(schema/NSWConfigurationController.schema.xml)
+tdaq_add_schema(schema/NSWMonitoringController.schema.xml)
+tdaq_add_schema(schema/NSWSectorController.schema.xml)
+tdaq_add_schema(schema/NSWSCAService.schema.xml)
 
 # Testing
 

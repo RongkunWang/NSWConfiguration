@@ -35,7 +35,7 @@ void nsw::NSWConfig::substituteConf(const ptree& tree) {
   m_reader  = std::make_unique<nsw::ConfigReader>(tree);
 }
 
-void nsw::NSWConfig::configureRc() {
+void nsw::NSWConfig::readConfigurationResource() {
     // TODO(cyildiz): Instead of reading all front ends from the database,
     // we should find the ones that are at the same links with the swROD
     const auto frontend_names = m_reader->getAllElementNames();
@@ -66,7 +66,9 @@ void nsw::NSWConfig::configureRc() {
         ers::fatal(issue);
       }
     }
+}
 
+void nsw::NSWConfig::configureRc() {
     configureL1DDCs();        // Configure all l1ddc's
     configureADDCs();         // Configure all ADDCs with ConfigSender
     if (!m_simulation) {

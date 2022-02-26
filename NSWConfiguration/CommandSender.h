@@ -1,7 +1,7 @@
 #ifndef NSWCONFIGURATION_COMMANDSENDER_H
 #define NSWCONFIGURATION_COMMANDSENDER_H
 
-#include <string> 
+#include <string>
 
 #include <ers/ers.h>
 #include <RunControl/Common/CommandSender.h>
@@ -19,6 +19,12 @@ namespace nsw {
     {
       ERS_INFO("Sending remessage " << command << " to " << m_name);
       m_commandSender->sendCommand(m_name, daq::rc::UserCmd{command, {}});
+    }
+    void send(const std::string& command, const unsigned long timeout) const
+    {
+      ERS_INFO("Sending remessage " << command << " to " << m_name);
+      auto userCmd = daq::rc::UserCmd{command, {}};
+      m_commandSender->sendCommand(m_name, userCmd, timeout);
     }
     [[nodiscard]] bool valid() const { return m_commandSender != nullptr; }
 

@@ -89,6 +89,8 @@ class NSWConfig {
     //! Retrieve the ptree configuration
     boost::property_tree::ptree getConf();
 
+    void readConfigurationResource();
+
     //! Substitute the configuration ptree
     void substituteConf(const boost::property_tree::ptree& tree);
 
