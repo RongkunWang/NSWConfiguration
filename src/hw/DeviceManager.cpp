@@ -164,3 +164,19 @@ void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
     ers::fatal(issue);
   }
 }
+
+void nsw::hw::DeviceManager::clear()
+{
+  clearOpc();
+  m_febs.clear();
+  m_arts.clear();
+  m_tps.clear();
+  m_routers.clear();
+  m_padTriggers.clear();
+  m_tpCarriers.clear();
+}
+
+void nsw::hw::DeviceManager::clearOpc()
+{
+  m_opcManager.clear();
+}

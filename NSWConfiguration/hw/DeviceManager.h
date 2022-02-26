@@ -157,6 +157,16 @@ namespace nsw::hw {
     std::size_t getNumDevices() const {
       return std::size(getDevices<Device>());
     }
+
+    /**
+     * \brief Clear all managed devices and OPC connections
+     */
+    void clear();
+
+    /**
+     * \brief Clear all OPC connections
+     */
+    void clearOpc();
   private:
     bool m_multithreaded;
     OpcManager m_opcManager{};
