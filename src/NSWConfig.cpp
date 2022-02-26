@@ -1,9 +1,13 @@
 #include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 
+#include <thread>
 #include <utility>
 #include <string>
 #include <memory>
+#include <chrono>
 
 // Header to the RC online services
 #include "NSWConfiguration/hw/DeviceManager.h"
@@ -14,6 +18,7 @@
 #include "ers/ers.h"
 
 using boost::property_tree::ptree;
+using namespace std::chrono_literals;
 
 nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     ERS_LOG("Constructing NSWConfig instance");
@@ -252,4 +257,35 @@ void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     enableMmtpChannelRates(false);
     m_deviceManager.toggleIdleStateHigh();
+}
+
+bool nsw::NSWConfig::recoverOpc() {
+  ERS_INFO("Trying to reconnect...");
+  m_deviceManager.clearOpc();
+  const auto pingServer = [this] () {
+    const auto ping = [] (const auto& device) {
+      return device.ping() == nsw::hw::ScaStatus::REACHABLE;
+    };
+    if (std::size(m_deviceManager.getFebs()) != 0) {
+      return ping(m_deviceManager.getFebs().at(0).getRoc());
+    }
+    if (std::size(m_deviceManager.getArts()) != 0) {
+      return ping(m_deviceManager.getArts().at(0));
+    }
+    // if (std::size(m_deviceManager.getTps()) != 0) {
+    //   return ping(m_deviceManager.getTps().at(0));
+    // }
+    if (std::size(m_deviceManager.getRouters()) != 0) {
+      return ping(m_deviceManager.getRouters().at(0));
+    }
+    if (std::size(m_deviceManager.getPadTriggers()) != 0) {
+      return ping(m_deviceManager.getPadTriggers().at(0));
+    }
+    if (std::size(m_deviceManager.getTpCarriers()) != 0) {
+      return ping(m_deviceManager.getTpCarriers().at(0));
+    }
+    return true;
+  };
+
+  return pingServer();
 }

@@ -615,14 +615,6 @@ namespace nsw::hw {
                          std::uint32_t val_23_16
                          ) const;
 
-    /**
-     * \brief Get the Opc server IP
-     *
-     * \return std::string Opc server IP
-     */
-    [[nodiscard]] std::string getOpcServerIp() const { return m_opcserverIp; }
-
-
   private:
 
     /**

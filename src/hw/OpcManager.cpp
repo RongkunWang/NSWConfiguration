@@ -70,8 +70,23 @@ void nsw::OpcManager::pingConnections(std::future<void>&& stop) const
     std::for_each(std::execution::par, std::cbegin(m_connections), std::cend(m_connections), [this, &crashed] (const auto& pair) {
       const auto& name = pair.first.second;
       const auto& connection = pair.second;
-      static_cast<void>(connection->readScaOnline(name));
+      try {
+        static_cast<void>(connection->readScaOnline(name));
+      } catch (const nsw::OpcReadWriteIssue& ex) {
+        ers::warning(OpcManagerPingIssue(ERS_HERE, ex.what()));
+        if (m_commandSender.valid()) {
+          crashed = true;
+        } else {
+          throw;
+        }
+      }
     });
+    if (crashed) {
+      if (m_commandSender.valid()) {
+        m_commandSender.send("recover");
+      }
+      break;
+    }
     ERS_DEBUG(2, "Done pinging all connections");
     const auto sleepTime =
       std::max(0ms,

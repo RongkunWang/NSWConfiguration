@@ -109,6 +109,22 @@ class NSWConfig {
     //! Enable MMTP channel rates reporting
     void enableMmtpChannelRates(bool enable) const;
 
+    /**
+     * \brief Set the command sender to the RC application
+     *
+     * \param sender Command sender to RC application
+     */
+    void setCommandSender(nsw::CommandSender&& sender) { m_deviceManager.setCommandSender(std::move(sender)); }
+    
+    /**
+     * \brief Recover from OPC crashes
+     *
+     * Try to create a connection to any board
+     *
+     * \return recovery successful
+     */
+    bool recoverOpc();
+
     hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
     const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
 private:
