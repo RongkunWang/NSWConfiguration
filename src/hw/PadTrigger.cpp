@@ -106,7 +106,7 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
     return;
   }
   ERS_INFO("Uploading bitfile via SCA JTAG, this will take a minute...");
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddressJTAG);
   nsw::hw::SCA::writeXilinxFpga(opcConnection, m_scaAddressJTAG, fw);
   ERS_INFO("Upload finished");
 }
