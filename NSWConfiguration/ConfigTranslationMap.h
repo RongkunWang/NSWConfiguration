@@ -708,11 +708,11 @@ static const TranslationMapRoc TRANSLATION_MAP_ROC_DIGITAL = [] () {
       TranslationUnitRoc{"reg010bcOffset0_txcSel.tx_csel", 0b1111'0000}
     }},
     {"bc_offset", {
-      TranslationUnitRoc{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111},
+      TranslationUnitRoc{"reg010bcOffset0_txcSel.bc_offset[11:8]", 0b0000'1111, 0b1111'0000'0000},
       TranslationUnitRoc{"reg011bcOffset1.bc_offset[7:0]"}
     }},
     {"bc_rollover", {
-      TranslationUnitRoc{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111},
+      TranslationUnitRoc{"reg012bcRollover0.bc_rollover[11:8]", 0b0000'1111, 0b1111'0000'0000},
       TranslationUnitRoc{"reg013bcRollover1.bc_rollover[7:0]"}
     }},
     {"eportEnable.sRoc0", {
