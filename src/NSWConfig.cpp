@@ -39,6 +39,10 @@ void nsw::NSWConfig::configureRc() {
     for (const auto& name : frontend_names) {
       try {
         const auto element = nsw::getElementType(name);
+        // Skip L1DDC for now. TODO: Remove this once implemented properly
+        if (element == "L1DDC") {
+          continue;
+        }
         ERS_LOG(name << ", an instance of " << element);
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
         if      (element == "ADDC")          { m_addcs.emplace(this_pair); }

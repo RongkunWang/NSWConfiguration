@@ -250,7 +250,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const std::string boardType = feb.get<std::string>("boardType", "none");
     if (boardType=="none"){
         nsw::ConfigIssue issue(ERS_HERE, "boardType is unspecified in L1DDC configuration. Check the JSON.");
-        ers::fatal(issue);
+        ers::error(issue);
         throw issue;
     }
 
@@ -258,7 +258,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const auto common = m_config.get_child_optional("l1ddc_common_config");
     if (!common){
         nsw::ConfigIssue issue(ERS_HERE, "l1ddc_common_config is unspecified in configuration. Check the JSON.");
-        ers::fatal(issue);
+        ers::error(issue);
         throw issue;
     }
 
@@ -274,7 +274,6 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const auto pfeb_gbtx0 = common.get().get_child_optional("pfeb_gbtx0");
     const auto pfeb_gbtx1 = common.get().get_child_optional("pfeb_gbtx1");
     const auto rim_gbtx0 = common.get().get_child_optional("rim_gbtx0");
-    const auto rim_gbtx1 = common.get().get_child_optional("rim_gbtx1");
 
     // Get the specific GBTx configurations for this FEB, which will overwrite the common configurations
     const auto gbtx0 = feb.get_child_optional("GBTx0");
@@ -284,7 +283,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     if (boardType=="mmg"){
         if (!mmg_gbtx0||!mmg_gbtx1||!mmg_gbtx2){
             nsw::MissingGBTxCommonConfig issue(ERS_HERE, "mmg_gbtx0 or mmg_gbtx1 or mmg_gbtx2","mmg");
-            ers::fatal(issue);
+            ers::error(issue);
             throw issue;
         }
         const ptree p_mmg_gbtx0 = gbtxMergeConfig(mmg_gbtx0,gbtx0);
@@ -297,7 +296,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     else if (boardType=="rim"){
         if (!rim_gbtx0){
             nsw::MissingGBTxCommonConfig issue(ERS_HERE, "rim_gbtx0","rim");
-            ers::fatal(issue);
+            ers::error(issue);
             throw issue;
         }
         const ptree p_rim_gbtx0 = gbtxMergeConfig(rim_gbtx0,gbtx0);
@@ -306,7 +305,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     else if (boardType=="sfeb"){
         if (!sfeb_gbtx0||!sfeb_gbtx1){
             nsw::MissingGBTxCommonConfig issue(ERS_HERE, "sfeb_gbtx0 or sfeb_gbtx1","sfeb");
-            ers::fatal(issue);
+            ers::error(issue);
             throw issue;
         }
         const ptree p_sfeb_gbtx0 = gbtxMergeConfig(sfeb_gbtx0,gbtx0);
@@ -317,7 +316,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     else if (boardType=="pfeb"){
         if (!pfeb_gbtx0||!pfeb_gbtx1){
             nsw::MissingGBTxCommonConfig issue(ERS_HERE, "pfeb_gbtx0 or pfeb_gbtx1","pfeb");
-            ers::fatal(issue);
+            ers::error(issue);
             throw issue;
         }
         const ptree p_pfeb_gbtx0 = gbtxMergeConfig(pfeb_gbtx0,gbtx0);
@@ -327,7 +326,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     }
     else{
         nsw::ConfigIssue issue(ERS_HERE, fmt::format("boardType={} is invalid. Check the JSON.",boardType).c_str());
-        ers::fatal(issue);
+        ers::error(issue);
         throw issue;
     }
 
@@ -335,7 +334,7 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
     const auto GBTxPhaseOutputDBPath = common.get().get_child_optional("GBTxPhaseOutputDBPath");
 
     if (GBTxPhaseOutputDBPath){
-        std::string path = m_config.get_child("l1ddc_common_config").get<std::string>("GBTxPhaseOutputDBPath");
+        const auto path = m_config.get_child("l1ddc_common_config").get<std::string>("GBTxPhaseOutputDBPath");
         std::filesystem::path dir(path);
         if (!std::filesystem::exists(dir)){
             std::filesystem::create_directory(dir);
