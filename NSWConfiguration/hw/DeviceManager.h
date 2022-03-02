@@ -129,7 +129,7 @@ namespace nsw::hw {
     void disableVmmCaptureInputs() const;
 
   private:
-    bool m_multithreaded;
+    bool m_multithreaded{};
     std::vector<nsw::hw::FEB> m_febs{};
     std::vector<ART> m_arts{};
     std::vector<TP> m_tps{};
