@@ -12,7 +12,6 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/L1DDCConfig.h"
-#include "ic-handler/IChandler.h"
 
 using namespace std;
 
@@ -20,7 +19,6 @@ using namespace std;
 int main (int argc, char** argv){
 
     // required settings
-    string flxNetwork="none";
     string opcServerIp="none";
     string opcNodeId="none";
     string iPath="none";
@@ -41,9 +39,8 @@ int main (int argc, char** argv){
     // get required settings
 
     for (std::size_t i = 0; i < argc; i++){
-        if (!strcmp(argv[i],"--opc")) flxNetwork=argv[i+1];
         if (!strcmp(argv[i],"--node")) opcNodeId=argv[i+1];
-        if (!strcmp(argv[i],"--felix")) opcServerIp=argv[i+1];
+        if (!strcmp(argv[i],"--opc")) opcServerIp=argv[i+1];
         if (!strcmp(argv[i],"--toflx")) fid_toflx=stoull(argv[i+1],nullptr,0);
         if (!strcmp(argv[i],"--tohost")) fid_tohost=stoull(argv[i+1],nullptr,0);
         if (!strcmp(argv[i],"--sleep")) trainGBTxPhaseWaitTime=atoi(argv[i+1]);
@@ -84,7 +81,6 @@ int main (int argc, char** argv){
 
     cout<<"##################################################\n";
     cout<<"# Mode:          "<<mode.c_str()<<endl;
-    cout<<"# flxNetwork:    "<<flxNetwork<<endl;
     cout<<"# fid_toflx:    "<<fid_toflx<<endl;
     cout<<"# fid_tohost:  "<<fid_tohost<<endl;
     cout<<"# config file:   "<<iPath<<endl;
@@ -97,7 +93,7 @@ int main (int argc, char** argv){
 
     // Configure with xml file
     if (iPath.find(".xml")!=string::npos){
-        if (flxNetwork=="none"||fid_toflx==-1||fid_tohost==-1||boardType=="none"||opcServerIp=="none"||opcNodeId=="none"){
+        if (fid_toflx==-1||fid_tohost==-1||boardType=="none"||opcServerIp=="none"||opcNodeId=="none"){
             cout<<"Please set required inputs.\nExample: --felix vlan413 --opc pcatlnswfelix10.cern.ch --node XXX --toflx 0x16b00000007e0000 --tohost 0x16b00000007e8000 --board mmg --config CONFIG.json\n";
             return 0;
         }
@@ -106,7 +102,6 @@ int main (int argc, char** argv){
             .iPath = iPath,
             .opcServerIp = opcServerIp,
             .opcNodeId = opcNodeId,
-            .flxNetwork = flxNetwork,
             .fid_toflx = fid_toflx,
             .fid_tohost = fid_tohost,
             .boardType = boardType,
@@ -120,7 +115,7 @@ int main (int argc, char** argv){
     // Read configuration from json
     else if (iPath.find(".json")!=string::npos){
         // Check that unneeded and confusing options not provided:
-        if (flxNetwork!="none"||fid_toflx!=-1||fid_tohost!=-1||boardType!="none"){
+        if (fid_toflx!=-1||fid_tohost!=-1||boardType!="none"){
             cout<<"Note that the options for felix, opc, network or IP, toflx, tohost, and board should be provided by the json and not the command line.\nPlease remove them and re-run.\n";
             return 0;
         }
