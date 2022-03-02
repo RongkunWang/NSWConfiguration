@@ -46,7 +46,7 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
     //   [](const auto& ex) {
     //     nsw::NSWHWConfigIssue issue(
     //       ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
-    //     ers::fatal(issue);
+    //     ers::error(issue);
     //   });
     ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
     try {
@@ -72,9 +72,8 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
       }
     } catch (std::exception& ex) {
       nsw::NSWHWConfigIssue issue(
-        ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
-      // TODO: This should be an error
-      ers::fatal(issue);
+        ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
+      ers::error(issue);
     }
   };
 
@@ -100,7 +99,7 @@ void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
   //   [](const auto& ex) {
   //     nsw::NSWHWConfigIssue issue(
   //       ERS_HERE, fmt::format("Enabling VMM capture inputs failed due to: {}", ex.what()));
-  //     ers::fatal(issue);
+  //     ers::error(issue);
   //   });
   try {
     if (m_multithreaded) {
@@ -122,9 +121,8 @@ void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
     }
   } catch (std::exception& ex) {
     nsw::NSWHWConfigIssue issue(
-      ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
-    // TODO: This should be an error
-    ers::fatal(issue);
+      ERS_HERE, fmt::formaat("Configuration of device failed due to: {}", ex.what()));
+    ers::error(issue);
   }
 }
 
@@ -137,7 +135,7 @@ void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
   //   [](const auto& ex) {
   //     nsw::NSWHWConfigIssue issue(
   //       ERS_HERE, fmt::format("Disabling VMM capture inputs failed due to: {}", ex.what()));
-  //     ers::fatal(issue);
+  //     ers::error(issue);
   //   });
   try {
     if (m_multithreaded) {
@@ -159,8 +157,7 @@ void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
     }
   } catch (std::exception& ex) {
     nsw::NSWHWConfigIssue issue(
-      ERS_HERE, "Configuration of device failed due to : " + std::string(ex.what()));
-    // TODO: This should be an error
-    ers::fatal(issue);
+      ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
+    ers::error(issue);
   }
 }
