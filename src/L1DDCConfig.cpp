@@ -14,10 +14,8 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         m_opcNodeId      = config.get<std::string>("OpcNodeId");
         m_boardType      = config.get<std::string>("boardType");
 
-        //flxNetwork IP address of interface used to communicate with FELIX
         //fid_toflx toflx FID, used to send data to FELIX
         //fid_tohost tohost FID, used to receive data from FELIX
-        m_flxNetwork    = config.get<std::string>("FelixNetwork");
         m_fid_toflx     = std::stoull(config.get<std::string>("FidToFlx"),  nullptr, nsw::BASE_AUTO);
         m_fid_tohost    = std::stoull(config.get<std::string>("FidToHost"), nullptr, nsw::BASE_AUTO);
 
@@ -28,7 +26,7 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         throw issue;
     }
 
-    m_name = fmt::format("L1DDC-{}:{}/{}/{}",m_boardType,m_flxNetwork,m_fid_toflx,m_fid_tohost);
+    m_name = fmt::format("L1DDC-{}:{}/{}",m_boardType,m_fid_toflx,m_fid_tohost);
 
     // Optional Calibration configuration passed in ptree
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
@@ -52,9 +50,8 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     m_boardType(config.boardType),
     m_trainGBTxPhaseAlignment(config.trainGBTxPhaseAlignment),
     m_trainGBTxPhaseWaitTime(config.trainGBTxPhaseWaitTime),
-    m_flxNetwork(config.flxNetwork),
     m_opcNodeId(config.opcNodeId),
-    m_name(fmt::format("L1DDC-{}:{}/{}/{}",config.boardType,config.flxNetwork,config.fid_toflx,config.fid_tohost)){
+    m_name(fmt::format("L1DDC-{}:{}/{}",config.boardType,config.fid_toflx,config.fid_tohost)){
     // This constructor is used by configure_gbtx to load the configuration from an XML file
     // It only configures gbtx0
 
