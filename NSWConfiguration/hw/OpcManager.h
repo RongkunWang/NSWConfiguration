@@ -50,7 +50,6 @@ namespace nsw {
      * \brief Close all connections
      */
     void clear();
-    OpcManager() = default;
 
   private:
     /**
