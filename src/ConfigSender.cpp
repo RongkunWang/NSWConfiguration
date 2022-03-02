@@ -386,11 +386,10 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     const std::vector<uint8_t> data = l1ddc.getGBTxBytestream(gbtxId);
     // generate bytestream
     if (gbtxId==0){
-        const std::string flxNetwork   = l1ddc.getFlxNetwork();
         const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
         const std::uint64_t fid_tohost = l1ddc.getFidToHost();
         // send configuration over i2c
-        ic::fct::IChandler ich(flxNetwork,fid_toflx,fid_tohost);
+        ic::fct::IChandler ich(fid_toflx,fid_tohost);
 
         // Try sending configuration and check the readback
         // If the readback doesn't match, for nTries, raise error
@@ -430,11 +429,10 @@ std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l
     // read back gbtx configuration
     ERS_LOG(fmt::format("Reading bytestream for {} on GBTx{}",l1ddc.getName(),gbtxId));
     // get information from l1ddc
-    const std::string flxNetwork   = l1ddc.getFlxNetwork();
     const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
     const std::uint64_t fid_tohost = l1ddc.getFidToHost();
     if (gbtxId==0){
-        ic::fct::IChandler ich(flxNetwork,fid_toflx,fid_tohost);
+        ic::fct::IChandler ich(fid_toflx,fid_tohost);
         return readIcConfigGBTx(l1ddc,ich);
     }
     else if (gbtxId==1){

@@ -51,7 +51,6 @@ class L1DDCConfig {
     std::string m_name{};
     std::string m_nodeName{};
 
-    std::string m_flxNetwork{};
     std::uint64_t m_fid_toflx{};
     std::uint64_t m_fid_tohost{};
 
@@ -63,7 +62,6 @@ class L1DDCConfig {
      *
      * Example configuration ptree:
      * {
-     *   "FelixNetwork": "vlan413",
      *   "FidToFlx": "0x16b0d04001be8000",
      *   "FidToHost": "0x16b0d04001be0000",
      *   gbtx0:{
@@ -114,11 +112,6 @@ class L1DDCConfig {
     std::uint64_t getFidToHost() const {return m_fid_tohost;}
 
     /**
-     * Get flxNetwork
-     */
-    std::string getFlxNetwork() const {return m_flxNetwork;}
-
-    /**
      * \brief Get GBTx of given number
      *
      * \param gbtxId GBTx ID
@@ -142,7 +135,7 @@ class L1DDCConfig {
     std::string getNodeName() const {return m_nodeName;}
 
     /**
-     * \brief Get the name of l1ddc. The format is L1DDC:flxNetwork/fid_tflx/fid_tohost
+     * \brief Get the name of l1ddc. The format is L1DDC:fid_tflx/fid_tohost
      *
      * \return std::string name of l1ddc
      */
