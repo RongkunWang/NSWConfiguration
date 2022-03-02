@@ -25,6 +25,9 @@
 #include "SCA.h"
 #include "IoBatch.h"
 #include "XilinxFpga.h"
+#include <UaoClientForOpcUaScaUaoExceptions.h>
+
+using namespace std::chrono_literals;
 
 nsw::OpcClient::OpcClient(const std::string& server_ip_port): m_server_ipport(server_ip_port) {
     // TODO(cyildiz): Does this need to be moved to a higher level?
@@ -163,7 +166,19 @@ std::uint8_t nsw::OpcClient::readRocRaw(const std::string& node, unsigned int sc
     ioBatch.addSetPins( { { scl, true } }, i2cDelay );
     ioBatch.addSetPins( { { sda, true } }, i2cDelay );
 
-    const auto interestingPinSda = UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
+    const auto interestingPinSda = [&ioBatch, &sda, &node, this] () {
+        std::string message{};
+        for (std::size_t retry=0; retry < MAX_RETRY; ++retry) {
+            try {
+                return UaoClientForOpcUaSca::repliesToPinBits( ioBatch.dispatch(), sda );
+            } catch (const UaoClientForOpcUaSca::Exceptions::BadStatusCode& ex) {
+                message = ex.what();
+                ERS_LOG(fmt::format("Attempt {} to read failed with {}", retry+1, message));
+                std::this_thread::sleep_for(100ms);
+            }
+        }
+        throw nsw::OpcReadWriteIssue(ERS_HERE, m_server_ipport, node, message);
+    }();
 
     std::bitset<ROC_REGISTER_SIZE> registerValue;
 
