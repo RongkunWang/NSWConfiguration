@@ -18,6 +18,7 @@ nsw::hw::FEB::FEB(const nsw::FEBConfig& config) :
     }
     return tdss;
   }()),
+  m_opcNodeId(config.getAddress()),
   m_firstVmm(config.getFirstVmmIndex()),
   m_firstTds(config.getFirstTdsIndex())
 {}
