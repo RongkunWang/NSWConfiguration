@@ -121,7 +121,7 @@ void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
     }
   } catch (std::exception& ex) {
     nsw::NSWHWConfigIssue issue(
-      ERS_HERE, fmt::formaat("Configuration of device failed due to: {}", ex.what()));
+      ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
     ers::error(issue);
   }
 }
