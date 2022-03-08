@@ -80,9 +80,8 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
   conf(
     m_febs, "FEB",
     std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
-    std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) !=
-      std::cend(options),
-    std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options));
+    std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options),
+    std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) != std::cend(options));
   conf(m_arts, "ART");
   conf(m_tps, "TP");
   conf(m_routers, "Router");
