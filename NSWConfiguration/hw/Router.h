@@ -5,6 +5,12 @@
 #include "NSWConfiguration/Constants.h"
 #include <chrono>
 
+ERS_DECLARE_ISSUE(nsw,
+                  RouterHWIssue,
+                  message,
+                  ((std::string)message)
+                  )
+
 namespace nsw::hw {
   /**
    * \brief Class representing a Router
@@ -81,6 +87,64 @@ namespace nsw::hw {
      */
     void writeSetSCAID() const;
 
+    [[nodiscard]]
+    std::string Sector() const
+    { return m_config.getConfig().get<std::string>("Sector"); }
+
+    /**
+     * \brief Convert name and sector to unique 8-bit ID
+     *
+     * 4 bits: Sector (0x0 - 0xf)
+     * 3 bits: Layer (0x0 - 0x7)
+     * 1 bits: Endcap (A=0, C=1)
+     * NB: "Sector" = Sector-1,
+     *     since ATLAS sectors 01-16
+     *
+     * e.g. Router A14 L5
+     * 4 bits: 14-1 = 13 = 0b1101
+     * 3 bits: L5   =  5 = 0b101
+     * 1 bits: A    =  0 = 0b0
+     * (13 << 4) + (5 << 1) + 1 = 218
+     */
+    [[nodiscard]]
+    std::uint8_t id() const;
+
+    /**
+     * \brief Convert sector to 1-bit endcap ID
+     *
+     * XYY -> X
+     * A12 -> A, e.g.
+     */
+    [[nodiscard]]
+    std::uint8_t idEndcap() const;
+
+    /**
+     * \brief Convert sector to 4-bit sector ID
+     *
+     * XYY -> YY
+     * A12 -> 12, e.g.
+     */
+    [[nodiscard]]
+    std::uint8_t idSector() const;
+
+    /**
+     * \brief Convert layer to 3-bit layer ID
+     *
+     * Router_LZ -> Z
+     */
+    [[nodiscard]]
+    std::uint8_t idLayer() const;
+
+    /**
+     * \brief Check the format of the name provided
+     */
+    void idCheck() const;
+
+    /**
+     * \brief Throw an exception if the format of the name is unrecognized
+     */
+    void idCrash() const;
+
     /**
      * \brief Get the \ref RouterConfig object associated with this Router object
      *
@@ -96,6 +160,15 @@ namespace nsw::hw {
     std::string m_opcserverIp;  //!< address and port of the Opc Server
     std::string m_scaAddress;   //!< SCA address of Router item in the Opc address space
     std::string m_name;         //!< Name composed of OPC and SCA addresses
+
+    static constexpr std::string_view
+      m_old_convention{"Router_LZ"}; //!< the old convention for Router names
+
+    static constexpr std::string_view
+      m_convention{"sTGC-A/V0/SCA/Router/S2/L0"}; //!< the latest convention for Router names
+
+    static constexpr std::string_view
+      m_name_error{"This Router doesnt follow the naming convention"}; //!< A helpful error message
 
     static constexpr size_t m_num_gpios = 32;
     static constexpr std::array<std::string_view, m_num_gpios> m_ordered_gpios = {

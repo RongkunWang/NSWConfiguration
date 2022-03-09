@@ -33,7 +33,7 @@ void nsw::hw::Router::sendAndReadbackGPIO(const std::string& name, const bool va
   sendGPIO(name, val);
   if (readGPIO(name) != val) {
     const auto msg = fmt::format("{} readback wrong for {}", m_name, name);
-    ers::warning(nsw::RouterConfigIssue(ERS_HERE, msg));
+    ers::warning(nsw::RouterHWIssue(ERS_HERE, msg));
   }
 }
 
@@ -64,7 +64,7 @@ void nsw::hw::Router::writeSoftResetAndCheckGPIO() const
   }
 
   const auto msg = fmt::format("{} configuration failed", m_name);
-  ers::warning(nsw::RouterConfigIssue(ERS_HERE, msg));
+  ers::warning(nsw::RouterHWIssue(ERS_HERE, msg));
 }
 
 void nsw::hw::Router::writeSoftReset(const std::chrono::seconds reset_hold,
@@ -123,12 +123,12 @@ bool nsw::hw::Router::checkGPIOs() const
 void nsw::hw::Router::writeSetSCAID() const
 {
   // Get ID from config object
-  const auto scaid = static_cast<unsigned>(getConfig().id());
+  const auto scaid = static_cast<unsigned>(id());
 
   // Announce
-  ERS_LOG (fmt::format("{}: ID (sector) = {:#06b}", m_name, getConfig().id_sector()));
-  ERS_LOG (fmt::format("{}: ID (layer)  = {:#05b}", m_name, getConfig().id_layer()));
-  ERS_LOG (fmt::format("{}: ID (endcap) = {:#03b}", m_name, getConfig().id_endcap()));
+  ERS_LOG (fmt::format("{}: ID (sector) = {:#06b}", m_name, idSector()));
+  ERS_LOG (fmt::format("{}: ID (layer)  = {:#05b}", m_name, idLayer()));
+  ERS_LOG (fmt::format("{}: ID (endcap) = {:#03b}", m_name, idEndcap()));
   ERS_INFO(fmt::format("{}: -> ID = {:#010b} = {:#x} = {}", m_name, scaid, scaid, scaid));
 
   // Set ID
@@ -137,4 +137,58 @@ void nsw::hw::Router::writeSetSCAID() const
     const auto gpio = fmt::format("routerId{}", bit);
     sendAndReadbackGPIO(gpio, this_bit);
   }
+}
+
+std::uint8_t nsw::hw::Router::id() const
+{
+  idCheck();
+  constexpr std::uint8_t shiftSector = 4;
+  constexpr std::uint8_t shiftLayer = 1;
+  return static_cast<std::uint8_t>((idSector() << shiftSector) + (idLayer() << shiftLayer) + idEndcap());
+}
+
+std::uint8_t nsw::hw::Router::idEndcap() const
+{
+  const auto endcap = std::string{Sector().front()};
+  if (endcap != "A" && endcap != "C") {
+    idCrash();
+  }
+  return endcap == "A" ? 0 : 1;
+}
+
+std::uint8_t nsw::hw::Router::idSector() const
+{
+  const auto sect = std::stoul(Sector().substr(1, 2));
+  if (sect < nsw::MIN_SECTOR_ID || sect > nsw::MAX_SECTOR_ID) {
+    idCrash();
+  }
+  return static_cast<std::uint8_t>(sect - 1);
+}
+
+std::uint8_t nsw::hw::Router::idLayer() const
+{
+  const auto layer = std::stoul(std::string{m_scaAddress.back()});
+  if (layer < nsw::MIN_LAYER_ID || layer > nsw::MAX_LAYER_ID) {
+    idCrash();
+  }
+  return static_cast<std::uint8_t>(layer);
+}
+
+void nsw::hw::Router::idCheck() const
+{
+  const auto len = m_scaAddress.size();
+  if (len != m_old_convention.size() && 
+      len != m_convention.size()) {
+    idCrash();
+  }
+  if (std::string{m_scaAddress.at(len-2)} != "L") {
+    idCrash();
+  }
+}
+
+void nsw::hw::Router::idCrash() const
+{
+  const auto msg = fmt::format("{} ({} or {}): {}",
+    m_name_error, m_old_convention, m_convention, m_scaAddress);
+  ers::error(nsw::RouterHWIssue(ERS_HERE, msg));
 }
