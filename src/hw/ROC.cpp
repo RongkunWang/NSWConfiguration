@@ -130,7 +130,7 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
   constexpr unsigned int DELAY = 2;
   const auto [sclLine, sdaLine] = [&address = m_scaAddress,
                                    regAddress]() -> std::pair<unsigned int, unsigned int> {
-    const auto isMmfe8 = address.find("MMFE8") != std::string::npos;
+    const auto isMmfe8 = address.find("MM") != std::string::npos;  // FIXME: Use util function
     const auto isAnalog = regAddress >= ROC_DIGITAL_REGISTERS.size();
     if (isMmfe8 and isAnalog) {
       return {nsw::roc::mmfe8::analog::SCL_LINE_PIN, nsw::roc::mmfe8::analog::SDA_LINE_PIN};

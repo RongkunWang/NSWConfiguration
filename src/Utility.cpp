@@ -81,14 +81,37 @@ std::string nsw::bitString(unsigned value, size_t nbits) {
 }
 
 std::string nsw::getElementType(const std::string& element_name) {
+    // Check whether it is a geopraphical ID
+    if (element_name.find('/') != std::string::npos) {
+        // TODO: Add missing devices (TP, TP Carrier)
+        for (auto&& name : {"L1DDC", "ADDC", "PadTrig", "Router", "Rim-L1DDC"}) {
+          if (element_name.find(fmt::format("/{}/", name)) != std::string::npos) {
+            return name;
+          }
+        }
+        const auto startsWith = [] (const std::string& s, auto&& chars) { return s.rfind(chars, 0) == 0; };
+        if (startsWith(element_name, "MM")) {
+            if (element_name.find("/Strip/") != std::string::npos) {
+                return "MMFE8";
+            }
+        }
+        if (startsWith(element_name, "sTGC")) {
+            if (element_name.find("/Strip/") != std::string::npos) {
+                return "SFEB";
+            }
+            if (element_name.find("/Pad/") != std::string::npos) {
+                return "PFEB";
+            }
+        }
+        throw std::runtime_error(fmt::format("Unknown front end element type: {}", element_name));
+    }
     for (auto name : nsw::ELEMENT_NAMES) {
         if (element_name.find(name) != std::string::npos) {
             ERS_DEBUG(2,"Found instance of " << name << " configuration: " << element_name);
             return name;
         }
     }
-    auto err = "Unknown front end element type: " + element_name;
-    throw std::runtime_error(err);
+    throw std::runtime_error(fmt::format("Unknown front end element type: {}", element_name));
 }
 
 void nsw::checkOverflow(size_t register_size, unsigned value, const std::string& register_name) {
