@@ -21,6 +21,9 @@ if(ENABLE_NSW_DEBUG)
   remove_definitions(-DERS_NO_DEBUG)
 endif()
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 tdaq_generate_dal(schema/NSWConfig.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
@@ -33,6 +36,8 @@ tdaq_add_library(nswconfigdal DAL
   LINK_LIBRARIES tdaq::config tdaq::daq-core-dal tdaq::daq-df-dal)
 
 tdaq_add_library(NSWConfig src/NSWConfig.cpp
+  INCLUDE_DIRECTORIES
+                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
                  tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface
 )
@@ -172,6 +177,8 @@ tdaq_add_library(nswhwinterface
 )
 
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
+  INCLUDE_DIRECTORIES
+                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
