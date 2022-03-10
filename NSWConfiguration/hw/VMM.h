@@ -8,6 +8,7 @@
 
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -25,7 +26,7 @@ namespace nsw::hw {
     /**
      * \brief Constructor from a \ref FEBConfig object and a VMM ID
      */
-    VMM(const FEBConfig& config, std::size_t numVmm);
+    VMM(nsw::OpcManager& manager, const FEBConfig& config, std::size_t numVmm);
 
     /**
      * \brief Read the full VMM address space
@@ -50,6 +51,7 @@ namespace nsw::hw {
     [[nodiscard]] const VMMConfig& getConfig() const { return m_config; }  //!< overload
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     VMMConfig m_config;           //!< VMMConfig object associated with this VMM
     std::string m_opcserverIp;    //!< address and port of Opc Server
     std::string m_scaAddress;     //!< SCA address of FE item in Opc address space

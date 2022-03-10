@@ -8,6 +8,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/STGCTP.h"
 
 #include <boost/program_options.hpp>
@@ -46,7 +47,12 @@ int main(int ac, const char *av[]) {
     const auto json_filename = fmt::format("json://{}", config_filename);
 
     // STGC TP
-    const auto stgc_tps = nsw::ConfigReader::makeObjects<nsw::hw::STGCTP>(json_filename, "STGCTP", tp_name);
+    const auto stgc_tp_configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>(json_filename, "STGCTP", tp_name);
+    auto stgc_tps = std::vector<nsw::hw::STGCTP>{};
+    auto opcManager = nsw::OpcManager{};
+    for (const auto& config : stgc_tp_configs) {
+      stgc_tps.emplace_back(opcManager, config);
+    }
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
       tp.writeConfiguration();

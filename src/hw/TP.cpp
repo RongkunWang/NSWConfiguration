@@ -2,8 +2,11 @@
 
 #include <stdexcept>
 
-nsw::hw::TP::TP(const TPConfig& config) :
-  m_config(config), m_opcserverIp(config.getOpcServerIp()), m_scaAddress(config.getAddress())
+nsw::hw::TP::TP(OpcManager& manager, const TPConfig& config) :
+  m_opcManager{manager},
+  m_config(config),
+  m_opcserverIp(config.getOpcServerIp()),
+  m_scaAddress(config.getAddress())
 {}
 
 void nsw::hw::TP::writeConfiguration() const
