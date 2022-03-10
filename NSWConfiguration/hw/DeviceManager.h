@@ -44,45 +44,39 @@ namespace nsw::hw {
     /**
      * \brief Add a config to the manager
      *
-     * \tparam Config <Device>Config class
-     * \param config config object
+     * \param config config ptree
      */
-    template<typename Config>
-    void add(const Config& config)
+    void add(const boost::property_tree::ptree& config)
     {
-      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::VMMConfig>,
-                    "VMM configs are added through the parent FEBConfig object");
-      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::I2cMasterConfig>,
-                    "ROC and TDS configs are added through the parent FEBConfig object");
-      static_assert(!std::is_same_v<std::decay_t<decltype(config)>, nsw::ARTConfig>,
-                    "ART configs are added through the parent ADDCConfig object");
-      static_assert(std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger> ||
-                      std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>,
-                    "Unknown config type. Provide a <Device>Config object");
-      if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::FEBConfig>) {
-        addFeb(config);
+      constexpr static std::string_view OPC_NODE_ID_KEY{"OpcNodeId"};
+      const auto opcNodeId = [&config] () {
+        try {
+          return config.get<std::string>(std::string{OPC_NODE_ID_KEY});
+        } catch (const boost::property_tree::ptree_bad_data& ex) {
+          throw NSWHWConfigIssue(ERS_HERE, fmt::format("Did not find {} in ptree", OPC_NODE_ID_KEY));
+        }
+      }();
+      const auto type = nsw::getElementType(config.get<std::string>(std::string{OPC_NODE_ID_KEY}));
+      if (type == "MMFE8" or type == "SFEB" or type == "PFEB") {
+        addFeb(FEBConfig{config});
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::ADDCConfig>) {
-        addAddc(config);
+      else if (type == "ADDC") {
+        addAddc(ADDCConfig{config});
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPConfig>) {
-        addTp(config);
+      else if (type == "TP") {
+        addTp(TPConfig{config});
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::RouterConfig>) {
-        addRouter(config);
+      else if (type == "Router") {
+        addRouter(RouterConfig{config});
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::hw::PadTrigger>) {
+      else if (type == "PadTrigger") {
         addPadTrigger(config);
       }
-      else if constexpr (std::is_same_v<std::decay_t<decltype(config)>, nsw::TPCarrierConfig>) {
-        addTpCarrier(config);
+      else if (type == "TPCarrier") {
+        addTpCarrier(TPCarrierConfig{config});
       }
       else {
-        throw std::logic_error("If you see me, fix the static asserts above me!");
+        throw NSWHWConfigIssue(ERS_HERE, fmt::format("Received an unknown device type {}", type));
       }
     }
 
@@ -128,8 +122,66 @@ namespace nsw::hw {
      */
     void disableVmmCaptureInputs() const;
 
+    /**
+     * \brief Get all ARTs
+     *
+     * \return std::vector<ART>& ARTs
+     */
+    std::vector<ART>& getArts() { return m_arts; }
+    const std::vector<ART>& getArts() const { return m_arts; }  //!< overload
+
+    /**
+     * \brief Get all TPs
+     *
+     * \return std::vector<TP>& TPs
+     */
+    std::vector<TP>& getTps() { return m_tps; }
+    const std::vector<TP>& getTps() const { return m_tps; }  //!< overload
+
+    /**
+     * \brief Get all pad triggers
+     *
+     * \return std::vector<PadTrigger>& Pad triggers
+     */
+    std::vector<PadTrigger>& getPadTriggers() { return m_padTriggers; }
+    const std::vector<PadTrigger>& getPadTriggers() const { return m_padTriggers; }  //!< overload
+
+    /**
+     * \brief Get all routers
+     *
+     * \return std::vector<Router>& Routers
+     */
+    std::vector<Router>& getRouters() { return m_routers; }
+    const std::vector<Router>& getRouters() const { return m_routers; }  //!< overload
+
+    /**
+     * \brief Get all TP carriers
+     *
+     * \return std::vector<TPCarrier>& TP carriers
+     */
+    std::vector<TPCarrier>& getTpCarriers() { return m_tpCarriers; }
+    const std::vector<TPCarrier>& getTpCarriers() const { return m_tpCarriers; }  //!< overload
+
+    /**
+     * \brief Get all FEBs
+     *
+     * \return std::vector<FEB>& FEBs
+     */
+    std::vector<FEB>& getFebs() { return m_febs; }
+    const std::vector<FEB>& getFebs() const { return m_febs; }  //!< overload
+
+    /**
+     * \brief Clear all managed devices and OPC connections
+     */
+    void clear();
+
+    /**
+     * \brief Clear all OPC connections
+     */
+    void clearOpc();
   private:
     bool m_multithreaded{};
+    OpcManager m_opcManager{};
     std::vector<nsw::hw::FEB> m_febs{};
     std::vector<ART> m_arts{};
     std::vector<TP> m_tps{};
@@ -170,7 +222,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addPadTrigger(const nsw::hw::PadTrigger& config);
+    void addPadTrigger(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add TP Carrier from TPCarrierConfig object

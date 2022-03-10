@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "NSWConfiguration/TPCarrierConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -25,7 +26,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref TPCarrierConfig object
      */
-    explicit TPCarrier(const TPCarrierConfig& config);
+    TPCarrier(nsw::OpcManager& manager, const TPCarrierConfig& config);
 
     /**
      * \brief Read the full TPCarrier address space
@@ -68,6 +69,7 @@ namespace nsw::hw {
     const TPCarrierConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     TPCarrierConfig m_config;   //!< TPCarrierConfig object associated with this TPCarrier
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of TPCarrier item in Opc address space

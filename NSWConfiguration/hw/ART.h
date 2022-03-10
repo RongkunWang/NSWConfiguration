@@ -1,9 +1,12 @@
 #ifndef NSWCONFIGURATION_HW_ART_H
 #define NSWCONFIGURATION_HW_ART_H
 
+#include <functional>
+
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 namespace nsw::hw {
   /**
@@ -21,8 +24,12 @@ namespace nsw::hw {
   public:
     /**
      * \brief Constructor from an \ref ARTConfig object
+     * 
+     * @param manager Link to the OPC Manager
+     * @param config Configuration of the ADDC
+     * @param numArt Number of the ART on the ADDC
      */
-    ART(const nsw::ADDCConfig& config, std::size_t numArt);
+    ART(OpcManager& manager, const nsw::ADDCConfig& config, std::size_t numArt);
 
     /**
      * \brief Read the full ART address space
@@ -62,6 +69,7 @@ namespace nsw::hw {
     [[nodiscard]] const ARTConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
+    mutable std::reference_wrapper<OpcManager> m_opcManager;  //!< Pointer to OpcManager
     ARTConfig m_config;         //!< ARTConfig object associated with this ART
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of ART item in Opc address space

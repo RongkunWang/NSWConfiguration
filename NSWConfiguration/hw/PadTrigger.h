@@ -6,9 +6,10 @@
 #include <string>
 #include <vector>
 
-#include "NSWConfiguration/I2cMasterConfig.h"
-
 #include <ers/Issue.h>
+
+#include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfigError,
@@ -39,7 +40,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref PadTriggerConfig object
      */
-    explicit PadTrigger(const boost::property_tree::ptree& config);
+    PadTrigger(OpcManager& manager,const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of pad trigger object
@@ -297,6 +298,7 @@ namespace nsw::hw {
 
 
   private:
+    mutable std::reference_wrapper<OpcManager> m_opcManager;  //!< Pointer to OpcManager
     boost::property_tree::ptree m_ptree; //!< ptree object associated with this PadTrigger
     std::string m_opcserverIp;           //!< Address and port of OPC Server
     std::string m_scaAddress;            //!< SCA address of PadTrigger item in the OPC address space
