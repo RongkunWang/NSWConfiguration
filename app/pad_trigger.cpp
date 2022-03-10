@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
@@ -84,8 +85,17 @@ int main(int argc, const char *argv[])
     }
 
     // make objects from json
-    const auto hws = nsw::ConfigReader::makeObjects<nsw::hw::PadTrigger>
+    const auto configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>
       (fmt::format("json://{}", config_filename), "PadTrigger", board_name);
+
+    // the hw objects
+    nsw::OpcManager opcManager{};
+    std::vector<nsw::hw::PadTrigger> hws;
+    hws.reserve(configs.size());
+    for (const auto& cfg: configs) {
+      hws.emplace_back(nsw::hw::PadTrigger(opcManager, cfg));
+    }
+
     for (const auto& hw: hws) {
       std::cout << fmt::format("Found {}\n with {} -> T = {}",
                                hw.getName(),

@@ -5,9 +5,12 @@
 #include <map>
 #include <string>
 #include <vector>
+
 #include <boost/property_tree/ptree.hpp>
 
 #include <ers/Issue.h>
+
+#include "NSWConfiguration/hw/OpcManager.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   STGCTPReadbackMismatch,
@@ -29,7 +32,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref STGCTPConfig object
      */
-    explicit STGCTP(const boost::property_tree::ptree& config);
+    STGCTP(OpcManager& manager, const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of STGC TP object
@@ -95,9 +98,11 @@ namespace nsw::hw {
     std::uint32_t getSector() const;
 
   private:
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
     std::string m_opcserverIp;            //!< address and port of Opc Server
     std::string m_scaAddress;             //!< SCA address of STGCTP item in Opc address space
+    std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
   };
 }  // namespace nsw::hw

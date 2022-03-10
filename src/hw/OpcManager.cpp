@@ -1,33 +1,96 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 
-#include <mutex>
-#include <shared_mutex>
+#include <algorithm>
+#include <chrono>
+#include <ers/ers.h>
+#include <thread>
+#include <utility>
+#include <execution>
 
-std::map<std::string, OpcClientPtr> nsw::OpcManager::m_clients;
-std::shared_mutex nsw::OpcManager::m_mutex;
+#include <fmt/core.h>
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 
-OpcClientPtr nsw::OpcManager::getConnection(const std::string& opcserver_ipport)
+#include "NSWConfiguration/OpcClient.h"
+
+using namespace std::chrono_literals;
+
+
+nsw::OpcClientPtr nsw::OpcManager::getConnection(const std::string& ipPort, const std::string& deviceName)
 {
-  return std::make_unique<nsw::OpcClient>(opcserver_ipport);
-
-  // Code for one connection per IP (or board)
-  // if (exists(opcserver_ipport)) {
-  //   addConnection(opcserver_ipport);
-  // }
-  // std::shared_lock<std::shared_mutex> lock(m_mutex);
-  // return m_clients.at(opcserver_ipport);
+  std::lock_guard<std::mutex> lock(m_mutex);
+  ERS_DEBUG(2, "Get connection to " << deviceName);
+  const auto identifier = std::make_pair(ipPort, deviceName);
+  if (m_connections.empty()) {
+    m_backgroundThread = std::async(std::launch::async,
+                              &OpcManager::pingConnections,
+                              this,
+                              m_stopBackgroundThread.get_future());
+  }
+  if (not exists(identifier)) {
+    ERS_DEBUG(2, "Create new connection to " << deviceName);
+    add(identifier);
+  }
+  return m_connections.at(identifier).get();
 }
 
-void nsw::OpcManager::addConnection([[maybe_unused]] const std::string& opcserver_ipport)
+nsw::OpcManager::~OpcManager()
 {
-  // Code for one connection per IP (or board)
-  // std::lock_guard<std::shared_mutex> lock(m_mutex);
-  // m_clients.emplace(opcserver_ipport,
-  //                   );
+  std::lock_guard<std::mutex> lock(m_mutex);
+  ERS_DEBUG(2, "Destructing manager");
+  doClear();
 }
 
-bool nsw::OpcManager::exists(const std::string& opcserver_ipport)
+void nsw::OpcManager::clear()
 {
-  std::shared_lock<std::shared_mutex> lock(m_mutex);
-  return m_clients.find(opcserver_ipport) == std::end(m_clients);
+  std::lock_guard<std::mutex> lock(m_mutex);
+  ERS_DEBUG(2, "Clear");
+  doClear();
+}
+
+void nsw::OpcManager::add(const Identifier& identifier)
+{
+  if (not exists(identifier)) {
+    ERS_DEBUG(2, fmt::format("Create connection for {}", identifier.second));
+    m_connections.try_emplace(identifier, std::make_unique<OpcClient>(identifier.first));
+  }
+}
+
+bool nsw::OpcManager::exists(const Identifier& identifier) const
+{
+  return m_connections.find(identifier) != std::end(m_connections);
+}
+
+void nsw::OpcManager::pingConnections(std::future<void>&& stop) const
+{
+  while (stop.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+    const auto timeBefore = std::chrono::high_resolution_clock::now();
+    ERS_DEBUG(2, "Pinging all connections");
+    bool crashed{false};
+    std::for_each(std::execution::par, std::cbegin(m_connections), std::cend(m_connections), [this, &crashed] (const auto& pair) {
+      const auto& name = pair.first.second;
+      const auto& connection = pair.second;
+      static_cast<void>(connection->readScaOnline(name));
+    });
+    ERS_DEBUG(2, "Done pinging all connections");
+    const auto sleepTime =
+      std::max(0ms,
+               std::chrono::duration_cast<std::chrono::milliseconds>(
+                 PING_INTERVAL - (std::chrono::high_resolution_clock::now() - timeBefore)));
+    ERS_DEBUG(2, fmt::format("Sleeping for {}", std::chrono::duration_cast<std::chrono::milliseconds>(sleepTime)));
+    if (sleepTime == 0s) {
+      ers::warning(OpcManagerPingFrequency(ERS_HERE));
+    }
+    stop.wait_for(sleepTime);
+  }
+}
+
+void nsw::OpcManager::doClear()
+{
+  if (!m_connections.empty()) {
+    m_stopBackgroundThread.set_value();
+  }
+  m_backgroundThread.wait();
+  m_connections.clear();
+  m_stopBackgroundThread = std::promise<void>();
 }

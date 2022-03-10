@@ -8,8 +8,11 @@
 #include <iomanip>
 #include <fmt/core.h>
 
-nsw::hw::Router::Router(const RouterConfig& config) :
-  m_config(config), m_opcserverIp(config.getOpcServerIp()), m_scaAddress(config.getAddress())
+nsw::hw::Router::Router(OpcManager& manager, const RouterConfig& config) :
+  m_opcManager{manager},
+  m_config(config),
+  m_opcserverIp(config.getOpcServerIp()),
+  m_scaAddress(config.getAddress())
 {
   m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
 }
@@ -17,14 +20,14 @@ nsw::hw::Router::Router(const RouterConfig& config) :
 bool nsw::hw::Router::readGPIO(const std::string& name) const
 {
   const auto addr = m_scaAddress + ".gpio." + name;
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   return nsw::hw::SCA::readGPIO(opcConnection, addr);
 }
 
 void nsw::hw::Router::sendGPIO(const std::string& name, const bool val) const
 {
   const auto addr = m_scaAddress + ".gpio." + name;
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   nsw::hw::SCA::sendGPIO(opcConnection, addr, val);
 }
 

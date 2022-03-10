@@ -9,6 +9,7 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/TPCarrierConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
 
 #include <boost/program_options.hpp>
@@ -59,8 +60,9 @@ int main(int ac, const char *av[]) {
   //
   // send config
   //
+  nsw::OpcManager manager{};
   for (const auto& carrier_cfg: carriers) {
-    nsw::hw::TPCarrier carrier_hw(carrier_cfg);
+    nsw::hw::TPCarrier carrier_hw(manager, carrier_cfg);
     std::cout << std::endl;
     std::cout << "  " << carrier_cfg.getOpcServerIp()
               << ", " << carrier_cfg.getAddress()

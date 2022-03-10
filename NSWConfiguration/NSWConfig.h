@@ -106,6 +106,8 @@ class NSWConfig {
     //! Enable MMTP channel rates reporting
     void enableMmtpChannelRates(bool enable) const;
 
+    hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
+    const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
 private:
     //! Count how many threads are running
     size_t active_threads();

@@ -2,7 +2,8 @@
 
 #include <stdexcept>
 
-nsw::hw::ART::ART(const nsw::ADDCConfig& config, const std::size_t numArt) :
+nsw::hw::ART::ART(OpcManager& manager, const nsw::ADDCConfig& config, const std::size_t numArt) :
+  m_opcManager{manager},
   m_config(config.getART(numArt)),
   m_opcserverIp(config.getOpcServerIp()),
   m_scaAddress(config.getAddress()),

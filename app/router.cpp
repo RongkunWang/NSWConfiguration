@@ -6,6 +6,7 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/RouterConfig.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/Router.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
@@ -42,6 +43,9 @@ int main(int argc, const char *argv[])
         return 1;
     }    
 
+    // make opc manager
+    nsw::OpcManager opcManager{};
+
     // make router objects
     auto board_configs = nsw::ConfigReader::makeObjects<nsw::RouterConfig>
       ("json://" + config_filename, "Router", board_name);
@@ -53,7 +57,7 @@ int main(int argc, const char *argv[])
         std::cout << "Found " << config.getAddress() << " @ " << config.getOpcServerIp() << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
-        nsw::hw::Router router_hw(config);
+        nsw::hw::Router router_hw(opcManager, config);
         router_hw.writeConfiguration();
         std::cout << std::endl;
         std::cout << std::endl;
@@ -62,7 +66,7 @@ int main(int argc, const char *argv[])
     // read all GPIO as desired
     if (read_all_gpio) {
         for (auto & config : board_configs) {
-          nsw::hw::Router router_hw(config);
+          nsw::hw::Router router_hw(opcManager, config);
           const auto name_and_val = router_hw.readConfiguration();
           for (const auto& [name, val]: name_and_val) {
             std::cout << std::left << std::setw(40) << (config.getAddress() + " " + name)

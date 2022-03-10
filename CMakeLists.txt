@@ -143,6 +143,8 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  nswconfigdal
                  nswopcclient
                  tdaq-common::ers
+                 tdaq::rc_ItemCtrl
+                 tdaq::daq-df-dal
                  ichandler
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
     PRIVATE

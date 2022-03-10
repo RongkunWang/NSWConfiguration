@@ -1,8 +1,9 @@
 #ifndef NSWCONFIGURATION_HW_SCAX_H
 #define NSWCONFIGURATION_HW_SCAX_H
 
-#include "NSWConfiguration/hw/SCAInterface.h"
 #include <ers/Issue.h>
+
+#include "NSWConfiguration/hw/SCAInterface.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   SCAXReadbackMismatch,

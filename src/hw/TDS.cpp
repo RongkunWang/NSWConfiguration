@@ -13,7 +13,8 @@
 #include "NSWConfiguration/hw/SCAInterface.h"
 #include "NSWConfiguration/Utility.h"
 
-nsw::hw::TDS::TDS(const FEBConfig& config, const std::size_t numTds) :
+nsw::hw::TDS::TDS(OpcManager& manager, const FEBConfig& config, const std::size_t numTds) :
+  m_opcManager{manager},
   m_config(config.getTdss().at(numTds)),
   m_opcserverIp(config.getOpcServerIp()),
   m_scaAddress(config.getAddress()),
@@ -22,7 +23,7 @@ nsw::hw::TDS::TDS(const FEBConfig& config, const std::size_t numTds) :
 
 void nsw::hw::TDS::writeConfiguration(const bool resetTds) const
 {
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   // Assert that TDS is not in reset
   constexpr bool INCATIVE_HIGH = true;
@@ -108,7 +109,7 @@ void nsw::hw::TDS::writeRegister(const std::uint8_t regAddress, const __uint128_
 
 void nsw::hw::TDS::writeRegister(const std::string& regName, const __uint128_t value) const
 {
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   nsw::hw::SCA::sendI2cMasterSingle(opcConnection,
                                     fmt::format("{}.{}", m_scaAddress, m_config.getName()),
                                     nsw::integerToByteVector(value, m_config.getTotalSize(regName) / nsw::NUM_BITS_IN_BYTE),
@@ -130,7 +131,7 @@ std::vector<std::uint8_t> nsw::hw::TDS::readRegister(const std::uint8_t regAddre
   const auto sizeInBytes = m_config.getTotalSize(ptreeName) / NUM_BITS_IN_BYTE;
   const std::string fullNodeName =
     fmt::format("{}.{}.{}", m_scaAddress, m_config.getName(), registerName);
-  return nsw::hw::SCA::readI2c(OpcManager::getConnection(m_opcserverIp), fullNodeName, sizeInBytes);
+  return nsw::hw::SCA::readI2c(m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress), fullNodeName, sizeInBytes);
 }
 
 void nsw::hw::TDS::writeValues(const std::map<std::string, unsigned int>& values) const
@@ -145,7 +146,7 @@ void nsw::hw::TDS::writeValues(const std::map<std::string, unsigned int>& values
                          TDS_REGISTERS,
                          true);
 
-  const auto& opcConnection = OpcManager::getConnection(m_opcserverIp);
+  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, config);
 }

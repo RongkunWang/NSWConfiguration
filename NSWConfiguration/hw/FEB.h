@@ -22,7 +22,7 @@ namespace nsw::hw {
     /**
      * \brief Constructor from a \ref FEBConfig object
      */
-    explicit FEB(const nsw::FEBConfig& config);
+    FEB(OpcManager& manager, const nsw::FEBConfig& config);
 
     /**
      * \brief Get the \ref ROC object

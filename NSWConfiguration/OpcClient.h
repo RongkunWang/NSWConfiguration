@@ -162,8 +162,8 @@ public:
 
 };
 
-}  // namespace nsw
+using OpcClientPtr = OpcClient*;
 
-using OpcClientPtr = std::unique_ptr<nsw::OpcClient>;
+}  // namespace nsw
 
 #endif  // NSWCONFIGURATION_OPCCLIENT_H_

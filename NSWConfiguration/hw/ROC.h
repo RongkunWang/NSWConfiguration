@@ -29,7 +29,7 @@ namespace nsw::hw {
     /**
      * \brief Constructor from a \ref FEBConfig object
      */
-    explicit ROC(const nsw::FEBConfig& config);
+    ROC(nsw::OpcManager& manager, const nsw::FEBConfig& config);
 
     /**
      * \brief Read the full ROC address space
@@ -221,7 +221,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setSResetN(const OpcClientPtr& opcConnection, bool state) const;
+    void setSResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Reset for all PLLs
@@ -229,7 +229,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setPllResetN(const OpcClientPtr& opcConnection, bool state) const;
+    void setPllResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Asynchronous reset for the ROC core
@@ -237,7 +237,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setCoreResetN(const OpcClientPtr& opcConnection, bool state) const;
+    void setCoreResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
 
     /**
      * \brief Set a given reset to a given state
@@ -246,7 +246,7 @@ namespace nsw::hw {
      * \param resetName GPIO name of the reset
      * \param state true = set reset, false = release reset
      */
-    void setReset(const OpcClientPtr& opcConnection,
+    void setReset(const nsw::OpcClientPtr& opcConnection,
                   const std::string& resetName,
                   bool state) const;
 
@@ -259,6 +259,7 @@ namespace nsw::hw {
      */
     [[nodiscard]] static std::uint8_t getRegAddress(const std::string& regName, bool isAnalog);
 
+    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     I2cMasterConfig m_rocAnalog;   //!< associated I2cMasterConfig for the analog part of this ROC
     I2cMasterConfig m_rocDigital;  //!< associated I2cMasterConfig for the digital part of this ROC
     std::string m_opcserverIp;     //!< address and port of Opc Server
