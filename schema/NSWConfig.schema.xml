@@ -306,5 +306,9 @@
   <attribute name="DeviceID" description="The Device ID of this device on the Oracle Database" type="u64" is-not-null="yes"/>
  </class>
 
+ <class name="NSW_DeviceContainer" description="Holds a group of devices; skipped by hierarchy parsing">
+  <superclass name="ResourceSetAND"/>
+ </class>
+
 </oks-schema>
 
