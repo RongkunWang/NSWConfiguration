@@ -11,6 +11,8 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/hw/FEB.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 
 #include <boost/program_options.hpp>
 
@@ -23,7 +25,7 @@ int main(int ac, const char *av[]) {
 
     std::string config_filename;
     std::string fe_name;
-    int registerAddress;
+    unsigned int registerAddress{};
 
     po::options_description desc(description);
     desc.add_options()
@@ -31,7 +33,7 @@ int main(int ac, const char *av[]) {
         ("configfile,c", po::value<std::string>(&config_filename)->
         default_value(base_folder + "integration_config.json"),
         "Configuration file path")
-        ("registerAddress,a", po::value<int>(&registerAddress)->
+        ("registerAddress,a", po::value<unsigned int>(&registerAddress)->
         default_value(0),
         "The register address of the ROC to read .\n"
         "If this option is left empty, the default adress 0 will be read (ROC ID).")
@@ -89,16 +91,13 @@ int main(int ac, const char *av[]) {
     std::cout << "***** Reading ROC register address: " << registerAddress << std::endl;
     std::cout << "\n";
 
+    auto opcManager = nsw::OpcManager();
     for (auto & feb : frontend_configs) {
-    auto opc_ip = feb.getOpcServerIp();
-
-    auto roc_address_value = cs.readBackRoc(opc_ip,
-                                                  feb.getAddress()+".gpio.bitBanger",
-                                                  17, 18, (uint8_t)registerAddress, 2);
-
-    std::cout << feb.getAddress() << "\t" << unsigned(roc_address_value) << "(dec)" << " | 0x"
-    << std::hex << unsigned(roc_address_value) << "(hex)"
-     << " | " << std::bitset<8>(unsigned(roc_address_value)).to_string() << "(bin)" << std::endl;
+      const auto hwi = nsw::hw::FEB(opcManager, feb);
+      const auto value = hwi.getRoc().readRegister(static_cast<std::uint8_t>(registerAddress));
+      std::cout << feb.getAddress() << "\t" << unsigned(value) << "(dec)" << " | 0x"
+    << std::hex << unsigned(value) << "(hex)"
+     << " | " << std::bitset<8>(unsigned(value)).to_string() << "(bin)" << std::endl;
     }
 }
 
