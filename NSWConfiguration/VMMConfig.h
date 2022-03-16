@@ -53,6 +53,7 @@ class VMMConfig {
     std::uint32_t getGlobalRegister(const std::string& register_name) const;
     std::uint32_t getChannelRegisterOneChannel(const std::string& register_name, std::uint32_t channel) const;
     std::array<std::uint32_t, nsw::vmm::NUM_CH_PER_VMM> getChannelRegisterAllChannels(const std::string& register_name) const;
+    std::uint32_t getGlobalThreshold() const;
 
     void setGlobalRegister(const std::string& register_name, std::uint32_t value);
     void setChannelRegisterAllChannels(const std::string& register_name, std::uint32_t value);
