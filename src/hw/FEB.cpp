@@ -1,6 +1,7 @@
 #include "NSWConfiguration/hw/FEB.h"
 
 nsw::hw::FEB::FEB(OpcManager& manager, const nsw::FEBConfig& config) :
+  m_config(config),
   m_roc(manager, config),
   m_vmms([&config, &manager]() {
     std::vector<VMM> vmms;

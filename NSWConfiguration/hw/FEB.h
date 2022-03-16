@@ -71,7 +71,17 @@ namespace nsw::hw {
      * \param disableVmmCaptureInputs Disable VMM capture inputs after configuring ROC (THEY STAY DISABLED) 
      */
     void writeConfiguration(bool resetVmm = false, bool resetTds = false, bool disableVmmCaptureInputs = false) const;
+
+    /**
+     * \brief Get the \ref FEBConfig object associated with this FEB object
+     *
+     * Both const and non-const overloads are provided
+     */
+    [[nodiscard]] FEBConfig& getConfig() { return m_config; }
+    [[nodiscard]] const FEBConfig& getConfig() const { return m_config; }  //!< overload
+
   private:
+    FEBConfig m_config;       //!< FEBConfig object associated with this FEB
     ROC m_roc;                //!< ROC assiociated to this FEB
     std::vector<VMM> m_vmms;  //!< VMMs assiociated to this FEB
     std::vector<TDS> m_tdss;  //!< TDSs assiociated to this FEB
