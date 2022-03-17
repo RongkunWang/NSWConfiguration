@@ -38,9 +38,17 @@ namespace nsw::hw {
     /**
      * \brief Write the full VMM configuration
      *
-     * \param resetTds Reset the VMM
+     * \param resetVmm Reset the VMM
      */
     void writeConfiguration(bool resetVmm = false) const;
+
+    /**
+     * \brief Write a provided full VMM configuration
+     *
+     * \param config Config to be sent
+     * \param resetVmm Reset the VMM
+     */
+    void writeConfiguration(const VMMConfig& config, bool resetVmm = false) const;
 
     /**
      * \brief Get the \ref VMMConfig object associated with this VMM object
