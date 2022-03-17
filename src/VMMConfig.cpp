@@ -54,6 +54,10 @@ std::array<std::uint32_t, nsw::vmm::NUM_CH_PER_VMM> nsw::VMMConfig::getChannelRe
     return channelreg.at(register_name);
 }
 
+std::uint32_t nsw::VMMConfig::getGlobalThreshold() const {
+    return getGlobalRegister("sdt_dac");
+}
+
 void nsw::VMMConfig::setGlobalRegister(const std::string& register_name, const std::uint32_t value) {
     if (!VMMCodec::globalRegisterExists(register_name)) {
         std::string temp = register_name;
