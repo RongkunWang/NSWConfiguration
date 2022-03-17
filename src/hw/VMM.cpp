@@ -21,6 +21,11 @@ nsw::hw::VMM::VMM(OpcManager& manager, const FEBConfig& config, const std::size_
 
 void nsw::hw::VMM::writeConfiguration(const bool resetVmm) const
 {
+  writeConfiguration(m_config, resetVmm);
+}
+
+void nsw::hw::VMM::writeConfiguration(const VMMConfig& config, bool resetVmm) const
+{
   // Set Vmm Configuration Enable
   constexpr std::uint8_t VMM_ACC_DISABLE = 0xff;
   constexpr std::uint8_t VMM_ACC_ENABLE = 0x00;
@@ -43,15 +48,15 @@ void nsw::hw::VMM::writeConfiguration(const bool resetVmm) const
   };
 
   if (resetVmm) {
-    auto configCopy{m_config};
-    constexpr std::uint32_t RESET_VMM = 3; 
+    auto configCopy{config};
+    constexpr std::uint32_t RESET_VMM = 3;
     configCopy.setGlobalRegister("reset", RESET_VMM);
     writeVmmConfig(configCopy);
   }
 
-  writeVmmConfig(m_config);
+  writeVmmConfig(config);
 
-  ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(m_config.getBitString()));
+  ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(config.getBitString()));
 
   // Set Vmm Acquisition Enable
   nsw::hw::SCA::sendI2c(opcConnection, scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
