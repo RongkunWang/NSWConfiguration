@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <regex>
+#include <filesystem>
 
 #include <ers/ers.h>
 
@@ -420,6 +421,12 @@ ptree JsonApi::readRouter(const std::string& element) const {
 ptree JsonApi::read() {
     std::string s = "Reading json configuration from " + m_file_path;
     ERS_LOG(s);
+
+    // check if JSON file exists
+    if (not std::filesystem::exists(m_file_path)) {
+      const auto msg = fmt::format("File does not exist: {}", m_file_path);
+      throw nsw::ConfigIssue(ERS_HERE, msg.c_str());
+    }
 
     // temporary objects for reading in JSON file for cleaning
     std::stringstream jsonStringStream;
