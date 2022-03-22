@@ -18,7 +18,6 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         //fid_tohost tohost FID, used to receive data from FELIX
         m_fid_toflx     = std::stoull(config.get<std::string>("FidToFlx"),  nullptr, nsw::BASE_AUTO);
         m_fid_tohost    = std::stoull(config.get<std::string>("FidToHost"), nullptr, nsw::BASE_AUTO);
-
     }
     catch (const boost::property_tree::ptree_bad_path& ex){
         nsw::NSWL1DDCIssue issue(ERS_HERE, fmt::format("Error getting L1DDC info from JSON: {}", ex.what()));
@@ -26,7 +25,7 @@ nsw::L1DDCConfig::L1DDCConfig(const boost::property_tree::ptree& config) {
         throw issue;
     }
 
-    m_name = fmt::format("L1DDC-{}:{}/{}",m_boardType,m_fid_toflx,m_fid_tohost);
+    m_name = fmt::format("L1DDC-{}:{:#018x}/{:#018x}",m_boardType,m_fid_toflx,m_fid_tohost);
 
     // Optional Calibration configuration passed in ptree
     m_trainGBTxPhaseAlignment = config.get("trainGBTxPhaseAlignment", false);
