@@ -87,6 +87,10 @@ int main(int argc, const char *argv[])
     // make objects from json
     const auto configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>
       (fmt::format("json://{}", config_filename), "PadTrigger", board_name);
+    if (configs.empty()) {
+      std::cerr << "You provided a JSON with no pad triggers! Exiting." << std::endl;
+      return 1;
+    }
 
     // the hw objects
     nsw::OpcManager opcManager{};
