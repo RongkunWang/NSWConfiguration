@@ -90,7 +90,9 @@ void nsw::OpcManager::doClear()
   if (!m_connections.empty()) {
     m_stopBackgroundThread.set_value();
   }
-  m_backgroundThread.wait();
+  if (m_backgroundThread.valid()) {
+    m_backgroundThread.wait();
+  }
   m_connections.clear();
   m_stopBackgroundThread = std::promise<void>();
 }
