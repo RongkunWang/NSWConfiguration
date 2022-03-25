@@ -335,9 +335,11 @@ ptree JsonApi::readL1DDC(const std::string& element) const {
 
     if (GBTxPhaseOutputDBPath){
         const auto path = m_config.get_child("l1ddc_common_config").get<std::string>("GBTxPhaseOutputDBPath");
-        std::filesystem::path dir(path);
-        if (!std::filesystem::exists(dir)){
-            std::filesystem::create_directory(dir);
+        if (path!=""){
+            std::filesystem::path dir(path);
+            if (!std::filesystem::exists(dir)){
+                std::filesystem::create_directory(dir);
+            }
         }
         feb.put_child("GBTxPhaseOutputDBPath",GBTxPhaseOutputDBPath.get());
     }
