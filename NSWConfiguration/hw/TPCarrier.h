@@ -29,6 +29,14 @@ namespace nsw::hw {
     TPCarrier(nsw::OpcManager& manager, const TPCarrierConfig& config);
 
     /**
+     * \brief Name of TP Carrier object
+     *
+     * \returns a name of the object
+     */
+    [[nodiscard]]
+    std::string getName() const { return m_name; };
+
+    /**
      * \brief Read the full TPCarrier address space
      *
      * \returns a map of address to register value
@@ -59,6 +67,15 @@ namespace nsw::hw {
     std::uint32_t readRegister(const std::uint32_t regAddress) const;
 
     /**
+     * \brief Write a value to a TPCarrier register address, and read it back
+     *
+     * \param regAddress is the address of the register
+     * \param value is the value to be written
+     */
+    void writeAndReadbackRegister(const std::uint32_t regAddress,
+                                  const std::uint32_t value) const;
+
+    /**
      * \brief Get the \ref TPCarrierConfig object associated with this TPCarrier object
      *
      * Both const and non-const overloads are provided
@@ -73,6 +90,16 @@ namespace nsw::hw {
     TPCarrierConfig m_config;   //!< TPCarrierConfig object associated with this TPCarrier
     std::string m_opcserverIp;  //!< address and port of Opc Server
     std::string m_scaAddress;   //!< SCA address of TPCarrier item in Opc address space
+    std::string m_busAddress;   //!< Address of the I2C bus of this SCAX
+    std::string m_name;         //!< Name of this hardware object
+
+    /**
+     * \brief Get OpcManager connection of this object
+     */
+    nsw::OpcClientPtr getConnection() const
+    { return m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress); }
+
+
   };
 }  // namespace nsw::hw
 
