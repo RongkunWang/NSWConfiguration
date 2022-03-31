@@ -31,6 +31,14 @@ bool nsw::hw::SCA::readGPIO(const nsw::OpcClientPtr& opcConnection, const std::s
   return opcConnection->readGPIO(node);
 }
 
+std::vector<std::uint16_t> nsw::hw::SCA::readAnalogInputConsecutiveSamples(
+  const nsw::OpcClientPtr& opcConnection,
+  const std::string& node,
+  const std::size_t nSamples)
+{
+  return opcConnection->readAnalogInputConsecutiveSamples(node, nSamples);
+}
+
 std::vector<std::uint8_t> nsw::hw::SCA::readI2c(const nsw::OpcClientPtr& opcConnection,
                                                 const std::string& node,
                                                 const size_t numberOfBytes)
