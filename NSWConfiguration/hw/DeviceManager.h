@@ -1,13 +1,12 @@
 #ifndef NSWCONFIGURATION_HW_DEVICEMANAGER
 #define NSWCONFIGURATION_HW_DEVICEMANAGER
 
-// #include <exception> // C++20
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-// #include <execution> // C++20
-// #include <ranges> // C++20
+#include <concepts>
+#include <span>
 
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/ART.h"
@@ -81,26 +80,18 @@ namespace nsw::hw {
     }
 
     /**
-     * \brief Add a range of configs of one type to the manager
+     * \brief Add a span of configs of one type to the manager
      *
-     * \param configs range of config objects
+     * \param configs span of ptrees
      */
-    // C++20
-    // void add(const std::ranges::range auto& configs)
-    // {
-    //   for (const auto& config : configs) {
-    //     add(config);
-    //   }
-    // }
+    void add(std::span<const boost::property_tree::ptree> configs);
 
     /**
      * \brief Add objects to the manager
      *
-     * \tparam Configs <Device>Config classes
-     * \param configs <Device>Config objects
+     * \param configs ptrees
      */
-    template<typename... Configs>
-    void add(const Configs&... configs)
+    void add(const std::same_as<boost::property_tree::ptree> auto&... configs)
     {
       (add(configs), ...);
     }
@@ -110,7 +101,7 @@ namespace nsw::hw {
      *
      * \param options A set of options to be applied
      */
-    void configure(const std::vector<Options>& options = {}) const;
+    void configure(std::span<const Options> options = {}) const;
 
     /**
      * \brief Enable VMM capture inputs of all ROCs
@@ -232,51 +223,38 @@ namespace nsw::hw {
     void addTpCarrier(const nsw::TPCarrierConfig& config);
 
     /**
-     * @brief Apply a function to a range of devices and handle exceptions
-     * 
-     * @param devices Range of devices
-     * @param func Function to be applied
-     * @param exceptionHandler Function to handle exceptions
+     * \brief Apply a function to a range of devices and handle exceptions
+     *
+     * \param devices Range of devices
+     * \param func Function to be applied
+     * \param exceptionHandler Function to handle exceptions
      */
-    // C++20
-    // template<std::ranges::range Range>
-    // void applyFunc(const Range &devices,
-    //                const std::regular_invocable<typename Range::value_type> auto &func,
-    //                const std::regular_invocable<std::exception> auto &exceptionHandler) {
-    // {
-    //   std::exception_ptr eptr{};
-    //   const auto funcWithExceptionHandler = [&func, &eptr] (const auto& device) mutable {
-    //     try {
-    //       func(device);
-    //     }
-    //     catch (...) {
-    //       eptr = std::current_exception();
-    //     }
-    //   };
-    //   const auto funcWithPolicy = [&funcWithExceptionHandler, &devices] (const auto policy) {
-    //     std::for_each(policy, std::cbegin(devices), std::cend(devices), funcWithExceptionHandler);
-    //   };
-
-    //   // Call the function
-    //   if (m_multithreaded) {
-    //     funcWithPolicy(std::execution::par_unseq);
-    //   }
-    //   else {
-    //     funcWithPolicy(std::execution::seq);
-    //   }
-
-    //   // Handle exceptions
-    //   if (eptr) {
-    //     try {
-    //       std::rethrow_exception(eptr);
-    //     }
-    //     catch (const std::exception& e) {
-    //       exceptionHandler(e);
-    //     }
-    //   }
-    // }
+    template<std::ranges::range Range>
+    void applyFunc(const Range& devices,
+                   const std::regular_invocable<typename Range::value_type> auto& func,
+                   const std::regular_invocable<std::exception> auto& exceptionHandler) const
+    {
+      try {
+        if (m_multithreaded) {
+          std::vector<std::future<void>> threads{};
+          threads.reserve(devices.size());
+          for (const auto& device : devices) {
+            threads.push_back(std::async(
+              std::launch::async, [&func](const auto& deviceLocal) { func(deviceLocal); }, device));
+          }
+          for (auto& thread : threads) {
+            thread.get();
+          }
+        } else {
+          for (const auto& device : devices) {
+            func(device);
+          }
+        }
+      } catch (std::exception& ex) {
+        exceptionHandler(ex);
+      }
+    }
   };
-
 }  // namespace nsw::hw
 
 #endif

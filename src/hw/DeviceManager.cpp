@@ -4,6 +4,13 @@
 
 nsw::hw::DeviceManager::DeviceManager(const bool multithreaded) : m_multithreaded(multithreaded) {}
 
+void nsw::hw::DeviceManager::add(const std::span<const boost::property_tree::ptree> configs)
+{
+  for (const auto& config : configs) {
+    add(config);
+  }
+}
+
 void nsw::hw::DeviceManager::addFeb(const nsw::FEBConfig& config)
 {
   m_febs.emplace_back(m_opcManager, config);
@@ -36,45 +43,18 @@ void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
   m_tpCarriers.emplace_back(m_opcManager, config);
 }
 
-void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) const
+void nsw::hw::DeviceManager::configure(const std::span<const Options> options) const
 {
   const auto conf = [this](const auto& devices, const std::string& deviceName, const auto... params) {
-    // C++20
-    // applyFunc(
-    //   m_febs,
-    //   [params](const auto& device) { device.writeConfiguration(params...); },
-    //   [](const auto& ex) {
-    //     nsw::NSWHWConfigIssue issue(
-    //       ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
-    //     ers::error(issue);
-    //   });
     ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
-    try {
-      if (m_multithreaded) {
-        std::vector<std::future<void>> threads{};
-        threads.reserve(devices.size());
-        for (const auto& device : devices) {
-          threads.push_back(std::async(
-            std::launch::async,
-            [](const auto& deviceLocal, const auto... paramsLocal) {
-              deviceLocal.writeConfiguration(paramsLocal...);
-            },
-            device,
-            params...));
-        }
-        for (auto& thread : threads) {
-          thread.get();
-        }
-      } else {
-        for (const auto& device : devices) {
-          device.writeConfiguration(params...);
-        }
-      }
-    } catch (std::exception& ex) {
-      nsw::NSWHWConfigIssue issue(
-        ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
-      ers::error(issue);
-    }
+    applyFunc(
+      m_febs,
+      [&params...](const auto& device) { device.writeConfiguration(params...); },
+      [](const auto& ex) {
+        nsw::NSWHWConfigIssue issue(
+          ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
+        ers::error(issue);
+      });
   };
 
   conf(
@@ -91,74 +71,26 @@ void nsw::hw::DeviceManager::configure(const std::vector<Options>& options) cons
 
 void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
 {
-  // C++20
-  // applyFunc(
-  //   m_febs,
-  //   [](const auto& device) { device.getRoc().enableVmmCaptureInputs(); },
-  //   [](const auto& ex) {
-  //     nsw::NSWHWConfigIssue issue(
-  //       ERS_HERE, fmt::format("Enabling VMM capture inputs failed due to: {}", ex.what()));
-  //     ers::error(issue);
-  //   });
-  try {
-    if (m_multithreaded) {
-      std::vector<std::future<void>> threads{};
-      threads.reserve(m_febs.size());
-      for (const auto& feb : m_febs) {
-        threads.push_back(std::async(
-          std::launch::async,
-          [](const auto& febLocal) { febLocal.getRoc().enableVmmCaptureInputs(); },
-          feb));
-      }
-      for (auto& thread : threads) {
-        thread.get();
-      }
-    } else {
-      for (const auto& feb : m_febs) {
-        feb.getRoc().enableVmmCaptureInputs();
-      }
-    }
-  } catch (std::exception& ex) {
-    nsw::NSWHWConfigIssue issue(
-      ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
-    ers::error(issue);
-  }
+  applyFunc(
+    m_febs,
+    [](const auto& device) { device.getRoc().enableVmmCaptureInputs(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Enabling VMM capture inputs failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
 }
 
 void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
 {
-  // C++20
-  // applyFunc(
-  //   m_febs,
-  //   [](const auto& device) { device.getRoc().disableVmmCaptureInputs(); },
-  //   [](const auto& ex) {
-  //     nsw::NSWHWConfigIssue issue(
-  //       ERS_HERE, fmt::format("Disabling VMM capture inputs failed due to: {}", ex.what()));
-  //     ers::error(issue);
-  //   });
-  try {
-    if (m_multithreaded) {
-      std::vector<std::future<void>> threads{};
-      threads.reserve(m_febs.size());
-      for (const auto& feb : m_febs) {
-        threads.push_back(std::async(
-          std::launch::async,
-          [](const auto& febLocal) { febLocal.getRoc().disableVmmCaptureInputs(); },
-          feb));
-      }
-      for (auto& thread : threads) {
-        thread.get();
-      }
-    } else {
-      for (const auto& feb : m_febs) {
-        feb.getRoc().disableVmmCaptureInputs();
-      }
-    }
-  } catch (std::exception& ex) {
-    nsw::NSWHWConfigIssue issue(
-      ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
-    ers::error(issue);
-  }
+  applyFunc(
+    m_febs,
+    [](const auto& device) { device.getRoc().disableVmmCaptureInputs(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Disabling VMM capture inputs failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
 }
 
 void nsw::hw::DeviceManager::clear()
