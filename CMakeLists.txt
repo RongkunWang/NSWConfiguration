@@ -66,10 +66,6 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   vmm_capture_status
   read_tds_continous
   read_vmm_adc
-  read_baseline_with_scope
-  calibrate_trimmers
-  read_channel_trimmers
-  read_channel_thresholds
   check_gpio
   roc_loop_over_phase
   roc_select_phase
@@ -115,19 +111,6 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
     LINK_LIBRARIES nswhwinterface
     LINK_LIBRARIES Boost::program_options
   )
-endforeach()
-
-## Executables linked against nswconfig, Boost::program_options, tdaq::Alti, and tdaq::RCDCmemSegment
-set(NSWCONFIG_EXE_WITH_BOOST_PO_ALTI
-  trigger_loop_mm
-  )
-
-foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_ALTI)
-  tdaq_add_executable(nsw_${appsrc} "app/${appsrc}.cpp"
-    LINK_LIBRARIES nswconfig
-    LINK_LIBRARIES Boost::program_options
-    LINK_LIBRARIES tdaq::AltiModule tdaq::AltiConfiguration tdaq::RCDCmemSegment
-    )
 endforeach()
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
