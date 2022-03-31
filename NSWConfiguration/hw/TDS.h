@@ -89,49 +89,12 @@ namespace nsw::hw {
     [[nodiscard]] unsigned int readValue(const std::string& name) const;
 
     /**
-     * \brief Write values to the TDS
+     * \brief Read values from the TDS
      *
-     * \param values map of name to value
-     * \tparam Range Iterable list of strings 
+     * \param values span of names of values
      */
-    template<typename Range> // add requires with c++20
-    [[nodiscard]] std::map<std::string, unsigned int> readValues(const Range& names) const
-    {
-      // Lambda to const init the register names. Pulls in the names and asks the config
-      // converter for the registers for the given names
-      const auto regNames = [&names] {
-        std::unordered_set<std::string> result{};
-        for (const auto& name : names) {
-          result.merge(ConfigConverter<ConfigConversionType::TDS>::getRegsForValue(name));
-        }
-        return result;
-      }();
-
-      std::map<std::string, __uint128_t> registerValues{};
-      std::transform(std::cbegin(regNames),
-                     std::cend(regNames),
-                     std::inserter(registerValues, std::begin(registerValues)),
-                     [&](const auto& regName) -> std::pair<std::string, __uint128_t> {
-                       const auto byteVector = readRegister(static_cast<std::uint8_t>(std::distance(
-                         std::cbegin(TDS_REGISTERS), TDS_REGISTERS.find(regName))));
-                       // byte vector to 128 bit integer conversion
-                       __uint128_t result{0};
-                       auto counter = byteVector.size();
-                       for (const auto byte : byteVector) {
-                         result |= static_cast<__uint128_t>(byte) << (NUM_BITS_IN_BYTE * --counter);
-                       }
-                       return {regName, result};
-                     });
-
-      const auto configConverter = ConfigConverter<ConfigConversionType::TDS>(
-        transformMapToPtree(
-          ConfigConverter<ConfigConversionType::TDS>::convertRegisterToSubRegister(
-            transformMapToPtree(registerValues), names)),
-        ConfigType::REGISTER_BASED);
-      const auto values = configConverter.getValueBasedConfig();
-
-      return transformPtreetoMap<unsigned int>(values);
-    }
+    [[nodiscard]] std::map<std::string, unsigned int> readValues(
+      std::span<const std::string> names) const;
 
     /**
      * \brief Get the \ref I2cMasterConfig object associated with this TDS object
