@@ -45,6 +45,13 @@ namespace nsw::hw {
     // clang-format on
 
     /**
+     * \brief Get the number of VMMs of this FEB
+     *
+     * \return std::size_t Number of VMMs
+     */
+    std::size_t getNumVmms() const { return std::size(m_vmms); }
+
+    /**
      * \brief Get the \ref TDS object specified by `id`
      *
      * Both const and non-const overloads are provided

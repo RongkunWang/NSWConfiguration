@@ -52,6 +52,19 @@ namespace nsw::hw::SCA {
   bool readGPIO(const nsw::OpcClientPtr& opcConnection, const std::string& node);
 
   /**
+   * \brief Read ADC from SCA analog input
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \param nSamples Number of samples of ADC
+   * \return std::vector<std::uint16_t> samples
+   */
+  std::vector<std::uint16_t> readAnalogInputConsecutiveSamples(
+    const nsw::OpcClientPtr& opcConnection,
+    const std::string& node,
+    std::size_t nSamples);
+
+  /**
    * \brief Read back I2c register as vector
    *
    * \param opcConnection OPC server connection
@@ -179,6 +192,22 @@ namespace nsw::hw::SCA {
   void writeXilinxFpga(const OpcClientPtr& opcConnection,
                        const std::string& node,
                        const std::string& bitfile_path);
+
+
+  /**
+   * \brief Write anytype SCA OPC UA's FreeVariable
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \tparam value to be written
+   */
+  template<typename T>
+  void writeFreeVariable(const OpcClientPtr& opcConnection,
+                         const std::string& node,
+                         const T& value)
+  {
+    opcConnection->writeFreeVariable(node, value);
+  };
 
 }  // namespace nsw::hw::SCA
 
