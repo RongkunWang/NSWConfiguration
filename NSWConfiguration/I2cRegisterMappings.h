@@ -1210,7 +1210,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"l1id", 32},
     }},
   {"003_control_reg2", {
-      {"NOT_USED",      28},
+      {"NOT_USED",      23},
+      {"pfeb_num",       5},
       {"conf_sectorID",  4},
     }},
   {"004_PFEB_delay_reg2", {
@@ -1353,6 +1354,10 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"02", 1},
       {"01", 1},
       {"00", 1},
+    }},
+  {"00D_status_reg2_READONLY", {
+      {"NOT_USED", 16},
+      {"pfeb_hit_rate", 16},
     }},
 };
 
