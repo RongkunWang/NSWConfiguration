@@ -169,6 +169,11 @@ namespace nsw {
     constexpr std::size_t NUM_CH_PER_SECTOR = MMFE8_PER_SECTOR*NUM_CH_PER_MMFE8; ///< 65536 channels per sector
   }
 
+  namespace tds {
+    constexpr std::size_t NUM_CH_PER_PAD_TDS   = 104;
+    constexpr std::size_t NUM_CH_PER_STRIP_TDS = 128;
+  }
+
   namespace art {
     constexpr std::size_t ADDRESS_SIZE = 1;
     const std::vector<uint32_t> REG_INPUT_PHASES = {

@@ -158,9 +158,12 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 
 }
 
-void nsw::hw::PadTrigger::writeControlSubRegister(const std::string& subreg, const std::uint32_t subval) const
+void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
+                                           const std::string& subreg,
+                                           const std::uint32_t subval,
+                                           const bool quiet) const
 {
-  const auto rname = std::string{"000_control_reg"};
+  // get the register address
   const auto addr = addressFromRegisterName(rname);
 
   // overwrite the bits of interest
@@ -172,7 +175,9 @@ void nsw::hw::PadTrigger::writeControlSubRegister(const std::string& subreg, con
     nsw::overwriteBits(readFPGARegister(addr), subval, rpos, siz);
 
   // write
-  ERS_INFO(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, addr, value));
+  if (not quiet) {
+    ERS_INFO(fmt::format("{}: writing to 0x{:02x} with 0x{:08x}", m_name, addr, value));
+  }
   writeFPGARegister(addr, value);
 }
 
@@ -301,6 +306,22 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBBCIDs() const
   const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
   const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
   return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
+}
+
+std::uint32_t nsw::hw::PadTrigger::readPFEBRate(const std::uint32_t pfeb, const bool quiet) const
+{
+  writeSubRegister("003_control_reg2", "pfeb_num", pfeb, quiet);
+  return readFPGARegister(nsw::padtrigger::REG_STATUS2);
+}
+
+std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBRates() const
+{
+  const bool quiet{true};
+  auto rates = std::vector<std::uint32_t>();
+  for (std::uint32_t pfeb = 0; pfeb < nsw::padtrigger::NUM_PFEBS; pfeb++) {
+    rates.push_back(readPFEBRate(pfeb, quiet));
+  }
+  return rates;
 }
 
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const

@@ -129,12 +129,25 @@ namespace nsw::hw {
 
 
     /**
+     * \brief Write a sub-register of a register
+     *
+     * \param rname is the name of the register
+     * \param subreg is the name of the sub-register
+     * \param subval is the value to write
+     */
+    void writeSubRegister(const std::string& rname,
+                          const std::string& subreg,
+                          std::uint32_t subval,
+                          const bool quiet = false) const;
+
+    /**
      * \brief Write a sub-register of the control register
      *
      * \param subreg is the name of the sub-register
      * \param subval is the value to write
      */
-    void writeControlSubRegister(const std::string& subreg, std::uint32_t subval) const;
+    void writeControlSubRegister(const std::string& subreg, std::uint32_t subval) const
+    { writeSubRegister("000_control_reg", subreg, subval); }
 
     /**
      * \brief Toggle (write) the idle state from 1 to 0
@@ -215,6 +228,20 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::vector<std::uint32_t> readPFEBBCIDs() const;
+
+    /**
+     * \brief Read the rate of an input PFEB from a status register
+     *
+     * \param pfeb is the pfeb number
+     */
+    [[nodiscard]]
+    std::uint32_t readPFEBRate(const std::uint32_t pfeb, const bool quiet) const;
+
+    /**
+     * \brief Read the rates of all input PFEBs
+     */
+    [[nodiscard]]
+    std::vector<std::uint32_t> readPFEBRates() const;
 
     /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
