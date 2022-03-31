@@ -51,6 +51,24 @@ namespace nsw::hw {
     void writeConfiguration(const VMMConfig& config, bool resetVmm = false) const;
 
     /**
+     * \brief Sampling the selected monitoring output of the VMM by the PDO channel
+     *
+     * \param nSamples Number of samples
+     * \return std::vector<std::uint16_t> Samples
+     */
+    std::vector<std::uint16_t> samplePdoMonitoringOutput(std::size_t nSamples) const;
+
+    /**
+     * \brief Sampling the selected monitoring output of the VMM by the PDO channel
+     *
+     * \param config modified configuration to be send
+     * \param nSamples Number of samples
+     * \return std::vector<std::uint16_t> Samples
+     */
+    std::vector<std::uint16_t> samplePdoMonitoringOutput(VMMConfig config,
+                                                         std::size_t nSamples) const;
+
+    /**
      * \brief Get the \ref VMMConfig object associated with this VMM object
      *
      * Both const and non-const overloads are provided
@@ -59,11 +77,23 @@ namespace nsw::hw {
     [[nodiscard]] const VMMConfig& getConfig() const { return m_config; }  //!< overload
 
   private:
+
+    /**
+     * \brief Set VMMConfigurationStatusInfo FreeVariable parameter
+     *        used by SCA DCS for VMM boards (polyneikis).
+     *
+     * \param opcConnection OPC client to perform the transaction
+     * \param config VMM Configuration to be set on the chip
+     */
+    void setVmmConfigurationStatusInfoDcs(const OpcClientPtr& opcConnection,
+                                          const nsw::VMMConfig& config) const;
+
     mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     VMMConfig m_config;           //!< VMMConfig object associated with this VMM
     std::string m_opcserverIp;    //!< address and port of Opc Server
     std::string m_scaAddress;     //!< SCA address of FE item in Opc address space
     std::string m_rocAnalogName;  //!< Disable data acquisition
+    std::size_t m_vmmId{};        //!< Board position of VMM
   };
 }  // namespace nsw::hw
 
