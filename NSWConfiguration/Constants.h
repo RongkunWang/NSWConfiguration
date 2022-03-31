@@ -33,6 +33,9 @@ namespace nsw {
   /// Make it clear when we are using 4 as the size in bytes of a 32-bit word
   constexpr std::size_t NUM_BYTES_IN_WORD32 = 4;
 
+  /// Make it clear when we are using 64 as the size in bits of a 64-bit int
+  constexpr std::size_t NUM_BITS_IN_WORD64 = 64;
+
   /// Maximum size of an addressed register
   constexpr std::size_t MAX_REGISTER_SIZE = 32;
 
@@ -298,6 +301,7 @@ namespace nsw {
     constexpr std::uint8_t REG_PFEB_BCID_07_00  = 0x09;
     constexpr std::uint8_t REG_MASK_TO_0        = 0x0B;
     constexpr std::uint8_t REG_MASK_TO_1        = 0x0C;
+    constexpr std::uint8_t REG_STATUS2          = 0x0D;
     constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS = {
       "PFEB_L1Q1_IP", "PFEB_L2Q1_IP", "PFEB_L3Q1_IP", "PFEB_L4Q1_IP",
       "PFEB_L1Q1_HO", "PFEB_L2Q1_HO", "PFEB_L3Q1_HO", "PFEB_L4Q1_HO",
