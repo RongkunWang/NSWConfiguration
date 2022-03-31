@@ -346,6 +346,13 @@ std::vector<std::string> nsw::tokenizeString(const std::string& s, const std::st
 }
 
 
+__uint128_t nsw::constructUint128t(const std::uint64_t msbs, const std::uint64_t lsbs) {
+  __uint128_t ret{};
+  ret = (__uint128_t{msbs} << nsw::NUM_BITS_IN_WORD64) + lsbs;
+  return ret;
+}
+
+
 bool nsw::isLargeSector(const std::string& sector_name) {
   //
   // Large sectors are odd-numbered. Small are even.

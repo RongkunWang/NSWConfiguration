@@ -238,6 +238,16 @@ std::map<std::string, Value> transformPtreetoMap(const boost::property_tree::ptr
 }
 std::vector<std::string> tokenizeString(const std::string& s, const std::string& delimiter);
 
+/**
+ * \brief Function to construct 128 bit unsigned integers from standard 64-bit unsigned integers
+ *
+ * \param msbs most significant 64 bits
+ * \param lsbs least significant 64 bits
+ * \return 128 bit
+ */
+__uint128_t constructUint128t(const std::uint64_t msbs, const std::uint64_t lsbs);
+
+
 }  // namespace nsw
 
 namespace boost::property_tree {
