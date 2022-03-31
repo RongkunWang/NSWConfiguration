@@ -236,6 +236,53 @@ namespace nsw {
   }
 
   template<ConfigConversionType DeviceType>
+  std::map<std::string, translationMapIntType_t<DeviceType>>
+  ConfigConverter<DeviceType>::convertRegisterToSubRegister(
+    const boost::property_tree::ptree& t_config,
+    const std::span<const std::string> t_values)
+  {
+    const auto allPaths = getAllPaths(t_config);
+
+    const auto& translationMap = getTranslationMap();
+    std::vector<typename std::decay_t<decltype(translationMap)>::mapped_type::value_type> units{};
+    for (const auto& path : allPaths) {
+      bool found = false;
+      for (const auto& [valueName, element] : translationMap) {
+        const auto item =
+          std::find_if(std::begin(element), std::end(element), [&path](const auto& t_unit) {
+            return path == t_unit.m_registerName.substr(0, t_unit.m_registerName.find('.'));
+          });
+        if (item != std::end(element)) {
+          units.push_back(*item);
+          found = true;
+        }
+      }
+      if (not found) {
+        throw std::runtime_error(fmt::format("Did not find register {} in translation map", path));
+      }
+    }
+
+    std::map<std::string, translationMapIntType_t<DeviceType>> subregisterBasedMap{};
+    for (const auto& unit : units) {
+      if (std::any_of(std::cbegin(t_values), std::cend(t_values), [&unit](const auto& valueName) {
+            const auto& element = getTranslationMap().at(valueName);
+            return std::any_of(
+              std::cbegin(element), std::cend(element), [&unit](const auto& unitRequired) {
+                return unit.m_registerName == unitRequired.m_registerName;
+              });
+          })) {
+        subregisterBasedMap[unit.m_registerName] =
+          (t_config.get<translationMapIntType_t<DeviceType>>(
+             unit.m_registerName.substr(0, unit.m_registerName.find('.'))) &
+           unit.m_maskRegister) >>
+          ctz(unit.m_maskRegister);
+      }
+    }
+
+    return subregisterBasedMap;
+  }
+
+  template<ConfigConversionType DeviceType>
   int ConfigConverter<DeviceType>::ctz(const translationMapIntType_t<DeviceType> t_val)
   {
     return __builtin_ctz(t_val);

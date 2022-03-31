@@ -208,6 +208,55 @@ unsigned int nsw::hw::ROC::readValue(const std::string& name) const
   return std::cbegin(readValues(std::array{name}))->second;
 }
 
+std::map<std::string, unsigned int> nsw::hw::ROC::readValues(
+  const std::span<const std::string> names) const
+{
+  const auto isAnalog = internal::ROC::namesAnalog(names);
+  // Lambda to const init the register names. Pulls in isAnalog and the names and asks the config
+  // converter for the registers for the given names
+  const auto regNames = [isAnalog, &names] {
+    std::unordered_set<std::string> result{};
+    for (const auto& name : names) {
+      if (isAnalog) {
+        result.merge(ConfigConverter<ConfigConversionType::ROC_ANALOG>::getRegsForValue(name));
+      } else {
+        result.merge(ConfigConverter<ConfigConversionType::ROC_DIGITAL>::getRegsForValue(name));
+      }
+    }
+    return result;
+  }();
+
+  std::map<std::string, unsigned int> registerValues{};
+  std::transform(std::cbegin(regNames),
+                 std::cend(regNames),
+                 std::inserter(registerValues, std::begin(registerValues)),
+                 [&](const auto& regName) -> std::pair<std::string, std::uint8_t> {
+                   return {regName, readRegister(getRegAddress(regName, isAnalog))};
+                 });
+
+  // Lambda to const init the read-back values. Pulls in isAnalog, the read-back register values and
+  // the names. Asks the config converter to do the translation. TODO: Clean up config converter
+  // call (future MR)
+  const auto values = [isAnalog, &registerValues, &names]() {
+    if (isAnalog) {
+      const auto configConverter = ConfigConverter<ConfigConversionType::ROC_ANALOG>(
+        transformMapToPtree(
+          ConfigConverter<ConfigConversionType::ROC_ANALOG>::convertRegisterToSubRegister(
+            transformMapToPtree(registerValues), names)),
+        ConfigType::REGISTER_BASED);
+      return configConverter.getValueBasedConfig();
+    }
+    const auto configConverter = ConfigConverter<ConfigConversionType::ROC_DIGITAL>(
+      transformMapToPtree(
+        ConfigConverter<ConfigConversionType::ROC_DIGITAL>::convertRegisterToSubRegister(
+          transformMapToPtree(registerValues), names)),
+      ConfigType::REGISTER_BASED);
+    return configConverter.getValueBasedConfig();
+  }();
+
+  return transformPtreetoMap<unsigned int>(values);
+}
+
 void nsw::hw::ROC::enableVmmCaptureInputs() const
 {
   boost::property_tree::ptree tree;
