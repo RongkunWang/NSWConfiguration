@@ -48,7 +48,7 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options) c
   const auto conf = [this](const auto& devices, const std::string& deviceName, const auto... params) {
     ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
     applyFunc(
-      m_febs,
+      devices,
       [&params...](const auto& device) { device.writeConfiguration(params...); },
       [](const auto& ex) {
         nsw::NSWHWConfigIssue issue(
