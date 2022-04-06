@@ -45,11 +45,25 @@ namespace nsw::hw {
     // clang-format on
 
     /**
+     * \brief Get the \ref VMM objects connected to this FEB
+     *
+     * \return std::vector<VMM> reference to the VMM collection
+     */
+    [[nodiscard]] const std::vector<VMM>& getVmms() const { return m_vmms; }
+
+    /**
      * \brief Get the number of VMMs of this FEB
      *
      * \return std::size_t Number of VMMs
      */
-    std::size_t getNumVmms() const { return std::size(m_vmms); }
+    [[nodiscard]] std::size_t getNumVmms() const { return std::size(m_vmms); }
+
+    /**
+     * \brief Get the board index of the first VMM of this FEB
+     *
+     * \return std::size_t Board index of the first VMM
+     */
+    [[nodiscard]] std::size_t getFirstVmmIndex() const { return m_firstVmm; }
 
     /**
      * \brief Get the \ref TDS object specified by `id`
@@ -62,6 +76,13 @@ namespace nsw::hw {
     [[nodiscard]] TDS& getTds(const std::size_t id) { return m_tdss.at(id - m_firstTds); }
     [[nodiscard]] const TDS& getTds(const std::size_t id) const { return m_tdss.at(id - m_firstTds); }  //!< \overload
     // clang-format on
+
+    /**
+     * \brief Get the \ref TDS objects connected to this FEB
+     *
+     * \return std::vector<TDS> reference to the TDS collection
+     */
+    [[nodiscard]] const std::vector<TDS>& getTdss() const { return m_tdss; }
 
     /**
      * \brief Get the Opc Node Id
