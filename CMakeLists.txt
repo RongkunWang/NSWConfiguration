@@ -162,6 +162,8 @@ tdaq_add_library(nswhwinterface
                  src/hw/MMTP.cpp
                  src/hw/TPCarrier.cpp
                  src/hw/Helper.cpp
+  INCLUDE_DIRECTORIES
+                $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES nswconfig
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>

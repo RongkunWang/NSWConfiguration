@@ -10,6 +10,7 @@
 
 #include <is/infodynany.h>
 
+#include "NSWConfiguration/Issues.h"
 #include "NSWConfigurationDal/NSWConfigApplication.h"
 
 #include <ers/ers.h>

@@ -8,6 +8,7 @@
 #include <concepts>
 #include <span>
 
+#include "NSWConfiguration/Issues.h"
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/ART.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
@@ -288,6 +289,10 @@ namespace nsw::hw {
             func(device);
           }
         }
+      } catch (const OpcReadWriteIssue& ex) {
+        throw NSWConfigurationOpcError(ERS_HERE, ex.what());
+      } catch (const OpcConnectionIssue& ex) {
+        throw NSWConfigurationOpcError(ERS_HERE, ex.what());
       } catch (std::exception& ex) {
         exceptionHandler(ex);
       }

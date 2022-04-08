@@ -2,6 +2,8 @@
 #define NSWCONFIGURATION_NSWSECTORCONTROLLERRC_H
 
 #include "NSWConfiguration/CommandSender.h"
+#include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/Issues.h"
 #include <future>
 #include <memory>
 
@@ -10,7 +12,6 @@
 
 #include <RunControl/RunControl.h>
 
-
 namespace daq::rc {
   class SubTransitionCmd;
   class TransitionCmd;
@@ -18,33 +19,102 @@ namespace daq::rc {
 }  // namespace daq::rc
 
 namespace nsw {
+  /**
+   * \brief Controller for one sector
+   *
+   * Recieves commands from orchestrator and sends commands to SCA service, monitoring and
+   * configuration controller. Controls configuration and monitoring of one sector.
+   */
   class NSWSectorControllerRc : public daq::rc::Controllable
   {
   public:
-    //! Connects to configuration database/ or reads file based config database
-    //! Reads the names of front ends that should be configured and constructs
-    //! FEBConfig objects in the map m_frontends
+    /**
+     * \brief Read OKS database and create command senders
+     */
     void configure(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Send configure command to configuration controller
+     *
+     * Retries configuration if OPC server is unavailable
+     */
     void connect(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Ask configuration and monitoring controller to start
+     */
     void prepareForRun(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Ask configuration and monitoring controller to stop
+     */
     void stopRecording(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Noop
+     */
     void unconfigure(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Noop
+     */
     void disconnect(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Receive user commands
+     *
+     * \param cmd User command
+     */
     void user(const daq::rc::UserCmd& cmd) override;
-
-    // void onExit(daq::rc::FSM_STATE) noexcept override;
 
     //! Used to syncronize ROC/VMM configuration
     void subTransition(const daq::rc::SubTransitionCmd& /*cmd*/) override;
 
   private:
+    /**
+     * \brief Perodically send reconnect OPC commands to SCA service
+     *
+     * \param timeout Fail after timeout
+     * \return true reconnected
+     * \return false remains disconnected
+     */
     [[nodiscard]] bool recoverOpc(std::chrono::seconds timeout) const;
+
+    /**
+     * \brief Retry an operation if OPC dies during the operation
+     *
+     * \param func Operation to be performed
+     * \param timeout Timeout for OPC reconnections
+     * \param retries Number of attempts
+     */
+    void retryOpc(const std::regular_invocable<> auto& func,
+                  const std::chrono::seconds timeout,
+                  const int retries) const
+    {
+      for (int counter = 0; counter < retries; ++counter) {
+        func();
+        if (opcConnected()) {
+          break;
+        }
+        if (counter == retries - 1) {
+          const auto issue = NSWOpcRetryLimitReached(ERS_HERE, retries);
+          ers::error(issue);
+          throw issue;
+        }
+        if (not recoverOpc(timeout)) {
+          const auto issue = NSWConfigIssue(ERS_HERE, "Cannot recover");
+          ers::error(issue);
+          throw issue;
+        }
+      }
+    }
+
+    /**
+     * \brief Is the OPC server connected
+     *
+     * \return true yes
+     * \return false no
+     */
     [[nodiscard]] bool opcConnected() const;
 
     nsw::CommandSender m_scaServiceSender;  //!< Command sender to SCA service application

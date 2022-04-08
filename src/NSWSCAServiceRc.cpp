@@ -16,9 +16,9 @@
 
 #include <ers/ers.h>
 
+#include "NSWConfiguration/CommandNames.h"
 #include "NSWConfigurationDal/NSWSCAServiceApplication.h"
 #include "NSWConfiguration/Issues.h"
-
 
 bool nsw::NSWSCAServiceRc::simulationFromIS()
 {
@@ -37,9 +37,9 @@ bool nsw::NSWSCAServiceRc::simulationFromIS()
   return false;
 }
 
-void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd&)
+void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
-  ERS_INFO("Start");
+  ERS_LOG("Start");
   // Retrieving the configuration db
   daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
   const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
@@ -65,39 +65,47 @@ void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd&)
   ERS_LOG("End");
 }
 
+void nsw::NSWSCAServiceRc::unconfigure(const daq::rc::TransitionCmd& /*cmd*/)
+{
+  m_NSWConfig->unconfigureRc();
+}
+
 void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
 {
-  const auto notifyScaUnavailable = [this, &usrCmd]() {
+  const auto commandName = usrCmd.commandName();
+  ERS_LOG("User command received: " << commandName);
+  const auto notifyScaUnavailable = [this, &commandName]() {
+    ERS_INFO("SCA unavailable");
     m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(false));
-    if (daq::rc::FSMStates::stringToState(usrCmd.currentFSMState()) != daq::rc::FSM_STATE::CONNECTED) {
-      m_sectorControllerSender.send("scaServiceUnavailable");
+    if (commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
+      m_sectorControllerSender.send(nsw::commands::SCA_DISCONNECTED);
     }
   };
-  ERS_LOG("User command received: " << usrCmd.commandName());
   try {
-    if (usrCmd.commandName() == "configure") {
+    if (commandName == nsw::commands::CONFIGURE) {
       m_NSWConfig->configureRc();
-    } else if (usrCmd.commandName() == "unconfigure") {
-      m_NSWConfig->unconfigureRc();
-    } else if (usrCmd.commandName() == "start") {
+    } else if (commandName == nsw::commands::START) {
       m_NSWConfig->startRc();
-    } else if (usrCmd.commandName() == "stop") {
+    } else if (commandName == nsw::commands::STOP) {
       m_NSWConfig->stopRc();
-    } else if (usrCmd.commandName() == "enableVmmCaptureInputs") {
+    } else if (commandName == nsw::commands::ENABLE_VMM) {
       m_NSWConfig->enableVmmCaptureInputs();
-    } else if (usrCmd.commandName() == "recover") {
+    } else if (commandName == nsw::commands::RECOVER_OPC or
+               commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
       notifyScaUnavailable();
-    } else if (usrCmd.commandName() == "reconnect") {
+    } else if (commandName == nsw::commands::RECONNECT_OPC) {
       if (m_NSWConfig->recoverOpc()) {
         m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(true));
-        m_sectorControllerSender.send("scaServiceReconnected");
+        m_sectorControllerSender.send(nsw::commands::SCA_RECONNECTED);
       }
     } else {
-      ers::warning(nsw::NSWUnkownCommand(ERS_HERE, usrCmd.commandName()));
+      ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
     }
   } catch (const OpcReadWriteIssue&) {
     notifyScaUnavailable();
   } catch (const OpcConnectionIssue&) {
+    notifyScaUnavailable();
+  } catch (const NSWConfigurationOpcError&) {
     notifyScaUnavailable();
   }
 }

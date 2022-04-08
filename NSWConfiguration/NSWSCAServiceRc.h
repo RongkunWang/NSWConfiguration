@@ -18,17 +18,38 @@ namespace daq::rc {
 }  // namespace daq::rc
 
 namespace nsw {
+  /**
+   * \brief SCA service for one sector
+   *
+   * Recieves commands from configuration, monitoring, and sector controller. Reports OPC issues to
+   * sector controller. Holds all HWIs.
+   */
   class NSWSCAServiceRc : public daq::rc::Controllable
   {
   public:
-    //! Connects to configuration database/ or reads file based config database
-    //! Reads the names of front ends that should be configured and constructs
-    //! FEBConfig objects in the map m_frontends
+    /**
+     * \brief Read OKS database and create command senders, create HWIs
+     */
+    void configure(const daq::rc::TransitionCmd& /*cmd*/) override;
 
-    void configure(const daq::rc::TransitionCmd&) override;
+    /**
+     * \brief Delete HWIs
+     */
+    void unconfigure(const daq::rc::TransitionCmd& /*cmd*/) override;
+
+    /**
+     * \brief Receive user commands
+     *
+     * \param cmd User command
+     */
     void user(const daq::rc::UserCmd& cmd) override;
 
-    //! Handle Configuration
+    /**
+     * \brief Get simulation switch from IS
+     *
+     * \return true simulation mode, do not talk to HW
+     * \return false real mode, do talk to HW
+     */
     bool simulationFromIS();
 
   private:

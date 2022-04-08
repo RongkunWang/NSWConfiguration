@@ -11,6 +11,7 @@
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 
+#include "NSWConfiguration/CommandNames.h"
 #include "NSWConfiguration/OpcClient.h"
 
 using namespace std::chrono_literals;
@@ -98,7 +99,7 @@ void nsw::OpcManager::pingConnections(std::future<void>&& stop) const
     });
     if (crashed) {
       if (m_commandSender.valid()) {
-        m_commandSender.send("recover");
+        m_commandSender.send(nsw::commands::RECOVER_OPC_MESSAGE);
       }
       break;
     }
@@ -117,7 +118,7 @@ void nsw::OpcManager::pingConnections(std::future<void>&& stop) const
 
 void nsw::OpcManager::doClear()
 {
-  if (!m_connections.empty()) {
+  if (m_backgroundThread.valid()) {
     m_stopBackgroundThread.set_value();
   }
   if (m_backgroundThread.valid()) {

@@ -9,28 +9,38 @@
 
 #include <RunControl/RunControl.h>
 
-
 namespace daq::rc {
   class SubTransitionCmd;
   class TransitionCmd;
   class UserCmd;
-}
+}  // namespace daq::rc
 
 namespace nsw {
-class NSWConfigurationControllerRc: public daq::rc::Controllable {
- public:
-    //! Connects to configuration database/ or reads file based config database
-    //! Reads the names of front ends that should be configured and constructs
-    //! FEBConfig objects in the map m_frontends
+  /**
+   * \brief Configuration Controller of one sector
+   *
+   * Recieves commands from sector controller and sends commands to SCA service. Controlls the SCA
+   * based monitoring of devices.
+   */
+  class NSWConfigurationControllerRc : public daq::rc::Controllable
+  {
+  public:
+    /**
+     * \brief Read OKS database and create command senders
+     */
     void configure(const daq::rc::TransitionCmd& /*cmd*/) override;
 
+    /**
+     * \brief Receive user commands
+     *
+     * \param cmd User command
+     */
     void user(const daq::rc::UserCmd& cmd) override;
 
- private:
+  private:
     nsw::CommandSender m_scaServiceSender;  //!< Command sender to SCA service application
     IPCPartition m_ipcpartition;
     std::unique_ptr<ISInfoDictionary> m_isDictionary;
-
-};
+  };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
