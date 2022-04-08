@@ -15,6 +15,7 @@ namespace nsw::commands {
   constexpr static std::string_view SCA_RECONNECTED{"scaServiceReconnected"};
   constexpr static std::string_view RECOVER_OPC{"recoverOpc"};
   constexpr static std::string_view RECOVER_OPC_MESSAGE{"recoverOpcAndMessage"};
+  constexpr static std::string_view MON_IS_SERVER_NAME{"monitoringIsServerName"};
 }  // namespace nsw::commands
 
 #endif

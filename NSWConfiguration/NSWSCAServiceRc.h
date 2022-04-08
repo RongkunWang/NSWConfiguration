@@ -55,6 +55,7 @@ namespace nsw {
   private:
     std::unique_ptr<NSWConfig> m_NSWConfig{};
     CommandSender m_sectorControllerSender{};
+    std::string m_monitoringIsServerName;
     bool m_simulation{false};
 
     std::string m_isDbName;  //!< Name of the IS server to retrieve NSW parameters from

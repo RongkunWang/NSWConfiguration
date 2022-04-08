@@ -17,6 +17,7 @@
 #include <ers/ers.h>
 
 #include "NSWConfiguration/CommandNames.h"
+#include "NSWConfiguration/NSWConfig.h"
 #include "NSWConfigurationDal/NSWSCAServiceApplication.h"
 #include "NSWConfiguration/Issues.h"
 
@@ -97,6 +98,27 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
       if (m_NSWConfig->recoverOpc()) {
         m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(true));
         m_sectorControllerSender.send(nsw::commands::SCA_RECONNECTED);
+      }
+    } else if (commandName == nsw::commands::MONITOR) {
+      if (std::size(usrCmd.commandParameters()) != 1) {
+        ers::warning(nsw::NSWInvalidCommand(
+          ERS_HERE,
+          fmt::format("Monitor command must have one argument. Recieved {} commands ({}).",
+                      std::size(usrCmd.commandParameters()),
+                      usrCmd.toString())));
+      }
+      if (m_monitoringIsServerName.empty()) {
+        ers::warning(nsw::NSWConfigIssue(ERS_HERE, "Requested monitoring but did not set IS server before"));
+      } else {
+        m_NSWConfig->monitor(
+          usrCmd.commandParameters().at(0), m_isDictionary.get(), m_monitoringIsServerName);
+      }
+    } else if (commandName == nsw::commands::MON_IS_SERVER_NAME) {
+      if (std::size(usrCmd.commandParameters()) != 1) {
+        ers::warning(nsw::NSWInvalidCommand(
+          ERS_HERE, "Recieved command to set monitoring IS server name but did not get a name"));
+      } else {
+        m_monitoringIsServerName = usrCmd.commandParameters().at(0);
       }
     } else {
       ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));

@@ -24,6 +24,14 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+tdaq_generate_isinfo(nswmonis
+    info/NswMonitoring.schema.xml
+  CPP_OUTPUT is_cpp_srcs
+  SIMPLE
+  NAMED
+  OUTPUT_DIRECTORY ${TDAQ_PACKAGE_NAME}Is
+  NAMESPACE nsw::mon::is)
+
 tdaq_generate_dal(schema/NSWConfig.schema.xml
                   schema/NSWSCAService.schema.xml
                   schema/NSWConfigurationController.schema.xml
@@ -43,7 +51,7 @@ tdaq_add_library(NSWConfig src/NSWConfig.cpp
   INCLUDE_DIRECTORIES
                  $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface
+                 tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface nswmonitoring
 )
 
 ## Executables linked against Boost::boost
@@ -169,6 +177,16 @@ tdaq_add_library(nswhwinterface
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
+tdaq_add_library(nswmonitoring
+                 src/monitoring/RocStatusRegisters.cpp
+                 src/monitoring/RocConfigurationRegisters.cpp
+                 src/monitoring/IsPublisher.cpp
+  LINK_LIBRARIES nswconfig
+                 nswhwinterface
+    PRIVATE
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
+
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   INCLUDE_DIRECTORIES
                  $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
@@ -201,6 +219,8 @@ tdaq_add_schema(schema/NSWConfigurationController.schema.xml)
 tdaq_add_schema(schema/NSWMonitoringController.schema.xml)
 tdaq_add_schema(schema/NSWSectorController.schema.xml)
 tdaq_add_schema(schema/NSWSCAService.schema.xml)
+
+tdaq_add_is_schema(info/NswMonitoring.schema.xml)
 
 # Testing
 
@@ -301,6 +321,7 @@ if (BUILD_NSW_DOCS)
 
   if (TARGET ${TDAQ_PACKAGE_NAME}.doxygen)
     add_dependencies(${TDAQ_PACKAGE_NAME}.doxygen nswconfigdal)
+    add_dependencies(${TDAQ_PACKAGE_NAME}.doxygen nswmonis)
     SetupNSWDoxygenTargets(${TDAQ_PACKAGE_NAME}.doxygen)
   endif()
 endif()

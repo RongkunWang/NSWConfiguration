@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 
-<!-- oks-schema version 2.1 -->
+<!-- oks-schema version 2.2 -->
 
 
 <!DOCTYPE oks-schema [
@@ -51,6 +51,7 @@
       is-multi-value (yes|no) "no"
       init-value CDATA ""
       is-not-null (yes|no) "no"
+      ordered (yes|no) "no"
   >
   <!ELEMENT relationship EMPTY>
   <!ATTLIST relationship
@@ -62,6 +63,7 @@
       is-composite (yes|no) #REQUIRED
       is-exclusive (yes|no) #REQUIRED
       is-dependent (yes|no) #REQUIRED
+      ordered (yes|no) "no"
   >
   <!ELEMENT method (method-implementation*)>
   <!ATTLIST method
@@ -78,18 +80,28 @@
 
 <oks-schema>
 
-<info name="" type="" num-of-items="14" oks-format="schema" oks-version="oks-08-03-02-01 built &quot;Mar  1 2021&quot;" created-by="cbeiraod" created-on="" creation-time="20210114T123458" last-modified-by="cbeiraod" last-modified-on="lxplus741.cern.ch" last-modification-time="20210330T103835"/>
+<info name="" type="" num-of-items="1" oks-format="schema" oks-version="oks-08-03-03 built &quot;May  3 2021&quot;" created-by="nswdaq" created-on="pcatlnswswrodvs.cern.ch" creation-time="20211104T131927" last-modified-by="nswdaq" last-modified-on="pcatlnswswrodvs.cern.ch" last-modification-time="20211115T093256"/>
 
 <include>
- <file path="daq/schema/core.schema.xml"/>
- <file path="daq/schema/df.schema.xml"/>
+ <file path="is/is.xml"/>
 </include>
 
- <class name="NSWConfigurationControllerApplication" description="NSW Configuration Application that configures FE">
-  <superclass name="RunControlApplication"/>
-  <superclass name="ResourceSet"/>
-  <attribute name="scaServiceName" description="Link to SCA service application" type="string" is-not-null="yes"/>
+ <class name="Statistics" description="Statistics for monitoring group">
+  <superclass name="Info"/>
+  <attribute name="time" description="Time used by monitoring in ms" type="u64" format="dec" init-value="0"/>
  </class>
 
-</oks-schema>
+ <class name="RocStatus">
+  <superclass name="Info"/>
+  <attribute name="captureStatusVmm" description="Capture status of VMM0-7" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="parityCounterVmm" description="Parity error counter of VMM0-7" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="statusSroc" description="Status of sROC0-4" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="seu" description="Single event upset flag" type="u8" format="hex" init-value="0"/>
+  <attribute name="seuCounter" description="SEU pulses counter" type="u8" format="hex" init-value="0"/>
+ </class>
 
+ <class name="RocConfiguration">
+  <superclass name="Info"/>
+  <attribute name="reg115" description="reg115" type="u8" format="hex" init-value="0"/>
+ </class>
+</oks-schema>

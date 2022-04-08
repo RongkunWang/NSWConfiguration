@@ -8,9 +8,12 @@
 #include <string>
 #include <memory>
 #include <chrono>
+#include <variant>
 
 // Header to the RC online services
 #include "NSWConfiguration/hw/DeviceManager.h"
+#include "NSWConfiguration/monitoring/RocStatusRegisters.h"
+#include "NSWConfiguration/monitoring/RocConfigurationRegisters.h"
 #include "RunControl/Common/OnlineServices.h"
 
 #include "dal/ResourceSet.h"
@@ -66,6 +69,10 @@ void nsw::NSWConfig::readConfigurationResource() {
         ers::fatal(issue);
       }
     }
+    m_monitoringMap.try_emplace(std::string{nsw::mon::RocStatusRegisters::NAME},
+                                MonitoringVariant{nsw::mon::RocStatusRegisters(m_deviceManager)});
+    m_monitoringMap.try_emplace(std::string{nsw::mon::RocConfigurationRegisters::NAME},
+                                MonitoringVariant{nsw::mon::RocConfigurationRegisters(m_deviceManager)});
 }
 
 void nsw::NSWConfig::configureRc() {
@@ -96,6 +103,7 @@ void nsw::NSWConfig::unconfigureRc() {
     m_l1ddcs.clear();
     m_tps.clear();
     m_deviceManager.clear();
+    m_monitoringMap.clear();
     // m_reader.reset();
     ERS_INFO("End");
 }
@@ -290,4 +298,9 @@ bool nsw::NSWConfig::recoverOpc() {
   };
 
   return pingServer();
+}
+
+void nsw::NSWConfig::monitor(const std::string& name, ISInfoDictionary* isDict, const std::string_view serverName) const
+{
+  std::visit([&isDict, &serverName] (const auto& mon) { mon.monitor(isDict, serverName); }, m_monitoringMap.at(name));
 }

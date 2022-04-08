@@ -85,10 +85,16 @@
  <file path="daq/schema/df.schema.xml"/>
 </include>
 
- <class name="NSWConfigurationControllerApplication" description="NSW Configuration Application that configures FE">
+ <class name="NSW_MonitoringGroup" description="Group of devices and parameters to be monitored">
+  <superclass name="ResourceSetAND"/>
+  <attribute name="frequency" description="Frequency in seconds" type="u64" is-not-null="yes"/>
+ </class>
+
+ <class name="NSWMonitoringControllerApplication" description="NSW Configuration Application that configures FE">
   <superclass name="RunControlApplication"/>
   <superclass name="ResourceSet"/>
   <attribute name="scaServiceName" description="Link to SCA service application" type="string" is-not-null="yes"/>
+  <attribute name="monitoringIsServerName" description="Name of IS monitoring server" type="string" is-not-null="yes"/>
  </class>
 
 </oks-schema>

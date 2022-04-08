@@ -13,6 +13,8 @@
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Types.h"
 #include "NSWConfiguration/hw/DeviceManager.h"
+#include "NSWConfiguration/monitoring/RocConfigurationRegisters.h"
+#include "NSWConfiguration/monitoring/RocStatusRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -127,6 +129,15 @@ class NSWConfig {
      */
     bool recoverOpc();
 
+    /**
+     * \brief Monitor a given group
+     *
+     * \param name Name of the monitoring group
+     * \param isDict IS dictionary
+     * \param serverName Name of the IS server
+     */
+    void monitor(const std::string& name, ISInfoDictionary* isDict, std::string_view serverName) const;
+
     hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
     const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
 private:
@@ -154,6 +165,9 @@ private:
     std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
 
     hw::DeviceManager m_deviceManager;
+
+    using MonitoringVariant = std::variant<nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters>;
+    std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string
     std::string m_dbcon;
