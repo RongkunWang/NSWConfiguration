@@ -292,6 +292,7 @@ namespace nsw {
     constexpr std::uint32_t NUM_BITS_PER_PFEB_BCID = 4;
     constexpr std::uint32_t PFEB_BCID_BITMASK      = 0b1111;
     constexpr std::uint32_t TRIGGER_RATE_BITSHIFT  = 16;
+    constexpr std::chrono::seconds PFEB_HIT_RATE_TIME{1};
     constexpr std::uint8_t REG_CONTROL          = 0x00;
     constexpr std::uint8_t REG_STATUS           = 0x01;
     constexpr std::uint8_t REG_L1ID             = 0x02;
