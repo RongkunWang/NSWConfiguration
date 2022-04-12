@@ -240,15 +240,15 @@ namespace nsw {
     constexpr std::uint8_t REG_FIBER_BC_OFFSET          = 0x08;
     constexpr std::uint8_t REG_DATE_CODE                = 0x09;
     constexpr std::uint8_t REG_GIT_HASH                 = 0x0a;
+    constexpr std::uint8_t REG_INPUT_PHASE              = 0x0b;
+    constexpr std::uint8_t REG_INPUT_PHASEOFFSET        = 0x0c;
+    constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
+    constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
     constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
     constexpr std::uint8_t REG_L1A_LATENCY              = 0x11;
     constexpr std::uint8_t REG_L1A_WIN_UPPER            = 0x12;
     constexpr std::uint8_t REG_L1A_WIN_LOWER            = 0x13;
     constexpr std::uint8_t REG_L1A_STATUS               = 0x14;
-    constexpr std::uint8_t REG_INPUT_PHASE              = 0x0b;
-    constexpr std::uint8_t REG_INPUT_PHASEOFFSET        = 0x0c;
-    constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
-    constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
     constexpr std::uint8_t REG_FIBER_MASK_MUX           = 0x1c;
     constexpr std::uint8_t REG_FIBER_MASK_WRITE         = 0x1d;
     constexpr std::uint8_t REG_PIPELINE_OVERFLOW        = 0x20;
@@ -259,6 +259,37 @@ namespace nsw {
     constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
     constexpr std::uint8_t REG_HORX_ENV_MON_ADDR        = 0x26;
     constexpr std::uint8_t REG_HORX_ENV_MON_DATA        = 0x27;
+    constexpr auto REGS = std::to_array({
+      REG_ADDC_EMU_DISABLE,
+      REG_FIBER_ALIGNMENT,
+      REG_FIBER_QPLL_RESET,
+      REG_FIBER_BCIDS_00_07,
+      REG_FIBER_BCIDS_08_15,
+      REG_FIBER_BCIDS_16_23,
+      REG_FIBER_BCIDS_24_31,
+      REG_FIBER_BC_OFFSET,
+      REG_DATE_CODE,
+      REG_GIT_HASH,
+      REG_L1A_CONTROL,
+      REG_L1A_LATENCY,
+      REG_L1A_WIN_UPPER,
+      REG_L1A_WIN_LOWER,
+      REG_L1A_STATUS,
+      REG_INPUT_PHASE,
+      REG_INPUT_PHASEOFFSET,
+      REG_FIBER_HOT_MUX,
+      REG_FIBER_HOT_READ,
+      // REG_FIBER_MASK_MUX,
+      // REG_FIBER_MASK_WRITE,
+      REG_PIPELINE_OVERFLOW,
+      REG_SELFTRIGGER_DELAY,
+      REG_VMM_MASK_HOT_THRESH,
+      REG_VMM_MASK_HOT_THRESH_HYST,
+      REG_VMM_MASK_DRAIN_PERIOD,
+      REG_CHAN_RATE_ENABLE,
+      REG_HORX_ENV_MON_ADDR,
+      REG_HORX_ENV_MON_DATA,
+    });
     constexpr std::array<std::string_view, NUM_ADDCS> ORDERED_ADDCS = {
       "ADDC_L1P6_IPR",
       "ADDC_L1P3_IPL",
@@ -277,8 +308,10 @@ namespace nsw {
       "ADDC_L1P3_HOR",
       "ADDC_L1P6_HOL",
     };
+    constexpr std::uint32_t ADDC_EMU_DISABLE  = 0x01;
     constexpr std::uint32_t L1A_RESET_ENABLE  = 0xFF;
     constexpr std::uint32_t L1A_RESET_DISABLE = 0x00;
+    constexpr std::uint32_t FIBER_QPLL_RESET_DISABLE = 0x00;
   }
 
   namespace padtrigger {

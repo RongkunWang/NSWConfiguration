@@ -189,6 +189,24 @@ std::string dumpTree(const boost::property_tree::ptree &pt);
 std::string getPrintableGbtxConfig(std::vector<uint8_t> data);
 
 /**
+ * \brief Get a set from a ptree
+ *
+ * \tparam Type Type of the items contained in the set
+ * \param tree The ptree
+ * \param key The key of the set
+ * \return std::set<Type> The set of items of type Type in the ptree matching the key
+ */
+template<typename Type>
+std::set<Type> getSetFromPtree(const boost::property_tree::ptree& tree,
+                               const std::string& key) {
+  std::set<Type> items;
+  for (const auto& item: tree.get_child(key)) {
+    items.emplace(item.second.get_value<Type>());
+  }
+  return items;
+}
+
+/**
  * \brief Get all complete paths from a ptree
  *
  * \param tree The ptree
