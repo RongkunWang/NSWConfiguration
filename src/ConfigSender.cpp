@@ -378,7 +378,7 @@ bool nsw::ConfigSender::sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& 
     return true;
 }
 
-void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId){
+void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId, ic::fct::IChandler& ich){
     // Send configuration for one GBTx
     // L1DDCConfig should be initialized with a configuration ptree
     // gbtxId should be 0, 1, 2 depending on which GBTx is to be configured (TODO: 1, 2 not supported)
@@ -386,10 +386,6 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     const std::vector<uint8_t> data = l1ddc.getGBTxBytestream(gbtxId);
     // generate bytestream
     if (gbtxId==0){
-        const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
-        const std::uint64_t fid_tohost = l1ddc.getFidToHost();
-        // send configuration over i2c
-        ic::fct::IChandler ich(fid_toflx,fid_tohost);
 
         // Try sending configuration and check the readback
         // If the readback doesn't match, for nTries, raise error
@@ -460,6 +456,11 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     phaseTree.push_front(ptree::value_type("nameL1DDC", l1ddc.getName()));
     phaseTree.push_front(ptree::value_type("nodeL1DDC", l1ddc.getNodeName()));
 
+    // make common IC handler for GBTx0
+    const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
+    const std::uint64_t fid_tohost = l1ddc.getFidToHost();
+    ic::fct::IChandler ich(fid_toflx,fid_tohost);
+
     std::vector<std::size_t> GBTxToConfigure;
     if (l1ddc.getConfigureGBTx(0)) GBTxToConfigure.push_back(0);
     if (l1ddc.getConfigureGBTx(1)) GBTxToConfigure.push_back(1);
@@ -467,21 +468,21 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     for (std::size_t gbtxId : GBTxToConfigure){
         ERS_LOG(fmt::format("\nConfiguring GBTx number {}",gbtxId));
         // Initial configuration with default values
-        sendGBTxConfig(l1ddc,gbtxId);
+        sendGBTxConfig(l1ddc,gbtxId,ich);
         if (l1ddc.trainGBTxPhaseAlignment()){
             ERS_LOG("\nTraining GBTx phase alignment for "<<l1ddc.getName());
             // Make a non-const copy
             L1DDCConfig l1ddcCopy(l1ddc);
             // send start training configuration
             l1ddcCopy.trainGbtxsOn();
-            sendGBTxConfig(l1ddcCopy,gbtxId);
+            sendGBTxConfig(l1ddcCopy,gbtxId,ich);
             // wait while registers train
             ERS_LOG("\nGBTx phase training time: "<<l1ddc.trainGBTxPhaseWaitTime()<<"us for "<<l1ddc.getName());
             ERS_LOG("Path = "<<l1ddc.getGBTxPhaseOutputDBPath());
             nsw::snooze(std::chrono::microseconds{l1ddc.trainGBTxPhaseWaitTime()});
             // send stop training configuration
             l1ddcCopy.trainGbtxsOff();
-            sendGBTxConfig(l1ddcCopy,gbtxId);
+            sendGBTxConfig(l1ddcCopy,gbtxId,ich);
 
             // Print out phases
             const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId);
