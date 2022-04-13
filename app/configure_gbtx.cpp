@@ -15,6 +15,27 @@
 
 using namespace std;
 
+int active_threads(std::vector< std::future<int> >& threads){
+  int nfinished = 0;
+  for (auto& thread: threads)
+    if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+      nfinished++;
+  return static_cast<int>(threads.size()) - nfinished;
+}
+
+int configure_board(nsw::L1DDCConfig l1ddc) {
+
+    std::cout << "New thread in configure_board (l1ddc) \n";
+
+    nsw::ConfigSender cs;
+
+    std::cout << "Starting cs.sendL1DDCConfig\n";
+    cs.sendL1DDCConfig(l1ddc);
+    std::cout << "Done with configure_board\n";
+
+    return 0;
+
+}
 
 int main (int argc, char** argv){
 
@@ -26,6 +47,7 @@ int main (int argc, char** argv){
     string name="";
     uint64_t fid_toflx=-1;
     uint64_t fid_tohost=-1;
+    bool parallel=false;
     std::size_t trainGBTxPhaseWaitTime=1;
 
     // Check if reading or writing or training
@@ -47,6 +69,7 @@ int main (int argc, char** argv){
         if (!strcmp(argv[i],"--board")) boardType=argv[i+1];
         if (!strcmp(argv[i],"--config")) iPath=argv[i+1];
         if (!strcmp(argv[i],"--name")) name=argv[i+1];
+        if (!strcmp(argv[i],"-p")) parallel=true;
     }
 
     // check inputs
@@ -59,9 +82,10 @@ int main (int argc, char** argv){
     if (mode=="help"){
         cout<<"NAME\n   configure_gbtx - write to and read from GBTx through netio\n";
         cout<<"SYNOPSIS\n   configure_gbtx [-w,-t,-s,-h]... --toflx WWW --tohost XXX --felix YYY --opc QQQ --board mmg --config CONFIG \n";
-        cout<<"-t       | Write configuration and train GBTx e-links\n";
-        cout<<"-w       | Just write configuration\n";
+        cout<<"-w       | Write configuration\n";
+        cout<<"-t       | Write configuration and train GBTx e-links (applies to *.xml bitmap input file, not to JSON input file)\n";
         cout<<"-s       | Simulation mode: load configuration file to check for errors\n";
+        cout<<"-p       | Run configuration in parallel. Default is to run in serial.\n";
         cout<<"--config | Required configuration file. Either *.json of the standard format\n";
         cout<<"         | 1) Either: *.json of the standard format\n";
         cout<<"         | 2) Or:     *.xml, consisting of line separated hex bytes (GBTx1 only)\n";
@@ -78,16 +102,16 @@ int main (int argc, char** argv){
         return 0;
     }
 
-
     cout<<"##################################################\n";
-    cout<<"# Mode:          "<<mode.c_str()<<endl;
-    cout<<"# fid_toflx:    "<<fid_toflx<<endl;
-    cout<<"# fid_tohost:  "<<fid_tohost<<endl;
-    cout<<"# config file:   "<<iPath<<endl;
-    cout<<"# board type:    "<<boardType<<endl;
+    cout<<"# Mode:            "<<mode.c_str()<<endl;
+    cout<<"# fid_toflx:       "<<fid_toflx<<endl;
+    cout<<"# fid_tohost:      "<<fid_tohost<<endl;
+    cout<<"# config file:     "<<iPath<<endl;
+    cout<<"# board type:      "<<boardType<<endl;
     cout<<"#------------------------------------------------#\n";
-    cout<<"# sleep:         "<<trainGBTxPhaseWaitTime<<endl;
-    cout<<"# name:          "<<name<<endl;
+    cout<<"# sleep:           "<<trainGBTxPhaseWaitTime<<endl;
+    cout<<"# name:            "<<name<<endl;
+    cout<<"# run multithread: "<<parallel<<endl;
     cout<<"##################################################\n";
     std::vector<nsw::L1DDCConfig> l1ddc_configs;
 
@@ -135,23 +159,60 @@ int main (int argc, char** argv){
         exit(0);
     }
 
-    if (mode!="simulation"){
-        // send configuration
-        nsw::ConfigSender cs;
-        for (std::size_t i=0; i<l1ddc_configs.size(); i++){
-            std::cout << "Starting cs.sendL1DDCConfig\n";
-            cs.sendL1DDCConfig(l1ddc_configs[i]);
-            std::cout << "Done with configure_board\n";
-
-            // TODO: this will need to be implemented:
-            // std::vector<uint8_t> data = l1ddc_configs[i].getGbtxBytestream(0);
-            // std::cout<<nsw::getPrintableGbtxConfig(data)<<std::endl;
-
-        }
-    }
-    else{
+    if (mode=="simulation"){
         std::cout<<"Running in simulation mode. This is the point where the configuration would be sent.\n";
         return 0;
     }
+
+    // Continue with configuration
+    if (parallel){
+        std::vector< std::future<int> > threads;
+        const int max_threads = 14;
+        std::cout << "Thread info: starting threads\n";
+
+        // Start threads for all l1ddc's
+        for (const auto& l1ddc: l1ddc_configs) {
+            std::cout << "Thread info: configuring l1ddc\n";
+            // wait for threads to free before launching new thread
+            if (max_threads > 0) {
+                int n_active = active_threads(threads);
+                while(n_active >= max_threads) {
+                    std::cout << "Thread info: waiting to configure\n";
+                    std::cout << "Too many active threads (" << n_active << "), waiting for fewer than " << max_threads << std::endl;
+                    sleep(2);
+                    n_active = active_threads(threads);
+              }
+          }
+
+          // start thread for this L1DDC
+          threads.push_back( std::async(std::launch::async, configure_board, l1ddc) );
+        }
+
+        // Wait for all threads to finish
+        for (auto& thread: threads) {
+            try {
+                std::cout << "Thread info: getting thread\n";
+                thread.get();
+            } catch (ers::Issue & ex) {
+                ERS_LOG("Configuration failed in app due to ers::Issue: " << ex.what());
+            } catch (std::exception & ex) {
+                ERS_LOG("Configuration failed in app due to std::exception: " << ex.what());
+            }
+        }
+        std::cout << "Done with configure_gbtx\n";
+    }
+
+    // #############################################################################
+    else{
+        nsw::ConfigSender cs;
+        for (std::size_t i=0; i<l1ddc_configs.size(); i++){
+            std::cout << fmt::format("Starting L1DDC configuration {}/{}\n",i+1,l1ddc_configs.size());
+            cs.sendL1DDCConfig(l1ddc_configs[i]);
+            std::cout << "Done with configure_board\n";
+        }
+        std::cout << "Done with configure_gbtx\n";
+    }
+
+    return 0;
 }
 
