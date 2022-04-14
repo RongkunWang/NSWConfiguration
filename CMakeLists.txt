@@ -127,6 +127,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/RouterConfig.cpp
                  src/ConfigConverter.cpp
                  src/OKSDeviceHierarchy.cpp
+                 src/SCAGeoIdentifier.cpp
   LINK_LIBRARIES Boost::boost
                  nswconfigdal
                  nswopcclient
@@ -143,6 +144,8 @@ tdaq_add_library(nswhwinterface
                  src/hw/DeviceManager.cpp # Placeholder for future
                  src/hw/OpcManager.cpp
                  src/hw/SCAInterface.cpp
+                 src/hw/ScaAddressBase.cpp
+                 src/hw/OpcConnectionBase.cpp
                  src/hw/FEB.cpp
                  src/hw/ROC.cpp
                  src/hw/VMM.cpp
@@ -209,8 +212,13 @@ tdaq_add_executable(test_configtranslation test/test_configtranslation.cpp
   LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
   PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
+tdaq_add_executable(test_scageoidentifier test/test_scageoidentifier.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
+
 ### Tests
-set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation)
+set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation scageoidentifier)
 
 foreach(testname IN LISTS NSWCONFIG_TESTS)
   message(STATUS "  Adding test::add_test(NAME ${testname} COMMAND test_${testname})")

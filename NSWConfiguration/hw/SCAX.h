@@ -20,7 +20,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeRegister(const OpcClientPtr& opcConnection,
+  void writeRegister(const OpcClientPtr opcConnection,
                      const std::string& node,
                      const std::uint32_t regAddress,
                      const std::uint32_t value);
@@ -32,7 +32,7 @@ namespace nsw::hw::SCAX {
    * \param node name of the OPC node
    * \param regAddress register address
    */
-  std::uint32_t readRegister(const OpcClientPtr& opcConnection,
+  std::uint32_t readRegister(const OpcClientPtr opcConnection,
                              const std::string& node,
                              const std::uint32_t regAddress);
 
@@ -44,7 +44,7 @@ namespace nsw::hw::SCAX {
    * \param regAddress register address
    * \param value value to be written
    */
-  void writeAndReadbackRegister(const OpcClientPtr& opcConnection,
+  void writeAndReadbackRegister(const OpcClientPtr opcConnection,
                                 const std::string& node,
                                 const std::uint32_t regAddress,
                                 const std::uint32_t value);

@@ -7,7 +7,9 @@
 #include <vector>
 
 #include "NSWConfiguration/TPCarrierConfig.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 namespace nsw::hw {
   /**
@@ -20,7 +22,7 @@ namespace nsw::hw {
    * Register mapping: TODO
    * Documentation: TODO
    */
-  class TPCarrier
+  class TPCarrier : public ScaAddressBase, OpcConnectionBase
   {
   public:
     /**
@@ -55,8 +57,8 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister(const std::uint32_t regAddress,
-                       const std::uint32_t value) const;
+    void writeRegister(std::uint32_t regAddress,
+                       std::uint32_t value) const;
 
     /**
      * \brief Read an individual TPCarrier register by its address
@@ -64,7 +66,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(const std::uint32_t regAddress) const;
+    std::uint32_t readRegister(std::uint32_t regAddress) const;
 
     /**
      * \brief Write a value to a TPCarrier register address, and read it back
@@ -86,20 +88,9 @@ namespace nsw::hw {
     const TPCarrierConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     TPCarrierConfig m_config;   //!< TPCarrierConfig object associated with this TPCarrier
-    std::string m_opcserverIp;  //!< address and port of Opc Server
-    std::string m_scaAddress;   //!< SCA address of TPCarrier item in Opc address space
     std::string m_busAddress;   //!< Address of the I2C bus of this SCAX
     std::string m_name;         //!< Name of this hardware object
-
-    /**
-     * \brief Get OpcManager connection of this object
-     */
-    nsw::OpcClientPtr getConnection() const
-    { return m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress); }
-
-
   };
 }  // namespace nsw::hw
 

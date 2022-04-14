@@ -9,26 +9,23 @@
 #include <fmt/core.h>
 
 nsw::hw::Router::Router(OpcManager& manager, const RouterConfig& config) :
-  m_opcManager{manager},
-  m_config(config),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress())
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
+  m_config(config)
 {
-  m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
+  m_name = fmt::format("{}/{}", getOpcServerIp(), getScaAddress());
 }
 
 bool nsw::hw::Router::readGPIO(const std::string& name) const
 {
-  const auto addr = m_scaAddress + ".gpio." + name;
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  return nsw::hw::SCA::readGPIO(opcConnection, addr);
+  const auto addr = fmt::format("{}.gpio.{}", getScaAddress(), name);
+  return nsw::hw::SCA::readGPIO(getConnection(), addr);
 }
 
 void nsw::hw::Router::sendGPIO(const std::string& name, const bool val) const
 {
-  const auto addr = m_scaAddress + ".gpio." + name;
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendGPIO(opcConnection, addr, val);
+  const auto addr = fmt::format("{}.gpio.{}", getScaAddress(), name);
+  nsw::hw::SCA::sendGPIO(getConnection(), addr, val);
 }
 
 void nsw::hw::Router::sendAndReadbackGPIO(const std::string& name, const bool val) const
@@ -145,8 +142,8 @@ void nsw::hw::Router::writeSetSCAID() const
 std::uint8_t nsw::hw::Router::id() const
 {
   idCheck();
-  constexpr std::uint8_t shiftSector = 4;
-  constexpr std::uint8_t shiftLayer = 1;
+  constexpr static std::uint8_t shiftSector = 4;
+  constexpr static std::uint8_t shiftLayer = 1;
   return static_cast<std::uint8_t>((idSector() << shiftSector) + (idLayer() << shiftLayer) + idEndcap());
 }
 
@@ -170,7 +167,7 @@ std::uint8_t nsw::hw::Router::idSector() const
 
 std::uint8_t nsw::hw::Router::idLayer() const
 {
-  const auto layer = std::stoul(std::string{m_scaAddress.back()});
+  const auto layer = std::stoul(std::string{getScaAddress().back()});
   if (layer < nsw::MIN_LAYER_ID || layer > nsw::MAX_LAYER_ID) {
     idCrash();
   }
@@ -179,12 +176,12 @@ std::uint8_t nsw::hw::Router::idLayer() const
 
 void nsw::hw::Router::idCheck() const
 {
-  const auto len = m_scaAddress.size();
+  const auto len = getScaAddress().size();
   if (len != m_old_convention.size() && 
       len != m_convention.size()) {
     idCrash();
   }
-  if (std::string{m_scaAddress.at(len-2)} != "L") {
+  if (std::string{getScaAddress().at(len-2)} != "L") {
     idCrash();
   }
 }
@@ -192,6 +189,6 @@ void nsw::hw::Router::idCheck() const
 void nsw::hw::Router::idCrash() const
 {
   const auto msg = fmt::format("{} ({} or {}): {}",
-    m_name_error, m_old_convention, m_convention, m_scaAddress);
+    m_name_error, m_old_convention, m_convention, getScaAddress());
   ers::error(nsw::RouterHWIssue(ERS_HERE, msg));
 }

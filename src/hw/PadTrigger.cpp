@@ -11,15 +11,14 @@
 #include <regex>
 
 nsw::hw::PadTrigger::PadTrigger(OpcManager& manager, const boost::property_tree::ptree& config):
-  m_opcManager{manager},
+  ScaAddressBase(config.get<std::string>("OpcNodeId")),
+  OpcConnectionBase(manager, config.get<std::string>("OpcServerIp"), config.get<std::string>("OpcNodeId")),
   m_ptree{config},
-  m_opcserverIp{config.get<std::string>("OpcServerIp")},
-  m_scaAddress{config.get<std::string>("OpcNodeId")},
   m_padtriggerfpga{config.get_child(PADTRIGGER_NAME), PADTRIGGER_NAME, PADTRIGGER_REGISTERS}
 {
-  m_name = fmt::format("{}/{}", m_opcserverIp, m_scaAddress);
-  m_scaAddressFPGA = fmt::format("{}.fpga.fpga", m_scaAddress);
-  m_scaAddressJTAG = fmt::format("{}.jtag.fpga", m_scaAddress);
+  m_name = fmt::format("{}/{}", getOpcServerIp(), getScaAddress());
+  m_scaAddressFPGA = fmt::format("{}.fpga.fpga", getScaAddress());
+  m_scaAddressJTAG = fmt::format("{}.jtag.fpga", getScaAddress());
 }
 
 void nsw::hw::PadTrigger::writeConfiguration() const
@@ -106,8 +105,7 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
     return;
   }
   ERS_INFO("Uploading bitfile via SCA JTAG, this will take a minute...");
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::writeXilinxFpga(opcConnection, m_scaAddressJTAG, fw);
+  nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
   ERS_INFO("Upload finished");
 }
 
@@ -200,9 +198,8 @@ std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() c
 
 void nsw::hw::PadTrigger::writeGPIO(const std::string& name, const bool value) const
 {
-  const auto addr = fmt::format("{}.{}.{}", m_scaAddress, "gpio", name);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendGPIO(opcConnection, addr, value);
+  const auto addr = fmt::format("{}.{}.{}", getScaAddress(), "gpio", name);
+  nsw::hw::SCA::sendGPIO(getConnection(), addr, value);
 }
 
 void nsw::hw::PadTrigger::writeRepeaterRegister(const std::uint8_t repeater,
@@ -210,11 +207,10 @@ void nsw::hw::PadTrigger::writeRepeaterRegister(const std::uint8_t repeater,
                                                 const std::uint8_t value) const
 {
   const std::vector<uint8_t> data = {regAddress, value};
-  const auto addr = fmt::format("{}.{}{}.{}{}", m_scaAddress,
+  const auto addr = fmt::format("{}.{}{}.{}{}", getScaAddress(),
                                 "repeaterChip", repeater,
                                 "repeaterChip", repeater);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendI2c(opcConnection, addr, data);
+  nsw::hw::SCA::sendI2c(getConnection(), addr, data);
 }
 
 void nsw::hw::PadTrigger::writeVTTxRegister(const std::uint8_t vttx,
@@ -222,11 +218,10 @@ void nsw::hw::PadTrigger::writeVTTxRegister(const std::uint8_t vttx,
                                             const std::uint8_t value) const
 {
   const std::vector<uint8_t> data = {regAddress, value};
-  const auto addr = fmt::format("{}.{}{}.{}{}", m_scaAddress,
+  const auto addr = fmt::format("{}.{}{}.{}{}", getScaAddress(),
                                 "vttx", vttx,
                                 "vttx", vttx);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendI2c(opcConnection, addr, data);
+  nsw::hw::SCA::sendI2c(getConnection(), addr, data);
 }
 
 void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
@@ -240,8 +235,7 @@ void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
   payload.insert(std::end(payload), std::begin(addr), std::end(addr));
   payload.insert(std::end(payload), std::begin(data), std::end(data));
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendI2cRaw(opcConnection, m_scaAddressFPGA, payload.data(), payload.size());
+  nsw::hw::SCA::sendI2cRaw(getConnection(), m_scaAddressFPGA, payload.data(), payload.size());
 }
 
 void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
@@ -259,20 +253,18 @@ void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
 
 bool nsw::hw::PadTrigger::readGPIO(const std::string& name) const
 {
-  const auto addr = fmt::format("{}.{}.{}", m_scaAddress, "gpio", name);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  return nsw::hw::SCA::readGPIO(opcConnection, addr);
+  const auto addr = fmt::format("{}.{}.{}", getScaAddress(), "gpio", name);
+  return nsw::hw::SCA::readGPIO(getConnection(), addr);
 }
 
 std::uint8_t nsw::hw::PadTrigger::readRepeaterRegister(const std::uint8_t repeater,
                                                        const std::uint8_t regAddress) const
 {
   const std::vector<std::uint8_t> data = {regAddress};
-  const auto addr = fmt::format("{}.{}{}.{}{}", m_scaAddress,
+  const auto addr = fmt::format("{}.{}{}.{}{}", getScaAddress(),
                                 "repeaterChip", repeater,
                                 "repeaterChip", repeater);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  const auto val = nsw::hw::SCA::readI2cAtAddress(opcConnection, addr,
+  const auto val = nsw::hw::SCA::readI2cAtAddress(getConnection(), addr,
                                                   data.data(), data.size());
   return val.at(0);
 }
@@ -281,11 +273,10 @@ std::uint8_t nsw::hw::PadTrigger::readVTTxRegister(const std::uint8_t vttx,
                                                    const std::uint8_t regAddress) const
 {
   const std::vector<std::uint8_t> data = {regAddress};
-  const auto addr = fmt::format("{}.{}{}.{}{}", m_scaAddress,
+  const auto addr = fmt::format("{}.{}{}.{}{}", getScaAddress(),
                                 "vttx", vttx,
                                 "vttx", vttx);
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  const auto val = nsw::hw::SCA::readI2cAtAddress(opcConnection, addr,
+  const auto val = nsw::hw::SCA::readI2cAtAddress(getConnection(), addr,
                                                   data.data(), data.size());
   return val.at(0);
 }
@@ -293,8 +284,7 @@ std::uint8_t nsw::hw::PadTrigger::readVTTxRegister(const std::uint8_t vttx,
 std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddress) const
 {
   const std::vector<std::uint8_t> data = { regAddress };
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  const auto value = nsw::hw::SCA::readI2cAtAddress(opcConnection, m_scaAddressFPGA,
+  const auto value = nsw::hw::SCA::readI2cAtAddress(getConnection(), m_scaAddressFPGA,
                                                     data.data(), data.size(),
                                                     nsw::NUM_BYTES_IN_WORD32);
   return nsw::byteVectorToWord32(value, nsw::padtrigger::SCA_LITTLE_ENDIAN);

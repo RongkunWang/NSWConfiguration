@@ -9,7 +9,9 @@
 #include <ers/Issue.h>
 
 #include "NSWConfiguration/I2cMasterConfig.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfusion,
@@ -40,7 +42,7 @@ namespace nsw::hw {
    * Register mapping: TODO
    * Documentation: TODO
    */
-  class PadTrigger
+  class PadTrigger : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -366,10 +368,7 @@ namespace nsw::hw {
 
 
   private:
-    mutable std::reference_wrapper<OpcManager> m_opcManager;  //!< Pointer to OpcManager
     boost::property_tree::ptree m_ptree; //!< ptree object associated with this PadTrigger
-    std::string m_opcserverIp;           //!< Address and port of OPC Server
-    std::string m_scaAddress;            //!< SCA address of PadTrigger item in the OPC address space
     std::string m_scaAddressFPGA;        //!< SCA address of PadTrigger FPGA i2c
     std::string m_scaAddressJTAG;        //!< SCA address of PadTrigger FPGA JTAG
     std::string m_name;                  //!< Name composed of OPC and SCA addresses

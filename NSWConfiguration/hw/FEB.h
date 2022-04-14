@@ -6,6 +6,7 @@
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/hw/ROC.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 #include "NSWConfiguration/hw/TDS.h"
 #include "NSWConfiguration/hw/VMM.h"
 
@@ -16,7 +17,7 @@ namespace nsw::hw {
    * Provides methods to configure the devices of a FEB and to retrieve the corresponding
    * device interface objects from this FEB.
    */
-  class FEB
+  class FEB : public ScaAddressBase
   {
   public:
     /**
@@ -85,13 +86,6 @@ namespace nsw::hw {
     [[nodiscard]] const std::vector<TDS>& getTdss() const { return m_tdss; }
 
     /**
-     * \brief Get the Opc Node Id
-     *
-     * \return std::string Opc Node Id
-     */
-    [[nodiscard]] std::string getOpcNodeId() const { return m_opcNodeId; }
-
-    /**
      * \brief Configure a FEB
      *
      * \param resetVmm Reset VMMs
@@ -103,7 +97,6 @@ namespace nsw::hw {
     ROC m_roc;                //!< ROC assiociated to this FEB
     std::vector<VMM> m_vmms;  //!< VMMs assiociated to this FEB
     std::vector<TDS> m_tdss;  //!< TDSs assiociated to this FEB
-    std::string m_opcNodeId;  //!< SCA address of FE item in Opc address space
     std::size_t m_firstVmm{nsw::MAX_NUMBER_OF_VMM};  //!< Hold the board ID of the first VMM to correctly access by index of container
     std::size_t m_firstTds{nsw::MAX_NUMBER_OF_TDS};  //!< Hold the board ID of the first TDS to correctly access by index of container
   };

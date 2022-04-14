@@ -16,7 +16,7 @@ namespace nsw::hw::SCA {
    * \param node name of the OPC node
    * \param vdata vector of data
    */
-  void sendI2c(const nsw::OpcClientPtr& opcConnection,
+  void sendI2c(nsw::OpcClientPtr opcConnection,
                const std::string& node,
                const std::vector<std::uint8_t>& vdata);
 
@@ -28,7 +28,7 @@ namespace nsw::hw::SCA {
    * \param data array of data
    * \param dataSize size of array
    */
-  void sendI2cRaw(const nsw::OpcClientPtr& opcConnection,
+  void sendI2cRaw(nsw::OpcClientPtr opcConnection,
                   const std::string& node,
                   const std::uint8_t* data,
                   size_t dataSize);
@@ -41,7 +41,7 @@ namespace nsw::hw::SCA {
    * \param data array of data
    * \param dataSize size of array
    */
-  void sendGPIO(const nsw::OpcClientPtr& opcConnection, const std::string& node, bool data);
+  void sendGPIO(nsw::OpcClientPtr opcConnection, const std::string& node, bool data);
 
   /**
    * \brief Read back GPIO register
@@ -49,7 +49,7 @@ namespace nsw::hw::SCA {
    * \param opcConnection OPC server connection
    * \param node name of the OPC node
    */
-  bool readGPIO(const nsw::OpcClientPtr& opcConnection, const std::string& node);
+  bool readGPIO(nsw::OpcClientPtr opcConnection, const std::string& node);
 
   /**
    * \brief Read ADC from SCA analog input
@@ -60,9 +60,26 @@ namespace nsw::hw::SCA {
    * \return std::vector<std::uint16_t> samples
    */
   std::vector<std::uint16_t> readAnalogInputConsecutiveSamples(
-    const nsw::OpcClientPtr& opcConnection,
+    nsw::OpcClientPtr opcConnection,
     const std::string& node,
     std::size_t nSamples);
+
+  /**
+   * \brief Read back ROC register
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \param scl scl line to use
+   * \param sda sda line to use
+   * \param registerAddress ROC register address as uint8_t
+   * \param i2cDelay I2c delay value, 2 corresponds to 100kHz
+   * \return std::uint8_t value of register
+   */
+  std::uint8_t readRocRaw(nsw::OpcClientPtr opcConnection,
+                          const std::string& node,
+                          unsigned int scl,
+                          unsigned int sda,
+                          std::uint8_t registerAddress,
+                          unsigned int i2cDelay);
 
   /**
    * \brief Read back I2c register as vector
@@ -72,7 +89,7 @@ namespace nsw::hw::SCA {
    * \param numberOfBytes number of bytes to be read
    * \return std::vector<std::uint8_t> Byte vector containing the data
    */
-  std::vector<std::uint8_t> readI2c(const nsw::OpcClientPtr& opcConnection,
+  std::vector<std::uint8_t> readI2c(nsw::OpcClientPtr opcConnection,
                                     const std::string& node,
                                     size_t numberOfBytes = 1);
 
@@ -88,7 +105,7 @@ namespace nsw::hw::SCA {
    * \param numberOfBytes number of bytes to be read
    * \return std::vector<std::uint8_t> Byte vector containing the data
    */
-  std::vector<std::uint8_t> readI2cAtAddress(const nsw::OpcClientPtr& opcConnection,
+  std::vector<std::uint8_t> readI2cAtAddress(nsw::OpcClientPtr opcConnection,
                                              const std::string& node,
                                              const std::uint8_t* address,
                                              size_t addressSize,
@@ -104,7 +121,7 @@ namespace nsw::hw::SCA {
    * \param address I2c address to be read in bytes
    * \param data Byte vector containing the data
    */
-  void sendI2cAtAddress(const nsw::OpcClientPtr& opcConnection,
+  void sendI2cAtAddress(nsw::OpcClientPtr opcConnection,
                         const std::string& node,
                         const std::vector<std::uint8_t>& address,
                         std::vector<std::uint8_t> data);
@@ -116,7 +133,7 @@ namespace nsw::hw::SCA {
    * \param topnode Top level name of the OPC node
    * \param cfg config object holding addresses and data
    */
-  void sendI2cMasterConfig(const nsw::OpcClientPtr& opcConnection,
+  void sendI2cMasterConfig(nsw::OpcClientPtr opcConnection,
                            const std::string& topnode,
                            const nsw::I2cMasterConfig& cfg);
 
@@ -128,7 +145,7 @@ namespace nsw::hw::SCA {
    * \param cfg config object holding addresses and data
    * \param regAddress address of register to be written
    */
-  void sendI2cMasterSingle(const nsw::OpcClientPtr& opcConnection,
+  void sendI2cMasterSingle(nsw::OpcClientPtr opcConnection,
                            const std::string& topnode,
                            const nsw::I2cMasterConfig& cfg,
                            const std::string& regAddress);
@@ -141,7 +158,7 @@ namespace nsw::hw::SCA {
    * \param data byte vector holding the data
    * \param regAddress address of register to be written
    */
-  void sendI2cMasterSingle(const nsw::OpcClientPtr& opcConnection,
+  void sendI2cMasterSingle(nsw::OpcClientPtr opcConnection,
                            const std::string& node,
                            const std::vector<std::uint8_t>& data,
                            const std::string& regAddress);
@@ -154,7 +171,7 @@ namespace nsw::hw::SCA {
    * \param data byte array holding the data
    * \param dataSize size of the array
    */
-  void sendSpiRaw(const nsw::OpcClientPtr& opcConnection,
+  void sendSpiRaw(nsw::OpcClientPtr opcConnection,
                   const std::string& node,
                   const std::uint8_t* data,
                   size_t dataSize);
@@ -167,7 +184,7 @@ namespace nsw::hw::SCA {
    * \param dataSize number of bytes to be read
    * \return std::vector<std::uint8_t> vector of bytes holding the read data
    */
-  std::vector<std::uint8_t> readSpi(const nsw::OpcClientPtr& opcConnection,
+  std::vector<std::uint8_t> readSpi(nsw::OpcClientPtr opcConnection,
                                     const std::string& node,
                                     size_t dataSize);
 
@@ -178,7 +195,7 @@ namespace nsw::hw::SCA {
    * \param node name of the OPC node
    * \param vdata byte vector holding the data
    */
-  void sendSpi(const nsw::OpcClientPtr& opcConnection,
+  void sendSpi(nsw::OpcClientPtr opcConnection,
                const std::string& node,
                const std::vector<std::uint8_t>& vdata);
 
@@ -189,7 +206,7 @@ namespace nsw::hw::SCA {
    * \param node name of the OPC node
    * \param bitfile_path path to bitfile
    */
-  void writeXilinxFpga(const OpcClientPtr& opcConnection,
+  void writeXilinxFpga(OpcClientPtr opcConnection,
                        const std::string& node,
                        const std::string& bitfile_path);
 
@@ -202,7 +219,7 @@ namespace nsw::hw::SCA {
    * \tparam value to be written
    */
   template<typename T>
-  void writeFreeVariable(const OpcClientPtr& opcConnection,
+  void writeFreeVariable(const OpcClientPtr opcConnection,
                          const std::string& node,
                          const T& value)
   {
