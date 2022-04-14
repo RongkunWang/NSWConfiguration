@@ -6,7 +6,9 @@
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 namespace nsw::hw {
   /**
@@ -19,7 +21,7 @@ namespace nsw::hw {
    * Register mapping: TODO
    * Documentation: http://cern.ch/go/9kgk
    */
-  class TDS
+  class TDS : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -105,10 +107,7 @@ namespace nsw::hw {
     [[nodiscard]] const I2cMasterConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     I2cMasterConfig m_config;   //!< I2cMasterConfig object associated with this TDS
-    std::string m_opcserverIp;  //!< address and port of Opc Server
-    std::string m_scaAddress;   //!< SCA address of FE item in Opc address space
     bool m_isPfeb;              //!< is this TDS on a PFEB or SFEB
   };
 }  // namespace nsw::hw

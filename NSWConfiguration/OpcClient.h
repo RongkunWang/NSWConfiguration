@@ -149,7 +149,7 @@ public:
 
     // Write anytype SCA OPC UA's FreeVariable
     template <typename T>
-    inline void writeFreeVariable(const std::string& node, T value) {
+    inline void writeFreeVariable(const std::string& node, T value) const {
         try {
             UaoClientForOpcUaSca::QuasarFreeVariable<T> fvnode(m_session.get(), UaNodeId(node.c_str(), 2));
             fvnode.write(value);
@@ -162,7 +162,7 @@ public:
 
 };
 
-using OpcClientPtr = OpcClient*;
+using OpcClientPtr = const OpcClient*;
 
 }  // namespace nsw
 

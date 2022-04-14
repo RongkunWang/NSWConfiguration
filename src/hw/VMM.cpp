@@ -12,10 +12,9 @@
 #include "NSWConfiguration/hw/SCAInterface.h"
 
 nsw::hw::VMM::VMM(OpcManager& manager, const FEBConfig& config, const std::size_t numVmm) :
-  m_opcManager{manager},
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
   m_config(config.getVmms().at(numVmm)),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress()),
   m_rocAnalogName(config.getRocAnalog().getName()),
   m_vmmId{numVmm + config.getFirstVmmIndex()}
 {}
@@ -30,21 +29,20 @@ void nsw::hw::VMM::writeConfiguration(const VMMConfig& config, bool resetVmm) co
   // Set Vmm Configuration Enable
   constexpr std::uint8_t VMM_ACC_DISABLE = 0xff;
   constexpr std::uint8_t VMM_ACC_ENABLE = 0x00;
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
 
   // Set Vmm Acquisition Disable
   const auto scaRocVmmReadoutAddress =
-    fmt::format("{}.{}.reg122vmmEnaInv", m_scaAddress, m_rocAnalogName);
-  nsw::hw::SCA::sendI2c(opcConnection, scaRocVmmReadoutAddress, {VMM_ACC_DISABLE});
+    fmt::format("{}.{}.reg122vmmEnaInv", getScaAddress(), m_rocAnalogName);
+  nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_DISABLE});
 
-  const auto writeVmmConfig = [this, &opcConnection](const auto& conf) {
+  const auto writeVmmConfig = [this](const auto& conf) {
     const auto data = conf.getByteVector();
 
-    setVmmConfigurationStatusInfoDcs(opcConnection, conf);
-    ERS_DEBUG(4, "Sending configuration to " << m_scaAddress << ".spi." << conf.getName());
+    setVmmConfigurationStatusInfoDcs(getConnection(), conf);
+    ERS_DEBUG(4, "Sending configuration to " << getScaAddress() << ".spi." << conf.getName());
 
-    nsw::hw::SCA::sendSpiRaw(opcConnection,
-                             fmt::format("{}.spi.{}", m_scaAddress, conf.getName()),
+    nsw::hw::SCA::sendSpiRaw(getConnection(),
+                             fmt::format("{}.spi.{}", getScaAddress(), conf.getName()),
                              data.data(),
                              data.size());
   };
@@ -61,7 +59,7 @@ void nsw::hw::VMM::writeConfiguration(const VMMConfig& config, bool resetVmm) co
   ERS_DEBUG(5, "Hexstring:\n" << nsw::bitstringToHexString(config.getBitString()));
 
   // Set Vmm Acquisition Enable
-  nsw::hw::SCA::sendI2c(opcConnection, scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
+  nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
 }
 
 std::map<std::uint8_t, std::vector<std::uint8_t>> nsw::hw::VMM::readConfiguration() const
@@ -82,18 +80,17 @@ std::vector<std::uint16_t> nsw::hw::VMM::samplePdoMonitoringOutput(VMMConfig con
 
   writeConfiguration(config);
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
   return nsw::hw::SCA::readAnalogInputConsecutiveSamples(
-    opcConnection, fmt::format("{}.ai.vmmPdo{}", m_scaAddress, m_vmmId), nSamples);
+    getConnection(), fmt::format("{}.ai.vmmPdo{}", getScaAddress(), m_vmmId), nSamples);
 }
 
-void nsw::hw::VMM::setVmmConfigurationStatusInfoDcs(const OpcClientPtr& opcConnection,
+void nsw::hw::VMM::setVmmConfigurationStatusInfoDcs(const OpcClientPtr opcConnection,
                                                     const nsw::VMMConfig& config) const
 {
   ERS_DEBUG(
     3,
     fmt::format("[{}, {}] Write VMMConfigurationStatusInfo FreeVariable parameter for DCS use.",
-                m_scaAddress,
+                getScaAddress(),
                 config.getName()));
 
   // VMM registers for temperature monitoring
@@ -110,6 +107,6 @@ void nsw::hw::VMM::setVmmConfigurationStatusInfoDcs(const OpcClientPtr& opcConne
 
   nsw::hw::SCA::writeFreeVariable(
     opcConnection,
-    fmt::format("{}.spi.{}.configurationStatus", m_scaAddress, config.getName()),
+    fmt::format("{}.spi.{}.configurationStatus", getScaAddress(), config.getName()),
     isVMMTemperatureModeEnabled);
 }

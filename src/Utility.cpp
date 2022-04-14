@@ -333,7 +333,7 @@ std::string nsw::getPrintableGbtxConfig(std::vector<uint8_t> data){
     return ss.str();
 }
 
-std::vector<std::string> nsw::tokenizeString(const std::string& s, const std::string& delimiter) {
+std::vector<std::string> nsw::tokenizeString(const std::string& s, const std::string_view delimiter) {
   std::vector<std::string> outVec;
   size_t last = 0;
   size_t next = 0;
@@ -386,6 +386,10 @@ std::string nsw::getenv(const std::string& env_var) {
     return "";
   }
   return std::string(ret);
+}
+
+bool nsw::contains(const std::string_view& s1, const std::string_view& s2) {
+  return s1.find(s2) != std::string::npos;
 }
 
 std::unordered_set<std::string> nsw::getPathsFromPtree(const boost::property_tree::ptree& tree)

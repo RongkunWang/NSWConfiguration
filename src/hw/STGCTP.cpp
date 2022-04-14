@@ -5,12 +5,11 @@
 #include "NSWConfiguration/Utility.h"
 
 nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& config):
-  m_opcManager{manager},
+  ScaAddressBase(config.get<std::string>("OpcNodeId")),
+  OpcConnectionBase(manager, config.get<std::string>("OpcServerIp"), config.get<std::string>("OpcNodeId")),
   m_config(config),
-  m_opcserverIp(config.get<std::string>("OpcServerIp")),
-  m_scaAddress(config.get<std::string>("OpcNodeId")),
-  m_scaAddressFPGA(fmt::format("{}.I2C_0.bus0", m_scaAddress)),
-  m_name(fmt::format("{}/{}", m_opcserverIp, m_scaAddress))
+  m_scaAddressFPGA(fmt::format("{}.I2C_0.bus0", getScaAddress())),
+  m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress()))
 {
 }
 
@@ -31,22 +30,19 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::STGCTP::readConfiguration() cons
 void nsw::hw::STGCTP::writeRegister(const std::uint32_t regAddress,
                                     const std::uint32_t value) const
 {
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCAX::writeRegister(opcConnection, m_scaAddressFPGA, regAddress, value);
+  nsw::hw::SCAX::writeRegister(getConnection(), m_scaAddressFPGA, regAddress, value);
 }
 
 std::uint32_t nsw::hw::STGCTP::readRegister(const std::uint32_t regAddress) const
 {
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  return nsw::hw::SCAX::readRegister(opcConnection, m_scaAddressFPGA, regAddress);
+  return nsw::hw::SCAX::readRegister(getConnection(), m_scaAddressFPGA, regAddress);
 }
 
 void nsw::hw::STGCTP::writeAndReadbackRegister(const std::uint32_t regAddress,
                                                const std::uint32_t value) const
 {
   ERS_LOG(fmt::format("{}: writing to {:#02x} with {:#08x}", m_name, regAddress, value));
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCAX::writeAndReadbackRegister(opcConnection, m_scaAddressFPGA, regAddress, value);
+  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), m_scaAddressFPGA, regAddress, value);
 }
 
 std::uint32_t nsw::hw::STGCTP::getSector() const

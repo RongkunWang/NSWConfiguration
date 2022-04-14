@@ -1,6 +1,7 @@
 #include "NSWConfiguration/hw/FEB.h"
 
 nsw::hw::FEB::FEB(OpcManager& manager, const nsw::FEBConfig& config) :
+  ScaAddressBase(config.getAddress()),
   m_roc(manager, config),
   m_vmms([&config, &manager]() {
     std::vector<VMM> vmms;
@@ -18,7 +19,6 @@ nsw::hw::FEB::FEB(OpcManager& manager, const nsw::FEBConfig& config) :
     }
     return tdss;
   }()),
-  m_opcNodeId(config.getAddress()),
   m_firstVmm(config.getFirstVmmIndex()),
   m_firstTds(config.getFirstTdsIndex())
 {}

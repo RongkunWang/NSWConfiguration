@@ -8,7 +8,9 @@
 
 #include "NSWConfiguration/VMMConfig.h"
 #include "NSWConfiguration/FEBConfig.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 namespace nsw::hw {
   /**
@@ -20,7 +22,7 @@ namespace nsw::hw {
    *
    * Documentation: http://cern.ch/go/9FCJ
    */
-  class VMM
+  class VMM : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -85,13 +87,10 @@ namespace nsw::hw {
      * \param opcConnection OPC client to perform the transaction
      * \param config VMM Configuration to be set on the chip
      */
-    void setVmmConfigurationStatusInfoDcs(const OpcClientPtr& opcConnection,
+    void setVmmConfigurationStatusInfoDcs(OpcClientPtr opcConnection,
                                           const nsw::VMMConfig& config) const;
 
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     VMMConfig m_config;           //!< VMMConfig object associated with this VMM
-    std::string m_opcserverIp;    //!< address and port of Opc Server
-    std::string m_scaAddress;     //!< SCA address of FE item in Opc address space
     std::string m_rocAnalogName;  //!< Disable data acquisition
     std::size_t m_vmmId{};        //!< Board position of VMM
   };
