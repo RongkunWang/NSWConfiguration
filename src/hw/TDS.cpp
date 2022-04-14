@@ -14,44 +14,41 @@
 #include "NSWConfiguration/Utility.h"
 
 nsw::hw::TDS::TDS(OpcManager& manager, const FEBConfig& config, const std::size_t numTds) :
-  m_opcManager{manager},
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
   m_config(config.getTdss().at(numTds)),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress()),
   m_isPfeb(config.getTdss().size() < 3)
 {}
 
 void nsw::hw::TDS::writeConfiguration(const bool resetTds) const
 {
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-
   // Assert that TDS is not in reset
   constexpr bool INCATIVE_HIGH = true;
 
   if (m_isPfeb) {
     // old boards, and PFEB
     nsw::hw::SCA::sendGPIO(
-      opcConnection, fmt::format("{}.gpio.tdsReset", m_scaAddress), INCATIVE_HIGH);
+      getConnection(), fmt::format("{}.gpio.tdsReset", getScaAddress()), INCATIVE_HIGH);
   } else {
     // new boards
     if (m_config.getName() == "tds0") {
       nsw::hw::SCA::sendGPIO(
-        opcConnection, fmt::format("{}.gpio.tdsaReset", m_scaAddress), INCATIVE_HIGH);
+        getConnection(), fmt::format("{}.gpio.tdsaReset", getScaAddress()), INCATIVE_HIGH);
     } else if (m_config.getName() == "tds1") {
       nsw::hw::SCA::sendGPIO(
-        opcConnection, fmt::format("{}.gpio.tdsbReset", m_scaAddress), INCATIVE_HIGH);
+        getConnection(), fmt::format("{}.gpio.tdsbReset", getScaAddress()), INCATIVE_HIGH);
     } else if (m_config.getName() == "tds2") {
       nsw::hw::SCA::sendGPIO(
-        opcConnection, fmt::format("{}.gpio.tdscReset", m_scaAddress), INCATIVE_HIGH);
+        getConnection(), fmt::format("{}.gpio.tdscReset", getScaAddress()), INCATIVE_HIGH);
     } else if (m_config.getName() == "tds3") {
       nsw::hw::SCA::sendGPIO(
-        opcConnection, fmt::format("{}.gpio.tdsdReset", m_scaAddress), INCATIVE_HIGH);
+        getConnection(), fmt::format("{}.gpio.tdsdReset", getScaAddress()), INCATIVE_HIGH);
     } else {
       throw std::logic_error(fmt::format("Unknown TDS name {}", m_config.getName()));
     }
   }
 
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_config);
+  nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), m_config);
 
   if (resetTds) {
     // copy out the configuration, etc
@@ -65,27 +62,27 @@ void nsw::hw::TDS::writeConfiguration(const bool resetTds) const
     constexpr std::uint32_t RESET_SER = 0x14;
     constexpr std::uint32_t RESET_OFF = 0x0;
     tdss.setRegisterValue("register12", "resets", RESET_PLL);
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
     // logic
     tdss.setRegisterValue("register12", "resets", RESET_LOGIC);
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
     // SER
     tdss.setRegisterValue("register12", "resets", RESET_SER);
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
     tdss.setRegisterValue("register12", "resets", RESET_OFF);
 
-    nsw::hw::SCA::sendI2cMasterSingle(opcConnection, m_scaAddress, tdss, "register12");
+    nsw::hw::SCA::sendI2cMasterSingle(getConnection(), getScaAddress(), tdss, "register12");
 
-    ERS_LOG("SCA " << m_scaAddress << " TDS " << tdss.getName() << " readback register 14:");
+    ERS_LOG("SCA " << getScaAddress() << " TDS " << tdss.getName() << " readback register 14:");
 
     ERS_LOG("0x" << std::hex
                  << static_cast<uint32_t>(std::stoul(nsw::vectorToBitString(readRegister(14)))));
@@ -109,9 +106,8 @@ void nsw::hw::TDS::writeRegister(const std::uint8_t regAddress, const __uint128_
 
 void nsw::hw::TDS::writeRegister(const std::string& regName, const __uint128_t value) const
 {
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  nsw::hw::SCA::sendI2cMasterSingle(opcConnection,
-                                    fmt::format("{}.{}", m_scaAddress, m_config.getName()),
+  nsw::hw::SCA::sendI2cMasterSingle(getConnection(),
+                                    fmt::format("{}.{}", getScaAddress(), m_config.getName()),
                                     nsw::integerToByteVector(value, m_config.getTotalSize(regName) / nsw::NUM_BITS_IN_BYTE),
                                     regName);
 }
@@ -130,8 +126,8 @@ std::vector<std::uint8_t> nsw::hw::TDS::readRegister(const std::uint8_t regAddre
   // Get size of register
   const auto sizeInBytes = m_config.getTotalSize(ptreeName) / NUM_BITS_IN_BYTE;
   const std::string fullNodeName =
-    fmt::format("{}.{}.{}", m_scaAddress, m_config.getName(), registerName);
-  return nsw::hw::SCA::readI2c(m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress), fullNodeName, sizeInBytes);
+    fmt::format("{}.{}.{}", getScaAddress(), m_config.getName(), registerName);
+  return nsw::hw::SCA::readI2c(getConnection(), fullNodeName, sizeInBytes);
 }
 
 void nsw::hw::TDS::writeValues(const std::map<std::string, unsigned int>& values) const
@@ -146,9 +142,7 @@ void nsw::hw::TDS::writeValues(const std::map<std::string, unsigned int>& values
                          TDS_REGISTERS,
                          true);
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, config);
+  nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), config);
 }
 
 void nsw::hw::TDS::writeValue(const std::string& name, const unsigned int value) const

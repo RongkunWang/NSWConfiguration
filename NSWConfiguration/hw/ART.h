@@ -6,7 +6,9 @@
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 namespace nsw::hw {
   /**
@@ -19,7 +21,7 @@ namespace nsw::hw {
    * Register mapping: http://cern.ch/go/8jKB
    * Documentation: TODO
    */
-  class ART
+  class ART : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -69,10 +71,7 @@ namespace nsw::hw {
     [[nodiscard]] const ARTConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
-    mutable std::reference_wrapper<OpcManager> m_opcManager;  //!< Pointer to OpcManager
     ARTConfig m_config;         //!< ARTConfig object associated with this ART
-    std::string m_opcserverIp;  //!< address and port of Opc Server
-    std::string m_scaAddress;   //!< SCA address of ART item in Opc address space
     std::size_t m_numArt;       //!< Number of the ART
   };
 }  // namespace nsw::hw

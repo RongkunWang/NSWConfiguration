@@ -240,6 +240,17 @@ boost::property_tree::ptree transformMapToPtree(const std::map<Key, Value>& map)
 std::string getenv(const std::string& env_var);
 
 /**
+ * \brief Check if string contains substring
+ *
+ * Banish this function upon arrival of c++23!
+ * https://en.cppreference.com/w/cpp/string/basic_string/contains
+ *
+ * \param s1 the string which may contain s2
+ * \param s2 the string which may be contained within s1
+ */
+bool contains(const std::string_view& s1, const std::string_view& s2);
+
+/**
  * \brief Transform a ptree into a map
  * 
  * \tparam Value Type of the value of the map
@@ -254,7 +265,7 @@ std::map<std::string, Value> transformPtreetoMap(const boost::property_tree::ptr
   }
   return result;
 }
-std::vector<std::string> tokenizeString(const std::string& s, const std::string& delimiter);
+std::vector<std::string> tokenizeString(const std::string& s, std::string_view delimiter);
 
 /**
  * \brief Function to construct 128 bit unsigned integers from standard 64-bit unsigned integers
