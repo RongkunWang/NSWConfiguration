@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <utility> // for std::pair
 #include <chrono>
 #include <map>
 
@@ -295,23 +296,23 @@ namespace nsw {
       REG_HORX_ENV_MON_ADDR,
       REG_HORX_ENV_MON_DATA,
     });
-    constexpr std::array<std::string_view, NUM_ADDCS> ORDERED_ADDCS = {
-      "ADDC_L1P6_IPR",
-      "ADDC_L1P3_IPL",
-      "ADDC_L1P3_IPR",
-      "ADDC_L1P6_IPL",
-      "ADDC_L4P6_IPR",
-      "ADDC_L4P3_IPL",
-      "ADDC_L4P3_IPR",
-      "ADDC_L4P6_IPL",
-      "ADDC_L4P6_HOR",
-      "ADDC_L4P3_HOL",
-      "ADDC_L4P3_HOR",
-      "ADDC_L4P6_HOL",
-      "ADDC_L1P6_HOR",
-      "ADDC_L1P3_HOL",
-      "ADDC_L1P3_HOR",
-      "ADDC_L1P6_HOL",
+    constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
+      std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),
+      std::make_pair( "ADDC_L1P3_IPL", "L0/E" ),
+      std::make_pair( "ADDC_L1P3_IPR", "L1/E" ),
+      std::make_pair( "ADDC_L1P6_IPL", "L1/O" ),
+      std::make_pair( "ADDC_L4P6_IPR", "L2/O" ),
+      std::make_pair( "ADDC_L4P3_IPL", "L2/E" ),
+      std::make_pair( "ADDC_L4P3_IPR", "L3/E" ),
+      std::make_pair( "ADDC_L4P6_IPL", "L3/O" ),
+      std::make_pair( "ADDC_L4P6_HOR", "L4/O" ),
+      std::make_pair( "ADDC_L4P3_HOL", "L4/E" ),
+      std::make_pair( "ADDC_L4P3_HOR", "L5/E" ),
+      std::make_pair( "ADDC_L4P6_HOL", "L5/O" ),
+      std::make_pair( "ADDC_L1P6_HOR", "L6/O" ),
+      std::make_pair( "ADDC_L1P3_HOL", "L6/E" ),
+      std::make_pair( "ADDC_L1P3_HOR", "L7/E" ),
+      std::make_pair( "ADDC_L1P6_HOL", "L7/O" ),
     };
     constexpr std::uint32_t ADDC_EMU_DISABLE  = 0x01;
     constexpr std::uint32_t L1A_RESET_ENABLE  = 0xFF;
