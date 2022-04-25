@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <utility> // for std::pair
 #include <chrono>
 #include <map>
 
@@ -88,8 +89,7 @@ namespace nsw {
 
   constexpr std::size_t MIN_LAYER_ID = 0;
   constexpr std::size_t MAX_LAYER_ID = 7;
-  constexpr std::size_t NUM_LAYERS_MM   = 8;
-  constexpr std::size_t NUM_LAYERS_STGC = 8;
+  constexpr std::size_t NUM_LAYERS_PER_TECH = 8;
   constexpr std::size_t NUM_RADII_MM   = 16;
   constexpr std::size_t NUM_RADII_STGC = 3;
 
@@ -118,6 +118,12 @@ namespace nsw {
     "GBTX",
     "L1DDC",
   };
+
+  namespace geoid {
+    enum class Detector { MM, STGC, UNKNOWN };
+    enum class Wheel { A, C, UNKNOWN };
+    constexpr static std::uint8_t DoesNotExist{0xff};
+  }
 
   namespace l1ddc {
       // Numbers of GBTx on each kind of L1DDC
@@ -165,7 +171,7 @@ namespace nsw {
     constexpr std::size_t MMFE8_PER_LAYER = 16; ///< 16 MMFE8s per single MM layer
     constexpr std::size_t NUM_CH_PER_MMFE8 = nsw::vmm::NUM_CH_PER_VMM*nsw::NUM_VMM_PER_MMFE8; ///< 512 channels per MMFE8
     constexpr std::size_t NUM_CH_PER_LAYER = MMFE8_PER_LAYER*NUM_CH_PER_MMFE8; ///< 8192 channels per single MM layer
-    constexpr std::size_t MMFE8_PER_SECTOR = MMFE8_PER_LAYER*NUM_LAYERS_MM; ///< 128 MMFE8s per sector
+    constexpr std::size_t MMFE8_PER_SECTOR = MMFE8_PER_LAYER*NUM_LAYERS_PER_TECH; ///< 128 MMFE8s per sector
     constexpr std::size_t NUM_CH_PER_SECTOR = MMFE8_PER_SECTOR*NUM_CH_PER_MMFE8; ///< 65536 channels per sector
   }
 
@@ -290,23 +296,23 @@ namespace nsw {
       REG_HORX_ENV_MON_ADDR,
       REG_HORX_ENV_MON_DATA,
     });
-    constexpr std::array<std::string_view, NUM_ADDCS> ORDERED_ADDCS = {
-      "ADDC_L1P6_IPR",
-      "ADDC_L1P3_IPL",
-      "ADDC_L1P3_IPR",
-      "ADDC_L1P6_IPL",
-      "ADDC_L4P6_IPR",
-      "ADDC_L4P3_IPL",
-      "ADDC_L4P3_IPR",
-      "ADDC_L4P6_IPL",
-      "ADDC_L4P6_HOR",
-      "ADDC_L4P3_HOL",
-      "ADDC_L4P3_HOR",
-      "ADDC_L4P6_HOL",
-      "ADDC_L1P6_HOR",
-      "ADDC_L1P3_HOL",
-      "ADDC_L1P3_HOR",
-      "ADDC_L1P6_HOL",
+    constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
+      std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),
+      std::make_pair( "ADDC_L1P3_IPL", "L0/E" ),
+      std::make_pair( "ADDC_L1P3_IPR", "L1/E" ),
+      std::make_pair( "ADDC_L1P6_IPL", "L1/O" ),
+      std::make_pair( "ADDC_L4P6_IPR", "L2/O" ),
+      std::make_pair( "ADDC_L4P3_IPL", "L2/E" ),
+      std::make_pair( "ADDC_L4P3_IPR", "L3/E" ),
+      std::make_pair( "ADDC_L4P6_IPL", "L3/O" ),
+      std::make_pair( "ADDC_L4P6_HOR", "L4/O" ),
+      std::make_pair( "ADDC_L4P3_HOL", "L4/E" ),
+      std::make_pair( "ADDC_L4P3_HOR", "L5/E" ),
+      std::make_pair( "ADDC_L4P6_HOL", "L5/O" ),
+      std::make_pair( "ADDC_L1P6_HOR", "L6/O" ),
+      std::make_pair( "ADDC_L1P3_HOL", "L6/E" ),
+      std::make_pair( "ADDC_L1P3_HOR", "L7/E" ),
+      std::make_pair( "ADDC_L1P6_HOL", "L7/O" ),
     };
     constexpr std::uint32_t ADDC_EMU_DISABLE  = 0x01;
     constexpr std::uint32_t L1A_RESET_ENABLE  = 0xFF;

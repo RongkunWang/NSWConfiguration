@@ -20,11 +20,10 @@
 #include "NSWConfiguration/ConfigConverter.h"
 
 nsw::hw::ROC::ROC(OpcManager& manager, const nsw::FEBConfig& config) :
-  m_opcManager{manager},
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
   m_rocAnalog(config.getRocAnalog()),
-  m_rocDigital(config.getRocDigital()),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress())
+  m_rocDigital(config.getRocDigital())
 {}
 
 void nsw::hw::ROC::writeConfiguration() const
@@ -32,19 +31,18 @@ void nsw::hw::ROC::writeConfiguration() const
   constexpr bool INACTIVE = false;
   constexpr bool ACTIVE = true;
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  setCoreResetN(opcConnection, ACTIVE);
-  setPllResetN(opcConnection, ACTIVE);
-  setSResetN(opcConnection, ACTIVE);
+  setCoreResetN(getConnection(), ACTIVE);
+  setPllResetN(getConnection(), ACTIVE);
+  setSResetN(getConnection(), ACTIVE);
 
-  setSResetN(opcConnection, INACTIVE);
+  setSResetN(getConnection(), INACTIVE);
 
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_rocAnalog);
+  nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), m_rocAnalog);
 
-  setPllResetN(opcConnection, INACTIVE);
-  setCoreResetN(opcConnection, INACTIVE);
+  setPllResetN(getConnection(), INACTIVE);
+  setCoreResetN(getConnection(), INACTIVE);
 
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, m_rocDigital);
+  nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), m_rocDigital);
 }
 
 std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
@@ -108,18 +106,16 @@ void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t 
     return std::string{ROC_DIGITAL_NAME};
   }();
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-
   if (isAnalog) {
     constexpr bool ACTIVE = true;
-    setPllResetN(opcConnection, ACTIVE);
+    setPllResetN(getConnection(), ACTIVE);
   }
   nsw::hw::SCA::sendI2cMasterSingle(
-    opcConnection, fmt::format("{}.{}", m_scaAddress, sectionName), {value}, regName);
+    getConnection(), fmt::format("{}.{}", getScaAddress(), sectionName), {value}, regName);
 
   if (isAnalog) {
     constexpr bool INACTIVE = false;
-    setPllResetN(opcConnection, INACTIVE);
+    setPllResetN(getConnection(), INACTIVE);
   }
 }
 
@@ -129,7 +125,7 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
     throw UnusedRegisterException(fmt::format("Cannot read unused register {}", regAddress));
   }
   constexpr unsigned int DELAY = 2;
-  const auto [sclLine, sdaLine] = [&address = m_scaAddress,
+  const auto [sclLine, sdaLine] = [address = getScaAddress(),
                                    regAddress]() -> std::pair<unsigned int, unsigned int> {
     const auto isMmfe8 = address.find("MM") != std::string::npos;  // FIXME: Use util function
     const auto isAnalog = regAddress >= ROC_DIGITAL_REGISTERS.size();
@@ -144,9 +140,12 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
     }
     return {nsw::roc::sfeb::digital::SCL_LINE_PIN, nsw::roc::sfeb::digital::SDA_LINE_PIN};
   }();
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-  return opcConnection->readRocRaw(
-    fmt::format("{}.gpio.bitBanger", m_scaAddress), sclLine, sdaLine, regAddress, DELAY);
+  return nsw::hw::SCA::readRocRaw(getConnection(),
+                                  fmt::format("{}.gpio.bitBanger", getScaAddress()),
+                                  sclLine,
+                                  sdaLine,
+                                  regAddress,
+                                  DELAY);
 }
 
 void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values) const
@@ -185,16 +184,14 @@ void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values
       true);
   }();
 
-  const auto& opcConnection = m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress);
-
   if (isAnalog) {
     constexpr bool ACTIVE = true;
-    setPllResetN(opcConnection, ACTIVE);
+    setPllResetN(getConnection(), ACTIVE);
   }
-  nsw::hw::SCA::sendI2cMasterConfig(opcConnection, m_scaAddress, config);
+  nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), config);
   if (isAnalog) {
     constexpr bool INACTIVE = false;
-    setPllResetN(opcConnection, INACTIVE);
+    setPllResetN(getConnection(), INACTIVE);
   }
 }
 
@@ -308,12 +305,12 @@ std::uint8_t nsw::hw::ROC::readStatusRegister(const std::uint8_t regAddress) con
   return readRegister(regAddress);
 }
 
-void nsw::hw::ROC::setSResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setSResetN(const nsw::OpcClientPtr opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocSResetN", state);
 }
 
-void nsw::hw::ROC::setPllResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setPllResetN(const nsw::OpcClientPtr opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocPllResetN", state);
 
@@ -321,26 +318,26 @@ void nsw::hw::ROC::setPllResetN(const nsw::OpcClientPtr& opcConnection, const bo
     bool roc_locked = false;
     while (!roc_locked) {
       const bool rPll1 =
-        nsw::hw::SCA::readGPIO(opcConnection, fmt::format("{}.gpio.rocPllLocked", m_scaAddress));
+        nsw::hw::SCA::readGPIO(opcConnection, fmt::format("{}.gpio.rocPllLocked", getScaAddress()));
       const bool rPll2 =
-        nsw::hw::SCA::readGPIO(opcConnection, fmt::format("{}.gpio.rocPllRocLocked", m_scaAddress));
+        nsw::hw::SCA::readGPIO(opcConnection, fmt::format("{}.gpio.rocPllRocLocked", getScaAddress()));
       roc_locked = rPll1 && rPll2;
     }
   }
 }
 
-void nsw::hw::ROC::setCoreResetN(const nsw::OpcClientPtr& opcConnection, const bool state) const
+void nsw::hw::ROC::setCoreResetN(const nsw::OpcClientPtr opcConnection, const bool state) const
 {
   setReset(opcConnection, "rocCoreResetN", state);
 }
 
-void nsw::hw::ROC::setReset(const nsw::OpcClientPtr& opcConnection,
+void nsw::hw::ROC::setReset(const nsw::OpcClientPtr opcConnection,
                             const std::string& resetName,
                             const bool state) const
 {
   // Active = Low
   nsw::hw::SCA::sendGPIO(
-    opcConnection, fmt::format("{}.gpio.{}", m_scaAddress, resetName), not state);
+    opcConnection, fmt::format("{}.gpio.{}", getScaAddress(), resetName), not state);
 }
 
 std::uint8_t nsw::hw::ROC::getRegAddress(const std::string& regName, const bool isAnalog)

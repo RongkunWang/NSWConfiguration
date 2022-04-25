@@ -5,7 +5,9 @@
 
 #include "NSWConfiguration/RouterConfig.h"
 #include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   RouterHWIssue,
@@ -22,7 +24,7 @@ namespace nsw::hw {
    * The SCA connections on the Router are defined in:
    *  - http://cern.ch/go/Mm6j
    */
-  class Router
+  class Router : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -158,10 +160,7 @@ namespace nsw::hw {
     const RouterConfig& getConfig() const { return m_config; }  //!< \overload
 
   private:
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     RouterConfig m_config;
-    std::string m_opcserverIp;  //!< address and port of the Opc Server
-    std::string m_scaAddress;   //!< SCA address of Router item in the Opc address space
     std::string m_name;         //!< Name composed of OPC and SCA addresses
 
     static constexpr std::string_view

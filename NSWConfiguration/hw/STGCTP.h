@@ -10,7 +10,9 @@
 
 #include <ers/Issue.h>
 
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   STGCTPReadbackMismatch,
@@ -26,7 +28,7 @@ namespace nsw::hw {
    * as to write a complete configuration and read back all the
    * registers contained in the configuration.
    */
-  class STGCTP
+  class STGCTP : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -61,8 +63,8 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister(const std::uint32_t regAddress,
-                       const std::uint32_t value) const;
+    void writeRegister(std::uint32_t regAddress,
+                       std::uint32_t value) const;
 
     /**
      * \brief Read an individual STGCTP register by its address
@@ -70,7 +72,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(const std::uint32_t regAddress) const;
+    std::uint32_t readRegister(std::uint32_t regAddress) const;
 
     /**
      * \brief Write a value to a STGCTP register address, and read it back
@@ -78,8 +80,8 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeAndReadbackRegister(const std::uint32_t regAddress,
-                                  const std::uint32_t value) const;
+    void writeAndReadbackRegister(std::uint32_t regAddress,
+                                  std::uint32_t value) const;
 
     /**
      * \brief Get the ptree object associated with this STGCTP object
@@ -98,10 +100,7 @@ namespace nsw::hw {
     std::uint32_t getSector() const;
 
   private:
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
-    std::string m_opcserverIp;            //!< address and port of Opc Server
-    std::string m_scaAddress;             //!< SCA address of STGCTP item in Opc address space
     std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
   };

@@ -8,9 +8,11 @@
 
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/hw/Helper.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 namespace nsw::hw {
   /**
@@ -23,7 +25,7 @@ namespace nsw::hw {
    * Register mapping: http://cern.ch/go/9Q9t
    * ROC digital documentation: http://cern.ch/go/HX7Z
    */
-  class ROC
+  class ROC : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
@@ -157,8 +159,6 @@ namespace nsw::hw {
     [[nodiscard]] const I2cMasterConfig& getConfigDigital() const { return m_rocDigital; } //!< \overload
     // clang-format on
 
-    [[nodiscard]] std::string getName() const { return m_scaAddress; }
-
   private:
     /**
      * \brief Read a status register
@@ -176,7 +176,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setSResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
+    void setSResetN(nsw::OpcClientPtr opcConnection, bool state) const;
 
     /**
      * \brief Reset for all PLLs
@@ -184,7 +184,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setPllResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
+    void setPllResetN(nsw::OpcClientPtr opcConnection, bool state) const;
 
     /**
      * \brief Asynchronous reset for the ROC core
@@ -192,7 +192,7 @@ namespace nsw::hw {
      * \param opcConnection OPC client
      * \param state true = set reset, false = release reset
      */
-    void setCoreResetN(const nsw::OpcClientPtr& opcConnection, bool state) const;
+    void setCoreResetN(nsw::OpcClientPtr opcConnection, bool state) const;
 
     /**
      * \brief Set a given reset to a given state
@@ -201,7 +201,7 @@ namespace nsw::hw {
      * \param resetName GPIO name of the reset
      * \param state true = set reset, false = release reset
      */
-    void setReset(const nsw::OpcClientPtr& opcConnection,
+    void setReset(nsw::OpcClientPtr opcConnection,
                   const std::string& resetName,
                   bool state) const;
 
@@ -214,11 +214,8 @@ namespace nsw::hw {
      */
     [[nodiscard]] static std::uint8_t getRegAddress(const std::string& regName, bool isAnalog);
 
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     I2cMasterConfig m_rocAnalog;   //!< associated I2cMasterConfig for the analog part of this ROC
     I2cMasterConfig m_rocDigital;  //!< associated I2cMasterConfig for the digital part of this ROC
-    std::string m_opcserverIp;     //!< address and port of Opc Server
-    std::string m_scaAddress;      //!< SCA address of FE item in Opc address space
     constexpr static std::array<std::uint8_t, 22>
       UNUSED_REGISTERS{15, 16, 17, 18, 25, 26, 27, 28, 29, 30, 54, 55, 56, 57, 58, 59, 60, 61, 62, 125, 126, 127};  //!< Unused ROC registers
 

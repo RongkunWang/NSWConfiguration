@@ -7,13 +7,12 @@
 
 #include <stdexcept>
 
-nsw::hw::TPCarrier::TPCarrier(OpcManager& manager, const TPCarrierConfig& config):
-  m_opcManager{manager},
+nsw::hw::TPCarrier::TPCarrier(OpcManager& manager, const TPCarrierConfig& config) :
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
   m_config(config),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress()),
-  m_busAddress(fmt::format("{}.I2C_0.bus0", m_scaAddress)),
-  m_name(fmt::format("{}/{}", m_opcserverIp, m_scaAddress))
+  m_busAddress(fmt::format("{}.I2C_0.bus0", getScaAddress())),
+  m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress()))
 {
 }
 

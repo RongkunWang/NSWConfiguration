@@ -236,7 +236,7 @@ std::vector<uint8_t> nsw::ConfigSender::readIcConfigGBTx(const nsw::L1DDCConfig&
 }
 
 
-bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich,const std::vector<uint8_t>& data){
+bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, ic::fct::IChandler& ich, const std::vector<uint8_t>& data){
     // Upload configuration to GBTx using IC channel, read back and check config
     // return 1 if config read back correctly
 
@@ -421,14 +421,10 @@ void nsw::ConfigSender::sendGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_
     }
 }
 
-std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId){
+std::vector<uint8_t> nsw::ConfigSender::readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId, ic::fct::IChandler& ich){
     // read back gbtx configuration
     ERS_LOG(fmt::format("Reading bytestream for {} on GBTx{}",l1ddc.getName(),gbtxId));
-    // get information from l1ddc
-    const std::uint64_t fid_toflx  = l1ddc.getFidToFlx();
-    const std::uint64_t fid_tohost = l1ddc.getFidToHost();
     if (gbtxId==0){
-        ic::fct::IChandler ich(fid_toflx,fid_tohost);
         return readIcConfigGBTx(l1ddc,ich);
     }
     else if (gbtxId==1){
@@ -485,7 +481,7 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
             sendGBTxConfig(l1ddcCopy,gbtxId,ich);
 
             // Print out phases
-            const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId);
+            const std::vector<uint8_t> config = readGBTxConfig(l1ddcCopy,gbtxId,ich);
             ERS_LOG(fmt::format("Phase table for {} GBTx{}",l1ddc.getName(),gbtxId));
             const boost::property_tree::ptree phases = nsw::GBTxConfig::getPhasesTree(config);
             phaseTree.put_child(fmt::format("GBTx{}",gbtxId),phases);

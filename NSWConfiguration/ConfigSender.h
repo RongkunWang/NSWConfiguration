@@ -132,7 +132,7 @@ class ConfigSender {
      * \param l1ddc L1DDC config object
      * \param gbtxId GBTx ID
      */
-    std::vector<uint8_t> readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId);
+    std::vector<uint8_t> readGBTxConfig(const nsw::L1DDCConfig& l1ddc, std::size_t gbtxId, ic::fct::IChandler& ich);
 
     /**
      * \brief Helper function that sends GBTx configuration using IC channel and reads it back. 

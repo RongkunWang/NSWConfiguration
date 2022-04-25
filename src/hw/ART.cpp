@@ -1,12 +1,12 @@
 #include "NSWConfiguration/hw/ART.h"
+#include "NSWConfiguration/hw/ScaAddressBase.h"
 
 #include <stdexcept>
 
 nsw::hw::ART::ART(OpcManager& manager, const nsw::ADDCConfig& config, const std::size_t numArt) :
-  m_opcManager{manager},
+  ScaAddressBase(config.getAddress()),
+  OpcConnectionBase(manager, config.getOpcServerIp(), config.getAddress()),
   m_config(config.getART(numArt)),
-  m_opcserverIp(config.getOpcServerIp()),
-  m_scaAddress(config.getAddress()),
   m_numArt(numArt)
 {}
 
