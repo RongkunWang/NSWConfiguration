@@ -38,7 +38,13 @@ void nsw::hw::MMTP::writeConfiguration() const
     if (skippedReg.contains(addr)) {
       continue;
     }
-    writeRegister(addr, value);
+    try {
+      writeRegister(addr, value);
+    } catch (const std::exception& ex) {
+      const auto msg = fmt::format("Failed to write reg 0x{:08x}: {}", addr, ex.what());
+      ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
+      throw;
+    }
   }
 
   alignArtGbtx();
@@ -52,7 +58,13 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::MMTP::readConfiguration() const
     if (skippedReg.contains(reg)) {
       continue;
     }
-    result.emplace(reg, readRegister(reg));
+    try {
+      result.emplace(reg, readRegister(reg));
+    } catch (const std::exception& ex) {
+      const auto msg = fmt::format("Failed to read reg 0x{:08x}: {}", reg, ex.what());
+      ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
+      throw;
+    }
   }
   return result;
 }

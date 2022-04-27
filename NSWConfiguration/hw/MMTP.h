@@ -15,6 +15,12 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 
 ERS_DECLARE_ISSUE(nsw,
+                  MMTPReadWriteIssue,
+                  message,
+                  ((std::string)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
                   MMTPReadbackMismatch,
                   message,
                   ((std::string)message)
