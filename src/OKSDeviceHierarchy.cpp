@@ -198,16 +198,7 @@ boost::property_tree::ptree nsw::oks::parseDeviceMap(
     if (relationType == "FEB_child") {
       // Get names for pseudodevices
       std::vector<std::string> names;
-      if (deviceType == "VMM") {
-        std::generate_n(
-          std::back_inserter(names),
-          nsw::vmm::NUM_CH_PER_VMM,
-          [counter = 0, prefix = "ch", suffix = "_DeviceID"]() mutable {
-            std::stringstream ss;
-            ss << prefix << std::setw(2) << std::setfill('0') << counter++ << suffix;
-            return ss.str();
-          });
-      } else if (deviceType == "ROC") {
+      if (deviceType == "ROC") {
         names = {"VMM0_DeviceID", "VMM1_DeviceID", "TDC_DeviceID"};
       }
 
