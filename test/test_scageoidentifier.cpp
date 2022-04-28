@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(SCAGeoIdentifier_ReturnsCorrectPropertiesSFEB) {
     BOOST_CHECK_EQUAL(info.sector(), 3);
     BOOST_CHECK_EQUAL(info.layer(), 5);
     BOOST_CHECK_EQUAL(info.radius(), 1);
-    BOOST_CHECK_EQUAL(info.resourceType(), "SFEB");
+    BOOST_CHECK_EQUAL(info.resourceType(), "SFEB6");
     BOOST_CHECK_EQUAL(info.isMM(), false);
     BOOST_CHECK_EQUAL(info.isSTGC(), true);
 }

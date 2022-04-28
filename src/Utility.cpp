@@ -89,15 +89,17 @@ std::string nsw::getElementType(const std::string& element_name) {
             return name;
           }
         }
-        const auto startsWith = [] (const std::string& s, auto&& chars) { return s.rfind(chars, 0) == 0; };
-        if (startsWith(element_name, "MM")) {
+        if (element_name.starts_with("MM")) {
             if (element_name.find("/Strip/") != std::string::npos) {
                 return "MMFE8";
             }
         }
-        if (startsWith(element_name, "sTGC")) {
+        if (element_name.starts_with("sTGC")) {
             if (element_name.find("/Strip/") != std::string::npos) {
-                return "SFEB";
+                if (element_name.ends_with("R0")) {
+                    return "SFEB8";
+                }
+                return "SFEB6";
             }
             if (element_name.find("/Pad/") != std::string::npos) {
                 return "PFEB";

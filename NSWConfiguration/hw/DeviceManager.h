@@ -56,7 +56,7 @@ namespace nsw::hw {
         }
       }();
       const auto type = nsw::getElementType(config.get<std::string>(std::string{OPC_NODE_ID_KEY}));
-      if (type == "MMFE8" or type == "SFEB" or type == "PFEB") {
+      if (type == "MMFE8" or type == "SFEB6" or type == "SFEB8" or type == "PFEB") {
         addFeb(FEBConfig{config});
       }
       else if (type == "ADDC") {

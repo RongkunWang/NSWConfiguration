@@ -120,13 +120,13 @@ std::uint8_t nsw::SCAGeoIdentifier::getValue(const char prefix,
 
 bool nsw::SCAGeoIdentifier::layerRequired() const
 {
-  return m_resourceType == "PFEB" or m_resourceType == "MMFE8" or m_resourceType == "SFEB" or
-         m_resourceType == "L1DDC" or m_resourceType == "ADDC" or m_resourceType == "Router";
+  return isFeb() or m_resourceType == "L1DDC" or m_resourceType == "ADDC" or
+         m_resourceType == "Router";
 }
 
 bool nsw::SCAGeoIdentifier::radiusRequired() const
 {
-  return m_resourceType == "PFEB" or m_resourceType == "MMFE8" or m_resourceType == "SFEB";
+  return isFeb();
 }
 
 void nsw::SCAGeoIdentifier::warnNoGeoId() const
@@ -134,4 +134,10 @@ void nsw::SCAGeoIdentifier::warnNoGeoId() const
   if (m_noGeoId) {
     ers::warning(NSWNoGeoId(ERS_HERE));
   }
+}
+
+bool nsw::SCAGeoIdentifier::isFeb() const
+{
+  return m_resourceType == "PFEB" or m_resourceType == "MMFE8" or m_resourceType == "SFEB6" or
+         m_resourceType == "SFEB8";
 }
