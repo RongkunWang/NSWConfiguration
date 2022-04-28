@@ -69,7 +69,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
   check_gpio
   roc_loop_over_phase
   roc_select_phase
-  addc_skeleton
+  configure_addc
   tp_comm_test
   mmtp_loopback_test
   configure_tp
