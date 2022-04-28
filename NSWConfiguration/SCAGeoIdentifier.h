@@ -168,6 +168,14 @@ namespace nsw {
      */
     void warnNoGeoId() const;
 
+    /**
+     * \brief Is Device a FEB
+     *
+     * \return true is FEB
+     * \return false is no FEB
+     */
+    [[nodiscard]] bool isFeb() const;
+
     static constexpr std::string_view DELIMITER{"/"};
     static constexpr std::string_view DETECTOR_NAME_MM{"MM-"};
     static constexpr std::string_view DETECTOR_NAME_STGC{"sTGC-"};

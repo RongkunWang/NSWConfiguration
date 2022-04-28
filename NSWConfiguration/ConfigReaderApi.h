@@ -87,6 +87,15 @@ protected:
   static void adjustRocConfig(boost::property_tree::ptree& config, const boost::property_tree::ptree& devices);
 
   /**
+   * \brief Get the VMM ID for the ROC digital configuration matching the provided physical VMM ID
+   *
+   * \param type Type of the FEB (MMFE8, SFEB8, SFEB6, PFEB)
+   * \param ivmm Physical VMM ID
+   * \return std::size_t ROC VMM ID
+   */
+  static std::size_t getRocVmmId(std::string_view type, std::size_t ivmm);
+
+  /**
    * \brief Recursively look for device names in device tree
    *
    * \tparam T Type of the function
