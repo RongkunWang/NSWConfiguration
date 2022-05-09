@@ -139,5 +139,5 @@ void nsw::SCAGeoIdentifier::warnNoGeoId() const
 bool nsw::SCAGeoIdentifier::isFeb() const
 {
   return m_resourceType == "PFEB" or m_resourceType == "MMFE8" or m_resourceType == "SFEB6" or
-         m_resourceType == "SFEB8";
+         m_resourceType == "SFEB8" or m_resourceType == "SFEB";
 }
