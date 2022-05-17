@@ -353,6 +353,11 @@ namespace nsw {
       "PFEB_L1Q3_IP", "PFEB_L2Q3_IP", "PFEB_L3Q3_IP", "PFEB_L4Q3_IP",
       "PFEB_L1Q3_HO", "PFEB_L2Q3_HO", "PFEB_L3Q3_HO", "PFEB_L4Q3_HO",
     };
+    constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS_GEOID = {
+      "/L0/R0", "/L1/R0", "/L2/R0", "/L3/R0", "/L4/R0", "/L5/R0", "/L6/R0", "/L7/R0",
+      "/L0/R1", "/L1/R1", "/L2/R1", "/L3/R1", "/L4/R1", "/L5/R1", "/L6/R1", "/L7/R1",
+      "/L0/R2", "/L1/R2", "/L2/R2", "/L3/R2", "/L4/R2", "/L5/R2", "/L6/R2", "/L7/R2",
+    };
   }
 
   namespace router {
