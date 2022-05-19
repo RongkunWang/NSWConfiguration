@@ -64,38 +64,6 @@ BOOST_AUTO_TEST_CASE(IntToByteVector_SizeZero_ReturnsEmptyVector) {
     BOOST_TEST(nsw::intToByteVector(0xaaaaaaaa, 0, false) == std::vector<uint8_t>{});
 }
 
-
-BOOST_AUTO_TEST_CASE(Concatenate_TwoValidInputs_ReturnsConcatenatedInputs) {
-    std::string b1_string = "1010101010";
-    std::string b2_string = "1001";
-    std::bitset<10> b1{ b1_string };
-    std::bitset<4> b2{ b2_string };
-
-    BOOST_TEST(nsw::concatenate(b1, b2) == std::bitset<14>(b1_string + b2_string));
-}
-
-BOOST_AUTO_TEST_CASE(Concatenate_ThreeValidInputs_ReturnsConcatenatedInputs) {
-    std::string b1_string = "11111010101010";
-    std::string b2_string = "11111111111111111111111111111111";
-    std::string b3_string = "000";
-
-    std::bitset<14> b1{ b1_string };
-    std::bitset<32> b2{ b2_string };
-    std::bitset<3> b3{ b3_string };
-    BOOST_TEST(nsw::concatenate(b1, b2, b3) == std::bitset<49>(b1_string + b2_string + b3_string));
-}
-
-BOOST_AUTO_TEST_CASE(Concatenate_EmptyInputs_ReturnsEmptyBitset) {
-    auto b1 = std::bitset<0>{};
-    auto b2 = std::bitset<0>{};
-    BOOST_TEST(nsw::concatenate(b1, b2) == std::bitset<0>{});
-
-    auto b3 = std::bitset<0>{};
-    auto b4 = std::bitset<0>{};
-    auto b5 = std::bitset<0>{};
-    BOOST_TEST(nsw::concatenate(b3, b4, b5) == std::bitset<0>{});
-}
-
 BOOST_AUTO_TEST_CASE(ReversedBitstring_ValidInput_ReturnsReversedBitString) {
     BOOST_TEST(nsw::reversedBitString(0b10101011, 8) == "11010101");
     BOOST_TEST(nsw::reversedBitString(0x41414141, 32) == "10000010100000101000001010000010");
@@ -131,6 +99,16 @@ BOOST_AUTO_TEST_CASE(GetElementType_ElementNameInInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("A.Router.B") == "Router");
 }
 
+BOOST_AUTO_TEST_CASE(GetElementType_GeoIdInput_ReturnsElementName) {
+    BOOST_TEST(nsw::getElementType("MM-A/V0/SCA/Strip/S9/L5/R3") == "MMFE8");
+    BOOST_TEST(nsw::getElementType("sTGC-A/V0/TTC/Pad/S9/L0/R1") == "PFEB");
+    // BOOST_TEST(nsw::getElementType("sTGC-A/V0/L1A/Strip/S9/L0/R0") == "SFEB8");
+    // BOOST_TEST(nsw::getElementType("sTGC-A/V0/L1A/Strip/S9/L0/R2") == "SFEB6");
+    BOOST_TEST(nsw::getElementType("MM-A/V0/from-SCA/ADDC/S9/L0/E") == "ADDC");
+    BOOST_TEST(nsw::getElementType("sTGC-A/V0/Ext/PadTrig/S9/A") == "PadTrigger");
+    BOOST_TEST(nsw::getElementType("sTGC-A/V0/TTC/Router/S9/L0/A") == "Router");
+}
+
 BOOST_AUTO_TEST_CASE(GetElementType_NoElementNameInInput_ThrowsRuntimeError) {
     BOOST_CHECK_THROW(nsw::getElementType("definitelynotanelementname"),
         std::runtime_error);
@@ -154,8 +132,8 @@ BOOST_AUTO_TEST_CASE(CheckOverflow_OverflowInInput_ThrowsRegisterOverflow) {
 
 BOOST_AUTO_TEST_CASE(CheckOverflow_OverflowInInput_ExceptionContainsRegisterName) {
     BOOST_CHECK_EXCEPTION(nsw::checkOverflow(4, 16, "SomeCoolRegisterName"), nsw::RegisterOverflow,
-    [](const nsw::RegisterOverflow& ex) -> bool {
-        std::string error{ ex.what() };
+    [](const nsw::RegisterOverflow& exception) -> bool {
+        std::string error{ exception.what() };
         return error.find("SomeCoolRegisterName") != std::string::npos;
     });
 }
@@ -246,34 +224,6 @@ BOOST_AUTO_TEST_CASE(BitstringToHexString_InputLengthNotMultipleOf8_ThrowsRuntim
 }
 */
 
-BOOST_AUTO_TEST_CASE(BuildBitstream_ValidInput_ReturnsCorrectBitstream) {
-    ptree pt;
-    pt.put("register0.value0", 0x10);
-    pt.put("register0.value1", 0x13);
-    pt.put("register1", 0x41411337);
-
-    std::vector<std::pair<std::string, size_t>> name_size_mapping = { {"NOT_USED", 8 }, {"register0.value0", 8}, {"register0.value1", 16}, {"register1", 32} };
-    BOOST_TEST(nsw::buildBitstream(name_size_mapping, pt) == "0000000000010000000000000001001101000001010000010001001100110111");
-}
-
-BOOST_AUTO_TEST_CASE(BuildBitstream_OverflowInRegister_ThrowsRegisterOverflow) {
-    ptree pt;
-    pt.put("0v3rfl0w", 0x111);
-    std::vector<std::pair<std::string, size_t>> name_size_mapping = { {"0v3rfl0w", 8} };
-    BOOST_CHECK_EXCEPTION(nsw::buildBitstream(name_size_mapping, pt), nsw::RegisterOverflow,
-    [](const nsw::RegisterOverflow& ex) -> bool {
-        std::string error{ ex.what() };
-        return error.find("0v3rfl0w") != std::string::npos;
-    });
-}
-
-BOOST_AUTO_TEST_CASE(BuildBitstream_NodeNotFoundInPtree_ThrowsPtreeBadPath) {
-    ptree pt;
-    pt.put("some_register", 0x0);
-    std::vector<std::pair<std::string, size_t>> name_size_mapping = { {"not_present", 8} };
-    BOOST_CHECK_THROW(nsw::buildBitstream(name_size_mapping, pt), boost::property_tree::ptree_bad_path);
-}
-
 BOOST_AUTO_TEST_CASE(BuildPtreeFromVector_ValidInput_CreatesArrayInPtree) {
     std::vector<unsigned int> input = { 10, 94, 795, 585 };
     const ptree pt = nsw::buildPtreeFromVector(input);
@@ -326,5 +276,203 @@ BOOST_AUTO_TEST_CASE(MatchRegexpInPtree_PtreeWithLevels_FindsAllMatches) {
         std::set<std::string> matched = {"level0_0", "level0_0.level1_0",
                                          "level0_2.level1_0", "level0_2.level1_2.level2_0"};
         BOOST_TEST(result == matched);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(ByteVectorToWord32_LittleEndian_ReturnsLittleEndianWord32) {
+    std::vector<std::uint8_t> data = { 0xde, 0xad, 0xbe, 0xef };
+    std::uint32_t expected = 0xefbeadde;
+    BOOST_TEST(nsw::byteVectorToWord32(data, true) == expected);
+}
+
+BOOST_AUTO_TEST_CASE(ByteVectorToWord32_BigEndian_ReturnsBigEndianWord32) {
+    std::vector<std::uint8_t> data = { 0xde, 0xad, 0xbe, 0xef };
+    std::uint32_t expected = 0xdeadbeef;
+    BOOST_TEST(nsw::byteVectorToWord32(data, false) == expected);
+}
+
+BOOST_AUTO_TEST_CASE(ByteVectorToWord32_InvalidSize_ThrowsRuntimeError) {
+    std::vector<std::uint8_t> data = { 0xde, 0xad, 0xbe, 0xef, 0x00 };
+    BOOST_CHECK_THROW(nsw::byteVectorToWord32(data),
+        std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(GuessSector_ValidInput_ReturnsCorrectSector) {
+    BOOST_TEST(nsw::guessSector("191A-A06-MM-Calib") == "A06");
+    BOOST_TEST(nsw::guessSector("P1-C15-MM-Calib") == "C15");
+}
+
+BOOST_AUTO_TEST_CASE(GuessSector_InvalidInput_ReturnsEmpty) {
+    BOOST_TEST(nsw::guessSector("notasector") == "");
+}
+
+BOOST_AUTO_TEST_CASE(TokenizeString_CommaSeparatedList_ReturnsCorrectWords) {
+    const auto expected = std::vector<std::string>{"one", "two", "three"};
+    BOOST_TEST(nsw::tokenizeString("one,two,three", ",") == expected);
+}
+
+BOOST_AUTO_TEST_CASE(IsLargeSector_LargeSector_ReturnsTrue) {
+    BOOST_TEST(nsw::isLargeSector("A03") == true);
+}
+
+BOOST_AUTO_TEST_CASE(IsLargeSector_SmallSector_ReturnsFalse) {
+    BOOST_TEST(nsw::isLargeSector("A12") == false);
+}
+
+BOOST_AUTO_TEST_CASE(IsLargeSector_InvalidSizeInput_ThrowsBadSectorName) {
+    BOOST_CHECK_THROW(nsw::isLargeSector("asdf"), nsw::BadSectorName);
+}
+
+BOOST_AUTO_TEST_CASE(IsSmallSector_SmallSector_ReturnsTrue) {
+    BOOST_TEST(nsw::isSmallSector("A02") == true);
+}
+
+BOOST_AUTO_TEST_CASE(IsSmallSector_LargeSector_ReturnsFalse) {
+    BOOST_TEST(nsw::isSmallSector("A11") == false);
+}
+
+BOOST_AUTO_TEST_CASE(Contains_ContainsString_ReturnsTrue) {
+    BOOST_TEST(nsw::contains("mystring", "str") == true);
+}
+
+BOOST_AUTO_TEST_CASE(Contains_NotContainsString_ReturnsFalse) {
+    BOOST_TEST(nsw::contains("mystring", "unicorn") == false);
+}
+
+BOOST_AUTO_TEST_CASE(GetPathsFromPtree_ReturnsCorrectPaths) {
+    ptree tree;
+    const auto paths = std::vector<std::string>{"test", "one.two", "this.is.a.long.path", "this.not"};
+    for (const auto& path : paths) {
+        tree.put(path, "");
+    }
+    const auto result = nsw::getPathsFromPtree(tree);
+    for (const auto& path : result) {
+        const auto test = std::find(std::cbegin(paths), std::cend(paths), path) != std::cend(paths);
+        BOOST_TEST(test);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(OverwriteBits_ValidInput_ReturnsCorrectResult) {
+    BOOST_TEST(nsw::overwriteBits(0x00000000, 0xFF, 16, 8) == 0x00FF0000);
+    BOOST_TEST(nsw::overwriteBits(0x00000000, 0xFF, 0, 8) == 0x000000FF);
+    BOOST_TEST(nsw::overwriteBits(0x12345678, 0x0F, 16, 8) == 0x120F5678);
+    BOOST_TEST(nsw::overwriteBits(0b00000011, 0b11, 4, 2) == 0b00110011);
+    // BOOST_TEST(nsw::overwriteBits(0x00000000, 0xFFFFFFFF, 0, 32) == 0xFFFFFFFF);  // WILL FAIL
+}
+
+bool checkExceptionMessage(const auto& exception, const std::string_view expectation) {
+    return exception.what() == expectation;
+}
+
+BOOST_AUTO_TEST_CASE(OverwriteBits_MoreBitsThanValue_ThrowsRuntimeError) {
+    BOOST_CHECK_EXCEPTION(
+        nsw::overwriteBits(0x00000000, 0xFF, 16, 7), std::runtime_error, [](const auto& execption) {
+            return checkExceptionMessage(execption, "Value exceeds number of bits");
+        });
+}
+
+BOOST_AUTO_TEST_CASE(OverwriteBits_PositionOutOfRange_ThrowsRuntimeError) {
+    BOOST_CHECK_EXCEPTION(
+        nsw::overwriteBits(0x00000000, 0xFF, 33, 8), std::runtime_error, [](const auto& execption) {
+            return checkExceptionMessage(execption, "Position exceeds original");
+        });
+}
+
+/* WILL FAIL
+BOOST_AUTO_TEST_CASE(OverwriteBits_MoreBitsThanOriginal_ThrowsRuntimeError) {
+    BOOST_CHECK_EXCEPTION(
+        nsw::overwriteBits(0x00000000, 0xFF, 16, 33), std::runtime_error, [](const auto& execption) {
+            return checkExceptionMessage(execption, "nbits exceeds original");
+        });
+}
+*/
+
+BOOST_AUTO_TEST_CASE(IntegerToByteVector_ValidInputNoSize_ReturnsCorrectResult) {
+    const auto test = [] (auto&& val, std::vector<std::uint8_t>&& expected) {
+        const auto result = nsw::integerToByteVector(val);
+        BOOST_CHECK_EQUAL_COLLECTIONS(
+            std::cbegin(result), std::cend(result), std::cbegin(expected), std::cend(expected));
+    };
+    test(std::uint64_t{0xdeadbeefdeadbeef}, std::vector<std::uint8_t>{0xde, 0xad, 0xbe, 0xef, 0xde, 0xad, 0xbe, 0xef});
+    test(std::uint32_t{0xdeadbeef}, std::vector<std::uint8_t>{0xde, 0xad, 0xbe, 0xef});
+    test(std::uint16_t{0xbeef}, std::vector<std::uint8_t>{0xbe, 0xef});
+    test(std::uint8_t{0xbe}, std::vector<std::uint8_t>{0xbe});
+}
+
+BOOST_AUTO_TEST_CASE(IntegerToByteVector_ValidInputSize_ReturnsCorrectResult) {
+    const auto test = [] (auto&& val, std::size_t&& size, std::vector<std::uint8_t>&& expected) {
+        const auto result = nsw::integerToByteVector(val, size);
+        BOOST_CHECK_EQUAL_COLLECTIONS(
+            std::cbegin(result), std::cend(result), std::cbegin(expected), std::cend(expected));
+    };
+    test(std::uint32_t{0xdeadbeef}, 4, std::vector<std::uint8_t>{0xde, 0xad, 0xbe, 0xef});
+    test(std::uint32_t{0xdeadbeef}, 2, std::vector<std::uint8_t>{0xbe, 0xef});
+}
+
+BOOST_AUTO_TEST_CASE(IntegerToByteVector_InvalidInputSize_ThrowsLogicError) {
+    BOOST_CHECK_THROW(nsw::integerToByteVector(std::uint32_t{0xdeadbeef}, 5), std::logic_error);
+}
+
+BOOST_AUTO_TEST_CASE(DumpTree_ValidTree_CorrectString) {
+    ptree tree;
+    tree.put("test", "test");
+    tree.put("one.two", 1.2);
+    const auto result = fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",
+        "{",
+        "    \"test\": \"test\",",
+        "    \"one\": {",
+        "        \"two\": \"1.2\"",
+        "    }",
+        "}"
+    );
+    BOOST_TEST(nsw::dumpTree(tree) == result);
+}
+
+BOOST_AUTO_TEST_CASE(GetSetFromPtree_ValidInput_CorrectSet) {
+    const auto expected = std::set<std::string>{"ptree", "to", "set", "without", "duplicates", "duplicates"};
+    ptree tree;
+    for (const auto& value : expected) {
+        boost::property_tree::ptree child;
+        child.put("", value);
+        tree.push_back(std::make_pair("", child));
+    }
+    const auto result = nsw::getSetFromPtree<std::string>(tree, "");
+    BOOST_CHECK_EQUAL_COLLECTIONS(std::cbegin(result), std::cend(result), std::cbegin(expected), std::cend(expected));
+}
+
+BOOST_AUTO_TEST_CASE(GetPathsFromPtree_ValidInput_CorrectSet) {
+    const auto expected = std::unordered_set<std::string>{"ptree", "with", "possibly.nested", "s.t.r.u.c.t.u.r.e.s"};
+    ptree tree;
+    for (const auto& value : expected) {
+        tree.put(value, 1);
+    }
+    const auto result = nsw::getPathsFromPtree(tree);
+    for (const auto& path : result) {
+        const auto test = std::find(std::cbegin(expected), std::cend(expected), path) != std::cend(expected);
+        BOOST_TEST(test);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TransformMapToPtree_ValidInput_CorrectSet) {
+    const auto input = std::map<std::string, int>{{"test", 1}, {"one.two", 2}}; 
+    ptree expected;
+    expected.put("test", 1);
+    expected.put("one.two", 2);
+    const auto result = nsw::transformMapToPtree(input);
+    for (const auto& [path, value] : input) {
+        const auto test = expected.get<int>(path) == value;
+        BOOST_TEST(test);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TransformPtreetoMap_ValidInput_CorrectSet) {
+    ptree input;
+    input.put("test", 1);
+    input.put("one.two", 2);
+    const auto expected = std::map<std::string, int>{{"test", 1}, {"one.two", 2}}; 
+    const auto result = nsw::transformPtreetoMap<int>(input);
+    for (const auto& [path, value] : result) {
+        const auto test = expected.at(path) == value;
+        BOOST_TEST(test);
     }
 }
