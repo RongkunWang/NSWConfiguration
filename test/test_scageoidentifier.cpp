@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(SCAGeoIdentifier_ReturnsCorrectPropertiesPadTrigger) {
     BOOST_CHECK_EQUAL(info.sector(), 3);
     BOOST_CHECK_EQUAL(info.layer(), nsw::geoid::DoesNotExist);
     BOOST_CHECK_EQUAL(info.radius(), nsw::geoid::DoesNotExist);
-    BOOST_CHECK_EQUAL(info.resourceType(), "PadTrig");
+    BOOST_CHECK_EQUAL(info.resourceType(), "PadTrigger");
     BOOST_CHECK_EQUAL(info.isMM(), false);
     BOOST_CHECK_EQUAL(info.isSTGC(), true);
 }
