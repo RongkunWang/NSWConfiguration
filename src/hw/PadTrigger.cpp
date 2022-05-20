@@ -25,8 +25,11 @@ void nsw::hw::PadTrigger::writeConfiguration() const
 {
   writeRepeatersConfiguration();
   writeVTTxConfiguration();
-  writeFPGAConfiguration();
   writeJTAGBitfileConfiguration();
+  writeFPGAConfiguration();
+  if (Deskew()) {
+    deskewPFEBs();
+  }
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -238,10 +241,34 @@ void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
   nsw::hw::SCA::sendI2cRaw(getConnection(), m_scaAddressFPGA, payload.data(), payload.size());
 }
 
+void nsw::hw::PadTrigger::writePFEBDelay(const DelayVector& values) const
+{
+  std::uint32_t word_23_16{0};
+  std::uint32_t word_15_08{0};
+  std::uint32_t word_07_00{0};
+  constexpr std::uint32_t bits{nsw::padtrigger::NUM_BITS_PER_PFEB_DELAY};
+  constexpr std::uint32_t dels{nsw::NUM_BITS_IN_WORD32 / bits};
+  if (values.size() != nsw::padtrigger::NUM_PFEBS) {
+    const auto msg = fmt::format("Tried to write delays but N(delays) = {}", values.size());
+    ers::warning(nsw::PadTriggerConfusion(ERS_HERE, msg));
+  }
+  for (auto it = std::uint32_t{0}; it < dels; it++) {
+    word_23_16 += (values.at(it + 2*dels) << it*bits);
+    word_15_08 += (values.at(it + 1*dels) << it*bits);
+    word_07_00 += (values.at(it + 0*dels) << it*bits);
+  }
+  ERS_INFO(fmt::format("Writing PFEB delay word (23-16) {:#010x}", word_23_16));
+  ERS_INFO(fmt::format("Writing PFEB delay word (15-08) {:#010x}", word_15_08));
+  ERS_INFO(fmt::format("Writing PFEB delay word (07-00) {:#010x}", word_07_00));
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word_23_16);
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word_15_08);
+  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word_07_00);
+}
+
 void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
 {
   std::uint32_t word{0};
-  constexpr std::uint32_t bits{nsw::padtrigger::NUM_BITS_PER_PFEB_BCID};
+  constexpr std::uint32_t bits{nsw::padtrigger::NUM_BITS_PER_PFEB_DELAY};
   for (auto it = nsw::NUM_BITS_IN_WORD32 / bits; it > 0; --it) {
     word += (value << it*bits);
   }
@@ -290,14 +317,6 @@ std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddres
   return nsw::byteVectorToWord32(value, nsw::padtrigger::SCA_LITTLE_ENDIAN);
 }
 
-std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBBCIDs() const
-{
-  const auto bcids_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_23_16);
-  const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
-  const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
-  return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
-}
-
 std::uint32_t nsw::hw::PadTrigger::readPFEBRate(const std::uint32_t pfeb, const bool quiet) const
 {
   writeSubRegister("003_control_reg2", "pfeb_num", pfeb, quiet);
@@ -312,6 +331,247 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBRates() const
     rates.push_back(readPFEBRate(pfeb, quiet));
   }
   return rates;
+}
+
+BcidVector nsw::hw::PadTrigger::readPFEBBCIDs() const
+{
+  const auto bcids_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_23_16);
+  const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
+  const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
+  return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
+}
+
+std::vector<BcidVector> nsw::hw::PadTrigger::readPFEBBCIDs(std::size_t nread) const
+{
+  if (nread == std::size_t{0}) {
+    const auto msg = "Why read the PFEB BCIDs zero times?";
+    ers::warning(nsw::PadTriggerConfusion(ERS_HERE, msg));
+  }
+  auto collated_bcids = std::vector<BcidVector>(nsw::padtrigger::NUM_PFEBS);
+  for (std::size_t iread = 0; iread < nread; iread++) {
+    pushBackColumn(collated_bcids, readPFEBBCIDs());
+  }
+  return collated_bcids;
+}
+
+BcidVector nsw::hw::PadTrigger::readMedianPFEBBCIDs(std::size_t nread) const
+{
+  const auto bcids_per_pfeb = readPFEBBCIDs(nread);
+  auto median_bcids = BcidVector();
+  auto median = [](BcidVector v) {
+    std::size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin() + n, v.end());
+    return v.at(n);
+  };
+  std::transform(std::cbegin(bcids_per_pfeb), std::cend(bcids_per_pfeb), std::back_inserter(median_bcids),
+                 [&median](const auto& bcids){ return median(bcids); });
+  return median_bcids;
+}
+
+std::vector<BcidVector> nsw::hw::PadTrigger::readMedianPFEBBCIDAtEachDelay(std::size_t nread) const
+{
+  auto collated_bcids = std::vector<BcidVector>(nsw::padtrigger::NUM_PFEBS);
+  for (std::size_t delay = 0; delay < nsw::padtrigger::NUM_INPUT_DELAYS; delay++) {
+    writePFEBCommonDelay(delay);
+    pushBackColumn(collated_bcids, readMedianPFEBBCIDs(nread));
+  }
+  return collated_bcids;
+}
+
+BcidVector nsw::hw::PadTrigger::rotatePFEBBCIDs(BcidVector bcids) const
+{
+  constexpr std::uint32_t RANGE{nsw::padtrigger::PFEB_BCID_RANGE};
+  std::transform(std::begin(bcids), std::end(bcids), std::begin(bcids), [](const auto& bcid) {
+    return (bcid < RANGE / 2) ? bcid + RANGE : bcid;
+  });
+  return bcids;
+}
+
+bool nsw::hw::PadTrigger::checkPFEBBCIDs(const BcidVector& bcids) const
+{
+  auto is_connected = [](std::uint32_t bcid){ return bcid != nsw::padtrigger::PFEB_BCID_DISCONNECTED; };
+  auto is_nonzero   = [](std::uint32_t bcid){ return bcid != 0; };
+  const auto rotated_bcids = rotatePFEBBCIDs(bcids);
+
+  const bool any_connected    = std::any_of(bcids.cbegin(), bcids.cend(), is_connected);
+  const bool any_nonzero      = std::any_of(bcids.cbegin(), bcids.cend(), is_nonzero);
+  const bool all_decrementing = std::is_sorted(bcids.crbegin(), bcids.crend()) or
+                                std::is_sorted(rotated_bcids.crbegin(), rotated_bcids.crend());
+
+  return any_connected and any_nonzero and all_decrementing;
+}
+
+BcidVector nsw::hw::PadTrigger::getViableBcids(const std::vector<BcidVector>& bcidPerPfebPerDelay) const
+{
+  // get viable BCIDs for each PFEB
+  auto viablePerPfeb = std::vector<BcidVector>();
+  for (const auto& bcidPerDelay: bcidPerPfebPerDelay) {
+    viablePerPfeb.emplace_back(getViableBcids(bcidPerDelay));
+  }
+
+  // if no BCID are viable for any PFEB: bail
+  if (std::all_of(viablePerPfeb.begin(), viablePerPfeb.end(),
+                  [](const auto& viable){ return viable.empty(); })) {
+    return BcidVector();
+  }
+
+  // get BCIDs which are viable for all PFEBs
+  auto viableForAllPfeb = BcidVector();
+  for (std::size_t bcid = 0; bcid < nsw::padtrigger::PFEB_BCID_RANGE; bcid++) {
+    const auto ok = std::all_of(viablePerPfeb.begin(), viablePerPfeb.end(),
+                                [bcid](const auto& viable){
+                                  return viable.empty() or
+                                  std::find(viable.begin(), viable.end(), bcid) != viable.end();
+                                });
+    if (ok) {
+      viableForAllPfeb.push_back(bcid);
+    }
+  }
+  return viableForAllPfeb;
+}
+
+BcidVector nsw::hw::PadTrigger::getViableBcids(const BcidVector& bcidPerDelay) const
+{
+  constexpr std::uint32_t RANGE{nsw::padtrigger::PFEB_BCID_RANGE};
+  constexpr std::uint32_t MINCOUNTS{nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC - 1};
+  if (not checkPFEBBCIDs(bcidPerDelay)) {
+    return BcidVector();
+  }
+  auto viable = BcidVector();
+  for (std::uint32_t bcid = 0; bcid < RANGE; bcid++) {
+    if (std::count(bcidPerDelay.begin(), bcidPerDelay.end(), bcid) >= MINCOUNTS) {
+      viable.push_back(bcid);
+    }
+  }
+  return viable;
+}
+
+std::uint32_t nsw::hw::PadTrigger::getTargetBcid(const std::vector<BcidVector>& bcidPerPfebPerDelay) const
+{
+  const auto viableBcids = getViableBcids(bcidPerPfebPerDelay);
+  const auto nviable = viableBcids.size();
+  if (nviable < 1 or nviable > 3) {
+    const auto msg = fmt::format("N(Viable BCID) is strange: {}. Will not deskew", nviable);
+    ers::warning(nsw::PadTriggerConfusion(ERS_HERE, msg));
+    return 0xFFFFFFFF;
+  }
+  auto medianDelays = DelayVector();
+  for (const auto& bcid: viableBcids) {
+    medianDelays.push_back(getMedianDelay(bcid, bcidPerPfebPerDelay));
+  }
+  const auto idx = std::distance(medianDelays.begin(), std::min_element(medianDelays.begin(), medianDelays.end()));
+  return viableBcids.at(idx);
+}
+
+std::uint32_t nsw::hw::PadTrigger::getMedianDelay(const std::uint32_t bcid,
+                                                  const std::vector<BcidVector>& bcidPerPfebPerDelay) const
+{
+  auto delays = DelayVector();
+  for (const auto& bcidPerDelay: bcidPerPfebPerDelay) {
+    if (not checkPFEBBCIDs(bcidPerDelay)) {
+      continue;
+    }
+    for (std::size_t delay = 0; delay < bcidPerDelay.size(); delay++) {
+      if (bcidPerDelay.at(delay) == bcid) {
+        delays.push_back(delay);
+      }
+    }
+  }
+  if (delays.empty()) {
+    return 0;
+  }
+  auto median = [](DelayVector v) {
+    std::size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin() + n, v.end());
+    return v.at(n);
+  };
+  return median(delays);
+}
+
+DelayVector nsw::hw::PadTrigger::getTargetDelays(const std::uint32_t targetBcid,
+                                                 const std::vector<BcidVector>& bcidPerPfebPerDelay) const
+{
+  auto delays = DelayVector();
+  for (const auto& bcidPerDelay: bcidPerPfebPerDelay) {
+    delays.push_back(getTargetDelay(targetBcid, bcidPerDelay));
+  }
+  return delays;
+}
+
+std::uint32_t nsw::hw::PadTrigger::getTargetDelay(const std::uint32_t targetBcid,
+                                                  const BcidVector& bcidPerDelay) const
+{
+  const auto noDelay = std::uint32_t{0};
+  if (not checkPFEBBCIDs(bcidPerDelay)) {
+    return noDelay;
+  }
+  constexpr std::uint32_t TARGETPOS{nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC / 2};
+  constexpr std::uint32_t NUMDELSBC{nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC};
+  const std::size_t numBcids = std::count(bcidPerDelay.begin(), bcidPerDelay.end(), targetBcid);
+  const std::size_t startPos = (bcidPerDelay.front() == targetBcid) ? NUMDELSBC - numBcids : 0;
+  std::size_t pos{startPos};
+  for (std::size_t delay = 0; delay < bcidPerDelay.size(); delay++) {
+    if (pos == TARGETPOS) {
+      return delay;
+    }
+    if (bcidPerDelay.at(delay) == targetBcid) {
+      pos++;
+    }
+  }
+  return noDelay;
+}
+
+void nsw::hw::PadTrigger::describeSkew(const std::vector<BcidVector>& bcidPerPfebPerDelay) const
+{
+  // describe the skew of each PFEB
+  for (std::size_t pfeb = 0; pfeb < bcidPerPfebPerDelay.size(); pfeb++) {
+    const auto& bcidPerDelay = bcidPerPfebPerDelay.at(pfeb);
+    const auto msg = fmt::format("PFEB {:02}: {} ({})",
+                                 pfeb, joinHexReversed(bcidPerDelay),
+                                 joinHexReversed(getViableBcids(bcidPerDelay)));
+    ERS_LOG(msg);
+  }
+
+  // describe which BCID are viable targets
+  const auto viableBcids = getViableBcids(bcidPerPfebPerDelay);
+  for (const auto vi: viableBcids) {
+    const auto msg = fmt::format("Viable BCID {:x} with median delay {}",
+                                 vi, getMedianDelay(vi, bcidPerPfebPerDelay));
+    ERS_LOG(msg);
+  }
+}
+
+void nsw::hw::PadTrigger::deskewPFEBs() const
+{
+  ERS_INFO("Start of PFEB deskew");
+  const auto bcidPerPfebPerDelay = readMedianPFEBBCIDAtEachDelay(nsw::padtrigger::NUM_DESKEW_READS);
+  describeSkew(bcidPerPfebPerDelay);
+  const auto targetBcid = getTargetBcid(bcidPerPfebPerDelay);
+  const auto targetDelays = getTargetDelays(targetBcid, bcidPerPfebPerDelay);
+  writePFEBDelay(targetDelays);
+
+  // summarize
+  ERS_LOG(fmt::format("Target BCID: {:x}", targetBcid));
+  ERS_INFO(fmt::format("Target delays: {}", joinHexReversed(targetDelays)));
+  ERS_INFO(fmt::format("New BCIDs: {}", joinHexReversed(readPFEBBCIDs())));
+}
+
+std::string nsw::hw::PadTrigger::joinHexReversed(const std::vector<uint32_t>& vec) {
+  if (vec.empty()) {
+    return "";
+  }
+  std::string ret{"0x"};
+  for (auto it = vec.crbegin(); it != vec.crend(); ++it) {
+    ret += fmt::format("{:x}", *it);
+  }
+  return ret;
+}
+
+void nsw::hw::PadTrigger::pushBackColumn(std::vector< std::vector<std::uint32_t > >& matrix,
+                                         const std::vector<std::uint32_t>& column) {
+  for (std::size_t it = 0; it < column.size(); it++) {
+    matrix.at(it).push_back(column.at(it));
+  }
 }
 
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const
@@ -363,14 +623,14 @@ std::uint32_t nsw::hw::PadTrigger::firmware_dateword() const {
   return dateword;
 }
 
-std::vector<std::uint32_t> nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_00,
-                                                          std::uint32_t val_15_08,
-                                                          std::uint32_t val_23_16
-                                                          ) const {
-  std::vector<std::uint32_t> bcids_07_00 = {};
-  std::vector<std::uint32_t> bcids_15_08 = {};
-  std::vector<std::uint32_t> bcids_23_16 = {};
-  std::vector<std::uint32_t> bcids  = {};
+BcidVector nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_00,
+                                          std::uint32_t val_15_08,
+                                          std::uint32_t val_23_16
+                                          ) const {
+  BcidVector bcids_07_00 = {};
+  BcidVector bcids_15_08 = {};
+  BcidVector bcids_23_16 = {};
+  BcidVector bcids  = {};
   size_t bit_position = 0;
   while (bit_position < nsw::NUM_BITS_IN_WORD32) {
     bcids_07_00.push_back( (val_07_00 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
@@ -389,3 +649,4 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_0
   }
   return bcids;
 }
+
