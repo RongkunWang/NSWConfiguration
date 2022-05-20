@@ -13,6 +13,15 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 
+using BcidVector  = std::vector<std::uint32_t>;
+using DelayVector = std::vector<std::uint32_t>;
+
+ERS_DECLARE_ISSUE(nsw,
+                  PadTriggerConfusion,
+                  message,
+                  ((std::string)message)
+                  )
+
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfigError,
                   message,
@@ -84,6 +93,11 @@ namespace nsw::hw {
      * \brief Write the PadTrigger FPGA configuration
      */
     void writeFPGAConfiguration() const;
+
+    /**
+     * \brief Write a delay to all PFEB inputs
+     */
+    void writePFEBDelay(const DelayVector& values) const;
 
     /**
      * \brief Write a common delay to all PFEB inputs
@@ -226,10 +240,16 @@ namespace nsw::hw {
                                   std::uint8_t regAddress) const;
 
     /**
-     * \brief Read and decode the PFEB BCID status registers
+     * \brief Read the PFEB BCIDs, and adjust delays to deskew them
      */
-    [[nodiscard]]
-    std::vector<std::uint32_t> readPFEBBCIDs() const;
+    void deskewPFEBs() const;
+
+    /**
+     * \brief Write messages regarding the measured skew
+     *
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning delays
+     */
+    void describeSkew(const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
 
     /**
      * \brief Read the rate of an input PFEB from a status register
@@ -244,6 +264,115 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::vector<std::uint32_t> readPFEBRates() const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers.
+     *        Element i is the BCID of PFEB i.
+     */
+    [[nodiscard]]
+    BcidVector readPFEBBCIDs() const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times
+     *        Element i is a vector of the BCIDs of PFEB i.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    std::vector<BcidVector> readPFEBBCIDs(std::size_t nread) const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times, and calculate median
+     *        Element i is the median BCID of PFEB i.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    BcidVector readMedianPFEBBCIDs(std::size_t nread) const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times,
+     *        and calculate median, for each possible PFEB input delay.
+     *        Element (i)(j) is the median BCID of PFEB i for delay setting j.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    std::vector<BcidVector> readMedianPFEBBCIDAtEachDelay(std::size_t nread) const;
+
+    /**
+     * \brief Rotate a vector of PFEB BCIDs by 180 degrees.
+     *
+     * \param bcids a vector of BCIDs
+     */
+    [[nodiscard]]
+    BcidVector rotatePFEBBCIDs(BcidVector bcids) const;
+
+    /**
+     * \brief Check if PFEB BCIDs over the range of input delays seem reasonable or not
+     *
+     * \param bcids BCIDs of a particular PFEB
+     */
+    [[nodiscard]]
+    bool checkPFEBBCIDs(const BcidVector& bcids) const;
+
+    /**
+     * \brief Return a list of BCIDs whose full range is observed when scanning delays.
+     *        e.g., if the BCIDs observed per delay are ccddddddeeeeeeff,
+     *              then 0xe and 0xd are viable BCIDs.
+     *
+     * \param bcidsPerDelay BCIDs observed when scanning delays
+     */
+    [[nodiscard]]
+    BcidVector getViableBcids(const BcidVector& bcidsPerDelay) const;
+
+    /**
+     * \brief Return a list of BCIDs whose full range is observed for all PFEBs when scanning delays.
+     *        See getViableBcids for an example for one PFEB.
+     *
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning delays
+     */
+    [[nodiscard]]
+    BcidVector getViableBcids(const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
+
+    /**
+     * \brief Return the target BCID, given a list of BCID observed for each PFEB and delay.
+     *        The target BCID should be a viable BCID for all PFEBs.
+     *        If more than one BCID are viable, then the BCID which incurs the least delay is chosen.
+     *
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning delays
+     */
+    [[nodiscard]]
+    std::uint32_t getTargetBcid(const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
+
+    /**
+     * \brief Return the target delays, given a target BCID and list of BCID observed for each PFEB and delay.
+     *
+     * \param bcid The target BCID
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning delays
+     */
+    [[nodiscard]]
+    DelayVector getTargetDelays(const std::uint32_t targetBcid,
+                                const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
+
+    /**
+     * \brief Return the target delay, given a target BCID and list of BCID observed for each delay.
+     *
+     * \param bcid The target BCID
+     * \param bcidsPerDelay The BCIDs observed when scanning delays
+     */
+    [[nodiscard]]
+    std::uint32_t getTargetDelay(const std::uint32_t targetBcid,
+                                 const BcidVector& bcidPerDelay) const;
+
+    /**
+     * \brief Return the median delay for a particular BCID
+     *
+     * \param bcid The particular BCID under test
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning delays
+     */
+    std::uint32_t getMedianDelay(const std::uint32_t bcid,
+                                 const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
 
     /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
@@ -304,6 +433,12 @@ namespace nsw::hw {
     bool ConfigVTTx() const
     { return m_ptree.get<bool>("ConfigVTTx"); };
 
+    /**
+     * \brief Get the "DeskewPFEBs" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool Deskew() const
+    { return m_ptree.get("Deskew", false); };
 
     /**
      * \brief Get the "LatencyScanStart" if provided by the user configuration
@@ -320,13 +455,25 @@ namespace nsw::hw {
     /**
      * \brief Decode a vector of PFEB BCIDs from the three PFEB BCID registers
      */
-    std::vector<std::uint32_t> PFEBBCIDs(std::uint32_t val_07_00,
-                                         std::uint32_t val_15_08,
-                                         std::uint32_t val_23_16
-                                         ) const;
+    BcidVector PFEBBCIDs(std::uint32_t val_07_00,
+                         std::uint32_t val_15_08,
+                         std::uint32_t val_23_16
+                         ) const;
 
 
   private:
+
+    /**
+     * \brief Convert a vector into string of hex nibbles
+     */
+    static void pushBackColumn(std::vector< std::vector<std::uint32_t > >& matrix,
+                               const std::vector<uint32_t>& column);
+
+    /**
+     * \brief Convert a vector into string of hex nibbles
+     */
+    static std::string joinHexReversed(const std::vector<uint32_t>& vec);
+
     boost::property_tree::ptree m_ptree; //!< ptree object associated with this PadTrigger
     std::string m_scaAddressFPGA;        //!< SCA address of PadTrigger FPGA i2c
     std::string m_scaAddressJTAG;        //!< SCA address of PadTrigger FPGA JTAG
@@ -367,6 +514,7 @@ namespace nsw::hw {
     }};
 
   };
+
 }  // namespace nsw::hw
 
 #endif
