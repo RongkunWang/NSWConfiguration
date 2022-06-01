@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -84,6 +85,11 @@ namespace nsw::hw {
                                   std::uint32_t value) const;
 
     /**
+     * \brief Get the "SkipRegisters" provided by the user configuration
+     */
+    std::set<std::uint8_t> SkipRegisters() const;
+
+    /**
      * \brief Get the ptree object associated with this STGCTP object
      *
      * Both const and non-const overloads are provided
@@ -99,10 +105,17 @@ namespace nsw::hw {
     [[nodiscard]]
     std::uint32_t getSector() const;
 
+    /**
+     * \brief Read the reset command from the ptree config
+     */
+    [[nodiscard]]
+    bool getDoReset() const;
+
   private:
     boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
     std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
+    std::set<std::uint8_t> m_skippedReg;  //!< Set of registers which should be skipped
   };
 }  // namespace nsw::hw
 

@@ -107,6 +107,9 @@ std::string nsw::getElementType(const std::string& element_name) {
             if (element_name.find("/Pad/") != std::string::npos) {
                 return "PFEB";
             }
+            if (element_name.find("/TrigProc/") != std::string::npos) {
+                return "STGCTP";
+            }
         }
         throw std::runtime_error(fmt::format("Unknown front end element type: {}", element_name));
     }

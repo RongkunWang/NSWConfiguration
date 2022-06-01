@@ -62,6 +62,9 @@ int main(int ac, const char *av[]) {
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
       tp.writeConfiguration();
+      for (const auto& [reg, val]: tp.readConfiguration()) {
+        std::cout << fmt::format("Reg {:#04x}: val = {:#010x}", reg, val) << std::endl;
+      }
     }
 
     // MM TP
