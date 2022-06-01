@@ -107,6 +107,7 @@ BOOST_AUTO_TEST_CASE(GetElementType_GeoIdInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("MM-A/V0/from-SCA/ADDC/S9/L0/E") == "ADDC");
     BOOST_TEST(nsw::getElementType("sTGC-A/V0/Ext/PadTrig/S9/A") == "PadTrigger");
     BOOST_TEST(nsw::getElementType("sTGC-A/V0/TTC/Router/S9/L0/A") == "Router");
+    BOOST_TEST(nsw::getElementType("sTGC-C/V0/SCA/TrigProc/S1/E0") == "STGCTP");
 }
 
 BOOST_AUTO_TEST_CASE(GetElementType_NoElementNameInInput_ThrowsRuntimeError) {

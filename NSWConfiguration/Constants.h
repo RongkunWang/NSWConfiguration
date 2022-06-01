@@ -11,6 +11,7 @@
 #include <utility> // for std::pair
 #include <chrono>
 #include <map>
+#include <cmath>
 
 namespace nsw {
   /// Fool me once
@@ -209,10 +210,25 @@ namespace nsw {
   }
 
   namespace stgctp {
-    constexpr std::uint8_t REG_SECTOR = 0x02;
-    const std::map<std::string, uint32_t> REGS = {
-      {"sector", REG_SECTOR},
-    };
+    constexpr std::uint8_t REG_RESET       = 0x01;
+    constexpr std::uint8_t REG_SECTOR      = 0x02;
+    constexpr std::uint8_t REG_BCR_RATE    = 0x04;
+    constexpr std::uint8_t REG_PAD_ALIGNED = 0x05;
+    constexpr std::uint8_t REG_PAD_RATE    = 0x06;
+    constexpr std::uint32_t MASK_RESET       = std::pow(2,  9) - 1;
+    constexpr std::uint32_t MASK_SECTOR      = std::pow(2, 32) - 1;
+    constexpr std::uint32_t MASK_BCR_RATE    = std::pow(2, 16) - 1;
+    constexpr std::uint32_t MASK_PAD_ALIGNED = std::pow(2,  1) - 1;
+    constexpr std::uint32_t MASK_PAD_RATE    = std::pow(2, 28) - 1;
+    constexpr auto REGS = std::to_array({
+        // std::make_pair(REG_RESET,       MASK_RESET),
+        std::make_pair(REG_SECTOR,      MASK_SECTOR),
+        std::make_pair(REG_BCR_RATE,    MASK_BCR_RATE),
+        std::make_pair(REG_PAD_ALIGNED, MASK_PAD_ALIGNED),
+        std::make_pair(REG_PAD_RATE,    MASK_PAD_RATE),
+    });
+    constexpr std::uint32_t RESET_ENABLE  = 0b111111111;
+    constexpr std::uint32_t RESET_DISABLE = 0b0;
   }
 
   namespace mmtp {
