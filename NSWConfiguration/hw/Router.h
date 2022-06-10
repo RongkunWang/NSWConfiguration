@@ -89,7 +89,7 @@ namespace nsw::hw {
     /**
      * \brief Configure the Router GPIOs which control the SCA ID
      */
-    void writeSetSCAID() const;
+    void writeScaId() const;
 
     [[nodiscard]]
     std::string Sector() const
@@ -111,7 +111,7 @@ namespace nsw::hw {
      * (13 << 4) + (5 << 1) + 1 = 218
      */
     [[nodiscard]]
-    std::uint8_t id() const;
+    std::uint8_t getId() const;
 
     /**
      * \brief Convert sector to 1-bit endcap ID
@@ -120,7 +120,7 @@ namespace nsw::hw {
      * A12 -> A, e.g.
      */
     [[nodiscard]]
-    std::uint8_t idEndcap() const;
+    std::uint8_t getIdEndcap() const;
 
     /**
      * \brief Convert sector to 4-bit sector ID
@@ -129,7 +129,7 @@ namespace nsw::hw {
      * A12 -> 12, e.g.
      */
     [[nodiscard]]
-    std::uint8_t idSector() const;
+    std::uint8_t getIdSector() const;
 
     /**
      * \brief Convert layer to 3-bit layer ID
@@ -137,17 +137,17 @@ namespace nsw::hw {
      * Router_LZ -> Z
      */
     [[nodiscard]]
-    std::uint8_t idLayer() const;
+    std::uint8_t getIdLayer() const;
 
     /**
      * \brief Check the format of the name provided
      */
-    void idCheck() const;
+    void checkId() const;
 
     /**
      * \brief Throw an exception if the format of the name is unrecognized
      */
-    void idCrash() const;
+    void crashId() const;
 
     /**
      * \brief Get the \ref RouterConfig object associated with this Router object
@@ -167,10 +167,15 @@ namespace nsw::hw {
       m_old_convention{"Router_LZ"}; //!< the old convention for Router names
 
     static constexpr std::string_view
-      m_convention{"sTGC-A/V0/SCA/Router/S2/L0"}; //!< the latest convention for Router names
+      m_convention{"sTGC-A/V0/SCA/Router/S9/L0/P"}; //!< the latest convention for Router names
 
     static constexpr std::string_view
       m_name_error{"This Router doesnt follow the naming convention"}; //!< A helpful error message
+
+    /**
+     * \brief Check if SCA address follows old naming scheme or not
+     */
+    bool isOldNamingConvention() const { return getScaAddress().size() == m_old_convention.size(); }
 
     static constexpr size_t m_num_gpios = 32;
     static constexpr std::array<std::string_view, m_num_gpios> m_ordered_gpios = {
