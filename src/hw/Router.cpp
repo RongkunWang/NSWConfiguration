@@ -49,7 +49,7 @@ std::map<std::string, bool> nsw::hw::Router::readConfiguration() const
 void nsw::hw::Router::writeConfiguration() const
 {
   writeSoftResetAndCheckGPIO();
-  writeSetSCAID();
+  writeScaId();
 }
 
 void nsw::hw::Router::writeSoftResetAndCheckGPIO() const
@@ -120,15 +120,15 @@ bool nsw::hw::Router::checkGPIOs() const
   return ok;
 }
 
-void nsw::hw::Router::writeSetSCAID() const
+void nsw::hw::Router::writeScaId() const
 {
   // Get ID from config object
-  const auto scaid = static_cast<unsigned>(id());
+  const auto scaid = getId();
 
   // Announce
-  ERS_LOG (fmt::format("{}: ID (sector) = {:#06b}", m_name, idSector()));
-  ERS_LOG (fmt::format("{}: ID (layer)  = {:#05b}", m_name, idLayer()));
-  ERS_LOG (fmt::format("{}: ID (endcap) = {:#03b}", m_name, idEndcap()));
+  ERS_LOG (fmt::format("{}: ID (sector) = {:#06b}", m_name, getIdSector()));
+  ERS_LOG (fmt::format("{}: ID (layer)  = {:#05b}", m_name, getIdLayer()));
+  ERS_LOG (fmt::format("{}: ID (endcap) = {:#03b}", m_name, getIdEndcap()));
   ERS_INFO(fmt::format("{}: -> ID = {:#010b} = {:#x} = {}", m_name, scaid, scaid, scaid));
 
   // Set ID
@@ -139,54 +139,69 @@ void nsw::hw::Router::writeSetSCAID() const
   }
 }
 
-std::uint8_t nsw::hw::Router::id() const
+std::uint8_t nsw::hw::Router::getId() const
 {
-  idCheck();
+  checkId();
   constexpr static std::uint8_t shiftSector = 4;
-  constexpr static std::uint8_t shiftLayer = 1;
-  return static_cast<std::uint8_t>((idSector() << shiftSector) + (idLayer() << shiftLayer) + idEndcap());
+  constexpr static std::uint8_t shiftLayer  = 1;
+  constexpr static std::uint8_t shiftEndcap = 0;
+  return static_cast<std::uint8_t>(
+    (getIdSector() << shiftSector) +
+    (getIdLayer()  << shiftLayer)  +
+    (getIdEndcap() << shiftEndcap)
+  );
 }
 
-std::uint8_t nsw::hw::Router::idEndcap() const
+std::uint8_t nsw::hw::Router::getIdEndcap() const
 {
+  if (not isOldNamingConvention()) {
+    return getGeoInfo().wheel() == nsw::geoid::Wheel::A ? 0 : 1;
+  }
   const auto endcap = std::string{Sector().front()};
   if (endcap != "A" && endcap != "C") {
-    idCrash();
+    crashId();
   }
   return endcap == "A" ? 0 : 1;
 }
 
-std::uint8_t nsw::hw::Router::idSector() const
+std::uint8_t nsw::hw::Router::getIdSector() const
 {
+  if (not isOldNamingConvention()) {
+    return getGeoInfo().sector();
+  }
   const auto sect = std::stoul(Sector().substr(1, 2));
   if (sect < nsw::MIN_SECTOR_ID || sect > nsw::MAX_SECTOR_ID) {
-    idCrash();
+    crashId();
   }
   return static_cast<std::uint8_t>(sect - 1);
 }
 
-std::uint8_t nsw::hw::Router::idLayer() const
+std::uint8_t nsw::hw::Router::getIdLayer() const
 {
+  if (not isOldNamingConvention()) {
+    return getGeoInfo().layer();
+  }
   const auto layer = std::stoul(std::string{getScaAddress().back()});
   if (layer < nsw::MIN_LAYER_ID || layer > nsw::MAX_LAYER_ID) {
-    idCrash();
+    crashId();
   }
   return static_cast<std::uint8_t>(layer);
 }
 
-void nsw::hw::Router::idCheck() const
+void nsw::hw::Router::checkId() const
 {
   const auto len = getScaAddress().size();
-  if (len != m_old_convention.size() && 
-      len != m_convention.size()) {
-    idCrash();
+  if (len != m_old_convention.size() and
+      len != m_convention.size() and
+      len != m_convention.size() + 1) {
+    crashId();
   }
-  if (std::string{getScaAddress().at(len-2)} != "L") {
-    idCrash();
+  if (isOldNamingConvention() and std::string{getScaAddress().at(len-2)} != "L") {
+    crashId();
   }
 }
 
-void nsw::hw::Router::idCrash() const
+void nsw::hw::Router::crashId() const
 {
   const auto msg = fmt::format("{} ({} or {}): {}",
     m_name_error, m_old_convention, m_convention, getScaAddress());
