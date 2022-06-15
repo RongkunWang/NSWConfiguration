@@ -240,15 +240,13 @@ bool nsw::ConfigSender::sendGBTxIcConfigHelperFunction(const nsw::L1DDCConfig& l
     // Upload configuration to GBTx using IC channel, read back and check config
     // return 1 if config read back correctly
 
-    ERS_DEBUG(2, "\n==> Configuration to be uploaded to the GBTx::");
-    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(data)<<'\n');
+    ERS_DEBUG(2, fmt::format("\n\nConfiguration to be uploaded to IC GBTx on {}:{}",l1ddc.getName(),nsw::getPrintableGbtxConfig(data)));
 
     sendIcConfigGBTx(l1ddc,ich,data);
 
     std::vector<uint8_t> currentConfig = readIcConfigGBTx(l1ddc,ich);
 
-    ERS_DEBUG(2, "\n==> Configuration, read from GBTx, after uploading new configuration:");
-    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(currentConfig)<<'\n');
+    ERS_DEBUG(2, fmt::format("\n\nConfiguration READ from IC GBTx on {}:{}",l1ddc.getName(),nsw::getPrintableGbtxConfig(currentConfig)));
 
     // Check readback
     if (data.size()!=currentConfig.size()) {
@@ -340,8 +338,7 @@ std::vector<uint8_t> nsw::ConfigSender::readI2cConfigGBTx(const nsw::L1DDCConfig
 bool nsw::ConfigSender::sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& l1ddc, const std::size_t gbtxId, const std::vector<uint8_t>& data){
     // Upload configuration to GBTx using I2C, read back and confirm config
     // return 1 if config read back correctly
-    ERS_DEBUG(2, "\n==> Configuration to be uploaded via IC to the GBTx");
-    ERS_DEBUG(2, nsw::getPrintableGbtxConfig(data)<<'\n');
+    ERS_DEBUG(2, fmt::format("\n\nConfiguration to be uploaded to I2C GBTx on {}:{}",l1ddc.getName(),nsw::getPrintableGbtxConfig(data)));
 
     // Upload configuration
     ERS_DEBUG(2, "\n==> Uploading configuration to GBTx");
@@ -351,6 +348,7 @@ bool nsw::ConfigSender::sendGBTxI2cConfigHelperFunction(const nsw::L1DDCConfig& 
     // Read back configuration
     ERS_DEBUG(2, "\n==> Reading back configuration from GBTx");
     const std::vector<uint8_t> currentConfig = readI2cConfigGBTx(l1ddc,gbtxId);
+    ERS_DEBUG(2, fmt::format("\n\nConfiguration READ from IC GBTx on {}:{}",l1ddc.getName(),nsw::getPrintableGbtxConfig(currentConfig)));
 
     // Check readback
     if (data.size()!=currentConfig.size()) {
@@ -463,6 +461,17 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     if (l1ddc.getConfigureGBTx(2)) GBTxToConfigure.push_back(2);
     for (std::size_t gbtxId : GBTxToConfigure){
         ERS_LOG(fmt::format("\nConfiguring GBTx number {}",gbtxId));
+
+        // Check the initial configuration
+        std::vector<uint8_t> currentConfig;
+        if (gbtxId==0){
+            currentConfig = readIcConfigGBTx(l1ddc,ich);
+        }
+        else{
+            currentConfig = readI2cConfigGBTx(l1ddc,gbtxId);
+        }
+        ERS_DEBUG(2, fmt::format("\n\nConfiguration READ from GBTx{} on {}, BEFORE uploading new configuration:{}",gbtxId,l1ddc.getName(),nsw::getPrintableGbtxConfig(currentConfig)));
+
         // Initial configuration with default values
         sendGBTxConfig(l1ddc,gbtxId,ich);
         if (l1ddc.trainGBTxPhaseAlignment()){
