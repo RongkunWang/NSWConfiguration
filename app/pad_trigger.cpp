@@ -168,6 +168,11 @@ int main(int argc, const char *argv[])
     // idle state
     if (toggleIdleState) {
       for (const auto& hw: hws) {
+        if (not hw.Toggle()) {
+          throw std::runtime_error(
+            "You asked for toggleIdleState, but PT has Toggle=False! Something is wrong."
+          );
+        }
         hw.toggleIdleState();
       }
     }
