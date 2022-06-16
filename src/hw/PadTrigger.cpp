@@ -27,9 +27,8 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   writeVTTxConfiguration();
   writeJTAGBitfileConfiguration();
   writeFPGAConfiguration();
-  if (Deskew()) {
-    deskewPFEBs();
-  }
+  toggleIdleState();
+  deskewPFEBs();
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -184,6 +183,11 @@ void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
 
 void nsw::hw::PadTrigger::toggleIdleState() const
 {
+  if (not Toggle()) {
+    ERS_INFO(fmt::format("Skipping toggleIdleState of {}", m_name));
+    return;
+  }
+  ERS_INFO(fmt::format("toggleIdleState of {}", m_name));
   writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
   writeControlSubRegister("conf_startIdleState", std::uint32_t{true});
   writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
@@ -543,6 +547,11 @@ void nsw::hw::PadTrigger::describeSkew(const std::vector<BcidVector>& bcidPerPfe
 
 void nsw::hw::PadTrigger::deskewPFEBs() const
 {
+  if (not Deskew()) {
+    ERS_INFO(fmt::format("Skipping deskew of {}", m_name));
+    return;
+  }
+
   ERS_INFO("Start of PFEB deskew");
   const auto bcidPerPfebPerDelay = readMedianPFEBBCIDAtEachDelay(nsw::padtrigger::NUM_DESKEW_READS);
   describeSkew(bcidPerPfebPerDelay);

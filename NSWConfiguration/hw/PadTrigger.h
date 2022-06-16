@@ -434,6 +434,13 @@ namespace nsw::hw {
     { return m_ptree.get<bool>("ConfigVTTx"); };
 
     /**
+     * \brief Get the "Toggle" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool Toggle() const
+    { return m_ptree.get("Toggle", false); };
+
+    /**
      * \brief Get the "DeskewPFEBs" provided by the user configuration
      */
     [[nodiscard]]
