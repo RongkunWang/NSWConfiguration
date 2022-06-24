@@ -383,7 +383,7 @@ namespace nsw {
 
   namespace router {
     constexpr std::size_t MAX_RESETS = 3;
-    constexpr std::size_t MAX_GPIO_CHECKS = 10;
+    constexpr std::size_t MAX_GPIO_CHECKS = 5;
     constexpr std::chrono::seconds RESET_HOLD{0};
     constexpr std::chrono::seconds RESET_SLEEP{1};
     constexpr std::chrono::seconds RESET_PAUSE{1};
