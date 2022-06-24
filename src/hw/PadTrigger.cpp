@@ -106,9 +106,9 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
     ERS_INFO("Not uploading bitfile since firmware not provided");
     return;
   }
-  ERS_INFO("Uploading bitfile via SCA JTAG, this will take a minute...");
+  ERS_LOG("Uploading bitfile via SCA JTAG, this will take a minute...");
   nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
-  ERS_INFO("Upload finished");
+  ERS_LOG("Upload finished");
 }
 
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const

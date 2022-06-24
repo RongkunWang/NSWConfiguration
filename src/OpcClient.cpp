@@ -395,10 +395,10 @@ void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string&
             fpga.program(bs);
         } catch (const std::exception& e) {
             nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't program FPGA: {}", e.what()));
-            ers::warning(issue);
+            ers::error(issue);
         }
     } else {  // File doesn't exist?
       nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't open bitfile: {}", bitfile_path));
-      ers::warning(issue);
+      ers::error(issue);
     }
 }
