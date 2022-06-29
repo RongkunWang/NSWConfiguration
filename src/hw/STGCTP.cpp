@@ -17,12 +17,18 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
   if (getDoReset()) {
-    ERS_LOG(fmt::format("{}: toggling reset", getName()));
-    writeRegister(nsw::stgctp::REG_RESET, nsw::stgctp::RESET_ENABLE);
-    writeRegister(nsw::stgctp::REG_RESET, nsw::stgctp::RESET_DISABLE);
+    ERS_LOG(fmt::format("{}: toggling RX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_ENABLE);
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_DISABLE);
+    nsw::snooze();
+    ERS_LOG(fmt::format("{}: toggling TX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_ENABLE);
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_DISABLE);
     nsw::snooze();
   }
-  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector());
+  // writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector());
+  constexpr auto TMP_DESKEW_OFFSET = std::uint32_t{0x118};
+  writeAndReadbackRegister(nsw::stgctp::REG_DESKEW_OFFSET, TMP_DESKEW_OFFSET);
 }
 
 std::map<std::uint32_t, std::uint32_t> nsw::hw::STGCTP::readConfiguration() const

@@ -210,25 +210,40 @@ namespace nsw {
   }
 
   namespace stgctp {
-    constexpr std::uint8_t REG_RESET       = 0x01;
-    constexpr std::uint8_t REG_SECTOR      = 0x02;
-    constexpr std::uint8_t REG_BCR_RATE    = 0x04;
-    constexpr std::uint8_t REG_PAD_ALIGNED = 0x05;
-    constexpr std::uint8_t REG_PAD_RATE    = 0x06;
-    constexpr std::uint32_t MASK_RESET       = std::pow(2,  9) - 1;
-    constexpr std::uint32_t MASK_SECTOR      = std::pow(2, 32) - 1;
-    constexpr std::uint32_t MASK_BCR_RATE    = std::pow(2, 16) - 1;
-    constexpr std::uint32_t MASK_PAD_ALIGNED = std::pow(2,  1) - 1;
-    constexpr std::uint32_t MASK_PAD_RATE    = std::pow(2, 28) - 1;
+    constexpr std::uint8_t REG_RST_RX           = 0x01;
+    constexpr std::uint8_t REG_RST_TX           = 0x02;
+    constexpr std::uint8_t REG_SECTOR           = 0x02;
+    constexpr std::uint8_t REG_BCR_RATE         = 0x04;
+    constexpr std::uint8_t REG_PAD_ALIGNED      = 0x05;
+    constexpr std::uint8_t REG_PAD_RATE         = 0x06;
+    constexpr std::uint8_t REG_IN_RUN           = 0x08;
+    constexpr std::uint8_t REG_STRIPS_HIT_RATE  = 0x09;
+    constexpr std::uint8_t REG_DESKEW_OFFSET    = 0x0a;
+    constexpr std::uint8_t REG_VALID_NULL_ERROR = 0x0b;
+    constexpr std::uint32_t MASK_RST_RX           = std::pow(2,  9) - 1;
+    constexpr std::uint32_t MASK_SECTOR           = std::pow(2, 32) - 1;
+    constexpr std::uint32_t MASK_BCR_RATE         = std::pow(2, 16) - 1;
+    constexpr std::uint32_t MASK_PAD_ALIGNED      = std::pow(2,  1) - 1;
+    constexpr std::uint32_t MASK_PAD_RATE         = std::pow(2, 28) - 1;
+    constexpr std::uint32_t MASK_IN_RUN           = std::pow(2,  1) - 1;
+    constexpr std::uint32_t MASK_STRIPS_HIT_RATE  = std::pow(2, 26) - 1;
+    constexpr std::uint32_t MASK_DESKEW_OFFSET    = std::pow(2,  9) - 1;
+    constexpr std::uint32_t MASK_VALID_NULL_ERROR = std::pow(2,  1) - 1;
     constexpr auto REGS = std::to_array({
-        // std::make_pair(REG_RESET,       MASK_RESET),
-        std::make_pair(REG_SECTOR,      MASK_SECTOR),
-        std::make_pair(REG_BCR_RATE,    MASK_BCR_RATE),
-        std::make_pair(REG_PAD_ALIGNED, MASK_PAD_ALIGNED),
-        std::make_pair(REG_PAD_RATE,    MASK_PAD_RATE),
+        // std::make_pair(REG_RST_RX,      MASK_RST_RX),
+        // std::make_pair(REG_SECTOR,      MASK_SECTOR),
+        std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
+        std::make_pair(REG_PAD_ALIGNED,      MASK_PAD_ALIGNED),
+        std::make_pair(REG_PAD_RATE,         MASK_PAD_RATE),
+        std::make_pair(REG_IN_RUN,           MASK_IN_RUN),
+        std::make_pair(REG_STRIPS_HIT_RATE,  MASK_STRIPS_HIT_RATE),
+        std::make_pair(REG_DESKEW_OFFSET,    MASK_DESKEW_OFFSET),
+        std::make_pair(REG_VALID_NULL_ERROR, MASK_VALID_NULL_ERROR),
     });
-    constexpr std::uint32_t RESET_ENABLE  = 0b111111111;
-    constexpr std::uint32_t RESET_DISABLE = 0b0;
+    constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
+    constexpr std::uint32_t RST_RX_DISABLE = 0b0;
+    constexpr std::uint32_t RST_TX_ENABLE  = 0b101111111;
+    constexpr std::uint32_t RST_TX_DISABLE = 0b0;
   }
 
   namespace mmtp {
