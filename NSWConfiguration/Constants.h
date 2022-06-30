@@ -117,6 +117,7 @@ namespace nsw {
     "PadTrigger",
     "Router",
     "GBTX",
+    "RimL1DDC",
     "L1DDC",
   };
 

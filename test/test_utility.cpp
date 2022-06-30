@@ -88,6 +88,8 @@ BOOST_AUTO_TEST_CASE(Bitstring_SizeOverflow_ThrowsOutOfRange) {
 
 BOOST_AUTO_TEST_CASE(GetElementType_ElementNameInInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("A.MMFE8.B") == "MMFE8");
+    BOOST_TEST(nsw::getElementType("A.RimL1DDC.B") == "RimL1DDC");
+    BOOST_TEST(nsw::getElementType("A.L1DDC.B") == "L1DDC");
     BOOST_TEST(nsw::getElementType("A.PFEB.B") == "PFEB");
     BOOST_TEST(nsw::getElementType("A.SFEB_old.B") == "SFEB_old");
     BOOST_TEST(nsw::getElementType("A.SFEB8.B") == "SFEB8");
@@ -102,6 +104,8 @@ BOOST_AUTO_TEST_CASE(GetElementType_ElementNameInInput_ReturnsElementName) {
 BOOST_AUTO_TEST_CASE(GetElementType_GeoIdInput_ReturnsElementName) {
     BOOST_TEST(nsw::getElementType("MM-A/V0/SCA/Strip/S9/L5/R3") == "MMFE8");
     BOOST_TEST(nsw::getElementType("sTGC-A/V0/TTC/Pad/S9/L0/R1") == "PFEB");
+    BOOST_TEST(nsw::getElementType("sTGC-A/V0/from-SCA/Rim-L1DDC/S12/P/E0") == "RimL1DDC");
+    BOOST_TEST(nsw::getElementType("sTGC-A/V0/from-SCA/L1DDC/S12/P/E0") == "L1DDC");
     // BOOST_TEST(nsw::getElementType("sTGC-A/V0/L1A/Strip/S9/L0/R0") == "SFEB8");
     // BOOST_TEST(nsw::getElementType("sTGC-A/V0/L1A/Strip/S9/L0/R2") == "SFEB6");
     BOOST_TEST(nsw::getElementType("MM-A/V0/from-SCA/ADDC/S9/L0/E") == "ADDC");
