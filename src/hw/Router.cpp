@@ -16,6 +16,11 @@ nsw::hw::Router::Router(OpcManager& manager, const RouterConfig& config) :
   m_name = fmt::format("{}/{}", getOpcServerIp(), getScaAddress());
 }
 
+bool nsw::hw::Router::readScaOnline() const
+{
+  return getConnection()->readScaOnline(getScaAddress());
+}
+
 bool nsw::hw::Router::readGPIO(const std::string& name) const
 {
   const auto addr = fmt::format("{}.gpio.{}", getScaAddress(), name);

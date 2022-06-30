@@ -41,6 +41,11 @@ namespace nsw::hw {
     std::string getName() const { return m_name; };
 
     /**
+     * \brief Read SCA online status
+     */
+    bool readScaOnline() const;
+
+    /**
      * \brief Send a value to a particular Router GPIO
      */
     void sendGPIO(const std::string& name, bool val) const;
