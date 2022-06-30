@@ -87,7 +87,13 @@ std::string nsw::getElementType(const std::string& element_name) {
         if (element_name.find(fmt::format("/PadTrig/", element_name)) != std::string::npos) {
           return "PadTrigger";
         }
-        for (auto&& name : {"L1DDC", "ADDC", "Router", "Rim-L1DDC"}) {
+        if (element_name.find("/Rim-L1DDC/") != std::string::npos){
+            return "RimL1DDC";
+        }
+        if (element_name.find("/L1DDC/") != std::string::npos){
+            return "L1DDC";
+        }
+        for (auto&& name : {"ADDC", "Router"}) {
           if (element_name.find(fmt::format("/{}/", name)) != std::string::npos) {
             return name;
           }

@@ -36,7 +36,7 @@ ptree ConfigReaderApi::read(const std::string& element) {
         return readSTGCTP(element);
     } else if (type == "TP") {
         return readTP(element);
-    } else if (type == "L1DDC") {
+    } else if (type == "L1DDC" || type == "RimL1DDC") {
         return readL1DDC(element);
     } else if (type == "ADDC") {
         return readADDC(element, 2);

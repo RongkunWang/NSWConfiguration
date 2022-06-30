@@ -57,6 +57,19 @@ BOOST_AUTO_TEST_CASE(SCAGeoIdentifier_ReturnsCorrectPropertiesL1DDCMMG) {
     BOOST_CHECK_EQUAL(info.isSTGC(), false);
 }
 
+BOOST_AUTO_TEST_CASE(SCAGeoIdentifier_ReturnsCorrectPropertiesRimL1DDC) {
+    const auto info = nsw::SCAGeoIdentifier("sTGC-A/V0/from-SCA/Rim-L1DDC/S12/P/E0");
+
+    BOOST_CHECK(info.detector() == nsw::geoid::Detector::STGC);
+    BOOST_CHECK(info.wheel() == nsw::geoid::Wheel::A);
+    BOOST_CHECK_EQUAL(info.sector(), 12);
+    BOOST_CHECK_EQUAL(info.layer(), nsw::geoid::DoesNotExist);
+    BOOST_CHECK_EQUAL(info.radius(), nsw::geoid::DoesNotExist);
+    BOOST_CHECK_EQUAL(info.resourceType(), "RimL1DDC");
+    BOOST_CHECK_EQUAL(info.isMM(), false);
+    BOOST_CHECK_EQUAL(info.isSTGC(), true);
+}
+
 BOOST_AUTO_TEST_CASE(SCAGeoIdentifier_ReturnsCorrectPropertiesPadTrigger) {
     const auto info = nsw::SCAGeoIdentifier("sTGC-A/V0/SCA/PadTrig/S3/P");
 

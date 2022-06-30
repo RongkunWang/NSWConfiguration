@@ -36,7 +36,7 @@ std::set<std::string> JsonApi::getAllElementNames() const {
 }
 
 std::set<std::string> JsonApi::getAllElementNamesFromJson() const {
-    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTrigger.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*|L1DDC.*|.*RimL1DDC.*", m_config);
+    return nsw::matchRegexpInPtree("MMFE8.*|PFEB.*|SFEB.*|ADDC.*|PadTrigger.*|Router.*|TPCarrier.*|MMTP.*|STGCTP.*|L1DDC.*|RimL1DDC.*", m_config);
 }
 
 
