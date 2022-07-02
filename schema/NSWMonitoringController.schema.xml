@@ -93,7 +93,6 @@
  <class name="NSWMonitoringControllerApplication" description="NSW Configuration Application that configures FE">
   <superclass name="RunControlApplication"/>
   <superclass name="ResourceSet"/>
-  <attribute name="scaServiceName" description="Link to SCA service application" type="string" is-not-null="yes"/>
   <attribute name="monitoringIsServerName" description="Name of IS monitoring server" type="string" is-not-null="yes"/>
  </class>
 

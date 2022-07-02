@@ -132,6 +132,7 @@ namespace nsw {
       m_monitoringControllerSender;  //!< Command sender to monitoring controller application
     IPCPartition m_ipcpartition;
     std::string m_isDbName;  //!< Name of the IS server to retrieve NSW parameters from
+    std::string m_sectorId{};
     std::unique_ptr<ISInfoDictionary> m_isDictionary;
     std::atomic<bool> m_scaAvailable{true};
     std::future<void> m_reconnect;

@@ -88,7 +88,6 @@
  <class name="NSWConfigurationControllerApplication" description="NSW Configuration Application that configures FE">
   <superclass name="RunControlApplication"/>
   <superclass name="ResourceSet"/>
-  <attribute name="scaServiceName" description="Link to SCA service application" type="string" is-not-null="yes"/>
  </class>
 
 </oks-schema>

@@ -17,9 +17,11 @@
 #include <ers/ers.h>
 
 #include "NSWConfiguration/CommandNames.h"
+#include "NSWConfiguration/IsUtility.h"
 #include "NSWConfiguration/NSWConfig.h"
 #include "NSWConfigurationDal/NSWSCAServiceApplication.h"
 #include "NSWConfiguration/Issues.h"
+#include "NSWConfiguration/RcUtility.h"
 
 bool nsw::NSWSCAServiceRc::simulationFromIS()
 {
@@ -46,6 +48,7 @@ void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
   const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
   const auto* app = rcBase.cast<dal::NSWSCAServiceApplication>();
   m_isDbName = app->get_dbISName();
+  m_sectorId = extractSectorIdFromApp(app->UID());
 
   // Retrieve the ipc partition
   m_ipcpartition = rcSvc.getIPCPartition();
@@ -62,7 +65,7 @@ void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
   m_NSWConfig->setCommandSender(
     {app->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID())});
   m_sectorControllerSender =
-    CommandSender(app->get_sectorControllerName(),
+    CommandSender(findSegmentSiblingApp("NSWSectorControllerApplication"),
                   std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
   m_NSWConfig->readConfigurationResource();
   ERS_LOG("End");
@@ -79,7 +82,7 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
   ERS_LOG("User command received: " << commandName);
   const auto notifyScaUnavailable = [this, &commandName]() {
     ERS_INFO("SCA unavailable");
-    m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(false));
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(false));
     if (commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
       m_sectorControllerSender.send(nsw::commands::SCA_DISCONNECTED);
     }
@@ -98,18 +101,18 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     }
   };
   if (commandName == nsw::commands::CONFIGURE) {
-    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->configureRc();
     checkErrorCounter();
   } else if (commandName == nsw::commands::START) {
-    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->startRc();
   } else if (commandName == nsw::commands::STOP) {
-    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->stopRc();
     checkErrorCounter();
   } else if (commandName == nsw::commands::ENABLE_VMM) {
-    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->enableVmmCaptureInputs();
     checkErrorCounter();
   } else if (commandName == nsw::commands::RECOVER_OPC or
@@ -117,7 +120,8 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     notifyScaUnavailable();
   } else if (commandName == nsw::commands::RECONNECT_OPC) {
     if (m_NSWConfig->recoverOpc()) {
-      m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(true));
+      m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"),
+                              ISInfoBool(true));
       m_sectorControllerSender.send(nsw::commands::SCA_RECONNECTED);
     }
   } else if (commandName == nsw::commands::MONITOR) {

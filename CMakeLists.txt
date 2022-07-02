@@ -140,6 +140,10 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigConverter.cpp
                  src/OKSDeviceHierarchy.cpp
                  src/SCAGeoIdentifier.cpp
+                 src/RcUtility.cpp
+                 src/IsUtility.cpp
+  INCLUDE_DIRECTORIES
+                $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES Boost::boost
                  nswconfigdal
                  nswopcclient

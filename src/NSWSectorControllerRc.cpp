@@ -13,9 +13,12 @@
 
 #include "NSWConfiguration/CommandNames.h"
 #include "NSWConfiguration/CommandSender.h"
+#include "NSWConfiguration/IsUtility.h"
 #include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/RcUtility.h"
 #include "NSWConfigurationDal/NSWSectorControllerApplication.h"
-#include "fmt/core.h"
+
+#include <fmt/core.h>
 
 #include <ers/ers.h>
 
@@ -30,17 +33,18 @@ void nsw::NSWSectorControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/
   const auto* app = rcBase.cast<nsw::dal::NSWSectorControllerApplication>();
 
   m_isDbName = app->get_dbISName();
+  m_sectorId = extractSectorIdFromApp(app->UID());
   m_ipcpartition = rcSvc.getIPCPartition();
   m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
 
   m_scaServiceSender =
-    nsw::CommandSender(app->get_scaServiceName(),
+    nsw::CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
   m_configurationControllerSender =
-    nsw::CommandSender(app->get_configurationControllerName(),
+    nsw::CommandSender(findSegmentSiblingApp("NSWConfigurationControllerApplication"),
                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
   m_monitoringControllerSender =
-    nsw::CommandSender(app->get_monitoringControllerName(),
+    nsw::CommandSender(findSegmentSiblingApp("NSWMonitoringControllerApplication"),
                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
 
   m_opcReconnectTimeoutConfigure = std::chrono::seconds{app->get_opcReconnectTimeoutConfigure()};
@@ -104,7 +108,7 @@ void nsw::NSWSectorControllerRc::unconfigure(const daq::rc::TransitionCmd& /*cmd
 void nsw::NSWSectorControllerRc::user(const daq::rc::UserCmd& usrCmd)
 {
   const auto commandName = usrCmd.commandName();
-  ERS_LOG("User command received: " << commandName);
+  ERS_LOG(fmt::format("User command received: {}", commandName));
   if (commandName == nsw::commands::ENABLE_VMM) {
     retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::ENABLE_VMM, 0); },
              m_opcReconnectTimeoutStart,
@@ -159,7 +163,7 @@ bool nsw::NSWSectorControllerRc::recoverOpc(const std::chrono::seconds timeout) 
 
 bool nsw::NSWSectorControllerRc::opcConnected() const
 {
-  const auto key = fmt::format("{}.{}", m_isDbName, "scaAvailable");
+  const auto key = buildScaAvailableKey(m_isDbName, m_sectorId);
   if (m_isDictionary->contains(key)) {
     ISInfoBool value{false};
     m_isDictionary->getValue(key, value);

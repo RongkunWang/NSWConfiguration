@@ -21,6 +21,7 @@
 #include "NSWConfiguration/CommandNames.h"
 #include "NSWConfiguration/CommandSender.h"
 #include "NSWConfiguration/Issues.h"
+#include "NSWConfiguration/RcUtility.h"
 #include "NSWConfiguration/monitoring/Config.h"
 #include "NSWConfiguration/monitoring/IsPublisher.h"
 #include "NSWConfigurationDal/NSWMonitoringControllerApplication.h"
@@ -46,7 +47,7 @@ void nsw::NSWMonitoringControllerRc::configure(const daq::rc::TransitionCmd& /*c
   m_monitoringIsServerName = m_app->get_monitoringIsServerName();
 
   m_scaServiceSender =
-    CommandSender(m_app->get_scaServiceName(),
+    CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
                   std::make_unique<daq::rc::CommandSender>(m_ipcpartition, m_app->UID()));
 
   m_configs = parseMonitoringGroups();

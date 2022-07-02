@@ -89,9 +89,6 @@
   <superclass name="RunControlApplication"/>
   <superclass name="ResourceSet"/>
   <attribute name="dbISName" description="The name of the IS database where parameters should be derived from" type="string" init-value="NswParams" is-not-null="yes"/>
-  <attribute name="scaServiceName" description="Link to SCA service application" type="string" is-not-null="yes"/>
-  <attribute name="configurationControllerName" description="Link to configuration controller application" type="string" is-not-null="yes"/>
-  <attribute name="monitoringControllerName" description="Link to monitoring controller application" type="string" is-not-null="yes"/>
   <attribute name="opcReconnectTimeoutConfigure" description="Timeout of seconds to wait for OPC server reconnection during configuration" type="u64" init-value="180" is-not-null="yes"/>
   <attribute name="opcReconnectAttemptsConfigure" description="Number of attempts to configuration in case of OPC issues" type="u64" init-value="13" is-not-null="yes"/>
   <attribute name="opcReconnectTimeoutStart" description="Timeout of seconds to wait for OPC server reconnection during start" type="u64" init-value="180" is-not-null="yes"/>

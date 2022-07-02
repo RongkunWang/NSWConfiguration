@@ -26,5 +26,11 @@ ERS_DECLARE_ISSUE(nsw,
                   NSWConfigurationError,
                   fmt::format("Configuration of {}% failed. {}", fraction * 100, message),
                   ((double)fraction)((std::string)message))
+ERS_DECLARE_ISSUE(nsw,
+                  NSWAppNotFound,
+                  fmt::format("Did not find application with class {} in segment {}",
+                              className,
+                              segmentName),
+                  ((std::string)className)((std::string)segmentName))
 
 #endif

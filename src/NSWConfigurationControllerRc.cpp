@@ -13,6 +13,7 @@
 #include "NSWConfiguration/CommandNames.h"
 #include "NSWConfiguration/CommandSender.h"
 #include "NSWConfiguration/Issues.h"
+#include "NSWConfiguration/RcUtility.h"
 #include "NSWConfigurationDal/NSWConfigurationControllerApplication.h"
 
 #include <ers/ers.h>
@@ -29,7 +30,7 @@ void nsw::NSWConfigurationControllerRc::configure(const daq::rc::TransitionCmd& 
   m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
 
   m_scaServiceSender =
-    CommandSender(app->get_scaServiceName(),
+    CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
                   std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
 
   ERS_LOG("End");
