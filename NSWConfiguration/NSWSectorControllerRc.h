@@ -89,22 +89,30 @@ namespace nsw {
      */
     void retryOpc(const std::regular_invocable<> auto& func,
                   const std::chrono::seconds timeout,
-                  const int retries) const
+                  const std::uint64_t numAttempts) const
     {
-      for (int counter = 0; counter < retries; ++counter) {
+      for (std::uint64_t counter = 0; counter < numAttempts; ++counter) {
         func();
         if (opcConnected()) {
           break;
         }
-        if (counter == retries - 1) {
-          const auto issue = NSWOpcRetryLimitReached(ERS_HERE, retries);
-          ers::error(issue);
-          throw issue;
+        if (counter == numAttempts - 1) {
+          const auto issue = NSWOpcRetryLimitReached(ERS_HERE, numAttempts);
+          if (m_ignoreOpcRetryError) {
+            ers::error(issue);
+            ers::warning(NSWOpcErrorIgnored(ERS_HERE));
+          } else {
+            ers::fatal(issue);
+          }
         }
         if (not recoverOpc(timeout)) {
           const auto issue = NSWConfigIssue(ERS_HERE, "Cannot recover");
-          ers::error(issue);
-          throw issue;
+          if (m_ignoreOpcTimeoutError) {
+            ers::error(issue);
+            ers::warning(NSWOpcErrorIgnored(ERS_HERE));
+          } else {
+            ers::fatal(issue);
+          }
         }
       }
     }
@@ -127,7 +135,12 @@ namespace nsw {
     std::unique_ptr<ISInfoDictionary> m_isDictionary;
     std::atomic<bool> m_scaAvailable{true};
     std::future<void> m_reconnect;
-    constexpr static int NUM_CONFIG_RETRIES{3};
+    std::chrono::seconds m_opcReconnectTimeoutConfigure{};
+    std::uint64_t m_opcReconnectAttemptLimitConfigure{};
+    std::chrono::seconds m_opcReconnectTimeoutStart{};
+    std::uint64_t m_opcReconnectAttemptLimitStart{};
+    bool m_ignoreOpcTimeoutError{};
+    bool m_ignoreOpcRetryError{};
   };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_

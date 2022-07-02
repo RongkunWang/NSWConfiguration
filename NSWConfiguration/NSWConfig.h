@@ -138,6 +138,13 @@ class NSWConfig {
      */
     void monitor(const std::string& name, ISInfoDictionary* isDict, std::string_view serverName) const;
 
+    /**
+     * \brief Get the fraction of devices that failed to configure
+     *
+     * \return double failed fraction
+     */
+    double getFractionFailed() const { return m_deviceManager.getFractionFailed(); }
+
     hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
     const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
 private:

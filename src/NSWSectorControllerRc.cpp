@@ -43,16 +43,22 @@ void nsw::NSWSectorControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/
     nsw::CommandSender(app->get_monitoringControllerName(),
                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
 
+  m_opcReconnectTimeoutConfigure = std::chrono::seconds{app->get_opcReconnectTimeoutConfigure()};
+  m_opcReconnectAttemptLimitConfigure = app->get_opcReconnectAttemptsConfigure();
+  m_opcReconnectTimeoutStart = std::chrono::seconds{app->get_opcReconnectTimeoutStart()};
+  m_opcReconnectAttemptLimitStart = app->get_opcReconnectAttemptsStart();
+  m_ignoreOpcTimeoutError = app->get_ignoreOpcTimeoutError();
+  m_ignoreOpcRetryError = app->get_ignoreOpcRetryLimitError();
+
   ERS_LOG("End");
 }
 
 void nsw::NSWSectorControllerRc::connect(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  constexpr static auto TIMEOUT{3min};
   retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONFIGURE, 0); },
-           TIMEOUT,
-           NUM_CONFIG_RETRIES);
+           m_opcReconnectTimeoutConfigure,
+           m_opcReconnectAttemptLimitConfigure);
   ERS_LOG("End");
 }
 
@@ -100,11 +106,9 @@ void nsw::NSWSectorControllerRc::user(const daq::rc::UserCmd& usrCmd)
   const auto commandName = usrCmd.commandName();
   ERS_LOG("User command received: " << commandName);
   if (commandName == nsw::commands::ENABLE_VMM) {
-    constexpr static auto TIMEOUT{1min};
-    constexpr static auto RETRIES{2};
     retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::ENABLE_VMM, 0); },
-             TIMEOUT,
-             RETRIES);
+             m_opcReconnectTimeoutStart,
+             m_opcReconnectAttemptLimitStart);
   } else if (commandName == nsw::commands::SCA_DISCONNECTED) {
     if (m_scaAvailable) {
       m_scaAvailable = false;

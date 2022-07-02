@@ -53,6 +53,8 @@ void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
   // Get the IS dictionary for the current partition
   m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
 
+  m_errorThresholdContinue = app->get_errorThresholdContinue();
+  m_errorThresholdRecover = app->get_errorThresholdRecover();
   m_simulation = simulationFromIS();
 
   m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
@@ -82,24 +84,44 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
       m_sectorControllerSender.send(nsw::commands::SCA_DISCONNECTED);
     }
   };
-  try {
-    if (commandName == nsw::commands::CONFIGURE) {
-      m_NSWConfig->configureRc();
-    } else if (commandName == nsw::commands::START) {
-      m_NSWConfig->startRc();
-    } else if (commandName == nsw::commands::STOP) {
-      m_NSWConfig->stopRc();
-    } else if (commandName == nsw::commands::ENABLE_VMM) {
-      m_NSWConfig->enableVmmCaptureInputs();
-    } else if (commandName == nsw::commands::RECOVER_OPC or
-               commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
+  const auto checkErrorCounter = [this, &notifyScaUnavailable]() {
+    const auto failedFraction = m_NSWConfig->getFractionFailed();
+    if (failedFraction == 0.) {
+      ERS_LOG("All devices configured correctly");
+    } else if (failedFraction <= m_errorThresholdContinue) {
+      ers::warning(NSWConfigurationError(ERS_HERE, failedFraction, "Continuing anyways"));
+    } else if (failedFraction <= m_errorThresholdRecover) {
+      ers::warning(NSWConfigurationError(ERS_HERE, failedFraction, "Trying to recover OPC"));
       notifyScaUnavailable();
-    } else if (commandName == nsw::commands::RECONNECT_OPC) {
-      if (m_NSWConfig->recoverOpc()) {
-        m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(true));
-        m_sectorControllerSender.send(nsw::commands::SCA_RECONNECTED);
-      }
-    } else if (commandName == nsw::commands::MONITOR) {
+    } else {
+      ers::fatal(NSWConfigurationError(ERS_HERE, failedFraction, "Failing"));
+    }
+  };
+  if (commandName == nsw::commands::CONFIGURE) {
+    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_NSWConfig->configureRc();
+    checkErrorCounter();
+  } else if (commandName == nsw::commands::START) {
+    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_NSWConfig->startRc();
+  } else if (commandName == nsw::commands::STOP) {
+    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_NSWConfig->stopRc();
+    checkErrorCounter();
+  } else if (commandName == nsw::commands::ENABLE_VMM) {
+    m_isDictionary->checkin(fmt::format("{}.{}.{}", m_isDbName, m_sectorId, "scaAvailable"), ISInfoBool(true));
+    m_NSWConfig->enableVmmCaptureInputs();
+    checkErrorCounter();
+  } else if (commandName == nsw::commands::RECOVER_OPC or
+             commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
+    notifyScaUnavailable();
+  } else if (commandName == nsw::commands::RECONNECT_OPC) {
+    if (m_NSWConfig->recoverOpc()) {
+      m_isDictionary->checkin(fmt::format("{}.{}", m_isDbName, "scaAvailable"), ISInfoBool(true));
+      m_sectorControllerSender.send(nsw::commands::SCA_RECONNECTED);
+    }
+  } else if (commandName == nsw::commands::MONITOR) {
+    try {
       if (std::size(usrCmd.commandParameters()) != 1) {
         ers::warning(nsw::NSWInvalidCommand(
           ERS_HERE,
@@ -108,26 +130,25 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
                       usrCmd.toString())));
       }
       if (m_monitoringIsServerName.empty()) {
-        ers::warning(nsw::NSWConfigIssue(ERS_HERE, "Requested monitoring but did not set IS server before"));
+        ers::warning(
+          nsw::NSWConfigIssue(ERS_HERE, "Requested monitoring but did not set IS server before"));
       } else {
         m_NSWConfig->monitor(
           usrCmd.commandParameters().at(0), m_isDictionary.get(), m_monitoringIsServerName);
       }
-    } else if (commandName == nsw::commands::MON_IS_SERVER_NAME) {
-      if (std::size(usrCmd.commandParameters()) != 1) {
-        ers::warning(nsw::NSWInvalidCommand(
-          ERS_HERE, "Recieved command to set monitoring IS server name but did not get a name"));
-      } else {
-        m_monitoringIsServerName = usrCmd.commandParameters().at(0);
-      }
-    } else {
-      ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
+    } catch (const OpcReadWriteIssue&) {
+      notifyScaUnavailable();
+    } catch (const OpcConnectionIssue&) {
+      notifyScaUnavailable();
     }
-  } catch (const OpcReadWriteIssue&) {
-    notifyScaUnavailable();
-  } catch (const OpcConnectionIssue&) {
-    notifyScaUnavailable();
-  } catch (const NSWConfigurationOpcError&) {
-    notifyScaUnavailable();
+  } else if (commandName == nsw::commands::MON_IS_SERVER_NAME) {
+    if (std::size(usrCmd.commandParameters()) != 1) {
+      ers::warning(nsw::NSWInvalidCommand(
+        ERS_HERE, "Recieved command to set monitoring IS server name but did not get a name"));
+    } else {
+      m_monitoringIsServerName = usrCmd.commandParameters().at(0);
+    }
+  } else {
+    ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
   }
 }

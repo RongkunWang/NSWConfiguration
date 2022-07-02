@@ -48,7 +48,7 @@ void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
   m_tpCarriers.emplace_back(m_opcManager, config);
 }
 
-void nsw::hw::DeviceManager::configure(const std::span<const Options> options) const
+void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
 {
   const auto conf = [this](const auto& devices, const std::string& deviceName, const auto... params) {
     ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
@@ -57,11 +57,12 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options) c
       [&params...](const auto& device) { device.writeConfiguration(params...); },
       [](const auto& ex) {
         nsw::NSWHWConfigIssue issue(
-          ERS_HERE, fmt::format("Configuration of device failed due to: {}", ex.what()));
+          ERS_HERE, fmt::format("Configuration of device failed due to non OPC related issue: {}", ex.what()));
         ers::error(issue);
       });
   };
 
+  m_configurationErrorCounter = 0;
   conf(
     m_febs, "FEB",
     std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
@@ -85,8 +86,9 @@ void nsw::hw::DeviceManager::connect() const
   }
 }
 
-void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
+void nsw::hw::DeviceManager::enableVmmCaptureInputs()
 {
+  m_configurationErrorCounter = 0;
   applyFunc(
     m_febs,
     [](const auto& device) { device.getRoc().enableVmmCaptureInputs(); },
@@ -97,8 +99,9 @@ void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
     });
 }
 
-void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
+void nsw::hw::DeviceManager::disableVmmCaptureInputs()
 {
+  m_configurationErrorCounter = 0;
   applyFunc(
     m_febs,
     [](const auto& device) { device.getRoc().disableVmmCaptureInputs(); },
@@ -109,7 +112,7 @@ void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
     });
 }
 
-void nsw::hw::DeviceManager::toggleIdleStateHigh() const
+void nsw::hw::DeviceManager::toggleIdleStateHigh()
 {
   applyFunc(
     m_padTriggers,
