@@ -357,3 +357,8 @@ std::uint8_t nsw::hw::ROC::getRegAddress(const std::string& regName, const bool 
   return static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_DIGITAL_REGISTERS),
                                                   ROC_DIGITAL_REGISTERS.find(regName)));
 }
+
+bool nsw::hw::ROC::readScaOnline() const
+{
+  return getConnection()->readScaOnline(getScaAddress());
+}

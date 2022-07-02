@@ -159,6 +159,11 @@ namespace nsw::hw {
     [[nodiscard]] const I2cMasterConfig& getConfigDigital() const { return m_rocDigital; } //!< \overload
     // clang-format on
 
+    /**
+     * \brief Read SCA online status
+     */
+    bool readScaOnline() const;
+
   private:
     /**
      * \brief Read a status register
