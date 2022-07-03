@@ -79,7 +79,7 @@ void nsw::OpcManager::pingConnections(std::future<void>&& stop) const
                  PING_INTERVAL - (std::chrono::high_resolution_clock::now() - timeBefore)));
     ERS_DEBUG(2, fmt::format("Sleeping for {}", std::chrono::duration_cast<std::chrono::milliseconds>(sleepTime)));
     if (sleepTime == 0s) {
-      ers::warning(OpcManagerPingFrequency(ERS_HERE));
+      ers::log(OpcManagerPingFrequency(ERS_HERE));
     }
     stop.wait_for(sleepTime);
   }
