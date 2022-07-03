@@ -4,13 +4,16 @@
 #include "NSWConfiguration/Constants.h"
 #include <cstddef>
 #include <string>
+#include <fmt/core.h>
 
 #include <ers/ers.h>
 
 ERS_DECLARE_ISSUE(nsw, NSWSCAGeoIdentifierIssue, message, ((std::string)message))
 ERS_DECLARE_ISSUE(nsw,
                   NSWNoGeoId,
-                  "Returning value 'unknown/doesnotexist' since node ID is not a geo ID", )
+                  fmt::format("Returning value 'unknown/doesnotexist' since node ID is not a geo ID: {}", scaAddress),
+                  ((std::string)scaAddress)
+                  )
 
 namespace nsw {
   /**

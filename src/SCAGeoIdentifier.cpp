@@ -132,7 +132,7 @@ bool nsw::SCAGeoIdentifier::radiusRequired() const
 void nsw::SCAGeoIdentifier::warnNoGeoId() const
 {
   if (m_noGeoId) {
-    ers::warning(NSWNoGeoId(ERS_HERE));
+    ers::warning(NSWNoGeoId(ERS_HERE, m_scaAddress));
   }
 }
 
