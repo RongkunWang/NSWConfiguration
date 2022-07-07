@@ -12,6 +12,12 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 
+ERS_DECLARE_ISSUE(nsw,
+                  VMMConfigurationIssue,
+                  fmt::format("Configuration for VMM {} does not match the written configuration", vmmName),
+                  ((std::string)vmmName)
+                  )
+
 namespace nsw::hw {
   /**
    * \brief Class representing a VMM
@@ -35,7 +41,7 @@ namespace nsw::hw {
      *
      * \returns a map of address to register value
      */
-    [[nodiscard]] std::map<std::uint8_t, std::vector<std::uint8_t>> readConfiguration() const;
+    [[nodiscard]] std::vector<std::uint8_t> readConfiguration() const;
 
     /**
      * \brief Write the full VMM configuration
@@ -51,6 +57,14 @@ namespace nsw::hw {
      * \param resetVmm Reset the VMM
      */
     void writeConfiguration(const VMMConfig& config, bool resetVmm = false) const;
+
+    /**
+     * \brief Check if the written configuration matches the send configuration
+     *
+     * \return true Does match
+     * \return false Does not match
+     */
+    [[nodiscard]] bool validateConfiguration() const;
 
     /**
      * \brief Sampling the selected monitoring output of the VMM by the PDO channel

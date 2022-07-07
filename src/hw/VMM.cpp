@@ -3,8 +3,11 @@
 #include <iterator>
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 
 #include <fmt/core.h>
+
+#include <ers/ers.h>
 
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/hw/OpcManager.h"
@@ -60,11 +63,37 @@ void nsw::hw::VMM::writeConfiguration(const VMMConfig& config, bool resetVmm) co
 
   // Set Vmm Acquisition Enable
   nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
+
+  if (not validateConfiguration()) {
+    ers::error(VMMConfigurationIssue(ERS_HERE, getScaAddress()));
+  }
 }
 
-std::map<std::uint8_t, std::vector<std::uint8_t>> nsw::hw::VMM::readConfiguration() const
+std::vector<std::uint8_t> nsw::hw::VMM::readConfiguration() const
 {
-  throw std::logic_error("Not implemented");
+  // Set Vmm Configuration Enable
+  constexpr std::uint8_t VMM_ACC_DISABLE = 0xff;
+  constexpr std::uint8_t VMM_ACC_ENABLE = 0x00;
+
+  // Set Vmm Acquisition Disable
+  const auto scaRocVmmReadoutAddress =
+    fmt::format("{}.{}.reg122vmmEnaInv", getScaAddress(), m_rocAnalogName);
+  nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_DISABLE});
+
+  auto result =
+    nsw::hw::SCA::readSpi(getConnection(),
+                          fmt::format("{}.spi.{}", getScaAddress(), m_config.getName()),
+                          std::size(m_config.getByteVector()));
+
+  // Set Vmm Acquisition Enable
+  nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
+
+  return result;
+}
+
+bool nsw::hw::VMM::validateConfiguration() const
+{
+  return std::ranges::equal(m_config.getByteVector(), readConfiguration());
 }
 
 std::vector<std::uint16_t> nsw::hw::VMM::samplePdoMonitoringOutput(const std::size_t nSamples) const
