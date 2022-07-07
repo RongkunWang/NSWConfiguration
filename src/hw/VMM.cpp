@@ -1,3 +1,4 @@
+
 #include "NSWConfiguration/hw/VMM.h"
 
 #include <iterator>
@@ -6,6 +7,7 @@
 #include <algorithm>
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 #include <ers/ers.h>
 
@@ -64,9 +66,9 @@ void nsw::hw::VMM::writeConfiguration(const VMMConfig& config, bool resetVmm) co
   // Set Vmm Acquisition Enable
   nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
 
-  if (not validateConfiguration()) {
-    ers::error(VMMConfigurationIssue(ERS_HERE, getScaAddress()));
-  }
+  // if (not validateConfiguration()) {
+  //   ers::error(VMMConfigurationIssue(ERS_HERE, fmt::format("{} {}", getScaAddress(), m_vmmId)));
+  // }
 }
 
 std::vector<std::uint8_t> nsw::hw::VMM::readConfiguration() const
@@ -83,7 +85,7 @@ std::vector<std::uint8_t> nsw::hw::VMM::readConfiguration() const
   auto result =
     nsw::hw::SCA::readSpi(getConnection(),
                           fmt::format("{}.spi.{}", getScaAddress(), m_config.getName()),
-                          std::size(m_config.getByteVector()));
+                          std::size(m_config.getByteVector()) / 12);
 
   // Set Vmm Acquisition Enable
   nsw::hw::SCA::sendI2c(getConnection(), scaRocVmmReadoutAddress, {VMM_ACC_ENABLE});
@@ -93,7 +95,14 @@ std::vector<std::uint8_t> nsw::hw::VMM::readConfiguration() const
 
 bool nsw::hw::VMM::validateConfiguration() const
 {
-  return std::ranges::equal(m_config.getByteVector(), readConfiguration());
+  const auto read = readConfiguration();
+  const auto result = std::ranges::equal(m_config.getByteVector(), read);
+  if (not result) {
+  ERS_INFO(fmt::format("Read back {}", read));
+  ERS_INFO(fmt::format("Expected {}", m_config.getByteVector()));
+  ERS_INFO(fmt::format("Read twice {}", readConfiguration()));
+  }
+  return result;
 }
 
 std::vector<std::uint16_t> nsw::hw::VMM::samplePdoMonitoringOutput(const std::size_t nSamples) const
