@@ -55,8 +55,8 @@ nsw::L1DDCConfig::L1DDCConfig(const nsw::GBTxSingleConfig& config) :
     // It only configures gbtx0
 
 
-    if (m_boardType=="mmg"||m_boardType=="pfeb"||m_boardType=="rim"){
-        m_GBTxContainers.emplace_back(GBTxConfig(),true,true);
+    if (m_boardType=="mmg"||m_boardType=="pfeb"||m_boardType=="sfeb"||m_boardType=="rim"){
+        m_GBTxContainers.emplace_back(GBTxConfig(),true,true,false);
         getGBTx(0).setType(m_boardType);
         getGBTx(0).setConfigFromFile(config.iPath);
         getGBTx(0).setActive();
@@ -101,7 +101,7 @@ void nsw::L1DDCConfig::initGBTxs(const boost::property_tree::ptree& config){
         std::string configureGBTxSettingName = fmt::format("configureGBTx{}",gbtxId);
         std::string ecElinkTrainSettingName = fmt::format("ecElinkTrain{}",gbtxId);
         ERS_DEBUG(4,fmt::format("configureGBTxSettingName={}, ecElinkTrainSettingName={}",configureGBTxSettingName,ecElinkTrainSettingName));
-        m_GBTxContainers.emplace_back(GBTxConfig(),config.get(configureGBTxSettingName,false),config.get(ecElinkTrainSettingName,false));
+        m_GBTxContainers.emplace_back(GBTxConfig(),config.get(configureGBTxSettingName,false),config.get(ecElinkTrainSettingName,false),false);
         ERS_DEBUG(4,"Done");
         if (!m_GBTxContainers.at(gbtxId).configureGBTx) continue;
         initGBTx(config,gbtxId);

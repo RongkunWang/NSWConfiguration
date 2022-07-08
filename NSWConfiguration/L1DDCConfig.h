@@ -30,8 +30,9 @@ struct GBTxContainer {
     GBTxConfig GBTx;
     bool configureGBTx{};
     bool ecElinkTrain{};
-    GBTxContainer(GBTxConfig gbtx, const bool configure, const bool ecTrain) 
-        : GBTx(gbtx), configureGBTx(configure), ecElinkTrain(ecTrain)
+    bool readGBTx{};
+    GBTxContainer(GBTxConfig gbtx, const bool configure, const bool ecTrain, const bool read) 
+        : GBTx(gbtx), configureGBTx(configure), ecElinkTrain(ecTrain), readGBTx(read)
     {}
 };
 
@@ -150,6 +151,29 @@ class L1DDCConfig {
     bool getConfigureGBTx(const std::size_t gbtxId) const {return (gbtxId<getNumberGBTx())?m_GBTxContainers.at(gbtxId).configureGBTx:false;}
 
     /**
+     * \brief Set whether to config gbtx
+     *
+     * \param gbtxId GBTx ID
+     * \param doConfig
+     */
+    void setConfigureGBTx(const std::size_t gbtxId, const bool doConfig) {if (gbtxId<getNumberGBTx()) m_GBTxContainers.at(gbtxId).configureGBTx=doConfig;}
+
+    /**
+     * \brief Set readback
+     *
+     * \param gbtxId GBTx ID
+     * \param doConfig
+     */
+    void setReadbackGBTx(const std::size_t gbtxId, const bool doRead) {if (gbtxId<getNumberGBTx()) m_GBTxContainers.at(gbtxId).readGBTx=doRead;}
+
+    /**
+     * \brief Get readback
+     *
+     * \param gbtxId GBTx ID
+     */
+    bool getReadbackGBTx(const std::size_t gbtxId) const {gbtxId<getNumberGBTx()?m_GBTxContainers.at(gbtxId).readGBTx:false;}
+
+    /**
      * \brief Get the IP address of the opc server
      *
      * \return std::string opc IP address
@@ -192,7 +216,14 @@ class L1DDCConfig {
     int i2cDelay() const {return m_i2cDelay;}
 
     /**
-     * \brief Return whether to train the GBTx phase alignment has been configured. Can be "mmg", "stg", or "none"
+     * \brief Set whether to train the GBTx phase alignment has been configured.
+     *
+     * \return bool train setting
+     */
+    void setTrainGBTxPhaseAlignment(const bool doTraining) {m_trainGBTxPhaseAlignment=doTraining;}
+
+    /**
+     * \brief Return whether to train the GBTx phase alignment has been configured.
      *
      * \return bool train setting
      */

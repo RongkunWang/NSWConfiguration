@@ -497,6 +497,23 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
         }
     }
 
+    // Readback
+    std::vector<std::size_t> GBTxToRead;
+    if (l1ddc.getReadbackGBTx(0)) GBTxToRead.push_back(0);
+    if (l1ddc.getReadbackGBTx(1)) GBTxToRead.push_back(1);
+    if (l1ddc.getReadbackGBTx(2)) GBTxToRead.push_back(2);
+    for (std::size_t gbtxId : GBTxToRead){
+        std::vector<uint8_t> currentConfig;
+        if (gbtxId==0){
+            currentConfig = readIcConfigGBTx(l1ddc,ich);
+        }
+        else{
+            currentConfig = readI2cConfigGBTx(l1ddc,gbtxId);
+        }
+        ERS_DEBUG(2, fmt::format("\n\nConfiguration READ from GBTx{} on {}:{}",gbtxId,l1ddc.getName(),nsw::getPrintableGbtxConfig(currentConfig)));
+    }
+
+
     // Save phases to output file
     if (l1ddc.getGBTxPhaseOutputDBPath()!=""){
         std::string outputFileName = fmt::format("{}/{}.json",l1ddc.getGBTxPhaseOutputDBPath(),l1ddc.getNodeName());
