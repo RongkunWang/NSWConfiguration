@@ -171,7 +171,7 @@ class L1DDCConfig {
      *
      * \param gbtxId GBTx ID
      */
-    bool getReadbackGBTx(const std::size_t gbtxId) const {gbtxId<getNumberGBTx()?m_GBTxContainers.at(gbtxId).readGBTx:false;}
+    bool getReadbackGBTx(const std::size_t gbtxId) const {return gbtxId<getNumberGBTx()?m_GBTxContainers.at(gbtxId).readGBTx:false;}
 
     /**
      * \brief Get the IP address of the opc server

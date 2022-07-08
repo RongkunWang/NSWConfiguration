@@ -64,7 +64,7 @@ Args parseCommandLineArgs(const int argc, char* argv[]) {
       // Modes
       ("write,w",      po::bool_switch(&fwrite),                "Write configuration")
       ("read,r",       po::bool_switch(&fread),                 "Read configuration")
-      ("train,t",      po::bool_switch(&ftrain),                "Write configuration and train GBTx e-links (only for bitmap files)")
+      ("train,t",      po::bool_switch(&ftrain),                "Write configuration and train GBTx e-links")
       ("simulation,s", po::bool_switch(&fsimulation),           "Simulation mode: load configuration file to check for errors")
       // Config file
       ("config,c",     po::value<std::string>()->required(),    "REQUIRED configuration file. \nEither a JSON file (IC and I2C GBTx), or a line separated bitmap (IC GBTx only)")
@@ -93,7 +93,7 @@ Args parseCommandLineArgs(const int argc, char* argv[]) {
     if (args.iPath.find("json")!=string::npos){
         cout<<"Config json\n";
         // check that only json arguements are provided
-        if (vm.count("board") || vm.count("toflx") || vm.count("tohost") || vm.count("sleep") || ftrain ){
+        if (vm.count("board") || vm.count("toflx") || vm.count("tohost") || vm.count("sleep") ){
             cout<<"You provided bitmap style options for a JSON configuration file. Exiting \n";
             std::exit(0);
         }
