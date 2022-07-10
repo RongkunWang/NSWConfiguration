@@ -56,8 +56,7 @@ void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
 
     // check and complain
     if (val != value) {
-      const std::string msg = "Found mismatch in repeater readback";
-      nsw::PadTriggerReadbackMismatch issue(ERS_HERE, msg.c_str());
+      nsw::PadTriggerReadbackMismatch issue(ERS_HERE, "Repeater");
       ers::error(issue);
     }
 
@@ -87,8 +86,7 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
       // check and complain
       if (vttx_data != val) {
-        const std::string msg = "Found mismatch in VTTx readback";
-        nsw::PadTriggerReadbackMismatch issue(ERS_HERE, msg.c_str());
+        nsw::PadTriggerReadbackMismatch issue(ERS_HERE, "VTTx");
         ers::error(issue);
       }
 
@@ -114,9 +112,10 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
 void nsw::hw::PadTrigger::writeFPGAConfiguration() const
 {
   if (not ConfigFPGA()) {
-    ERS_INFO(fmt::format("Skipping configuration of FPGA of {}", m_name));
+    ERS_INFO(fmt::format("Skipping configuration of FPGA registers of {}", m_name));
     return;
   }
+  ERS_INFO(fmt::format("Writing FPGA registers of {}", m_name));
 
   const auto& fpga = getFpga();
 
@@ -127,9 +126,9 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
     const auto value = std::stoul(value_str, nullptr, nsw::BASE_BIN);
 
     // write
-    ERS_INFO(fmt::format("{}: writing to {} ({:#02x}) with {:#08x}", m_name, rname, addr, value));
+    ERS_LOG(fmt::format("{}: writing to {} ({:#04x}) with {:#010x}", m_name, rname, addr, value));
     try {
-      writeFPGARegister(addr, value);
+      writeAndReadbackFPGARegister(addr, value);
     } catch (const std::exception & ex) {
       if (addr == nsw::padtrigger::REG_CONTROL) {
         throw;
@@ -137,25 +136,11 @@ void nsw::hw::PadTrigger::writeFPGAConfiguration() const
         const auto msg = fmt::format(
           "{}: Failed to write to {}. This usually indicates an older firmware version. Skipping!",
           m_name, rname);
-        nsw::PadTriggerConfigError issue(ERS_HERE, msg.c_str());
-        ers::warning(issue);
+        ers::warning(nsw::PadTriggerConfigError(ERS_HERE, msg));
         break;
       }
     }
-
-    // readback
-    const auto val = readFPGARegister(addr);
-    ERS_INFO(fmt::format("{}: readback of {:#02x} gives {:#08x}", m_name, addr, val));
-
-    // compare
-    if (val != value) {
-      const std::string msg = "Found mismatch in FPGA reg readback";
-      nsw::PadTriggerReadbackMismatch issue(ERS_HERE, msg.c_str());
-      ers::error(issue);
-    }
-
   }
-
 }
 
 void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
@@ -243,6 +228,16 @@ void nsw::hw::PadTrigger::writeFPGARegister(const std::uint8_t regAddress,
   payload.insert(std::end(payload), std::begin(data), std::end(data));
 
   nsw::hw::SCA::sendI2cRaw(getConnection(), m_scaAddressFPGA, payload.data(), payload.size());
+}
+
+void nsw::hw::PadTrigger::writeAndReadbackFPGARegister(const std::uint8_t regAddress,
+                                                       const std::uint32_t value) const
+{
+  writeFPGARegister(regAddress, value);
+  const auto val = readFPGARegister(regAddress);
+  if (val != value) {
+    ers::error(nsw::PadTriggerReadbackMismatch(ERS_HERE, "FPGA"));
+  }
 }
 
 void nsw::hw::PadTrigger::writePFEBDelay(const DelayVector& values) const
@@ -590,8 +585,7 @@ std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& nam
     const auto addr_str = name.substr(std::size_t{0}, name.find("_"));
     addr = std::stoul(addr_str, nullptr, nsw::BASE_HEX);
   } catch (std::exception & ex) {
-    const auto msg = fmt::format("Cannot get address from: {}", name);
-    nsw::PadTriggerConfigError issue(ERS_HERE, msg.c_str());
+    nsw::PadTriggerConfigError issue(ERS_HERE, fmt::format("Cannot get address from: {}", name));
     ers::error(issue);
     throw issue;
   }

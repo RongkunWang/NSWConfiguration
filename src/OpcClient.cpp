@@ -391,11 +391,21 @@ void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string&
         ERS_DEBUG(4, "Node: " << node << ", Data size: " << size
                   << ", data[0]: " << static_cast<unsigned>(bytes.get()[0]));
 
-        try {
+        bool success{ false };
+        std::size_t retry{ 0 };
+        while (not success and retry < RETRY_TWICE) {
+          try {
             fpga.program(bs);
-        } catch (const std::exception& e) {
-            nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't program FPGA: {}", e.what()));
-            ers::error(issue);
+            success = true;
+          } catch (const std::exception& ex) {
+            retry++;
+            ERS_LOG(fmt::format("Attempt {}/{} failed: {}", retry, RETRY_TWICE, ex.what()));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+          }
+        }
+        if (not success) {
+          nsw::OpcClientIssue issue(ERS_HERE, fmt::format("FPGA programming failed"));
+          ers::error(issue);
         }
     } else {  // File doesn't exist?
       nsw::OpcClientIssue issue(ERS_HERE, fmt::format("Can't open bitfile: {}", bitfile_path));

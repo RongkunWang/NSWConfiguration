@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include <fmt/core.h>
 #include <ers/Issue.h>
 
 #include "NSWConfiguration/I2cMasterConfig.h"
@@ -25,13 +26,13 @@ ERS_DECLARE_ISSUE(nsw,
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfigError,
                   message,
-                  ((const char *)message)
+                  ((std::string)message)
                   )
 
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerReadbackMismatch,
-                  message,
-                  ((const char *)message)
+                  fmt::format("Found mismatch in {} readback", target),
+                  ((std::string)target)
                   )
 
 namespace nsw::hw {
@@ -91,6 +92,9 @@ namespace nsw::hw {
 
     /**
      * \brief Write the PadTrigger FPGA configuration
+     * \throws exception when writing to register 0x0 fails,
+     *   since this register is present in all firmware versions.
+     *   Does not throw exception if any other register write fails.
      */
     void writeFPGAConfiguration() const;
 
@@ -120,6 +124,15 @@ namespace nsw::hw {
      */
     void writeFPGARegister(std::uint8_t regAddress,
                            std::uint32_t value) const;
+
+    /**
+     * \brief Write and readback a value to a pad trigger FPGA register address
+     *
+     * \param regAddress is the address of the register
+     * \param value is the value to be written
+     */
+    void writeAndReadbackFPGARegister(std::uint8_t regAddress,
+                                      std::uint32_t value) const;
 
     /**
      * \brief Write a value to a pad trigger VTTx register address
