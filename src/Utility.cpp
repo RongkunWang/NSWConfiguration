@@ -84,7 +84,7 @@ std::string nsw::getElementType(const std::string& element_name) {
     // Check whether it is a geopraphical ID
     if (element_name.find('/') != std::string::npos) {
         // TODO: Add missing devices (TP, TP Carrier)
-        if (element_name.find(fmt::format("/PadTrig/", element_name)) != std::string::npos) {
+        if (element_name.find("/PadTrig/") != std::string::npos) {
           return "PadTrigger";
         }
         if (element_name.find("/Rim-L1DDC/") != std::string::npos){
