@@ -47,6 +47,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
          default_value(false), "Option to send Pad Trigger control register (built from json)")
+        ("toggleGtReset", po::bool_switch()->
+         default_value(false), "Option to toggle the Pad Trigger GT resets")
         ("toggleIdleState", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger idle state in the control register")
         ("read,r", po::bool_switch()->
@@ -65,6 +67,7 @@ int main(int argc, const char *argv[])
     const auto do_config       = vm["do_config"]      .as<bool>();
     const auto do_control      = vm["do_control"]     .as<bool>();
     const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
+    const auto toggleGtReset   = vm["toggleGtReset"]  .as<bool>();
     const auto toggleIdleState = vm["toggleIdleState"].as<bool>();
     const auto read            = vm["read"]           .as<bool>();
     if (vm.count("help") > 0) {
@@ -162,6 +165,18 @@ int main(int argc, const char *argv[])
     if (do_control) {
       for (const auto& hw: hws) {
         hw.writeFPGAConfiguration();
+      }
+    }
+
+    // GT reset
+    if (toggleGtReset) {
+      for (const auto& hw: hws) {
+        if (not hw.GtReset()) {
+          throw std::runtime_error(
+            "You asked for toggleGtReset, but PT has GtReset=False! Something is wrong."
+          );
+        }
+        hw.toggleGtReset();
       }
     }
 

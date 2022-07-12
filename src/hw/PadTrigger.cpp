@@ -27,6 +27,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   writeVTTxConfiguration();
   writeJTAGBitfileConfiguration();
   writeFPGAConfiguration();
+  toggleGtReset();
   toggleIdleState();
   deskewPFEBs();
 }
@@ -166,6 +167,21 @@ void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
   writeFPGARegister(addr, value);
 }
 
+void nsw::hw::PadTrigger::toggleGtReset() const
+{
+  if (not GtReset()) {
+    ERS_INFO(fmt::format("Skipping toggleGtReset of {}", m_name));
+    return;
+  }
+  ERS_INFO(fmt::format("toggleGtReset of {}", m_name));
+  writeGtResetDisable();
+  writeGtResetEnable();
+  writeGtResetDisable();
+  nsw::snooze();
+  const auto pfeb_status = readFPGARegister(nsw::padtrigger::REG_PFEB_STATUS);
+  ERS_INFO(fmt::format("{} PFEB status: 0x{:08x}", m_name, pfeb_status));
+}
+
 void nsw::hw::PadTrigger::toggleIdleState() const
 {
   if (not Toggle()) {
@@ -173,9 +189,9 @@ void nsw::hw::PadTrigger::toggleIdleState() const
     return;
   }
   ERS_INFO(fmt::format("toggleIdleState of {}", m_name));
-  writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
-  writeControlSubRegister("conf_startIdleState", std::uint32_t{true});
-  writeControlSubRegister("conf_startIdleState", std::uint32_t{false});
+  writeStartIdleStateDisable();
+  writeStartIdleStateEnable();
+  writeStartIdleStateDisable();
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const

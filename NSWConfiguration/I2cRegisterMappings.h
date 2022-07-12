@@ -1360,6 +1360,14 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"IdleState", 1},
       {"pfeb_hit_rate", 16},
     }},
+  {"00E_gt_reset", {
+      {"NOT_USED", 8},
+      {"reset", 24},
+    }},
+  {"00F_pfeb_status_READONLY", {
+      {"NOT_USED", 8},
+      {"status", 24},
+    }},
 };
 
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_

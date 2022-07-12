@@ -370,6 +370,11 @@ namespace nsw {
     constexpr std::uint8_t REG_MASK_TO_0        = 0x0B;
     constexpr std::uint8_t REG_MASK_TO_1        = 0x0C;
     constexpr std::uint8_t REG_STATUS2          = 0x0D;
+    constexpr std::uint8_t REG_GT_RESET         = 0x0E;
+    constexpr std::uint8_t REG_PFEB_STATUS      = 0x0F;
+
+    constexpr std::uint32_t GT_RESET_ENABLE  = 0x00FFFFFF;
+    constexpr std::uint32_t GT_RESET_DISABLE = 0x00000000;
     constexpr std::array<std::string_view, NUM_PFEBS> ORDERED_PFEBS = {
       "PFEB_L1Q1_IP", "PFEB_L2Q1_IP", "PFEB_L3Q1_IP", "PFEB_L4Q1_IP",
       "PFEB_L1Q1_HO", "PFEB_L2Q1_HO", "PFEB_L3Q1_HO", "PFEB_L4Q1_HO",
