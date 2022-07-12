@@ -179,6 +179,11 @@ namespace nsw::hw {
     { writeSubRegister("000_control_reg", subreg, subval); }
 
     /**
+     * \brief Toggle (write) the GT reset from enabled to disabled
+     */
+    void toggleGtReset() const;
+
+    /**
      * \brief Toggle (write) the idle state from 1 to 0
      */
     void toggleIdleState() const;
@@ -206,6 +211,18 @@ namespace nsw::hw {
      */
     void writeStartIdleStateDisable() const
     { writeControlSubRegister("conf_startIdleState", std::uint32_t{false}); };
+
+    /**
+     * \brief Enable the pad trigger GT reset
+     */
+    void writeGtResetEnable() const
+    { writeFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_ENABLE); }
+
+    /**
+     * \brief Disable the pad trigger GT reset
+     */
+    void writeGtResetDisable() const
+    { writeFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_DISABLE); }
 
     /**
      * \brief Write readout BC offset (latency)
@@ -445,6 +462,13 @@ namespace nsw::hw {
     [[nodiscard]]
     bool ConfigVTTx() const
     { return m_ptree.get<bool>("ConfigVTTx"); };
+
+    /**
+     * \brief Get the "GtReset" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool GtReset() const
+    { return m_ptree.get("GtReset", false); };
 
     /**
      * \brief Get the "Toggle" provided by the user configuration
