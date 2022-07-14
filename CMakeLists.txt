@@ -25,6 +25,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
+                  schema/NSWRecoveryController.schema.xml
+                  schema/swrod.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
   INCLUDE NSWConfigurationDal
@@ -164,6 +166,15 @@ tdaq_add_library(nswhwinterface
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
+tdaq_add_library(nswrecovery
+                 src/recovery/ElinkAnalyzer.cpp
+  INCLUDE_DIRECTORIES
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>
+  LINK_LIBRARIES tdaq::swrod_ISINFO Boost::boost
+    PRIVATE
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
+
 tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cpp
   INCLUDE_DIRECTORIES
                  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>
@@ -171,7 +182,15 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
+tdaq_add_executable(NSWRecoveryControllerRc_main app/NSWRecoveryControllerRc_main.cpp src/NSWRecoveryControllerRc.cpp
+  LINK_LIBRARIES nswconfig nswrecovery tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
 tdaq_add_schema(schema/NSWConfig.schema.xml)
+tdaq_add_schema(schema/NSWRecoveryController.schema.xml)
+
+tdaq_add_is_schema(info/NswMonitoring.schema.xml)
 
 # Testing
 
