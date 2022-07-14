@@ -12,10 +12,14 @@ nsw::ElinkAnalyzer::ElinkAnalyzer(const double thresholdPercentage,
 {}
 
 std::unordered_set<std::uint64_t> nsw::ElinkAnalyzer::analyze(
-  const std::vector<swrod::LinkStatistics>& data)
+  const std::vector<swrod::LinkStatistics>& data,
+  const std::vector<std::uint64_t>& disabled)
 {
   // Filter disabled links
-
+  std::vector<swrod::LinkStatistics> filtered{};
+  std::ranges::copy_if(data, std::back_inserter(filtered), [disabled](auto val) {
+    return std::ranges::find(disabled, val.FID) != std::cend(disabled);
+  });
   if (m_impl.skip(data)) {
     m_impl.setPrevious(data);
     return {};

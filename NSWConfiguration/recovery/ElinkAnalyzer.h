@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "swrod/LinkStatistics.h"
+#include <swrod/LinkStatistics.h>
 
 namespace nsw {
   namespace internal {
@@ -35,7 +35,8 @@ namespace nsw {
   {
   public:
     ElinkAnalyzer(double thresholdPercentage, std::uint64_t thresholdMinimum);
-    std::unordered_set<std::uint64_t> analyze(const std::vector<swrod::LinkStatistics>& data);
+    std::unordered_set<std::uint64_t> analyze(const std::vector<swrod::LinkStatistics>& data,
+                                              const std::vector<std::uint64_t>& disabled);
 
   private:
     internal::ElinkAnalyzerImpl m_impl;

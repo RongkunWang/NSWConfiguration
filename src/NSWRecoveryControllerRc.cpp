@@ -1,13 +1,5 @@
 #include "NSWConfiguration/NSWRecoveryControllerRc.h"
 
-#include <dal/Partition.h>
-#include <dal/ResourceSet.h>
-#include <is/info.h>
-#include <is/infoT.h>
-#include <is/infoany.h>
-#include <is/infodictionary.h>
-#include <is/infodocument.h>
-#include <is/type.h>
 #include <stop_token>
 #include <utility>
 #include <string>
@@ -15,27 +7,37 @@
 #include <chrono>
 #include <ranges>
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
+#include <ers/ers.h>
+#include <is/info.h>
+#include <is/infoT.h>
+#include <is/infoany.h>
+#include <is/infodynany.h>
+#include <is/infodictionary.h>
+#include <is/infodocument.h>
+#include <is/type.h>
+
 // Header to the RC online services
 #include <RunControl/Common/OnlineServices.h>
 #include <RunControl/Common/RunControlCommands.h>
 #include <RunControl/Common/UserExceptions.h>
 #include <config/Configuration.h>
+
+#include <swrod/LinkStatistics.h>
+#include <swrod/ROBStatistics.h>
+
 #include <dal/Segment.h>
 #include <dal/util.h>
-
-#include <is/infodynany.h>
+#include <dal/Partition.h>
+#include <dal/ResourceSet.h>
 
 #include "NSWConfiguration/recovery/ElinkAnalyzer.h"
+
 #include "NSWConfigurationDal/NSWRecoveryControllerApplication.h"
 #include "NSWConfigurationDal/SwRodInputLink.h"
 #include "NSWConfigurationDal/SwRodRob.h"
-#include "swrod/LinkStatistics.h"
-#include "swrod/ROBStatistics.h"
-
-#include <fmt/core.h>
-#include <fmt/ranges.h>
-
-#include <ers/ers.h>
 
 using namespace std::chrono_literals;
 
@@ -165,7 +167,7 @@ void nsw::NSWRecoveryControllerRc::analyze(const std::string& name) const
     // const auto bla = val.getAttributeValue<>("linksStatistics");
     // ERS_INFO(bla.getAttributesNumber());
     // removeLinks(m_analyzers.at(name).analyze());
-    removeLinks(m_analyzers.at(name).analyze(val.linksStatistics));
+    removeLinks(m_analyzers.at(name).analyze(val.linksStatistics, val.disabledLinks));
     // ERS_INFO(val.getAttributeDescription(i).name() << " " << val.getAttributeType(i));
   }
 }

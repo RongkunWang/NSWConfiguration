@@ -1,16 +1,18 @@
 #ifndef NSWCONFIGURATION_NSWRECOVERYCONTROLLERRC_H
 #define NSWCONFIGURATION_NSWRECOVERYCONTROLLERRC_H
 
-#include "NSWConfiguration/recovery/ElinkAnalyzer.h"
-#include <dal/ResourceBase.h>
 #include <memory>
+#include <thread>
+#include <unordered_set>
+
+#include "NSWConfiguration/recovery/ElinkAnalyzer.h"
 
 #include <ipc/partition.h>
 #include <is/infodictionary.h>
 
+#include <dal/ResourceBase.h>
+
 #include <RunControl/RunControl.h>
-#include <thread>
-#include <unordered_set>
 
 namespace daq::rc {
   class SubTransitionCmd;

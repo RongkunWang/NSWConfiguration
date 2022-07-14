@@ -26,7 +26,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
                   schema/NSWRecoveryController.schema.xml
-                  schema/swrod.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
   INCLUDE NSWConfigurationDal
@@ -184,7 +183,7 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
 
 tdaq_add_executable(NSWRecoveryControllerRc_main app/NSWRecoveryControllerRc_main.cpp src/NSWRecoveryControllerRc.cpp
   LINK_LIBRARIES nswconfig nswrecovery tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+                 tdaq-common::ers Boost::program_options tdaq::swrod-dal NSWConfig
 )
 
 tdaq_add_schema(schema/NSWConfig.schema.xml)
