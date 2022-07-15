@@ -9,6 +9,7 @@
 
 #include <fmt/core.h>
 #include <fmt/ranges.h>
+#include <fmt/chrono.h>
 
 #include <ers/ers.h>
 #include <is/info.h>
@@ -28,6 +29,9 @@
 #include <swrod/LinkStatistics.h>
 #include <swrod/ROBStatistics.h>
 
+#include <swrod/dal/SwRodInputLink.h>
+#include <swrod/dal/SwRodRob.h>
+
 #include <dal/Segment.h>
 #include <dal/util.h>
 #include <dal/Partition.h>
@@ -36,8 +40,6 @@
 #include "NSWConfiguration/recovery/ElinkAnalyzer.h"
 
 #include "NSWConfigurationDal/NSWRecoveryControllerApplication.h"
-#include "NSWConfigurationDal/SwRodInputLink.h"
-#include "NSWConfigurationDal/SwRodRob.h"
 
 using namespace std::chrono_literals;
 
@@ -75,7 +77,7 @@ void nsw::NSWRecoveryControllerRc::configure(const daq::rc::TransitionCmd& /*cmd
           continue;
         }
         ERS_LOG(fmt::format("Found ROB {}", rob->UID()));
-        const auto robIdName = fmt::format("{:08x}", rob->cast<nsw::dal::SwRodRob>()->get_Id());
+        const auto robIdName = fmt::format("{:08x}", rob->cast<swrod::dal::SwRodRob>()->get_Id());
         m_swRodRobNames.push_back(robIdName);
         m_analyzers.try_emplace(robIdName,
                                 ElinkAnalyzer{m_percentageThreshold, m_minimumThreshold});
@@ -88,7 +90,7 @@ void nsw::NSWRecoveryControllerRc::configure(const daq::rc::TransitionCmd& /*cmd
             }
             ERS_LOG(fmt::format("Found elink {}", link->UID()));
             m_elinkToAppMap.try_emplace(link->UID(), swRodApp->UID());
-            m_fidToElinkIdMap.try_emplace(link->cast<nsw::dal::SwRodInputLink>()->get_FelixId(),
+            m_fidToElinkIdMap.try_emplace(link->cast<swrod::dal::SwRodInputLink>()->get_FelixId(),
                                           link->UID());
             m_elinkToObjectMap.try_emplace(link->UID(), link);
           }
@@ -145,13 +147,15 @@ void nsw::NSWRecoveryControllerRc::loop(std::stop_token stopToken) const
     }
     const auto timeDiff = std::chrono::high_resolution_clock::now() - startTime;
     const auto sleepTime =
-      std::max(0ms, std::chrono::duration_cast<std::chrono::milliseconds>(m_interval - timeDiff));
+      std::max(2000ms, std::chrono::duration_cast<std::chrono::milliseconds>(m_interval - timeDiff));
+    ERS_INFO(fmt::format("sleep for {}", sleepTime));
     std::mutex mutex;
     std::unique_lock lock(mutex);
     std::condition_variable_any().wait_for(lock, stopToken, sleepTime, [] { return false; });
     if (stopToken.stop_requested()) {
       return;
     }
+    ERS_INFO(fmt::format("slept"));
   }
 }
 

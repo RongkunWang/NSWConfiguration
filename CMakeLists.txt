@@ -182,8 +182,10 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
 )
 
 tdaq_add_executable(NSWRecoveryControllerRc_main app/NSWRecoveryControllerRc_main.cpp src/NSWRecoveryControllerRc.cpp
-  LINK_LIBRARIES nswconfig nswrecovery tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options tdaq::swrod-dal NSWConfig
+  LINK_LIBRARIES nswconfigdal nswrecovery tdaq::swrod tdaq::swrod-dal tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options
+    PRIVATE
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
 tdaq_add_schema(schema/NSWConfig.schema.xml)

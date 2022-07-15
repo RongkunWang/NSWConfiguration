@@ -17,21 +17,21 @@ std::unordered_set<std::uint64_t> nsw::ElinkAnalyzer::analyze(
 {
   // Filter disabled links
   std::vector<swrod::LinkStatistics> filtered{};
-  std::ranges::copy_if(data, std::back_inserter(filtered), [disabled](auto val) {
-    return std::ranges::find(disabled, val.FID) != std::cend(disabled);
+  std::ranges::copy_if(data, std::back_inserter(filtered), [&disabled](const auto& val) {
+    return std::ranges::find(disabled, val.FID) == std::cend(disabled);
   });
-  if (m_impl.skip(data)) {
-    m_impl.setPrevious(data);
+  if (m_impl.skip(filtered)) {
+    m_impl.setPrevious(filtered);
     return {};
   }
 
   std::unordered_set<std::uint64_t> result{};
-  std::ranges::copy(internal::ElinkAnalyzerImpl::getFids(m_impl.analyzeNumReceived(data)),
+  std::ranges::copy(internal::ElinkAnalyzerImpl::getFids(m_impl.analyzeNumReceived(filtered)),
                     std::inserter(result, std::end(result)));
-  std::ranges::copy(internal::ElinkAnalyzerImpl::getFids(m_impl.analyzeNumBad(data)),
+  std::ranges::copy(internal::ElinkAnalyzerImpl::getFids(m_impl.analyzeNumBad(filtered)),
                     std::inserter(result, std::end(result)));
 
-  m_impl.setPrevious(data);
+  m_impl.setPrevious(filtered);
 
   return result;
 }
@@ -87,10 +87,17 @@ std::vector<swrod::LinkStatistics> nsw::internal::ElinkAnalyzerImpl::analyzeNumR
   std::ranges::copy_if(dataDiff,
                        std::back_inserter(result),
                        [this, &medianReceived](const swrod::LinkStatistics& element) {
-                         return std::fabs(element.receivedPackets - medianReceived) /
+                         return std::fabs(static_cast<long>(element.receivedPackets) - static_cast<long>(medianReceived)) /
                                   static_cast<double>(medianReceived) >
                                 m_thresholdPercentage;
                        });
+  if (not result.empty()) {
+    ERS_INFO(fmt::format("removing {} because num received filter", getFids(result)));
+    ERS_INFO(fmt::format("Median {}", medianReceived));
+    for (const auto& el : result) {
+      ERS_INFO(fmt::format("{} {} {} {}", el.FID, el.receivedPackets, std::fabs(static_cast<long>(el.receivedPackets) - static_cast<long>(medianReceived)) / static_cast<double>(medianReceived), m_thresholdPercentage));
+    }
+  }
   return result;
 }
 
@@ -107,6 +114,12 @@ std::vector<swrod::LinkStatistics> nsw::internal::ElinkAnalyzerImpl::analyzeNumB
              static_cast<double>(totalBad) / static_cast<double>(element.receivedPackets) >
                m_thresholdPercentage;
     });
+  if (not result.empty()) {
+    ERS_INFO(fmt::format("removing {} because num bad filter", getFids(result)));
+    for (const auto& el : result) {
+      ERS_INFO(fmt::format("{} {} {} {} {}", el.FID, el.receivedPackets, el.corruptedPackets, el.droppedPackets, el.missedPackets));
+    }
+  }
   return result;
 }
 
