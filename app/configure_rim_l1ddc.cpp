@@ -18,10 +18,14 @@ int main(int ac, const char *av[]) {
     bool sim   = false;
     bool clock = false;
     bool feast = false;
+    bool read  = false;
     std::string opc_ip   = "";
     std::string sca_addr = "";
+    std::string write_enable  = "";
+    std::string write_disable = "";
     const std::string opc_ip_def   = "pcatlnswfelix01.cern.ch:48020";
     const std::string sca_addr_def = "RimL1DDC_PRI";
+    const std::string write_def    = "";
     try {
       boost::program_options::options_description desc(description);
       desc.add_options()
@@ -31,9 +35,12 @@ int main(int ac, const char *av[]) {
         ("sel1",  boost::program_options::value<bool>(&sel1)->default_value(false), "Bool to set sel1")
         ("feast", boost::program_options::bool_switch()->default_value(false), "Option to send feast commands")
         ("clock", boost::program_options::bool_switch()->default_value(false), "Option to send clock commands")
+        ("read",  boost::program_options::bool_switch()->default_value(false), "Option to read GPIOs")
         ("sim",   boost::program_options::bool_switch()->default_value(false), "Option to NOT send configurations")
         ("opc_ip",   boost::program_options::value<std::string>(&opc_ip)  ->default_value(opc_ip_def), "OPC IP address:port")
         ("sca_addr", boost::program_options::value<std::string>(&sca_addr)->default_value(sca_addr_def), "SCA name")
+        ("write_enable",  boost::program_options::value<std::string>(&write_enable) ->default_value(write_def), "GPIO to write enable")
+        ("write_disable", boost::program_options::value<std::string>(&write_disable)->default_value(write_def), "GPIO to write disable")
         ;
       boost::program_options::variables_map vm;
       boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), vm);
@@ -41,6 +48,7 @@ int main(int ac, const char *av[]) {
       sim   = vm.at("sim")  .as<bool>();
       feast = vm.at("feast").as<bool>();
       clock = vm.at("clock").as<bool>();
+      read  = vm.at("read") .as<bool>();
       if (vm.count("help") > 0) {
         std::cout << desc << std::endl;
         return 1;
@@ -122,6 +130,54 @@ int main(int ac, const char *av[]) {
         std::cout << "Reading " << gpio_sel1 <<  ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_sel1))) << std::endl;
       } catch (const std::exception& ex) {
         std::cout << "Error: " << ex.what() << std::endl;
+        return 1;
+      }
+    }
+
+    if (read) {
+      std::cout << "Using " << opc_ip << std::endl;
+      std::cout << "Reading " << gpio_pad << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_pad))) << std::endl;
+      std::cout << "Reading " << gpio_r1  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r1)))  << std::endl;
+      std::cout << "Reading " << gpio_r2  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r2)))  << std::endl;
+      std::cout << "Reading " << gpio_r3  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r3)))  << std::endl;
+      std::cout << "Reading " << gpio_r4  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r4)))  << std::endl;
+      std::cout << "Reading " << gpio_r5  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r5)))  << std::endl;
+      std::cout << "Reading " << gpio_r6  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r6)))  << std::endl;
+      std::cout << "Reading " << gpio_r7  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r7)))  << std::endl;
+      std::cout << "Reading " << gpio_r8  << ": " << (sim ? -1 : static_cast<int>(cs.readGPIO(opc_ip, gpio_r8)))  << std::endl;
+    }
+
+    if (not write_enable.empty() and not write_disable.empty()) {
+      std::cout << "Error: cant give --write_enable and --write_disable" << std::endl;
+      return 1;
+    }
+    if (not write_enable.empty()) {
+      if      (write_enable == "feast_en1_pad") { if (not sim) { cs.sendGPIO(opc_ip, gpio_pad, true); } }
+      else if (write_enable == "feast_en1_r1")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r1,  true); } }
+      else if (write_enable == "feast_en1_r2")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r2,  true); } }
+      else if (write_enable == "feast_en1_r3")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r3,  true); } }
+      else if (write_enable == "feast_en1_r4")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r4,  true); } }
+      else if (write_enable == "feast_en1_r5")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r5,  true); } }
+      else if (write_enable == "feast_en1_r6")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r6,  true); } }
+      else if (write_enable == "feast_en1_r7")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r7,  true); } }
+      else if (write_enable == "feast_en1_r8")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r8,  true); } }
+      else {
+        std::cout << "Dont recognize this --write_enable: " << write_enable << std::endl;
+        return 1;
+      }
+    }
+    if (not write_disable.empty()) {
+      if      (write_disable == "feast_en1_pad") { if (not sim) { cs.sendGPIO(opc_ip, gpio_pad, false); } }
+      else if (write_disable == "feast_en1_r1")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r1,  false); } }
+      else if (write_disable == "feast_en1_r2")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r2,  false); } }
+      else if (write_disable == "feast_en1_r3")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r3,  false); } }
+      else if (write_disable == "feast_en1_r4")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r4,  false); } }
+      else if (write_disable == "feast_en1_r5")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r5,  false); } }
+      else if (write_disable == "feast_en1_r6")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r6,  false); } }
+      else if (write_disable == "feast_en1_r7")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r7,  false); } }
+      else if (write_disable == "feast_en1_r8")  { if (not sim) { cs.sendGPIO(opc_ip, gpio_r8,  false); } }
+      else {
+        std::cout << "Dont recognize this --write_disable: " << write_disable << std::endl;
         return 1;
       }
     }
