@@ -1191,7 +1191,7 @@ static const i2c::AddressRegisterMap ART_CORE_REGISTERS = {
 static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
   // NB: most significant sub-register first
   {"000_control_reg", {
-      {"NOT_USED",              1},
+      {"conf_ro_bc_offset[7]",  1},
       {"conf_ro_self_trigger",  1},
       {"conf_ttc_calib",        4},
       {"conf_ocr_en",           1},

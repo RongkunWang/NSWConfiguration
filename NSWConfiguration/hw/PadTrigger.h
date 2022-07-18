@@ -250,6 +250,15 @@ namespace nsw::hw {
     bool readGPIO(const std::string& name) const;
 
     /**
+     * \brief Write a value to a pad trigger GPIO
+     *
+     * \param name is the name of the GPIO
+     * \param value is the value to be written
+     */
+    [[nodiscard]]
+    bool readGPIO(const std::string_view& name) const { return readGPIO(std::string(name)); }
+
+    /**
      * \brief Read an individual pad trigger repeater register by its address
      *
      * \param repeater is the number of the repeater
@@ -485,6 +494,13 @@ namespace nsw::hw {
     { return m_ptree.get("Deskew", false); };
 
     /**
+     * \brief Get the "ForceFirmwareUpload" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool ForceFirmwareUpload() const
+    { return m_ptree.get("ForceFirmwareUpload", true); };
+
+    /**
      * \brief Get the "LatencyScanStart" if provided by the user configuration
      */
     std::uint32_t LatencyScanStart() const
@@ -556,6 +572,8 @@ namespace nsw::hw {
         {0x06, 0x07, 0x00}, {0x06, 0x07, 0x10}, {0x06, 0x07, 0x20}, {0x06, 0x07, 0x30},
         // clang-format on
     }};
+
+    static constexpr std::string_view FPGA_DONE{"FPGA_DONE"};
 
   };
 
