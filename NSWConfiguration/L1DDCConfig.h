@@ -151,7 +151,7 @@ class L1DDCConfig {
     bool getConfigureGBTx(const std::size_t gbtxId) const {return (gbtxId<getNumberGBTx())?m_GBTxContainers.at(gbtxId).configureGBTx:false;}
 
     /**
-     * \brief Set whether to config gbtx
+     * \brief Set whether to config gbtx with ID gbtxId. Otherwise it is ignored.
      *
      * \param gbtxId GBTx ID
      * \param doConfig
@@ -159,7 +159,7 @@ class L1DDCConfig {
     void setConfigureGBTx(const std::size_t gbtxId, const bool doConfig) {if (gbtxId<getNumberGBTx()) m_GBTxContainers.at(gbtxId).configureGBTx=doConfig;}
 
     /**
-     * \brief Set readback
+     * \brief Set whether to readback the gbtx of ID gbtxId, regardless of whether it is configured.
      *
      * \param gbtxId GBTx ID
      * \param doConfig
@@ -167,11 +167,11 @@ class L1DDCConfig {
     void setReadbackGBTx(const std::size_t gbtxId, const bool doRead) {if (gbtxId<getNumberGBTx()) m_GBTxContainers.at(gbtxId).readGBTx=doRead;}
 
     /**
-     * \brief Get readback
+     * \brief Get flag of whether to readback GBTx configuration for each GBTx
      *
-     * \param gbtxId GBTx ID
+     * \return readback vector of GBTx id's to read back
      */
-    bool getReadbackGBTx(const std::size_t gbtxId) const {return gbtxId<getNumberGBTx()?m_GBTxContainers.at(gbtxId).readGBTx:false;}
+    std::vector<std::size_t> getReadbackGBTxs() const;
 
     /**
      * \brief Get the IP address of the opc server
@@ -216,8 +216,7 @@ class L1DDCConfig {
     int i2cDelay() const {return m_i2cDelay;}
 
     /**
-     * \brief Set whether to train the GBTx phase alignment has been configured.
-     *
+     * \param whether to train the GBTx phase alignment has been configured.
      * \return bool train setting
      */
     void setTrainGBTxPhaseAlignment(const bool doTraining) {m_trainGBTxPhaseAlignment=doTraining;}

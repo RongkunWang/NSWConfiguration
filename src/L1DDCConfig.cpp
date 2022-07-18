@@ -145,6 +145,15 @@ void nsw::L1DDCConfig::trainGbtxsOn(){
     }
 }
 
+std::vector<std::size_t> nsw::L1DDCConfig::getReadbackGBTxs() const {
+    std::vector<std::size_t> ret;
+    for (std::size_t gbtxId=0; gbtxId<getNumberGBTx(); gbtxId++){
+        if (m_GBTxContainers.at(gbtxId).readGBTx) ret.push_back(gbtxId);
+    }
+    return ret;
+}
+
+
 void nsw::L1DDCConfig::trainGbtxsOff(){
     // Update config objects in each GBTx instance to stop training e-links
     // The config can subsequently be read using getGbtxBytestream

@@ -498,11 +498,7 @@ void nsw::ConfigSender::sendL1DDCConfig(const nsw::L1DDCConfig& l1ddc) {
     }
 
     // Readback
-    std::vector<std::size_t> GBTxToRead;
-    if (l1ddc.getReadbackGBTx(0)) GBTxToRead.push_back(0);
-    if (l1ddc.getReadbackGBTx(1)) GBTxToRead.push_back(1);
-    if (l1ddc.getReadbackGBTx(2)) GBTxToRead.push_back(2);
-    for (std::size_t gbtxId : GBTxToRead){
+    for (const auto& gbtxId : l1ddc.getReadbackGBTxs()){
         std::vector<uint8_t> currentConfig;
         if (gbtxId==0){
             currentConfig = readIcConfigGBTx(l1ddc,ich);

@@ -62,10 +62,10 @@ Args parseCommandLineArgs(const int argc, char* argv[]) {
       // Modes
       ("help,h", "Print this help message")
       // Modes
-      ("write,w",      po::bool_switch(&fwrite),                "Write configuration")
-      ("read,r",       po::bool_switch(&fread),                 "Read configuration")
-      ("train,t",      po::bool_switch(&ftrain),                "Write configuration and train GBTx e-links")
-      ("simulation,s", po::bool_switch(&fsimulation),           "Simulation mode: load configuration file to check for errors")
+      ("write,w",      po::bool_switch(&fwrite),                "MODE (one allowed): Write configuration")
+      ("read,r",       po::bool_switch(&fread),                 "MODE (one allowed): Read configuration")
+      ("train,t",      po::bool_switch(&ftrain),                "MODE (one allowed): Write configuration and train GBTx e-links")
+      ("simulation,s", po::bool_switch(&fsimulation),           "MODE (one allowed): Simulation mode: load configuration file to check for errors")
       // Config file
       ("config,c",     po::value<std::string>()->required(),    "REQUIRED configuration file. \nEither a JSON file (IC and I2C GBTx), or a line separated bitmap (IC GBTx only)")
       // Bitmap options
