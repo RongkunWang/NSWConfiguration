@@ -14,6 +14,7 @@ nsw::hw::Router::Router(OpcManager& manager, const RouterConfig& config) :
   m_config(config)
 {
   m_name = fmt::format("{}/{}", getOpcServerIp(), getScaAddress());
+  m_scaAddressJTAG = fmt::format("{}.jtag.fpga", getScaAddress());
 }
 
 bool nsw::hw::Router::readScaOnline() const
@@ -53,8 +54,22 @@ std::map<std::string, bool> nsw::hw::Router::readConfiguration() const
 
 void nsw::hw::Router::writeConfiguration() const
 {
+  writeJTAGBitfileConfiguration();
   writeSoftResetAndCheckGPIO();
   writeScaId();
+}
+
+void nsw::hw::Router::writeJTAGBitfileConfiguration() const
+{
+  const std::string& fw = firmware();
+  ERS_INFO(fmt::format("Firmware provided: {}", fw));
+  if (fw.empty()) {
+    ERS_INFO("Not uploading bitfile since firmware not provided");
+    return;
+  }
+  ERS_LOG("Uploading bitfile via SCA JTAG, this will take a minute...");
+  nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
+  ERS_LOG("Upload finished");
 }
 
 void nsw::hw::Router::writeSoftResetAndCheckGPIO() const

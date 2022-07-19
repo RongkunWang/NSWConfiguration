@@ -96,9 +96,24 @@ namespace nsw::hw {
      */
     void writeScaId() const;
 
+    /**
+     * \brief Write the bitfile to the Router FPGA
+     */
+    void writeJTAGBitfileConfiguration() const;
+
+    /**
+     * \brief Get the "sector" provided by the user configuration (for non-geographical ID naming convention)
+     */
     [[nodiscard]]
     std::string Sector() const
     { return m_config.getConfig().get<std::string>("Sector"); }
+
+    /**
+     * \brief Get the "firmware" provided by the user configuration
+     */
+    [[nodiscard]]
+    std::string firmware() const
+    { return m_config.getConfig().get("firmware", std::string{""}); };
 
     /**
      * \brief Convert name and sector to unique 8-bit ID
@@ -166,7 +181,8 @@ namespace nsw::hw {
 
   private:
     RouterConfig m_config;
-    std::string m_name;         //!< Name composed of OPC and SCA addresses
+    std::string m_name;           //!< Name composed of OPC and SCA addresses
+    std::string m_scaAddressJTAG; //!< SCA address of PadTrigger FPGA JTAG
 
     static constexpr std::string_view
       m_old_convention{"Router_LZ"}; //!< the old convention for Router names
