@@ -20,8 +20,6 @@ int main(int argc, const char *argv[])
     std::string config_files = "/afs/cern.ch/user/n/nswdaq/public/sw/config-ttc/config-files/";
     std::string config_filename;
     std::string board_name;
-    bool read_all_gpio;
-    bool no_config;
 
     po::options_description desc(std::string("Router configuration script"));
     desc.add_options()
@@ -31,13 +29,15 @@ int main(int argc, const char *argv[])
         ("name,n",        po::value<std::string>(&board_name)
          ->default_value(""), "Name of desired router (e.g. Router_L0).")
         ("gpio", po::bool_switch()->default_value(false), "Option to read all GPIOs")
+        ("uploadBitfile,b", po::bool_switch()->default_value(false), "Option to upload bitfile to FPGA via JTAG")
         ("no_config", po::bool_switch()->default_value(false), "Option to disable config")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    read_all_gpio = vm["gpio"]     .as<bool>();
-    no_config     = vm["no_config"].as<bool>();
+    const auto read_all_gpio = vm["gpio"]         .as<bool>();
+    const auto no_config     = vm["no_config"]    .as<bool>();
+    const auto uploadBitfile = vm["uploadBitfile"].as<bool>();
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
@@ -61,6 +61,14 @@ int main(int argc, const char *argv[])
         router_hw.writeConfiguration();
         std::cout << std::endl;
         std::cout << std::endl;
+    }
+
+    // fpga bitstream
+    if (uploadBitfile) {
+      for (const auto& config : board_configs) {
+        nsw::hw::Router router_hw(opcManager, config);
+        router_hw.writeJTAGBitfileConfiguration();
+      }
     }
 
     // read all GPIO as desired
