@@ -452,7 +452,7 @@ BcidVector nsw::hw::PadTrigger::getViableBcids(const std::vector<BcidVector>& bc
 BcidVector nsw::hw::PadTrigger::getViableBcids(const BcidVector& bcidPerDelay) const
 {
   constexpr std::uint32_t RANGE{nsw::padtrigger::PFEB_BCID_RANGE};
-  constexpr std::uint32_t MINCOUNTS{nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC - 1};
+  constexpr std::uint32_t MINCOUNTS{nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC - nsw::padtrigger::NUM_INPUT_DELAYS_MARGIN};
   if (not checkPFEBBCIDs(bcidPerDelay)) {
     return BcidVector();
   }
