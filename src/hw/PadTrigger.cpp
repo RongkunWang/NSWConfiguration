@@ -28,8 +28,9 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   writeJTAGBitfileConfiguration();
   writeFPGAConfiguration();
   toggleGtReset();
-  toggleIdleState();
   deskewPFEBs();
+  toggleIdleState();
+  toggleOcrEnable();
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -169,6 +170,18 @@ void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
     ERS_INFO(fmt::format("{}: writing to 0x{:02x} with 0x{:08x}", m_name, addr, value));
   }
   writeFPGARegister(addr, value);
+}
+
+void nsw::hw::PadTrigger::toggleOcrEnable() const
+{
+  if (not OcrEnable()) {
+    ERS_INFO(fmt::format("Skipping toggleOcrEnable of {}", m_name));
+    return;
+  }
+  ERS_INFO(fmt::format("toggleOcrEnable of {}", m_name));
+  writeOcrEnDisable();
+  writeOcrEnEnable();
+  writeOcrEnDisable();
 }
 
 void nsw::hw::PadTrigger::toggleGtReset() const
@@ -336,10 +349,22 @@ std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddres
   return nsw::byteVectorToWord32(value, nsw::padtrigger::SCA_LITTLE_ENDIAN);
 }
 
+std::uint32_t nsw::hw::PadTrigger::readSubRegister(const std::string& rname,
+                                                   const std::string& subreg) const
+{
+  constexpr std::uint64_t one{1};
+  const auto fpga = getFpga();
+  const auto pos  = fpga.getAddressPositions().at(rname).at(subreg);
+  const auto siz  = fpga.getAddressSizes()    .at(rname).at(subreg);
+  const auto rpos = nsw::NUM_BITS_IN_WORD32 - pos - siz;
+  const auto mask = (one << (rpos + siz)) - (one << rpos);
+  return (readFPGARegister(addressFromRegisterName(rname)) & mask) >> rpos;
+}
+
 std::uint32_t nsw::hw::PadTrigger::readPFEBRate(const std::uint32_t pfeb, const bool quiet) const
 {
   writeSubRegister("003_control_reg2", "pfeb_num", pfeb, quiet);
-  return readFPGARegister(nsw::padtrigger::REG_STATUS2);
+  return readSubRegister("00D_status_reg2_READONLY", "pfeb_hit_rate");
 }
 
 std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBRates() const

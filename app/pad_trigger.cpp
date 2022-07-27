@@ -47,6 +47,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
          default_value(false), "Option to send Pad Trigger control register (built from json)")
+        ("toggleOcrEnable", po::bool_switch()->
+         default_value(false), "Option to toggle the Pad Trigger OCR enable")
         ("toggleGtReset", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger GT resets")
         ("toggleIdleState", po::bool_switch()->
@@ -67,6 +69,7 @@ int main(int argc, const char *argv[])
     const auto do_config       = vm["do_config"]      .as<bool>();
     const auto do_control      = vm["do_control"]     .as<bool>();
     const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
+    const auto toggleOcrEnable = vm["toggleOcrEnable"].as<bool>();
     const auto toggleGtReset   = vm["toggleGtReset"]  .as<bool>();
     const auto toggleIdleState = vm["toggleIdleState"].as<bool>();
     const auto read            = vm["read"]           .as<bool>();
@@ -189,6 +192,18 @@ int main(int argc, const char *argv[])
           );
         }
         hw.toggleIdleState();
+      }
+    }
+
+    // OCR enable
+    if (toggleOcrEnable) {
+      for (const auto& hw: hws) {
+        if (not hw.OcrEnable()) {
+          throw std::runtime_error(
+            "You asked for toggleOcrEnable, but PT has OcrEnable=False! Something is wrong."
+          );
+        }
+        hw.toggleOcrEnable();
       }
     }
 

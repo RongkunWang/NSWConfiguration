@@ -179,6 +179,11 @@ namespace nsw::hw {
     { writeSubRegister("000_control_reg", subreg, subval); }
 
     /**
+     * \brief Toggle (write) the OCR enable from enabled to disabled
+     */
+    void toggleOcrEnable() const;
+
+    /**
      * \brief Toggle (write) the GT reset from enabled to disabled
      */
     void toggleGtReset() const;
@@ -199,6 +204,18 @@ namespace nsw::hw {
      */
     void writeReadoutDisable() const
     { writeControlSubRegister("conf_ro_en", std::uint32_t{false}); };
+
+    /**
+     * \brief Enable the pad trigger OCR enable
+     */
+    void writeOcrEnEnable() const
+    { writeControlSubRegister("conf_ocr_en", std::uint32_t{true}); };
+
+    /**
+     * \brief Disable the pad trigger OCR disable
+     */
+    void writeOcrEnDisable() const
+    { writeControlSubRegister("conf_ocr_en", std::uint32_t{false}); };
 
     /**
      * \brief Enable the pad trigger idle state
@@ -239,6 +256,15 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::uint32_t readFPGARegister(std::uint8_t regAddress) const;
+
+    /**
+     * \brief Read a sub-register of a register
+     *
+     * \param rname is the name of the register
+     * \param subreg is the name of the sub-register
+     */
+    std::uint32_t readSubRegister(const std::string& rname,
+                                  const std::string& subreg) const;
 
     /**
      * \brief Write a value to a pad trigger GPIO
@@ -471,6 +497,13 @@ namespace nsw::hw {
     [[nodiscard]]
     bool ConfigVTTx() const
     { return m_ptree.get<bool>("ConfigVTTx"); };
+
+    /**
+     * \brief Get the "OcrEnable" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool OcrEnable() const
+    { return m_ptree.get("OcrEnable", false); };
 
     /**
      * \brief Get the "GtReset" provided by the user configuration
