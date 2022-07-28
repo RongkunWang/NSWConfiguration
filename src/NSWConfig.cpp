@@ -40,7 +40,8 @@ void nsw::NSWConfig::configureRc() {
       try {
         const auto element = nsw::getElementType(name);
         // Skip L1DDC for now. TODO: Remove this once implemented properly
-        if (element == "L1DDC") {
+        if (element == "L1DDC" or element == "RimL1DDC") {
+          ERS_LOG(fmt::format("Skipping {}, an instance of {}", name, element));
           continue;
         }
         ERS_LOG(name << ", an instance of " << element);
