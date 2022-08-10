@@ -51,7 +51,7 @@ nsw::geoid::Detector nsw::SCAGeoIdentifier::extractDetector() const
   if (nsw::contains(m_elements.at(0), DETECTOR_NAME_MM)) {
     return nsw::geoid::Detector::MM;
   }
-  if (nsw::contains(m_elements.at(0), DETECTOR_NAME_STGC)) {
+  if (nsw::contains(m_elements.at(0), DETECTOR_NAME_STGC) or nsw::contains(m_elements.at(0), DETECTOR_NAME_STG)) {
     return nsw::geoid::Detector::STGC;
   }
   throw nsw::NSWSCAGeoIdentifierIssue(ERS_HERE,
