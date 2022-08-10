@@ -103,7 +103,7 @@ std::string nsw::getElementType(const std::string& element_name) {
                 return "MMFE8";
             }
         }
-        if (element_name.starts_with("sTGC")) {
+        if (element_name.starts_with("sTGC") or element_name.starts_with("STG")) {
             if (element_name.find("/Strip/") != std::string::npos) {
                 if (element_name.ends_with("R0")) {
                     return "SFEB8";

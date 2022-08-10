@@ -182,6 +182,7 @@ namespace nsw {
     static constexpr std::string_view DELIMITER{"/"};
     static constexpr std::string_view DETECTOR_NAME_MM{"MM-"};
     static constexpr std::string_view DETECTOR_NAME_STGC{"sTGC-"};
+    static constexpr std::string_view DETECTOR_NAME_STG{"STG-"};
     static constexpr std::string_view WHEEL_NAME_A{"-A"};
     static constexpr std::string_view WHEEL_NAME_C{"-C"};
     static constexpr std::size_t POSITION_SECTOR{4};
