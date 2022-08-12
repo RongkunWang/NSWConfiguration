@@ -58,7 +58,7 @@ class OpcClient {
     UaClientSdk::SessionConnectInfo m_sessionConnectInfo;
 
     /// Timeout set on internalServiceCallTimeout
-    static constexpr std::size_t OPC_SERVICE_TIMEOUT = 60000;
+    static constexpr std::size_t OPC_SERVICE_TIMEOUT = 120000;
 
     /// Delay for certain GPIO pin transactions
     static constexpr std::size_t GPIO_PIN_DELAY = 10;
