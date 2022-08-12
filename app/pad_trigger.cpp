@@ -43,6 +43,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to dump pad trigger fpga i2c mapping")
         ("uploadBitfile,b", po::bool_switch()->
          default_value(false), "Option to upload bitfile to FPGA via JTAG. WARNING: EXPERIMENTAL")
+        ("repeaters", po::bool_switch()->
+         default_value(false), "Option to do repeaters configuration")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
@@ -68,6 +70,7 @@ int main(int argc, const char *argv[])
     const auto dump            = vm["dump"]           .as<bool>();
     const auto do_config       = vm["do_config"]      .as<bool>();
     const auto do_control      = vm["do_control"]     .as<bool>();
+    const auto repeaters       = vm["repeaters"]      .as<bool>();
     const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
     const auto toggleOcrEnable = vm["toggleOcrEnable"].as<bool>();
     const auto toggleGtReset   = vm["toggleGtReset"]  .as<bool>();
@@ -154,6 +157,18 @@ int main(int argc, const char *argv[])
     if (uploadBitfile) {
       for (const auto& hw: hws) {
         hw.writeJTAGBitfileConfiguration();
+      }
+    }
+
+    // repeaters
+    if (repeaters) {
+      for (const auto& hw: hws) {
+        if (not hw.ConfigRepeaters()) {
+          throw std::runtime_error(
+            "You asked for repeaters, but PT has ConfigRepeaters=False! Something is wrong."
+          );
+        }
+        hw.writeRepeatersConfiguration();
       }
     }
 
