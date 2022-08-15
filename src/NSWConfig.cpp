@@ -49,7 +49,8 @@ void nsw::NSWConfig::configureRc() {
         if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
         else if (element == "Router")        { m_deviceManager.add(this_pair.second); }
         else if (element == "PadTrigger")    { m_deviceManager.add(this_pair.second); }
-        else if (element == "TP")            { m_tps.emplace(this_pair); }
+        else if (element == "MMTP")            { m_deviceManager.add(this_pair.second); }
+        else if (element == "STGTP")            { m_deviceManager.add(this_pair.second); }
         else if (element == "TPCarrier")     { m_deviceManager.add(this_pair.second); }
         else if (element == "L1DDC")         { m_l1ddcs.emplace(this_pair); }
         else {

@@ -99,6 +99,9 @@ std::string nsw::getElementType(const std::string& element_name) {
           }
         }
         if (element_name.starts_with("MM")) {
+            if (element_name.find("/TrigProc/") != std::string::npos) {
+                return "MMTP";
+            }
             if (element_name.find("/Strip/") != std::string::npos) {
                 return "MMFE8";
             }

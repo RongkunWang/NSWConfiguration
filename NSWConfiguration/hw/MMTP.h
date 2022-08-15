@@ -181,6 +181,16 @@ namespace nsw::hw {
     std::uint32_t HorxEnvMonAddr() const { return m_config.get("HorxEnvMonAddr", std::uint32_t{0}); }
 
     /**
+     * \brief Get the "gloSyncIdleState" provided by the user configuration; write to 0 will not overwrite an idle state of 1 because idle state from 1-->0 is triggered by OCR
+     */
+    std::uint32_t gloSyncIdleState() const { return m_config.get("gloSyncIdleState", std::uint32_t{0}); }
+
+    /**
+     * \brief Get the "gloSyncBcidOffset" provided by the user configuration
+     */
+    std::uint32_t gloSyncBcidOffset() const { return m_config.get("gloSyncBcidOffset", std::uint32_t{0}); }
+
+    /**
      * \brief Get the "EnableChannelRates" provided by the user configuration
      */
     bool EnableChannelRates() const { return m_config.get<bool>("EnableChannelRates"); }

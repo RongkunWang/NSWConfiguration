@@ -1,5 +1,5 @@
 
-/// TP Configuration class
+/// MMTP Configuration class(sTGC configuration class see hw/STGCTP)
 
 #ifndef NSWCONFIGURATION_TPCONFIG_H_
 #define NSWCONFIGURATION_TPCONFIG_H_
