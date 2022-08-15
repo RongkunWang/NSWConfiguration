@@ -31,6 +31,8 @@ void nsw::hw::MMTP::writeConfiguration() const
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      VmmMaskHotThresh()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH_HYST, VmmMaskHotThreshHyst()},
     {nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    VmmMaskDrainPeriod()},
+    {nsw::mmtp::REG_GLO_SYNC_IDLE_STATE,      gloSyncIdleState()},
+    {nsw::mmtp::REG_GLO_SYNC_BCID_OFFSET,     gloSyncBcidOffset()},
   };
 
   const auto skippedReg = SkipRegisters();

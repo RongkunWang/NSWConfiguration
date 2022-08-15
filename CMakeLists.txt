@@ -156,7 +156,6 @@ tdaq_add_library(nswhwinterface
                  src/hw/SCAX.cpp
                  src/hw/STGCTP.cpp
                  src/hw/MMTP.cpp
-                 src/hw/TP.cpp
                  src/hw/TPCarrier.cpp
                  src/hw/Helper.cpp
   LINK_LIBRARIES nswconfig

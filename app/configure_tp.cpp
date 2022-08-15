@@ -101,10 +101,15 @@ int main(int ac, const char *av[]) {
         mmtps.emplace_back(opcManager, config);
       }
       for (const auto& tp: mmtps) {
+        std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;
         for (const auto& [addr, val]: tp.readConfiguration()) {
           fmt::print("{:#010x}: {:#010x}\n", addr, val);
         }
         tp.writeConfiguration();
+        std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
+        for (const auto& [addr, val]: tp.readConfiguration()) {
+          fmt::print("{:#010x}: {:#010x}\n", addr, val);
+        }
       }
     } else {
       // config sender

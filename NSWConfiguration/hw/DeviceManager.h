@@ -12,7 +12,8 @@
 #include "NSWConfiguration/hw/ART.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/Router.h"
-#include "NSWConfiguration/hw/TP.h"
+#include "NSWConfiguration/hw/MMTP.h"
+#include "NSWConfiguration/hw/STGCTP.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
 
 ERS_DECLARE_ISSUE(nsw,
@@ -62,8 +63,11 @@ namespace nsw::hw {
       else if (type == "ADDC") {
         addAddc(ADDCConfig{config});
       }
-      else if (type == "TP") {
-        addTp(TPConfig{config});
+      else if (type == "MMTP") {
+        addMMTp(TPConfig{config});
+      }
+      else if (type == "STGCTP") {
+        addSTGCTp(config);
       }
       else if (type == "Router") {
         addRouter(RouterConfig{config});
@@ -122,12 +126,20 @@ namespace nsw::hw {
     const std::vector<ART>& getArts() const { return m_arts; }  //!< overload
 
     /**
-     * \brief Get all TPs
+     * \brief Get all STGCTPs
      *
-     * \return std::vector<TP>& TPs
+     * \return std::vector<STGCTP>& TPs
      */
-    std::vector<TP>& getTps() { return m_tps; }
-    const std::vector<TP>& getTps() const { return m_tps; }  //!< overload
+    std::vector<STGCTP>& getSTGCTps() { return m_stgctps; }
+    const std::vector<STGCTP>& getSTGCTps() const { return m_stgctps; }  //!< overload
+
+    /**
+     * \brief Get all MMTPs
+     *
+     * \return std::vector<MMTP>& TPs
+     */
+    std::vector<MMTP>& getMMTps() { return m_mmtps; }
+    const std::vector<MMTP>& getMMTps() const { return m_mmtps; }  //!< overload
 
     /**
      * \brief Get all pad triggers
@@ -175,7 +187,8 @@ namespace nsw::hw {
     OpcManager m_opcManager{};
     std::vector<nsw::hw::FEB> m_febs{};
     std::vector<ART> m_arts{};
-    std::vector<TP> m_tps{};
+    std::vector<MMTP> m_mmtps{};
+    std::vector<STGCTP> m_stgctps{};
     std::vector<Router> m_routers{};
     std::vector<PadTrigger> m_padTriggers{};
     std::vector<TPCarrier> m_tpCarriers{};
@@ -195,11 +208,18 @@ namespace nsw::hw {
     void addAddc(const nsw::ADDCConfig& config);
 
     /**
-     * \brief Add TP from TPConfig object
+     * \brief Add MMTP from TPConfig object
      *
      * \param config config object
      */
-    void addTp(const nsw::TPConfig& config);
+    void addMMTp(const nsw::TPConfig& config);
+
+    /**
+     * \brief Add STGCTP from ptree directly
+     *
+     * \param ptree object
+     */
+    void addSTGCTp(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add Router from RouterConfig object

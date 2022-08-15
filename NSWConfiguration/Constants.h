@@ -330,6 +330,9 @@ namespace nsw {
     constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
     constexpr std::uint8_t REG_HORX_ENV_MON_ADDR        = 0x26;
     constexpr std::uint8_t REG_HORX_ENV_MON_DATA        = 0x27;
+    constexpr std::uint8_t REG_GLO_SYNC_IDLE_STATE      = 0x28;
+    constexpr std::uint8_t REG_GLO_SYNC_BCID_OFFSET     = 0x29;
+    // should not contain Write-only, because attempting to read Write-Only register will fail.
     constexpr auto REGS = std::to_array({
       REG_ADDC_EMU_DISABLE,
       REG_FIBER_ALIGNMENT,
@@ -358,8 +361,9 @@ namespace nsw {
       REG_VMM_MASK_HOT_THRESH_HYST,
       REG_VMM_MASK_DRAIN_PERIOD,
       REG_CHAN_RATE_ENABLE,
-      REG_HORX_ENV_MON_ADDR,
       REG_HORX_ENV_MON_DATA,
+      REG_GLO_SYNC_IDLE_STATE,
+      REG_GLO_SYNC_BCID_OFFSET,
     });
     constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
       std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),
