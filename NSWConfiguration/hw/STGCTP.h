@@ -116,6 +116,7 @@ namespace nsw::hw {
     std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
     std::set<std::uint8_t> m_skippedReg;  //!< Set of registers which should be skipped
+
   };
 }  // namespace nsw::hw
 

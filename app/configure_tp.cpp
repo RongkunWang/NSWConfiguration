@@ -27,6 +27,10 @@ int main(int ac, const char *av[]) {
     std::string tp_name;
     bool dry_run{false};
     bool hw{false};
+    constexpr std::uint32_t dummy{nsw::DEADBEEF};
+    std::uint32_t readRegister{dummy};
+    std::uint32_t writeRegister{dummy};
+    std::uint32_t writeValue{dummy};
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
@@ -35,6 +39,11 @@ int main(int ac, const char *av[]) {
         "Configuration file path")
         ("dry_run",   po::bool_switch()->default_value(false), "Option to NOT send configurations")
         ("hw",        po::bool_switch()->default_value(false), "Option to use hw interface")
+        ("writeConfig", po::bool_switch()->default_value(false), "STGCTP option: write configuration")
+        ("readConfig", po::bool_switch()->default_value(false), "STGCTP option: read configuration")
+        ("readRegister", po::value<std::uint32_t>(&readRegister)->default_value(dummy), "Register to read")
+        ("writeRegister", po::value<std::uint32_t>(&writeRegister)->default_value(dummy), "Register to write")
+        ("writeValue", po::value<std::uint32_t>(&writeValue)->default_value(dummy), "Value to write")
         ("tp,t", po::value<std::string>(&tp_name)->
         default_value("MMTP_A14"),
         "Name of trigger processor");
@@ -44,6 +53,8 @@ int main(int ac, const char *av[]) {
     po::notify(vm);
     dry_run = vm["dry_run"].as<bool>();
     hw      = vm["hw"]     .as<bool>();
+    const auto writeConfig = vm["writeConfig"].as<bool>();
+    const auto readConfig  = vm["readConfig"] .as<bool>();
     if (vm.count("help")) {
         std::cout << desc << std::endl;
         return 1;
@@ -61,9 +72,22 @@ int main(int ac, const char *av[]) {
     }
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
-      tp.writeConfiguration();
-      for (const auto& [reg, val]: tp.readConfiguration()) {
-        std::cout << fmt::format("Reg {:#04x}: val = {:#010x}", reg, val) << std::endl;
+      if (readRegister != dummy) {
+        std::cout << fmt::format("Reg {:#04x}: read {:#010x}", readRegister, tp.readRegister(readRegister)) << std::endl;
+      }
+      if (writeRegister != dummy) {
+        std::cout << fmt::format("Reg {:#04x}: write {:#010x}", writeRegister, writeValue) << std::endl;
+        tp.writeRegister(writeRegister, writeValue);
+      }
+      if (writeConfig) {
+        std::cout << "Write configuration:" << std::endl;
+        tp.writeConfiguration();
+      }
+      if (readConfig) {
+        std::cout << "Read configuration:" << std::endl;
+        for (const auto& [reg, val]: tp.readConfiguration()) {
+          std::cout << fmt::format("Reg {:#04x}: val = {:#010x}", reg, val) << std::endl;
+        }
       }
     }
 
