@@ -14,6 +14,9 @@
 #include <cmath>
 
 namespace nsw {
+  /// Traditional magic debug value
+  constexpr std::uint32_t DEADBEEF = 0xdeadbeef;
+
   /// Fool me once
   constexpr std::size_t MAX_ATTEMPTS = 5;
 
@@ -214,25 +217,67 @@ namespace nsw {
   }
 
   namespace stgctp {
-    constexpr std::uint8_t REG_RESET       = 0x01;
-    constexpr std::uint8_t REG_SECTOR      = 0x02;
-    constexpr std::uint8_t REG_BCR_RATE    = 0x04;
-    constexpr std::uint8_t REG_PAD_ALIGNED = 0x05;
-    constexpr std::uint8_t REG_PAD_RATE    = 0x06;
-    constexpr std::uint32_t MASK_RESET       = std::pow(2,  9) - 1;
-    constexpr std::uint32_t MASK_SECTOR      = std::pow(2, 32) - 1;
-    constexpr std::uint32_t MASK_BCR_RATE    = std::pow(2, 16) - 1;
-    constexpr std::uint32_t MASK_PAD_ALIGNED = std::pow(2,  1) - 1;
-    constexpr std::uint32_t MASK_PAD_RATE    = std::pow(2, 28) - 1;
+    constexpr std::uint8_t REG_ERR_BCID_MATCH   = 0x00;
+    constexpr std::uint8_t REG_RST_RX           = 0x01;
+    constexpr std::uint8_t REG_RST_TX           = 0x02;
+    constexpr std::uint8_t REG_SL_LATENCY_COMP  = 0x03;
+    constexpr std::uint8_t REG_BCR_RATE         = 0x04;
+    constexpr std::uint8_t REG_PAD_BXID_SYNC_OK = 0x05;
+    constexpr std::uint8_t REG_PAD_RATE         = 0x06;
+    constexpr std::uint8_t REG_MON_LATENCY      = 0x07;
+    constexpr std::uint8_t REG_IN_RUN           = 0x08;
+    constexpr std::uint8_t REG_STRIPS_HIT_RATE  = 0x09;
+    constexpr std::uint8_t REG_DESKEW_OFFSET    = 0x0a;
+    constexpr std::uint8_t REG_VALID_NULL_ERROR = 0x0b;
+    constexpr std::uint8_t REG_STGC_MM_DISABLE  = 0x0c;
+    constexpr std::uint8_t REG_TO_SL_RATE       = 0x0d;
+    constexpr std::uint8_t REG_SECTOR           = 0x0e;
+    constexpr std::uint8_t REG_MM_BXID_SYNC_OK  = 0x0f;
+    constexpr std::uint8_t REG_PAD_IDLE_STATUS  = 0x10;
+    constexpr std::uint8_t REG_MM_IDLE_STATUS   = 0x11;
+    constexpr std::uint8_t REG_PAD_ARRIVAL_BC   = 0x12;
+    constexpr std::uint8_t REG_MM_ARRIVAL_BC    = 0x13;
+    constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_RST_RX           = (1 <<  9) - 1;
+    constexpr std::uint32_t MASK_RST_TX           = (1 <<  9) - 1;
+    constexpr std::uint32_t MASK_SL_LATENCY_COMP  = (1 <<  3) - 1;
+    constexpr std::uint32_t MASK_BCR_RATE         = (1 << 16) - 1;
+    constexpr std::uint32_t MASK_PAD_BXID_SYNC_OK = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_PAD_RATE         = (1 << 28) - 1;
+    constexpr std::uint32_t MASK_MON_LATENCY      = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_IN_RUN           = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_STRIPS_HIT_RATE  = (1 << 26) - 1;
+    constexpr std::uint32_t MASK_DESKEW_OFFSET    = (1 <<  9) - 1;
+    constexpr std::uint32_t MASK_VALID_NULL_ERROR = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_STGC_MM_DISABLE  = (1 <<  2) - 1;
+    constexpr std::uint32_t MASK_TO_SL_RATE       = (1 << 26) - 1;
+    constexpr std::uint32_t MASK_SECTOR           = (1 <<  4) - 1;
+    constexpr std::uint32_t MASK_MM_BXID_SYNC_OK  = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_PAD_IDLE_STATUS  = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_MM_IDLE_STATUS   = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_PAD_ARRIVAL_BC   = (1 << 16) - 1;
+    constexpr std::uint32_t MASK_MM_ARRIVAL_BC    = (1 << 16) - 1;
     constexpr auto REGS = std::to_array({
-        // std::make_pair(REG_RESET,       MASK_RESET),
-        std::make_pair(REG_SECTOR,      MASK_SECTOR),
-        std::make_pair(REG_BCR_RATE,    MASK_BCR_RATE),
-        std::make_pair(REG_PAD_ALIGNED, MASK_PAD_ALIGNED),
-        std::make_pair(REG_PAD_RATE,    MASK_PAD_RATE),
+        std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
+        std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
+        std::make_pair(REG_PAD_BXID_SYNC_OK, MASK_PAD_BXID_SYNC_OK),
+        std::make_pair(REG_PAD_RATE,         MASK_PAD_RATE),
+        std::make_pair(REG_IN_RUN,           MASK_IN_RUN),
+        std::make_pair(REG_STRIPS_HIT_RATE,  MASK_STRIPS_HIT_RATE),
+        std::make_pair(REG_DESKEW_OFFSET,    MASK_DESKEW_OFFSET),
+        std::make_pair(REG_VALID_NULL_ERROR, MASK_VALID_NULL_ERROR),
+        std::make_pair(REG_TO_SL_RATE,       MASK_TO_SL_RATE),
+        std::make_pair(REG_SECTOR,           MASK_SECTOR),
+        std::make_pair(REG_MM_BXID_SYNC_OK,  MASK_MM_BXID_SYNC_OK),
+        std::make_pair(REG_PAD_IDLE_STATUS,  MASK_PAD_IDLE_STATUS),
+        std::make_pair(REG_MM_IDLE_STATUS,   MASK_MM_IDLE_STATUS),
+        std::make_pair(REG_PAD_ARRIVAL_BC,   MASK_PAD_ARRIVAL_BC),
+        std::make_pair(REG_MM_ARRIVAL_BC,    MASK_MM_ARRIVAL_BC),
     });
-    constexpr std::uint32_t RESET_ENABLE  = 0b111111111;
-    constexpr std::uint32_t RESET_DISABLE = 0b0;
+    constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
+    constexpr std::uint32_t RST_RX_DISABLE = 0b0;
+    constexpr std::uint32_t RST_TX_ENABLE  = 0b101111111;
+    constexpr std::uint32_t RST_TX_DISABLE = 0b0;
   }
 
   namespace mmtp {

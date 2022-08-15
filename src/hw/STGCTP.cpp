@@ -3,6 +3,7 @@
 #include "NSWConfiguration/hw/SCAX.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
+using namespace std::chrono_literals;
 
 nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& config):
   ScaAddressBase(config.get<std::string>("OpcNodeId")),
@@ -17,10 +18,16 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
   if (getDoReset()) {
-    ERS_LOG(fmt::format("{}: toggling reset", getName()));
-    writeRegister(nsw::stgctp::REG_RESET, nsw::stgctp::RESET_ENABLE);
-    writeRegister(nsw::stgctp::REG_RESET, nsw::stgctp::RESET_DISABLE);
-    nsw::snooze();
+    ERS_LOG(fmt::format("{}: toggling RX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_ENABLE);
+    nsw::snooze(1s);
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_DISABLE);
+    nsw::snooze(2s);
+    ERS_LOG(fmt::format("{}: toggling TX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_ENABLE);
+    nsw::snooze(1s);
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_DISABLE);
+    nsw::snooze(2s);
   }
   writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector());
 }
@@ -29,7 +36,12 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::STGCTP::readConfiguration() cons
 {
   std::map<std::uint32_t, std::uint32_t> result;
   for (const auto& [reg, mask]: nsw::stgctp::REGS) {
-    result.emplace(reg, readRegister(reg) & mask);
+    try {
+      result.emplace(reg, (m_skippedReg.contains(reg)) ? nsw::DEADBEEF : readRegister(reg) & mask);
+    } catch (std::exception & ex) {
+      ERS_INFO(fmt::format("{}: failed to read reg {:#04x}", m_name, reg));
+      break;
+    }
   }
   return result;
 }
@@ -47,9 +59,8 @@ void nsw::hw::STGCTP::writeRegister(const std::uint32_t regAddress,
 std::uint32_t nsw::hw::STGCTP::readRegister(const std::uint32_t regAddress) const
 {
   if (m_skippedReg.contains(regAddress)) {
-    const auto dummy = 0xdeadbeef;
-    ERS_LOG(fmt::format("{}: skip reading {:#04x}, return dummy value {:#x}", m_name, regAddress, dummy));
-    return dummy;
+    ERS_LOG(fmt::format("{}: skip reading {:#04x}, return dummy value {:#x}", m_name, regAddress, nsw::DEADBEEF));
+    return nsw::DEADBEEF;
   }
   return nsw::hw::SCAX::readRegister(getConnection(), m_scaAddressFPGA, regAddress);
 }
