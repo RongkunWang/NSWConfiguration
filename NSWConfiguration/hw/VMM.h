@@ -71,6 +71,11 @@ namespace nsw::hw {
                                                          std::size_t nSamples) const;
 
     /**
+     * \brief Get the board position of this VMM
+     */
+    std::size_t getVmmId() const { return m_vmmId; }
+
+    /**
      * \brief Get the \ref VMMConfig object associated with this VMM object
      *
      * Both const and non-const overloads are provided
