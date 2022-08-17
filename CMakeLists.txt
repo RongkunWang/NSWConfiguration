@@ -216,8 +216,18 @@ tdaq_add_executable(test_scageoidentifier test/test_scageoidentifier.cpp
   LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
   PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
+tdaq_add_executable(test_constants test/test_constants.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
+
+tdaq_add_executable(test_febhw test/test_febhw.cpp
+  NOINSTALL
+  LINK_LIBRARIES Boost::unit_test_framework tdaq-common::ers nswconfig nswhwinterface
+  PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
+
 ### Tests
-set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation scageoidentifier)
+set(NSWCONFIG_TESTS jsonapi configreader i2cmasterconfig utility vmmconfig configtranslation scageoidentifier constants febhw)
 
 foreach(testname IN LISTS NSWCONFIG_TESTS)
   message(STATUS "  Adding test::add_test(NAME ${testname} COMMAND test_${testname})")

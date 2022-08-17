@@ -88,6 +88,9 @@ namespace nsw {
   constexpr std::size_t PFEB_WIRE_VMM       = 0;
   constexpr std::size_t PFEB_FIRST_PAD_VMM  = 1;
 
+  // A PFEB has 2 pad VMMs
+  constexpr std::size_t NUM_PAD_VMM_PER_PFEB = NUM_VMM_PER_PFEB - PFEB_FIRST_PAD_VMM;
+
   /// Number of bytes at an I2C address
   constexpr std::size_t I2C_ADDRESS_BYTE_SIZE = 8;
 
