@@ -9,6 +9,7 @@
 #include <fmt/core.h>
 #include <ers/Issue.h>
 
+#include "NSWConfiguration/Utility.h"
 #include "NSWConfiguration/I2cMasterConfig.h"
 #include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
@@ -204,6 +205,15 @@ namespace nsw::hw {
      */
     void writeReadoutDisable() const
     { writeControlSubRegister("conf_ro_en", std::uint32_t{false}); };
+
+    /**
+     * \brief Temporarily enable the pad trigger readout
+     */
+    void writeReadoutEnableTemporarily(std::chrono::duration<float> dur) const
+    { writeReadoutEnable();
+      nsw::snooze(dur);
+      writeReadoutDisable();
+    };
 
     /**
      * \brief Enable the pad trigger OCR enable
