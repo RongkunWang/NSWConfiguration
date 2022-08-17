@@ -433,16 +433,17 @@ BcidVector nsw::hw::PadTrigger::rotatePFEBBCIDs(BcidVector bcids) const
 
 bool nsw::hw::PadTrigger::checkPFEBBCIDs(const BcidVector& bcids) const
 {
-  auto is_connected = [](std::uint32_t bcid){ return bcid != nsw::padtrigger::PFEB_BCID_DISCONNECTED; };
-  auto is_nonzero   = [](std::uint32_t bcid){ return bcid != 0; };
+  if (bcids.empty()) {
+    return false;
+  }
+  auto is_unique = [&bcids](std::uint32_t bcid){ return bcid != bcids.front(); };
   const auto rotated_bcids = rotatePFEBBCIDs(bcids);
 
-  const bool any_connected    = std::any_of(bcids.cbegin(), bcids.cend(), is_connected);
-  const bool any_nonzero      = std::any_of(bcids.cbegin(), bcids.cend(), is_nonzero);
+  const bool any_unique       = std::any_of(bcids.cbegin(), bcids.cend(), is_unique);
   const bool all_decrementing = std::is_sorted(bcids.crbegin(), bcids.crend()) or
                                 std::is_sorted(rotated_bcids.crbegin(), rotated_bcids.crend());
 
-  return any_connected and any_nonzero and all_decrementing;
+  return any_unique and all_decrementing;
 }
 
 BcidVector nsw::hw::PadTrigger::getViableBcids(const std::vector<BcidVector>& bcidPerPfebPerDelay) const
