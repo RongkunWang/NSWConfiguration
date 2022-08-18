@@ -49,12 +49,10 @@ void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
     writeGPIO(gpio, true);
 
     // i2c write
-    ERS_LOG(fmt::format("Repeater{} address {}: write {}", rep, address, value));
     writeRepeaterRegister(rep, address, value);
 
     // i2c readback
     const auto val = readRepeaterRegister(rep, address);
-    ERS_LOG(fmt::format("Repeater{} address {}: readback {}", rep, address, val));
 
     // check and complain
     if (val != value) {
@@ -167,7 +165,7 @@ void nsw::hw::PadTrigger::writeSubRegister(const std::string& rname,
 
   // write
   if (not quiet) {
-    ERS_INFO(fmt::format("{}: writing to 0x{:02x} with 0x{:08x}", m_name, addr, value));
+    ERS_LOG(fmt::format("{}: writing to 0x{:02x} with 0x{:08x}", m_name, addr, value));
   }
   writeFPGARegister(addr, value);
 }
@@ -289,12 +287,12 @@ void nsw::hw::PadTrigger::writePFEBDelay(const DelayVector& values) const
     word_15_08 += (values.at(it + 1*dels) << it*bits);
     word_07_00 += (values.at(it + 0*dels) << it*bits);
   }
-  ERS_INFO(fmt::format("Writing PFEB delay word (23-16) {:#010x}", word_23_16));
-  ERS_INFO(fmt::format("Writing PFEB delay word (15-08) {:#010x}", word_15_08));
-  ERS_INFO(fmt::format("Writing PFEB delay word (07-00) {:#010x}", word_07_00));
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word_23_16);
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word_15_08);
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word_07_00);
+  ERS_LOG(fmt::format("Writing PFEB delay word (23-16) {:#010x}", word_23_16));
+  ERS_LOG(fmt::format("Writing PFEB delay word (15-08) {:#010x}", word_15_08));
+  ERS_LOG(fmt::format("Writing PFEB delay word (07-00) {:#010x}", word_07_00));
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word_23_16);
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word_15_08);
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word_07_00);
 }
 
 void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
@@ -304,10 +302,9 @@ void nsw::hw::PadTrigger::writePFEBCommonDelay(const std::uint32_t value) const
   for (auto it = nsw::NUM_BITS_IN_WORD32 / bits; it > 0; --it) {
     word += (value << it*bits);
   }
-  ERS_INFO(fmt::format("Writing PFEB delay word {:#010x}", word));
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word);
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word);
-  writeFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word);
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16, word);
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08, word);
+  writeAndReadbackFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00, word);
 }
 
 bool nsw::hw::PadTrigger::readGPIO(const std::string& name) const
