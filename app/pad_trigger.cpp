@@ -45,6 +45,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to upload bitfile to FPGA via JTAG. WARNING: EXPERIMENTAL")
         ("repeaters", po::bool_switch()->
          default_value(false), "Option to do repeaters configuration")
+        ("readout", po::bool_switch()->
+         default_value(false), "Option to enable readout briefly")
         ("do_config", po::bool_switch()->
          default_value(false), "Option to send predefined configuration")
         ("do_control", po::bool_switch()->
@@ -71,6 +73,7 @@ int main(int argc, const char *argv[])
     const auto do_config       = vm["do_config"]      .as<bool>();
     const auto do_control      = vm["do_control"]     .as<bool>();
     const auto repeaters       = vm["repeaters"]      .as<bool>();
+    const auto readout         = vm["readout"]        .as<bool>();
     const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
     const auto toggleOcrEnable = vm["toggleOcrEnable"].as<bool>();
     const auto toggleGtReset   = vm["toggleGtReset"]  .as<bool>();
@@ -169,6 +172,13 @@ int main(int argc, const char *argv[])
           );
         }
         hw.writeRepeatersConfiguration();
+      }
+    }
+
+    // readout
+    if (readout) {
+      for (const auto& hw: hws) {
+        hw.writeReadoutEnableTemporarily(std::chrono::milliseconds{1});
       }
     }
 

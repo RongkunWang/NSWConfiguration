@@ -243,13 +243,13 @@ namespace nsw::hw {
      * \brief Enable the pad trigger GT reset
      */
     void writeGtResetEnable() const
-    { writeFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_ENABLE); }
+    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_ENABLE); }
 
     /**
      * \brief Disable the pad trigger GT reset
      */
     void writeGtResetDisable() const
-    { writeFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_DISABLE); }
+    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_DISABLE); }
 
     /**
      * \brief Write readout BC offset (latency)
