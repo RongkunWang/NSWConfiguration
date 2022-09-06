@@ -99,6 +99,26 @@ void nsw::hw::DeviceManager::disableVmmCaptureInputs() const
     });
 }
 
+void nsw::hw::DeviceManager::toggleIdleStateHigh() const
+{
+  applyFunc(
+    m_padTriggers,
+    [](const auto& device) { device.toggleIdleState(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Toggling Pad Trigger Idle State High failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
+  applyFunc(
+    m_mmtps,
+    [](const auto& device) { device.toggleIdleStateHigh(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Toggling MMTP Idle State High failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
+}
+
 void nsw::hw::DeviceManager::clear()
 {
   clearOpc();

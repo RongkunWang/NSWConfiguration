@@ -248,4 +248,5 @@ void nsw::NSWConfig::startRc() {
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     enableMmtpChannelRates(false);
+    m_deviceManager.toggleIdleStateHigh();
 }
