@@ -118,6 +118,11 @@ namespace nsw::hw {
     void disableVmmCaptureInputs() const;
 
     /**
+     * \brief toggle idle state to high for all trigger electronics
+     */
+    void toggleIdleStateHigh() const;
+
+    /**
      * \brief Get all ARTs
      *
      * \return std::vector<ART>& ARTs

@@ -90,6 +90,11 @@ namespace nsw::hw {
                                   std::uint32_t value) const;
 
     /**
+     * \brief toggle idle state to high for all trigger electronics
+     */
+    void toggleIdleStateHigh() const;
+
+    /**
      * \brief Get the ptree object associated with this MMTP object
      *
      * Both const and non-const overloads are provided

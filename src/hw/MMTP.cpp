@@ -89,6 +89,11 @@ void nsw::hw::MMTP::writeAndReadbackRegister(const std::uint32_t regAddress,
   nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), m_busAddress, regAddress, value);
 }
 
+void nsw::hw::MMTP::toggleIdleStateHigh() const
+{
+  writeRegister(nsw::mmtp::REG_GLO_SYNC_IDLE_STATE, 1);
+}
+
 std::set<std::uint8_t> nsw::hw::MMTP::SkipRegisters() const
 {
   const auto key = "SkipRegisters";
