@@ -30,6 +30,9 @@ void nsw::hw::STGCTP::writeConfiguration() const
     nsw::snooze(2s);
   }
   writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector());
+  for (const auto& [reg, val]: readConfiguration()) {
+    ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
+  }
 }
 
 std::map<std::uint32_t, std::uint32_t> nsw::hw::STGCTP::readConfiguration() const
@@ -87,6 +90,15 @@ std::set<std::uint8_t> nsw::hw::STGCTP::SkipRegisters() const
 
 std::uint32_t nsw::hw::STGCTP::getSector() const
 {
+  const auto hasGeog = nsw::contains(getScaAddress(), "/");
+  const auto hasJson = m_config.count("sector") > 0;
+  if (hasGeog and hasJson) {
+    const auto msg = "Dont give sector in json if using Geo IDs!";
+    ers::error(nsw::STGCTPIssue(ERS_HERE, msg));
+  }
+  if (hasGeog) {
+    return getGeoInfo().sector();
+  }
   return m_config.get<std::uint32_t>("sector");
 }
 

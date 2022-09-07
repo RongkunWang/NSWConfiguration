@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(VmmGetVmmId_ReturnsCorrectValue) {
   }
   BOOST_TEST(deviceManager.getFebs().size() == 1);
   for (const auto& feb: deviceManager.getFebs()) {
-    for (auto it = 0; it < feb.getNumVmms(); ++it) {
+    for (std::size_t it = 0; it < feb.getNumVmms(); ++it) {
       BOOST_TEST(feb.getVmm(it).getVmmId() == it);
     }
   }
