@@ -208,6 +208,7 @@ namespace nsw {
 
   namespace scax {
     constexpr bool SCAX_LITTLE_ENDIAN = true;
+    constexpr std::uint32_t BITMASK_ALL = 0xffffffff;
   }
 
   namespace carrier {

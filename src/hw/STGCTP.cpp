@@ -29,7 +29,7 @@ void nsw::hw::STGCTP::writeConfiguration() const
     writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_DISABLE);
     nsw::snooze(2s);
   }
-  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector());
+  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector(), nsw::stgctp::MASK_SECTOR);
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
   }
@@ -40,7 +40,7 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::STGCTP::readConfiguration() cons
   std::map<std::uint32_t, std::uint32_t> result;
   for (const auto& [reg, mask]: nsw::stgctp::REGS) {
     try {
-      result.emplace(reg, (m_skippedReg.contains(reg)) ? nsw::DEADBEEF : readRegister(reg) & mask);
+      result.emplace(reg, readRegister(reg, mask));
     } catch (std::exception & ex) {
       ERS_INFO(fmt::format("{}: failed to read reg {:#04x}", m_name, reg));
       break;
@@ -59,24 +59,26 @@ void nsw::hw::STGCTP::writeRegister(const std::uint32_t regAddress,
   nsw::hw::SCAX::writeRegister(getConnection(), m_scaAddressFPGA, regAddress, value);
 }
 
-std::uint32_t nsw::hw::STGCTP::readRegister(const std::uint32_t regAddress) const
+std::uint32_t nsw::hw::STGCTP::readRegister(const std::uint32_t regAddress,
+                                            const std::uint32_t mask) const
 {
   if (m_skippedReg.contains(regAddress)) {
     ERS_LOG(fmt::format("{}: skip reading {:#04x}, return dummy value {:#x}", m_name, regAddress, nsw::DEADBEEF));
     return nsw::DEADBEEF;
   }
-  return nsw::hw::SCAX::readRegister(getConnection(), m_scaAddressFPGA, regAddress);
+  return nsw::hw::SCAX::readRegister(getConnection(), m_scaAddressFPGA, regAddress, mask);
 }
 
 void nsw::hw::STGCTP::writeAndReadbackRegister(const std::uint32_t regAddress,
-                                               const std::uint32_t value) const
+                                               const std::uint32_t value,
+                                               const std::uint32_t mask) const
 {
   if (m_skippedReg.contains(regAddress)) {
     ERS_LOG(fmt::format("{}: skip writing to {:#04x}", m_name, regAddress));
     return;
   }
-  ERS_LOG(fmt::format("{}: writing to {:#04x} with {:#010x}", m_name, regAddress, value));
-  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), m_scaAddressFPGA, regAddress, value);
+  ERS_LOG(fmt::format("{}: writing to {:#04x} with {:#010x} (mask: {:#010x})", m_name, regAddress, value, mask));
+  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), m_scaAddressFPGA, regAddress, value, mask);
 }
 
 std::set<std::uint8_t> nsw::hw::STGCTP::SkipRegisters() const

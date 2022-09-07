@@ -73,7 +73,8 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(std::uint32_t regAddress) const;
+    std::uint32_t readRegister(std::uint32_t regAddress,
+                               std::uint32_t mask) const;
 
     /**
      * \brief Write a value to a STGCTP register address, and read it back
@@ -82,7 +83,8 @@ namespace nsw::hw {
      * \param value is the value to be written
      */
     void writeAndReadbackRegister(std::uint32_t regAddress,
-                                  std::uint32_t value) const;
+                                  std::uint32_t value,
+                                  std::uint32_t mask) const;
 
     /**
      * \brief Get the "SkipRegisters" provided by the user configuration
