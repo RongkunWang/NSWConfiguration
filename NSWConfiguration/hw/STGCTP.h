@@ -16,9 +16,9 @@
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 
 ERS_DECLARE_ISSUE(nsw,
-                  STGCTPReadbackMismatch,
+                  STGCTPIssue,
                   message,
-                  ((const char *)message)
+                  ((std::string)message)
                   )
 
 namespace nsw::hw {
