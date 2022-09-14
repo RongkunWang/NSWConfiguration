@@ -73,7 +73,7 @@ int main(int ac, const char *av[]) {
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
       if (readRegister != dummy) {
-        std::cout << fmt::format("Reg {:#04x}: read {:#010x}", readRegister, tp.readRegister(readRegister)) << std::endl;
+        std::cout << fmt::format("Reg {:#04x}: read {:#010x}", readRegister, tp.readRegister(readRegister, nsw::scax::BITMASK_ALL)) << std::endl;
       }
       if (writeRegister != dummy) {
         std::cout << fmt::format("Reg {:#04x}: write {:#010x}", writeRegister, writeValue) << std::endl;

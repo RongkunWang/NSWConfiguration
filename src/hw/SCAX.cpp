@@ -22,7 +22,8 @@ void nsw::hw::SCAX::writeRegister(const OpcClientPtr opcConnection,
 
 std::uint32_t nsw::hw::SCAX::readRegister(const OpcClientPtr opcConnection,
                                           const std::string& node,
-                                          const std::uint32_t regAddress)
+                                          const std::uint32_t regAddress,
+                                          const std::uint32_t mask)
 {
   const auto addr = nsw::intToByteVector(regAddress, nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
   const auto data = nsw::hw::SCA::readI2cAtAddress(opcConnection,
@@ -30,16 +31,17 @@ std::uint32_t nsw::hw::SCAX::readRegister(const OpcClientPtr opcConnection,
                                                    addr.data(),
                                                    addr.size(),
                                                    nsw::NUM_BYTES_IN_WORD32);
-  return nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN);
+  return nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN) & mask;
 }
 
 void nsw::hw::SCAX::writeAndReadbackRegister(const OpcClientPtr opcConnection,
                                              const std::string& node,
                                              const std::uint32_t regAddress,
-                                             const std::uint32_t value)
+                                             const std::uint32_t value,
+                                             const std::uint32_t mask)
 {
   writeRegister(opcConnection, node, regAddress, value);
-  const auto val = readRegister(opcConnection, node, regAddress);
+  const auto val = readRegister(opcConnection, node, regAddress, mask);
   if (val != value) {
     const auto msg = fmt::format("Mismatch: wrote {}, readback {}", value, val);
     nsw::SCAXReadbackMismatch issue(ERS_HERE, msg.c_str());
