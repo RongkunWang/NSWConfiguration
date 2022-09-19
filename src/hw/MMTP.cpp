@@ -142,7 +142,7 @@ void nsw::hw::MMTP::alignArtGbtx() const
 
     // admit defeat
     if (n_resets > nsw::mmtp::FIBER_ALIGN_ATTEMPTS) {
-      throw std::runtime_error(fmt::format("Failed to stabilize input to {}. Crashing", m_name));
+      ers::warning(MMTPFiberAlignIssue(ERS_HERE, fmt::format("Failed to stabilize input to ADDC {}. Skipping.", m_name)));
     }
 
     // allow communication to settle after previous reset
