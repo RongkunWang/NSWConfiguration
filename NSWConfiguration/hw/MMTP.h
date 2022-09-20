@@ -202,6 +202,15 @@ namespace nsw::hw {
     std::uint32_t gloSyncBcidOffset() const { return m_config.get("gloSyncBcidOffset", std::uint32_t{0}); }
 
     /**
+     * \brief Get the "fiberRemapSel" provided by the user configuration; 
+     * 0: default
+     * 1: additional swap fiber and switch to use star-1, C06, C1516
+     * 2: star-2 and star-3 swap(outer two out of the three). C08
+     * For latest, see https://espace.cern.ch/ATLAS-NSW-ELX/_layouts/15/WopiFrame.aspx?sourcedoc=/ATLAS-NSW-ELX/Shared%20Documents/NSW%20Trigger%20Processor/NSWTP_Connections.pptx
+     */
+    std::uint32_t fiberRemapSel() const { return m_config.get("fiberRemapSel", std::uint32_t{0}); }
+
+    /**
      * \brief Get the "EnableChannelRates" provided by the user configuration
      */
     bool EnableChannelRates() const { return m_config.get<bool>("EnableChannelRates"); }
