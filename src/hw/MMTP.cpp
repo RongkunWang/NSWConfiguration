@@ -33,6 +33,7 @@ void nsw::hw::MMTP::writeConfiguration() const
     {nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    VmmMaskDrainPeriod()},
     {nsw::mmtp::REG_GLO_SYNC_IDLE_STATE,      gloSyncIdleState()},
     {nsw::mmtp::REG_GLO_SYNC_BCID_OFFSET,     gloSyncBcidOffset()},
+    {nsw::mmtp::REG_FIBER_REMAP_SEL,          fiberRemapSel()},
   };
 
   const auto skippedReg = SkipRegisters();
