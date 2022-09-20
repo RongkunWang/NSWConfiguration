@@ -144,6 +144,7 @@ void nsw::hw::MMTP::alignArtGbtx() const
     // admit defeat
     if (n_resets > nsw::mmtp::FIBER_ALIGN_ATTEMPTS) {
       ers::warning(MMTPFiberAlignIssue(ERS_HERE, fmt::format("Failed to stabilize input to ADDC {}. Skipping.", m_name)));
+      break;
     }
 
     // allow communication to settle after previous reset
