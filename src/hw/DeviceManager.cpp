@@ -68,10 +68,10 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options) c
     std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options),
     std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) != std::cend(options));
   conf(m_arts, "ART");
-  conf(m_stgctps, "STGCTP");
   conf(m_mmtps, "MMTP");
   conf(m_routers, "Router");
   conf(m_padTriggers, "Pad Trigger");
+  conf(m_stgctps, "STGCTP");
   conf(m_tpCarriers, "TP Carrier");
 }
 
