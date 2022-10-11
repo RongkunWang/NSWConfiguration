@@ -319,6 +319,7 @@ namespace nsw {
     constexpr std::uint8_t REG_INPUT_PHASEOFFSET        = 0x0c;
     constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
     constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
+    constexpr std::uint8_t REG_GBT_BCID_OK              = 0x0f;
     constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
     constexpr std::uint8_t REG_L1A_LATENCY              = 0x11;
     constexpr std::uint8_t REG_L1A_WIN_UPPER            = 0x12;
@@ -338,6 +339,8 @@ namespace nsw {
     constexpr std::uint8_t REG_GLO_SYNC_BCID_OFFSET     = 0x29;
     // for the special sectors, swapping is needed.
     constexpr std::uint8_t REG_FIBER_REMAP_SEL          = 0x2a;
+    constexpr std::uint8_t REG_OFFSET_MODE_BCID         = 0x2b;
+    constexpr std::uint8_t REG_OFFSET_MODE_CNT          = 0x2c;
     // should not contain Write-only, because attempting to read Write-Only register will fail.
     constexpr auto REGS = std::to_array({
       REG_ADDC_EMU_DISABLE,
@@ -359,6 +362,7 @@ namespace nsw {
       REG_INPUT_PHASEOFFSET,
       REG_FIBER_HOT_MUX,
       REG_FIBER_HOT_READ,
+      REG_GBT_BCID_OK,
       // REG_FIBER_MASK_MUX,
       // REG_FIBER_MASK_WRITE,
       REG_PIPELINE_OVERFLOW,
@@ -371,6 +375,8 @@ namespace nsw {
       REG_GLO_SYNC_IDLE_STATE,
       REG_GLO_SYNC_BCID_OFFSET,
       REG_FIBER_REMAP_SEL,
+      REG_OFFSET_MODE_BCID,
+      REG_OFFSET_MODE_CNT,
     });
     constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
       std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),
