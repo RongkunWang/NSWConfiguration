@@ -12,12 +12,6 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 
-ERS_DECLARE_ISSUE(nsw,
-                  VMMConfigurationIssue,
-                  fmt::format("Configuration for VMM {} does not match the written configuration", vmmName),
-                  ((std::string)vmmName)
-                  )
-
 namespace nsw::hw {
   /**
    * \brief Class representing a VMM
