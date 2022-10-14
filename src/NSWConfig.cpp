@@ -133,7 +133,7 @@ void nsw::NSWConfig::configureADDCs() {
         } catch (std::exception & ex) {
             std::string message = "Skipping ADDC due to : " + std::string(ex.what());
             nsw::NSWConfigIssue issue(ERS_HERE, message);
-            ers::fatal(issue);
+            ers::error(issue);
         }
     }
 }
