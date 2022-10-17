@@ -60,12 +60,13 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
 
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
     m_NSWConfig->readConf(nswConfigApp);
+
+    m_NSWConfig->configureRc();
     ERS_LOG("End");
 }
 
 void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
-    m_NSWConfig->configureRc();
     ERS_LOG("End");
 }
 
@@ -83,12 +84,12 @@ void nsw::NSWConfigRc::stopRecording(const daq::rc::TransitionCmd&) {
 
 void nsw::NSWConfigRc::disconnect(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
-    m_NSWConfig->unconfigureRc();
     ERS_INFO("End");
 }
 
 void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
+    m_NSWConfig->unconfigureRc();
     ERS_INFO("End");
 }
 
