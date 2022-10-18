@@ -63,6 +63,7 @@ void nsw::NSWConfig::configureRc() {
     }
 
     configureL1DDCs();        // Configure all l1ddc's
+    configureADDCs();         // Configure all ADDCs with ConfigSender
     if (!m_simulation) {
         std::vector<nsw::hw::DeviceManager::Options> result{hw::DeviceManager::Options::DISABLE_VMM_CAPTURE_INPUTS};
         if (m_resetvmm) {
@@ -73,7 +74,6 @@ void nsw::NSWConfig::configureRc() {
         }
         m_deviceManager.configure(result);  // Configure all FEBs, Routers, and TPCarriers
     }
-    configureADDCs();         // Configure all ADDCs
     configureTPs();           // Configure all Trigger processors
     alignADDCsToTP();         // Adjust MMTP serializers based on ART data
     ERS_LOG("End");
