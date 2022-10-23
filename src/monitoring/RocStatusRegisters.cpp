@@ -3,13 +3,13 @@
 #include "NSWConfiguration/monitoring/Helper.h"
 
 nsw::mon::RocStatusRegisters::RocStatusRegisters(const nsw::hw::DeviceManager& deviceManager) :
-  m_devices{deviceManager.getFebs()}
+  m_devices{deviceManager.getFebs()}, m_helper{NUM_CONCURRENT}
 {}
 
 void nsw::mon::RocStatusRegisters::monitor(ISInfoDictionary* isDict,
                                            const std::string_view serverName) const
 {
-  nsw::mon::internal::monitorAndPublish(
+  m_helper.monitorAndPublish(
     m_devices.get(), isDict, serverName, NAME, nsw::mon::RocStatusRegisters::getData);
 }
 

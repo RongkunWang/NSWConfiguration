@@ -5,6 +5,7 @@
 
 #include "NSWConfiguration/hw/DeviceManager.h"
 #include "NSWConfiguration/hw/FEB.h"
+#include "NSWConfiguration/monitoring/Helper.h"
 #include "NSWConfigurationIs/RocStatus.h"
 
 namespace nsw::mon {
@@ -32,6 +33,8 @@ namespace nsw::mon {
 
   private:
     std::reference_wrapper<const std::vector<nsw::hw::FEB>> m_devices;
+    constexpr static std::int64_t NUM_CONCURRENT{20};
+    internal::MonitorHelper m_helper;
 
     /**
      * \brief Read data from one ROC and put it into IS info type

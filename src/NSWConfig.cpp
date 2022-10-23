@@ -69,10 +69,13 @@ void nsw::NSWConfig::readConfigurationResource() {
         ers::fatal(issue);
       }
     }
+    MonitoringVariant{std::in_place_type<nsw::mon::RocStatusRegisters>, m_deviceManager};
     m_monitoringMap.try_emplace(std::string{nsw::mon::RocStatusRegisters::NAME},
-                                MonitoringVariant{nsw::mon::RocStatusRegisters(m_deviceManager)});
+                                std::in_place_type<nsw::mon::RocStatusRegisters>,
+                                m_deviceManager);
     m_monitoringMap.try_emplace(std::string{nsw::mon::RocConfigurationRegisters::NAME},
-                                MonitoringVariant{nsw::mon::RocConfigurationRegisters(m_deviceManager)});
+                                std::in_place_type<nsw::mon::RocConfigurationRegisters>,
+                                m_deviceManager);
 }
 
 void nsw::NSWConfig::configureRc() {

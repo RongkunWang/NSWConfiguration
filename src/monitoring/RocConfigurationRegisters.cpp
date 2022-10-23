@@ -2,13 +2,15 @@
 
 #include "NSWConfiguration/monitoring/Helper.h"
 
-nsw::mon::RocConfigurationRegisters::RocConfigurationRegisters(const nsw::hw::DeviceManager& deviceManager):
-  m_devices{deviceManager.getFebs()}
+nsw::mon::RocConfigurationRegisters::RocConfigurationRegisters(
+  const nsw::hw::DeviceManager& deviceManager) :
+  m_devices{deviceManager.getFebs()}, m_helper{NUM_CONCURRENT}
 {}
 
-void nsw::mon::RocConfigurationRegisters::monitor(ISInfoDictionary* isDict, const std::string_view serverName) const
+void nsw::mon::RocConfigurationRegisters::monitor(ISInfoDictionary* isDict,
+                                                  const std::string_view serverName) const
 {
-  nsw::mon::internal::monitorAndPublish(
+  m_helper.monitorAndPublish(
     m_devices.get(), isDict, serverName, NAME, nsw::mon::RocConfigurationRegisters::getData);
 }
 
