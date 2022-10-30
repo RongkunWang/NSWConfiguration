@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -43,6 +44,9 @@ void nsw::hw::ROC::writeConfiguration() const
   setCoreResetN(getConnection(), INACTIVE);
 
   nsw::hw::SCA::sendI2cMasterConfig(getConnection(), getScaAddress(), m_rocDigital);
+
+  updateWriteTracker(m_rocAnalog, true);
+  updateWriteTracker(m_rocDigital, false);
 }
 
 std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
@@ -59,7 +63,29 @@ std::map<std::uint8_t, std::uint8_t> nsw::hw::ROC::readConfiguration() const
       continue;
     }
   }
+  m_tracker.validate(result);
   return result;
+}
+
+void nsw::hw::ROC::fixConfiguration() const {
+  const auto regs = m_tracker.getErrors();
+  ERS_INFO(fmt::format("Fixing configuration of registers {} for ROC {}", regs, getScaAddress()));
+  for (const auto& regAddress : regs) {
+    const auto isAnalog = regIsAnalog(regAddress);
+    const auto regName = getRegName(regAddress, isAnalog);
+    const auto value = [this, &isAnalog, &regName] () {
+      if (isAnalog) {
+        return nsw::stringToByteVector(m_rocAnalog.getBitstreamMap().at(regName)).at(0);
+      }
+      return nsw::stringToByteVector(m_rocDigital.getBitstreamMap().at(regName)).at(0);
+    }();
+    writeRegister(regName, value);
+  }
+}
+
+bool nsw::hw::ROC::hasConfigurationErrors() const
+{
+  return not m_tracker.getErrors().empty();
 }
 
 void nsw::hw::ROC::writeRegister(const std::uint8_t regAddress, const std::uint8_t value) const
@@ -67,38 +93,14 @@ void nsw::hw::ROC::writeRegister(const std::uint8_t regAddress, const std::uint8
   if (std::find(std::begin(UNUSED_REGISTERS), std::end(UNUSED_REGISTERS), regAddress) != std::end(UNUSED_REGISTERS)) {
     throw UnusedRegisterException(fmt::format("Cannot read unused register {}", regAddress));
   }
-  const auto isAnalog = regAddress >= ROC_DIGITAL_REGISTERS.size();
-  const std::string regName = [isAnalog, regAddress]() {
-    const auto getKeyFromMap = [](const auto& map, const auto num) {
-      auto iter = std::begin(map);
-      std::advance(iter, num);
-      return iter->first;
-    };
-    if (isAnalog) {
-      if (regAddress >= ROC_ANALOG_REGISTERS.size() + ROC_DIGITAL_REGISTERS.size()) {
-        throw std::out_of_range(fmt::format("Analog ROC register out of range: {}", regAddress));
-      }
-      return getKeyFromMap(ROC_ANALOG_REGISTERS, regAddress - ROC_DIGITAL_REGISTERS.size());
-    }
-    if (regAddress >= ROC_DIGITAL_REGISTERS.size()) {
-      throw std::out_of_range(fmt::format("Digital ROC register out of range: {}", regAddress));
-    }
-    return getKeyFromMap(ROC_DIGITAL_REGISTERS, regAddress);
-  }();
+  const auto isAnalog = regIsAnalog(regAddress);
+  const std::string regName = getRegName(regAddress, isAnalog);
   writeRegister(regName, value);
 }
 
 void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t value) const
 {
-  const auto isAnalog = [&regName]() {
-    if (ROC_ANALOG_REGISTERS.find(regName) != std::end(ROC_ANALOG_REGISTERS)) {
-      return true;
-    }
-    if (ROC_DIGITAL_REGISTERS.find(regName) != std::end(ROC_DIGITAL_REGISTERS)) {
-      return false;
-    }
-    throw std::logic_error(fmt::format("Invalid register name {}", regName));
-  }();
+  const auto isAnalog = regIsAnalog(regName);
   const std::string sectionName = [isAnalog]() {
     if (isAnalog) {
       return std::string{ROC_ANALOG_NAME};
@@ -117,6 +119,9 @@ void nsw::hw::ROC::writeRegister(const std::string& regName, const std::uint8_t 
     constexpr bool INACTIVE = false;
     setPllResetN(getConnection(), INACTIVE);
   }
+
+  const auto regAddress = getRegAddress(regName, isAnalog);
+  m_tracker.update(regAddress, value);
 }
 
 std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
@@ -128,7 +133,7 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
   const auto [sclLine, sdaLine] = [address = getScaAddress(),
                                    regAddress]() -> std::pair<unsigned int, unsigned int> {
     const auto isMmfe8 = address.find("MM") != std::string::npos;  // FIXME: Use util function
-    const auto isAnalog = regAddress >= ROC_DIGITAL_REGISTERS.size();
+    const auto isAnalog = regIsAnalog(regAddress);
     if (isMmfe8 and isAnalog) {
       return {nsw::roc::mmfe8::analog::SCL_LINE_PIN, nsw::roc::mmfe8::analog::SDA_LINE_PIN};
     }
@@ -140,12 +145,15 @@ std::uint8_t nsw::hw::ROC::readRegister(const std::uint8_t regAddress) const
     }
     return {nsw::roc::sfeb::digital::SCL_LINE_PIN, nsw::roc::sfeb::digital::SDA_LINE_PIN};
   }();
-  return nsw::hw::SCA::readRocRaw(getConnection(),
-                                  fmt::format("{}.gpio.bitBanger", getScaAddress()),
-                                  sclLine,
-                                  sdaLine,
-                                  regAddress,
-                                  DELAY);
+
+  const auto result = nsw::hw::SCA::readRocRaw(getConnection(),
+                                               fmt::format("{}.gpio.bitBanger", getScaAddress()),
+                                               sclLine,
+                                               sdaLine,
+                                               regAddress,
+                                               DELAY);
+  m_tracker.validate(regAddress, result);
+  return result;
 }
 
 void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values) const
@@ -193,6 +201,8 @@ void nsw::hw::ROC::writeValues(const std::map<std::string, unsigned int>& values
     constexpr bool INACTIVE = false;
     setPllResetN(getConnection(), INACTIVE);
   }
+
+  updateWriteTracker(config, isAnalog);
 }
 
 void nsw::hw::ROC::writeValue(const std::string& name, const unsigned int value) const
@@ -356,6 +366,50 @@ std::uint8_t nsw::hw::ROC::getRegAddress(const std::string& regName, const bool 
   }
   return static_cast<std::uint8_t>(std::distance(std::cbegin(ROC_DIGITAL_REGISTERS),
                                                   ROC_DIGITAL_REGISTERS.find(regName)));
+}
+
+std::string nsw::hw::ROC::getRegName(const std::uint8_t regAddress, const bool isAnalog)
+{
+  const auto getKeyFromMap = [](const auto& map, const auto num) {
+    auto iter = std::begin(map);
+    std::advance(iter, num);
+    return iter->first;
+  };
+  if (isAnalog) {
+    if (regAddress >= ROC_ANALOG_REGISTERS.size() + ROC_DIGITAL_REGISTERS.size()) {
+      throw std::out_of_range(fmt::format("Analog ROC register out of range: {}", regAddress));
+    }
+    return getKeyFromMap(ROC_ANALOG_REGISTERS, regAddress - ROC_DIGITAL_REGISTERS.size());
+  }
+  if (regAddress >= ROC_DIGITAL_REGISTERS.size()) {
+    throw std::out_of_range(fmt::format("Digital ROC register out of range: {}", regAddress));
+  }
+  return getKeyFromMap(ROC_DIGITAL_REGISTERS, regAddress);
+}
+
+bool nsw::hw::ROC::regIsAnalog(const std::string& regName)
+{
+  if (ROC_ANALOG_REGISTERS.find(regName) != std::end(ROC_ANALOG_REGISTERS)) {
+    return true;
+  }
+  if (ROC_DIGITAL_REGISTERS.find(regName) != std::end(ROC_DIGITAL_REGISTERS)) {
+    return false;
+  }
+  throw std::logic_error(fmt::format("Invalid register name {}", regName));
+}
+
+bool nsw::hw::ROC::regIsAnalog(const std::uint8_t& regAddress)
+{
+  return regAddress >= ROC_DIGITAL_REGISTERS.size();
+}
+
+void nsw::hw::ROC::updateWriteTracker(const I2cMasterConfig& config, bool isAnalog) const
+{
+  for (const auto& [regName, regValueString] : config.getBitstreamMap()) {
+    const auto regAddress = getRegAddress(regName, isAnalog);
+    const auto regValue = nsw::stringToByteVector(regValueString).at(0);
+    m_tracker.update(regAddress, regValue);
+  }
 }
 
 bool nsw::hw::ROC::readScaOnline() const

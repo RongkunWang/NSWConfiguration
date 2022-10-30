@@ -23,6 +23,16 @@ namespace nsw {
    * @return std::string Unique sector ID
    */
   std::string extractSectorIdFromApp(const std::string& appName);
+
+  /**
+   * @brief Extract a unique detector ID from the current application
+   *
+   * App name should have the format NSW-MMG-C-S01-SCAService. Everything after the last dash is
+   * dropped
+   *
+   * @return std::string Unique sector ID
+   */
+  std::string extractSectorIdFromApp();
 }  // namespace nsw
 
 #endif  // NSWCONFIGURATION_UTILITY_H

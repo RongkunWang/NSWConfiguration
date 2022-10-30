@@ -151,6 +151,16 @@ class NSWConfig {
      */
     double getFractionFailed() const { return m_deviceManager.getFractionFailed(); }
 
+    /**
+     * @brief Publish state to IS
+     *
+     * Triggered by publish function of RC app. Publishes any configuration errors
+     *
+     * @param isDict IS dict to publish to
+     * @param isServer Name of the IS server
+     */
+    void publish(const ISInfoDictionary* isDict, std::string_view isServer) const;
+
     hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
     const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
 private:

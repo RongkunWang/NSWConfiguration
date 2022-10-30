@@ -1,6 +1,7 @@
 #ifndef NSWCONFIGURATION_HW_DEVICEMANAGER
 #define NSWCONFIGURATION_HW_DEVICEMANAGER
 
+#include <is/infodictionary.h>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -238,6 +239,14 @@ namespace nsw::hw {
      * \brief Reset the error counters to 0
      */
     void resetErrorCounters();
+
+    /**
+     * @brief Publish configuration errors to IS
+     *
+     * @param isDict IS dict to publish to
+     * @param isServer Name of the IS server
+     */
+    void publishConfigurationErrors(const ISInfoDictionary* isDict, std::string_view isServer) const;
 
   private:
     bool m_multithreaded{};

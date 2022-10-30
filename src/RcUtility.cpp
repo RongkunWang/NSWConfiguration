@@ -2,6 +2,7 @@
 
 #include <config/Configuration.h>
 #include <dal/BaseApplication.h>
+#include <dal/RunControlApplicationBase.h>
 #include <dal/Segment.h>
 #include <ers/ers.h>
 #include <RunControl/Common/OnlineServices.h>
@@ -24,4 +25,11 @@ std::string nsw::extractSectorIdFromApp(const std::string& appName)
 {
   constexpr static std::string_view DELIMITER{"-"};
   return appName.substr(0, appName.rfind(DELIMITER));
+}
+
+std::string nsw::extractSectorIdFromApp()
+{
+  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+  return extractSectorIdFromApp(rcBase.UID());
 }

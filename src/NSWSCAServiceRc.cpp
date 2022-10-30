@@ -164,3 +164,8 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
   }
 }
+
+void nsw::NSWSCAServiceRc::publish()
+{
+  m_NSWConfig->publish(m_isDictionary.get(), m_monitoringIsServerName);
+}
