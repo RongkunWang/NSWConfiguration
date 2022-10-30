@@ -301,3 +301,8 @@ void nsw::NSWConfig::monitor(const std::string& name, ISInfoDictionary* isDict, 
 {
   std::visit([&isDict, &serverName] (auto& mon) mutable { mon.monitor(isDict, serverName); }, m_monitoringMap.at(name));
 }
+
+void nsw::NSWConfig::publish(const ISInfoDictionary* isDict, std::string_view isServer) const
+{
+  m_deviceManager.publishConfigurationErrors(isDict, isServer);
+}

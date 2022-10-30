@@ -57,6 +57,13 @@ tdaq_generate_isinfo(nswmonis
   NAMESPACE nsw::mon::is)
 
 tdaq_add_is_schema(schema/NswMonitoring_is_info.xml)
+tdaq_generate_isinfo(nswconfis
+      info/NswConfiguration.schema.xml
+    CPP_OUTPUT is_cpp_srcs
+    SIMPLE
+    NAMED
+    OUTPUT_DIRECTORY ${TDAQ_PACKAGE_NAME}Is
+    NAMESPACE nsw::mon::is)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
                   schema/NSWSCAService.schema.xml
@@ -195,7 +202,8 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
 )
 
 tdaq_add_library(nswhwinterface
-                 src/hw/DeviceManager.cpp # Placeholder for future
+                 src/hw/ConfigurationTracker.cpp
+                 src/hw/DeviceManager.cpp
                  src/hw/OpcManager.cpp
                  src/hw/SCAInterface.cpp
                  src/hw/ScaAddressBase.cpp
@@ -277,6 +285,7 @@ tdaq_add_schema(schema/NSWSectorController.schema.xml)
 tdaq_add_schema(schema/NSWSCAService.schema.xml)
 
 tdaq_add_is_schema(info/NswMonitoring.schema.xml)
+tdaq_add_is_schema(info/NswConfiguration.schema.xml)
 
 # Testing
 

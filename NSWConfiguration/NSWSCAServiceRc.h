@@ -45,6 +45,11 @@ namespace nsw {
     void user(const daq::rc::UserCmd& cmd) override;
 
     /**
+     * \brief Publish state of application
+     */
+    void publish() override;
+
+    /**
      * \brief Get simulation switch from IS
      *
      * \return true simulation mode, do not talk to HW

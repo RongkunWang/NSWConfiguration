@@ -8,6 +8,7 @@
 
 #include "NSWConfiguration/FEBConfig.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/hw/ConfigurationTracker.h"
 #include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/ConfigConverter.h"
@@ -44,6 +45,19 @@ namespace nsw::hw {
      * \brief Write the full ROC configuration
      */
     void writeConfiguration() const;
+
+    /**
+     * @brief Update configuration for all misconfigured registers
+     */
+    void fixConfiguration() const;
+
+    /**
+     * @brief Check if the configuration had errors
+     *
+     * @return true Errors
+     * @return false No errors
+     */
+    [[nodiscard]] bool hasConfigurationErrors() const;
 
     /**
      * \brief Read a ROC register
@@ -219,8 +233,47 @@ namespace nsw::hw {
      */
     [[nodiscard]] static std::uint8_t getRegAddress(const std::string& regName, bool isAnalog);
 
+    /**
+     * @brief Get the name of a register
+     *
+     * @param regAddress Address of the register
+     * @param isAnalog Is it an analog register
+     * @throws std::out_of_range Is not a valid register
+     * @return std::string Name of the register
+     */
+    [[nodiscard]] static std::string getRegName(const std::uint8_t regAddress, bool isAnalog);
+
+    /**
+     * @brief Is a register an analog or digital one
+     *
+     * @param regName Name of the register
+     * @throws std::logic_error Is no valid register
+     * @return true Is analog register
+     * @return false Is digital register
+     */
+    [[nodiscard]] static bool regIsAnalog(const std::string& regName);
+
+    /**
+     * @brief Is a register an analog or digital one
+     *
+     * @param regAddress Address of the register
+     * @throws std::logic_error Is no valid register
+     * @return true Is analog register
+     * @return false Is digital register
+     */
+    [[nodiscard]] static bool regIsAnalog(const std::uint8_t& regAddress);
+
+    /**
+     * @brief Update config tracker when writing multiple registers
+     *
+     * @param config Configuration that was written
+     * @param isAnalog Configuration of analog or digital registers
+     */
+    void updateWriteTracker(const I2cMasterConfig& config, bool isAnalog) const;
+
     I2cMasterConfig m_rocAnalog;   //!< associated I2cMasterConfig for the analog part of this ROC
     I2cMasterConfig m_rocDigital;  //!< associated I2cMasterConfig for the digital part of this ROC
+    mutable internal::ConfigurationTrackerMap<internal::DeviceType::ROC> m_tracker;
     constexpr static std::array<std::uint8_t, 22>
       UNUSED_REGISTERS{15, 16, 17, 18, 25, 26, 27, 28, 29, 30, 54, 55, 56, 57, 58, 59, 60, 61, 62, 125, 126, 127};  //!< Unused ROC registers
 

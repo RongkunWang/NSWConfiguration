@@ -1,6 +1,12 @@
 #include "NSWConfiguration/hw/DeviceManager.h"
 
+#include "NSWConfiguration/hw/ROC.h"
+
 #include <future>
+#include <ranges>
+
+#include <NSWConfiguration/RcUtility.h>
+#include "NSWConfigurationIs/MisconfiguredDevices.h"
 
 nsw::hw::DeviceManager::DeviceManager(const bool multithreaded) : m_multithreaded(multithreaded) {}
 
@@ -196,4 +202,23 @@ void nsw::hw::DeviceManager::resetErrorCounters()
 {
   m_configurationErrorCounter = 0;
   m_configurationTotalCounter = 0;
+}
+
+void nsw::hw::DeviceManager::publishConfigurationErrors(const ISInfoDictionary* isDict, const std::string_view isServer) const
+{
+  auto boards = std::vector<std::string>{};
+  const auto getRoc = [] (const FEB& feb) {
+    return feb.getRoc();
+  };
+  const auto filter = [] (const ROC& roc) {
+    return roc.hasConfigurationErrors();
+  };
+  std::ranges::transform(m_febs | std::views::transform(getRoc) | std::views::filter(filter),
+                         std::inserter(boards, std::end(boards)),
+                         [](const ROC& roc) { return roc.getScaAddress(); });
+  nsw::mon::is::MisconfiguredDevices isEntry{};
+  isEntry.devices = boards;
+  constexpr static std::string_view IS_NODE_NAME{"ConfigurationErrors"};
+  const auto sectorId = extractSectorIdFromApp();
+  isDict->checkin(fmt::format("{}.{}.{}", isServer, sectorId, IS_NODE_NAME), isEntry);
 }
