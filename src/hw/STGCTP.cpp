@@ -17,18 +17,7 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
-  if (getDoReset()) {
-    ERS_LOG(fmt::format("{}: toggling RX resets", getName()));
-    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_ENABLE);
-    nsw::snooze(1s);
-    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_DISABLE);
-    nsw::snooze(2s);
-    ERS_LOG(fmt::format("{}: toggling TX resets", getName()));
-    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_ENABLE);
-    nsw::snooze(1s);
-    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_DISABLE);
-    nsw::snooze(2s);
-  }
+  doReset();
   writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector(), nsw::stgctp::MASK_SECTOR);
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
@@ -107,4 +96,20 @@ std::uint32_t nsw::hw::STGCTP::getSector() const
 bool nsw::hw::STGCTP::getDoReset() const
 {
   return m_config.get("DoReset", true);
+}
+
+void nsw::hw::STGCTP::doReset() const
+{
+  if (getDoReset()) {
+    ERS_LOG(fmt::format("{}: toggling RX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_ENABLE);
+    nsw::snooze(1s);
+    writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_DISABLE);
+    nsw::snooze(2s);
+    ERS_LOG(fmt::format("{}: toggling TX resets", getName()));
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_ENABLE);
+    nsw::snooze(1s);
+    writeRegister(nsw::stgctp::REG_RST_TX, nsw::stgctp::RST_TX_DISABLE);
+    nsw::snooze(2s);
+  }
 }

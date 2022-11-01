@@ -117,6 +117,14 @@ void nsw::hw::DeviceManager::toggleIdleStateHigh() const
         ERS_HERE, fmt::format("Toggling MMTP Idle State High failed due to: {}", ex.what()));
       ers::error(issue);
     });
+  applyFunc(
+    m_stgctps,
+    [](const auto& device) { device.doReset(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Resetting sTGC TP failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
 }
 
 void nsw::hw::DeviceManager::clear()

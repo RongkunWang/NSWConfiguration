@@ -237,8 +237,12 @@ namespace nsw {
     constexpr std::uint8_t REG_TO_SL_RATE       = 0x0d;
     constexpr std::uint8_t REG_SECTOR           = 0x0e;
     constexpr std::uint8_t REG_MM_BXID_SYNC_OK  = 0x0f;
-    constexpr std::uint8_t REG_PAD_IDLE_STATUS  = 0x10;
+    constexpr std::uint8_t REG_PAD_IDLE_STATUS  = 0x10; // equal to pad trigger empty flag in FIFO
     constexpr std::uint8_t REG_MM_IDLE_STATUS   = 0x11;
+    // Status                                    | 0x10 | 0x11
+    // pad trigger sending junk, MMG not idle    | 1    | 0 
+    // pad trigger sending junk, MMG idle        | 0    | 1
+    // both idle                                 | 1    | 1
     constexpr std::uint8_t REG_PAD_ARRIVAL_BC   = 0x12;
     constexpr std::uint8_t REG_MM_ARRIVAL_BC    = 0x13;
     constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
