@@ -113,6 +113,12 @@ namespace nsw::hw {
     [[nodiscard]]
     bool getDoReset() const;
 
+    /**
+     * \brief reset the trigger processor
+     */
+    [[nodiscard]]
+    void doReset() const;
+
   private:
     boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
     std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
