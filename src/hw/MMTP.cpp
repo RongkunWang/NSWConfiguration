@@ -18,9 +18,10 @@ void nsw::hw::MMTP::writeConfiguration() const
 {
   std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
     {nsw::mmtp::REG_ADDC_EMU_DISABLE,         nsw::mmtp::ADDC_EMU_DISABLE},
-    {nsw::mmtp::REG_L1A_LATENCY,              ARTWindowCenter()},
-    {nsw::mmtp::REG_L1A_WIN_UPPER,            ARTWindowLeft()},
-    {nsw::mmtp::REG_L1A_WIN_LOWER,            ARTWindowRight()},
+    {nsw::mmtp::REG_L1A_OPENING_OFFSET,       L1AOpeningOffset()},
+    {nsw::mmtp::REG_L1A_REQUEST_OFFSET,       L1ARequestOffset()},
+    {nsw::mmtp::REG_L1A_CLOSING_OFFSET,       L1AClosingOffset()},
+    {nsw::mmtp::REG_L1A_TIMEOUT_WINDOW,       L1ATimeoutWindow()},
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_ENABLE},
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_DISABLE},
     {nsw::mmtp::REG_FIBER_BC_OFFSET,          FiberBCOffset()},

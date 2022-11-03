@@ -35,9 +35,10 @@ class TPConfig: public SCAConfig {
     std::map<std::string, I2cMasterConfig*> getI2cMastersMap() { return m_registerFiles; }
     uint8_t getNumMasters() const { return m_numMasters; }
 
-    int ARTWindowCenter() const;
-    int ARTWindowLeft() const;
-    int ARTWindowRight() const;
+    int L1AOpeningOffset() const;
+    int L1ARequestOffset() const;
+    int L1AClosingOffset() const;
+    int L1ATimeoutWindow() const;
     uint32_t FiberBCOffset() const;
     int GlobalInputPhase() const;
     int GlobalInputOffset() const;
@@ -50,9 +51,10 @@ class TPConfig: public SCAConfig {
     int L1ALatencyScanEnd() const;
     int HorxEnvMonAddr() const;
 
-    void setARTWindowCenter(int val);
-    void setARTWindowLeft(int val);
-    void setARTWindowRight(int val);
+    void setL1AOpeningOffset(int val);
+    void setL1ARequestOffset(int val);
+    void setL1AClosingOffset(int val);
+    void setL1ATimeoutWindow(int val);
     void setFiberBCOffset(uint32_t val);
     void setGlobalInputPhase(int val);
     void setGlobalInputOffset(int val);
