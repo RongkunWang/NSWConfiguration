@@ -127,19 +127,24 @@ namespace nsw::hw {
     std::vector<std::uint32_t> readAlignment(const size_t n_reads) const;
 
     /**
-     * \brief Get the "ARTWindowCenter" provided by the user configuration
+     * \brief Get the "L1AOpeningOffset" provided by the user configuration
      */
-    std::uint32_t ARTWindowCenter() const { return m_config.get<std::uint32_t>("ARTWindowCenter"); }
+    std::uint32_t L1AOpeningOffset() const { return m_config.get<std::uint32_t>("L1AOpeningOffset"); }
 
     /**
-     * \brief Get the "ARTWindowLeft" provided by the user configuration
+     * \brief Get the "L1ARequestOffset" provided by the user configuration
      */
-    std::uint32_t ARTWindowLeft() const { return m_config.get<std::uint32_t>("ARTWindowLeft"); }
+    std::uint32_t L1ARequestOffset() const { return m_config.get<std::uint32_t>("L1ARequestOffset"); }
 
     /**
-     * \brief Get the "ARTWindowRight" provided by the user configuration
+     * \brief Get the "L1AClosingOffset" provided by the user configuration
      */
-    std::uint32_t ARTWindowRight() const { return m_config.get<std::uint32_t>("ARTWindowRight"); }
+    std::uint32_t L1AClosingOffset() const { return m_config.get<std::uint32_t>("L1AClosingOffset"); }
+
+    /**
+     * \brief Get the "L1AClosingOffset" provided by the user configuration
+     */
+    std::uint32_t L1ATimeoutWindow() const { return m_config.get<std::uint32_t>("L1ATimeoutWindow"); }
 
     /**
      * \brief Get the "FiberBCOffset" provided by the user configuration

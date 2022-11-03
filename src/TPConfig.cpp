@@ -96,14 +96,17 @@ void nsw::TPConfig::restructureConfig() {
 }
 
 
-int nsw::TPConfig::ARTWindowCenter() const {
-    return m_config.get<int>("ARTWindowCenter");
+int nsw::TPConfig::L1AOpeningOffset() const {
+    return m_config.get<int>("L1AOpeningOffset");
 }
-int nsw::TPConfig::ARTWindowLeft() const {
-    return m_config.get<int>("ARTWindowLeft");
+int nsw::TPConfig::L1ARequestOffset() const {
+    return m_config.get<int>("L1ARequestOffset");
 }
-int nsw::TPConfig::ARTWindowRight() const {
-    return m_config.get<int>("ARTWindowRight");
+int nsw::TPConfig::L1AClosingOffset() const {
+    return m_config.get<int>("L1AClosingOffset");
+}
+int nsw::TPConfig::L1ATimeoutWindow() const {
+    return m_config.get<int>("L1ATimeoutWindow");
 }
 uint32_t nsw::TPConfig::FiberBCOffset() const {
     return m_config.get<uint32_t>("FiberBCOffset");
@@ -139,14 +142,17 @@ int nsw::TPConfig::HorxEnvMonAddr() const {
     return m_config.get("HorxEnvMonAddr", int{0});
 }
 
-void nsw::TPConfig::setARTWindowCenter(int val) {
-  m_config.put("ARTWindowCenter", val);
+void nsw::TPConfig::setL1AOpeningOffset(int val) {
+  m_config.put("L1AOpeningOffset", val);
 }
-void nsw::TPConfig::setARTWindowLeft(int val) {
-  m_config.put("ARTWindowLeft", val);
+void nsw::TPConfig::setL1ARequestOffset(int val) {
+  m_config.put("L1ARequestOffset", val);
 }
-void nsw::TPConfig::setARTWindowRight(int val) {
-  m_config.put("ARTWindowRight", val);
+void nsw::TPConfig::setL1AClosingOffset(int val) {
+  m_config.put("L1AClosingOffset", val);
+}
+void nsw::TPConfig::setL1ATimeoutWindow(int val) {
+  m_config.put("L1ATimeoutWindow", val);
 }
 void nsw::TPConfig::setFiberBCOffset(uint32_t val) {
   m_config.put("FiberBCOffset", val);

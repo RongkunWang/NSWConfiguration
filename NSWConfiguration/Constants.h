@@ -325,10 +325,14 @@ namespace nsw {
     constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
     constexpr std::uint8_t REG_GBT_BCID_OK              = 0x0f;
     constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
-    constexpr std::uint8_t REG_L1A_LATENCY              = 0x11;
-    constexpr std::uint8_t REG_L1A_WIN_UPPER            = 0x12;
-    constexpr std::uint8_t REG_L1A_WIN_LOWER            = 0x13;
-    constexpr std::uint8_t REG_L1A_STATUS               = 0x14;
+    constexpr std::uint8_t REG_L1A_OPENING_OFFSET       = 0x11;
+    constexpr std::uint8_t REG_L1A_REQUEST_OFFSET       = 0x12;
+    constexpr std::uint8_t REG_L1A_CLOSING_OFFSET       = 0x13;
+    constexpr std::uint8_t REG_L1A_TIMEOUT_WINDOW       = 0x14;
+    constexpr std::uint8_t REG_GBT_PHASE_OFFSET         = 0x18;
+    constexpr std::uint8_t REG_TTC_ECR_CNT              = 0x19;
+    constexpr std::uint8_t REG_TTC_BCR_CNT              = 0x1a;
+    constexpr std::uint8_t REG_TTC_L1A_CNT              = 0x1b;
     constexpr std::uint8_t REG_FIBER_MASK_MUX           = 0x1c;
     constexpr std::uint8_t REG_FIBER_MASK_WRITE         = 0x1d;
     constexpr std::uint8_t REG_PIPELINE_OVERFLOW        = 0x20;
@@ -358,10 +362,13 @@ namespace nsw {
       REG_DATE_CODE,
       REG_GIT_HASH,
       REG_L1A_CONTROL,
-      REG_L1A_LATENCY,
-      REG_L1A_WIN_UPPER,
-      REG_L1A_WIN_LOWER,
-      REG_L1A_STATUS,
+      REG_L1A_OPENING_OFFSET,
+      REG_L1A_REQUEST_OFFSET,
+      REG_L1A_CLOSING_OFFSET,
+      REG_L1A_TIMEOUT_WINDOW,
+      REG_TTC_ECR_CNT,
+      REG_TTC_BCR_CNT,
+      REG_TTC_L1A_CNT,
       REG_INPUT_PHASE,
       REG_INPUT_PHASEOFFSET,
       REG_FIBER_HOT_MUX,
