@@ -136,7 +136,7 @@ class NSWConfig {
      * \param isDict IS dictionary
      * \param serverName Name of the IS server
      */
-    void monitor(const std::string& name, ISInfoDictionary* isDict, std::string_view serverName) const;
+    void monitor(const std::string& name, ISInfoDictionary* isDict, std::string_view serverName);
 
     /**
      * \brief Get the fraction of devices that failed to configure

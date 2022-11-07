@@ -69,7 +69,6 @@ void nsw::NSWConfig::readConfigurationResource() {
         ers::fatal(issue);
       }
     }
-    MonitoringVariant{std::in_place_type<nsw::mon::RocStatusRegisters>, m_deviceManager};
     m_monitoringMap.try_emplace(std::string{nsw::mon::RocStatusRegisters::NAME},
                                 std::in_place_type<nsw::mon::RocStatusRegisters>,
                                 m_deviceManager);
@@ -303,7 +302,7 @@ bool nsw::NSWConfig::recoverOpc() {
   return pingServer();
 }
 
-void nsw::NSWConfig::monitor(const std::string& name, ISInfoDictionary* isDict, const std::string_view serverName) const
+void nsw::NSWConfig::monitor(const std::string& name, ISInfoDictionary* isDict, const std::string_view serverName)
 {
-  std::visit([&isDict, &serverName] (const auto& mon) { mon.monitor(isDict, serverName); }, m_monitoringMap.at(name));
+  std::visit([&isDict, &serverName] (auto& mon) mutable { mon.monitor(isDict, serverName); }, m_monitoringMap.at(name));
 }

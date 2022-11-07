@@ -11,28 +11,6 @@
 #include "NSWConfiguration/monitoring/IsPublisher.h"
 
 namespace nsw::mon::internal {
-  /** @brief A simple lock for a semaphore
-   */
-  template<typename SemaphoreType>
-  class SemaphoreGuard
-  {
-  public:
-    explicit SemaphoreGuard(SemaphoreType& semaphore) : m_semaphore{semaphore}
-    {
-      m_semaphore.acquire();
-    }
-
-    ~SemaphoreGuard() { m_semaphore.release(); }
-
-    SemaphoreGuard(const SemaphoreGuard&) = delete;
-    SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
-    SemaphoreGuard(SemaphoreGuard&&) noexcept = default;
-    SemaphoreGuard& operator=(SemaphoreGuard&&) noexcept = default;
-
-  private:
-    SemaphoreType& m_semaphore;
-  };
-
   /**
    * @brief Helper do monitor boards and publish the result to IS
    */
@@ -52,6 +30,7 @@ namespace nsw::mon::internal {
      * \tparam T HW interface type
      * \param hwis Set of devices to be monitored
      * \param isDict IS dictionary (from partition)
+     * \param theadPool Thread pool to execute jobs
      * \param serverName Name of the IS monitoring server
      * \param groupName Name of the monitoring group
      * \param func Function that fills the IS object for each device
@@ -59,21 +38,17 @@ namespace nsw::mon::internal {
     template<nsw::HWI T>
     void monitorAndPublish(const std::vector<T>& hwis,
                            ISInfoDictionary* isDict,
+                           IPCThreadPool& threadPool,
                            const std::string_view serverName,
                            const std::string_view groupName,
                            const std::regular_invocable<T> auto& func) const
     {
-      std::vector<std::future<void>> threads{};
-      threads.reserve(std::size(hwis));
       for (const auto& device : hwis) {
-        threads.push_back(std::async(std::launch::async,
-                                     [this, &isDict, &serverName, &groupName, &func, &device]() {
-                                       doWork(device, isDict, serverName, groupName, func);
-                                     }));
+        threadPool.addJob([this, &isDict, &serverName, &groupName, &func, &device]() {
+          doWork(device, isDict, serverName, groupName, func);
+        });
       }
-      for (auto& thread : threads) {
-        thread.get();
-      }
+      threadPool.waitForCompletion();
     }
 
   private:
@@ -94,7 +69,6 @@ namespace nsw::mon::internal {
                 const std::string_view groupName,
                 const std::regular_invocable<T> auto& func) const
     {
-      auto guard = SemaphoreGuard(m_semaphore);
       try {
         const auto values = func(device);
         ISPublisher::publish(isDict,

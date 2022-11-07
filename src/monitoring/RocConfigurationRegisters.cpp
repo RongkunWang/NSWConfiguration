@@ -8,10 +8,14 @@ nsw::mon::RocConfigurationRegisters::RocConfigurationRegisters(
 {}
 
 void nsw::mon::RocConfigurationRegisters::monitor(ISInfoDictionary* isDict,
-                                                  const std::string_view serverName) const
+                                                  const std::string_view serverName)
 {
-  m_helper.monitorAndPublish(
-    m_devices.get(), isDict, serverName, NAME, nsw::mon::RocConfigurationRegisters::getData);
+  m_helper.monitorAndPublish(m_devices.get(),
+                             isDict,
+                             m_threadPool,
+                             serverName,
+                             NAME,
+                             nsw::mon::RocConfigurationRegisters::getData);
 }
 
 nsw::mon::is::RocConfiguration nsw::mon::RocConfigurationRegisters::getData(const nsw::hw::FEB& feb)

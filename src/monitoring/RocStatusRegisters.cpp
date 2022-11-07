@@ -7,10 +7,10 @@ nsw::mon::RocStatusRegisters::RocStatusRegisters(const nsw::hw::DeviceManager& d
 {}
 
 void nsw::mon::RocStatusRegisters::monitor(ISInfoDictionary* isDict,
-                                           const std::string_view serverName) const
+                                           const std::string_view serverName)
 {
   m_helper.monitorAndPublish(
-    m_devices.get(), isDict, serverName, NAME, nsw::mon::RocStatusRegisters::getData);
+    m_devices.get(), isDict, m_threadPool, serverName, NAME, nsw::mon::RocStatusRegisters::getData);
 }
 
 nsw::mon::is::RocStatus nsw::mon::RocStatusRegisters::getData(const nsw::hw::FEB& feb)
