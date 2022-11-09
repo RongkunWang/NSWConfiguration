@@ -65,7 +65,7 @@ if(NOT Open62541Compat_FOUND)
 endif()
 
 if(NOT UaoClient_FOUND)
-  message(STATUS "Unable to find or UaoClientForOpcUaSca, will build locally")
+  message(STATUS "Unable to find UaoClientForOpcUaSca, will build locally")
   if(GIT_URL_ENDPOINT STREQUAL "https://github.com")
     set(GIT_URL_ENDPOINT "https://:@gitlab.cern.ch:8443" CACHE INTERNAL "")
   endif()
