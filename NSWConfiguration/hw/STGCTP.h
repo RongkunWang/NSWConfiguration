@@ -108,15 +108,32 @@ namespace nsw::hw {
     std::uint32_t getSector() const;
 
     /**
-     * \brief Read the reset command from the ptree config
+     * \brief Get DoReset from the user config
      */
     [[nodiscard]]
-    bool getDoReset() const;
+    bool getDoReset() const { return m_config.get("DoReset", true); };
+
+    /**
+     * \brief Get IgnorePads from the user config
+     */
+    [[nodiscard]]
+    bool getIgnorePads() const { return m_config.get("IgnorePads", false); };
+
+    /**
+     * \brief Get IgnoreMM from the user config
+     */
+    [[nodiscard]]
+    bool getIgnoreMM() const { return m_config.get("IgnoreMM", false); };
+
+    /**
+     * \brief Get DisableNSWMON from the user config
+     */
+    [[nodiscard]]
+    bool getDisableNSWMON() const { return m_config.get("DisableNSWMON", false); };
 
     /**
      * \brief reset the trigger processor
      */
-    [[nodiscard]]
     void doReset() const;
 
   private:
