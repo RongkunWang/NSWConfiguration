@@ -17,8 +17,9 @@ stages:
 include:
   - project: 'atlas-muon-nsw-daq/nsw-build-scripts'
     ref: 'master'
-    file: '.gitlab/ci/code-quality.yml'
-  - .gitlab/ci/build-and-test.yml
+    file:
+      - '.gitlab/ci/code-quality.yml'
+      - '.gitlab/ci/build-and-test.yml'
 
 workflow:
   rules:
