@@ -67,6 +67,7 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
 
 void nsw::NSWConfigRc::connect(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
+    m_NSWConfig->connectRc();
     ERS_LOG("End");
 }
 

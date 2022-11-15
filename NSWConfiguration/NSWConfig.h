@@ -83,6 +83,9 @@ class NSWConfig {
     //! Send the configuration to the boards
     void configureRc();
 
+    //! Exectue the connect step
+    void connectRc();
+
     //! Retrieve the ptree configuration
     boost::property_tree::ptree getConf();
 

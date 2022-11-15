@@ -75,6 +75,16 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options) c
   conf(m_tpCarriers, "TP Carrier");
 }
 
+void nsw::hw::DeviceManager::connect() const
+{
+  // MMG TP config and STG TP config are racing because
+  // they are in different config applications.
+  // Racing is fine, if STG TP is reset afterward.
+  for (const auto& dev: m_stgctps) {
+    dev.doReset();
+  }
+}
+
 void nsw::hw::DeviceManager::enableVmmCaptureInputs() const
 {
   applyFunc(
