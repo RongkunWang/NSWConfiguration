@@ -79,6 +79,10 @@ void nsw::NSWConfig::configureRc() {
     ERS_LOG("End");
 }
 
+void nsw::NSWConfig::connectRc() {
+  m_deviceManager.connect();
+}
+
 void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
     m_addcs.clear();

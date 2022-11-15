@@ -108,6 +108,11 @@ namespace nsw::hw {
     void configure(std::span<const Options> options = {}) const;
 
     /**
+     * \brief Connect all devices
+     */
+    void connect() const;
+
+    /**
      * \brief Enable VMM capture inputs of all ROCs
      */
     void enableVmmCaptureInputs() const;
