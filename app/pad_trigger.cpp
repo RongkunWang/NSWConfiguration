@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
         ("config_file,c", po::value<std::string>(&config_filename)
          ->default_value(""), "Config file path. REQUIRED. Can also set by `export JSON=XXX`")
         ("name,n", po::value<std::string>(&board_name)
-         ->default_value("PadTriggerSCA_00"), "Name of desired PT (should contain PadTriggerSCA).")
+         ->default_value(""), "Name of desired PT.")
         ("gpio", po::value<std::string>(&gpio_name)
          ->default_value(""), "GPIO name to read/write (check the xml for valid names).")
         ("dump", po::bool_switch()->
@@ -148,7 +148,7 @@ int main(int argc, const char *argv[])
           hw.writeFPGARegister(i2c_reg_08, i2c_val_32);
         }
         const auto val = hw.readFPGARegister(i2c_reg_08);
-        std::cout << fmt::format(" Readback {}: {}", i2c_reg_08, val) << std::endl;
+        std::cout << fmt::format(" Readback {:#05x}: {:#010x}", i2c_reg_08, val) << std::endl;
         if (i2c_reg_08 == nsw::padtrigger::REG_STATUS) {
           const auto temp = val & 0xfff;
           std::cout << fmt::format(" -> {}C", xilinx_temperature_conversion(temp)) << std::endl;
@@ -237,7 +237,7 @@ int main(int argc, const char *argv[])
       std::cout << "Read registers:" << std::endl;
       for (const auto& hw: hws) {
         for (const auto& [addr, val]: hw.readConfiguration()) {
-          std::cout << fmt::format("{} address {:03x}: {:#010x}", hw.getName(), addr, val)
+          std::cout << fmt::format("{} address {:#05x}: {:#010x}", hw.getName(), addr, val)
                     << std::endl;
         }
       }
