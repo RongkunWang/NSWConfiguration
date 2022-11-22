@@ -55,6 +55,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to toggle the Pad Trigger OCR enable")
         ("toggleGtReset", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger GT resets")
+        ("toggleBcidErrorReset", po::bool_switch()->
+         default_value(false), "Option to toggle the Pad Trigger BCID resets")
         ("toggleIdleState", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger idle state in the control register")
         ("read,r", po::bool_switch()->
@@ -69,16 +71,17 @@ int main(int argc, const char *argv[])
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    const auto dump            = vm["dump"]           .as<bool>();
-    const auto do_config       = vm["do_config"]      .as<bool>();
-    const auto do_control      = vm["do_control"]     .as<bool>();
-    const auto repeaters       = vm["repeaters"]      .as<bool>();
-    const auto readout         = vm["readout"]        .as<bool>();
-    const auto uploadBitfile   = vm["uploadBitfile"]  .as<bool>();
-    const auto toggleOcrEnable = vm["toggleOcrEnable"].as<bool>();
-    const auto toggleGtReset   = vm["toggleGtReset"]  .as<bool>();
-    const auto toggleIdleState = vm["toggleIdleState"].as<bool>();
-    const auto read            = vm["read"]           .as<bool>();
+    const auto dump                 = vm["dump"]                .as<bool>();
+    const auto do_config            = vm["do_config"]           .as<bool>();
+    const auto do_control           = vm["do_control"]          .as<bool>();
+    const auto repeaters            = vm["repeaters"]           .as<bool>();
+    const auto readout              = vm["readout"]             .as<bool>();
+    const auto uploadBitfile        = vm["uploadBitfile"]       .as<bool>();
+    const auto toggleOcrEnable      = vm["toggleOcrEnable"]     .as<bool>();
+    const auto toggleGtReset        = vm["toggleGtReset"]       .as<bool>();
+    const auto toggleBcidErrorReset = vm["toggleBcidErrorReset"].as<bool>();
+    const auto toggleIdleState      = vm["toggleIdleState"]     .as<bool>();
+    const auto read                 = vm["read"]                .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -117,6 +120,29 @@ int main(int argc, const char *argv[])
                                hw.getName(),
                                hw.firmware(),
                                hw.firmware_dateword()) << std::endl;
+    }
+
+    // check for conflicting suggestions
+    for (const auto& hw: hws) {
+      std::string error{""};
+      if (repeaters and not hw.ConfigRepeaters()) {
+        error = "ConfigRepeaters";
+      }
+      else if (toggleGtReset and not hw.GtReset()) {
+        error = "GtReset";
+      }
+      else if (toggleBcidErrorReset and not hw.BcidErrorReset()) {
+        error = "BcidErrorReset";
+      }
+      else if (toggleIdleState and not hw.Toggle()) {
+        error = "Toggle";
+      }
+      else if (toggleOcrEnable and not hw.OcrEnable()) {
+        error = "OcrEnable";
+      }
+      if (not error.empty()) {
+        throw std::runtime_error(fmt::format("You asked for {}, but {} has {}=False", error, hw.getName(), error));
+      }
     }
 
     // dump config
@@ -206,6 +232,11 @@ int main(int argc, const char *argv[])
         }
         hw.toggleGtReset();
       }
+    }
+
+    // BCID reset
+    if (toggleBcidErrorReset) {
+      std::ranges::for_each(hws, [](const auto& hw){ hw.toggleBcidErrorReset(); });
     }
 
     // idle state

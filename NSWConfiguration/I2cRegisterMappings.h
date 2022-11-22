@@ -1361,12 +1361,29 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pfeb_hit_rate", 16},
     }},
   {"00E_gt_reset", {
-      {"NOT_USED", 8},
+      {"NOT_USED", 6},
+      {"bcid_error_rst", 2},
       {"reset", 24},
     }},
   {"00F_pfeb_status_READONLY", {
       {"NOT_USED", 8},
       {"status", 24},
+    }},
+  {"012_pad_bcid_error_READONLY", {
+      {"pad_bcid_error_dif", 16},
+      {"pad_bcid_error", 16},
+    }},
+  {"013_pt_2_tp_lat_READONLY", {
+      {"NOT_USED", 24},
+      {"pt_2_tp_lat", 8},
+    }},
+  {"014_tp_bcid_error_READONLY", {
+      {"tp_bcid_error_dif", 16},
+      {"tp_bcid_error", 16},
+    }},
+  {"015_ttc_rate_READONLY", {
+      {"NOT_USED", 16},
+      {"ttc_bcr_ocr_rate", 16},
     }},
 };
 

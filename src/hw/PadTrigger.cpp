@@ -31,6 +31,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   deskewPFEBs();
   toggleIdleState();
   toggleOcrEnable();
+  toggleBcidErrorReset();
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -207,6 +208,23 @@ void nsw::hw::PadTrigger::toggleIdleState() const
   writeStartIdleStateDisable();
   writeStartIdleStateEnable();
   writeStartIdleStateDisable();
+}
+
+void nsw::hw::PadTrigger::toggleBcidErrorReset() const
+{
+  if (not BcidErrorReset()) {
+    ERS_INFO(fmt::format("Skipping toggleBcidErrorReset of {}", m_name));
+    return;
+  }
+  ERS_INFO(fmt::format("toggleBcidErrorReset of {}", m_name));
+  writeBcidResetDisable();
+  writeBcidResetEnable();
+  writeBcidResetDisable();
+  nsw::snooze();
+  const auto pad_bcid_error = readFPGARegister(nsw::padtrigger::REG_BCID_ERROR);
+  const auto tp_bcid_error  = readFPGARegister(nsw::padtrigger::REG_TP_BCID_ERROR);
+  ERS_INFO(fmt::format("{} BCID error status: {:#010x} (pad) {:#010x} (tp)",
+                       m_name, pad_bcid_error, tp_bcid_error));
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const

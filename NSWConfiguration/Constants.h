@@ -446,6 +446,10 @@ namespace nsw {
     constexpr std::uint8_t REG_STATUS2          = 0x0D;
     constexpr std::uint8_t REG_GT_RESET         = 0x0E;
     constexpr std::uint8_t REG_PFEB_STATUS      = 0x0F;
+    constexpr std::uint8_t REG_BCID_ERROR       = 0x12;
+    constexpr std::uint8_t REG_PT_2_TP_LAT      = 0x13;
+    constexpr std::uint8_t REG_TP_BCID_ERROR    = 0x14;
+    constexpr std::uint8_t REG_TTC_BCR_OCR_RATE = 0x15;
 
     constexpr std::uint32_t GT_RESET_ENABLE  = 0x00FFFFFF;
     constexpr std::uint32_t GT_RESET_DISABLE = 0x00000000;
