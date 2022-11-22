@@ -180,6 +180,15 @@ namespace nsw::hw {
     { writeSubRegister("000_control_reg", subreg, subval); }
 
     /**
+     * \brief Write a sub-register of the reset register
+     *
+     * \param subreg is the name of the sub-register
+     * \param subval is the value to write
+     */
+    void writeResetSubRegister(const std::string& subreg, std::uint32_t subval) const
+    { writeSubRegister("00E_gt_reset", subreg, subval); }
+
+    /**
      * \brief Toggle (write) the OCR enable from enabled to disabled
      */
     void toggleOcrEnable() const;
@@ -193,6 +202,11 @@ namespace nsw::hw {
      * \brief Toggle (write) the idle state from 1 to 0
      */
     void toggleIdleState() const;
+
+    /**
+     * \brief Toggle (write) the BCID error reset from enabled to disabled
+     */
+    void toggleBcidErrorReset() const;
 
     /**
      * \brief Enable the pad trigger readout
@@ -238,6 +252,18 @@ namespace nsw::hw {
      */
     void writeStartIdleStateDisable() const
     { writeControlSubRegister("conf_startIdleState", std::uint32_t{false}); };
+
+    /**
+     * \brief Enable the pad trigger BCID error checker reset
+     */
+    void writeBcidResetEnable() const
+    { writeResetSubRegister("bcid_error_rst", 0b11); };
+
+    /**
+     * \brief Disable the pad trigger BCID error checker reset
+     */
+    void writeBcidResetDisable() const
+    { writeResetSubRegister("bcid_error_rst", 0b00); };
 
     /**
      * \brief Enable the pad trigger GT reset
@@ -521,6 +547,13 @@ namespace nsw::hw {
     [[nodiscard]]
     bool GtReset() const
     { return m_ptree.get("GtReset", false); };
+
+    /**
+     * \brief Get the "BcidErrorReset" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool BcidErrorReset() const
+    { return m_ptree.get("BcidErrorReset", false); };
 
     /**
      * \brief Get the "Toggle" provided by the user configuration
