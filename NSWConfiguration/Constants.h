@@ -17,6 +17,9 @@ namespace nsw {
   /// Traditional magic debug value
   constexpr std::uint32_t DEADBEEF = 0xdeadbeef;
 
+  /// Special string for i2c registers and VMM codec
+  constexpr std::string_view NOT_USED{"NOT_USED"};
+
   /// Fool me once
   constexpr std::size_t MAX_ATTEMPTS = 5;
 

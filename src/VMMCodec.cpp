@@ -48,7 +48,7 @@ std::string nsw::VMMCodec::buildGlobalConfig(const ptree& config, nsw::GlobalReg
     const auto buildBitStream = [&config] (const auto registers) {
         std::ostringstream ss;
         for (const auto [reg_name, size] : registers) {
-            if (reg_name == "NOT_USED") {
+            if (reg_name == nsw::NOT_USED) {
                 const auto value = 0u;
                 ss << bitString(value, size);
             } else {
@@ -88,7 +88,7 @@ std::string nsw::VMMCodec::buildChannelConfig(const ptree& config) {
     const auto ch_reg_map = buildChannelRegisterMap(config);
 
     const auto getValue = [&ch_reg_map] (const auto reg_name, const std::size_t channel) {
-        if (reg_name == "NOT_USED") {
+        if (reg_name == nsw::NOT_USED) {
             return 0u;
         }
         return ch_reg_map.at(reg_name).at(channel);
@@ -124,7 +124,7 @@ std::map<std::string_view, std::array<unsigned, nsw::vmm::NUM_CH_PER_VMM>> nsw::
         const std::string reg_name_string{reg_name};
 
         // Ignore not used bits
-        if (reg_name == "NOT_USED") {
+        if (reg_name == nsw::NOT_USED) {
             continue;
         }
 
