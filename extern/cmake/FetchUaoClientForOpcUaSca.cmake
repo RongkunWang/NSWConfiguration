@@ -82,8 +82,8 @@ macro(build_UaoClientForOpcUaSca)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    # message(STATUS "  Enabling IPO for UaoClientForOpcUaSca")
-    # set_target_properties(UaoClientForOpcUaSca PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+    message(STATUS "  Enabling IPO for UaoClientForOpcUaSca")
+    set_target_properties(UaoClientForOpcUaSca PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
   ## Add -fPIC for inclusion in shared libs

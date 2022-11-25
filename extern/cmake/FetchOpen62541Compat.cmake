@@ -77,8 +77,8 @@ macro(build_open62541_compat)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    # message(STATUS "  Enabling IPO for open62541-compat")
-    # set_target_properties(LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+    message(STATUS "  Enabling IPO for open62541-compat")
+    set_target_properties(LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
   ## Add -fPIC for shared lib inclusion
