@@ -38,8 +38,8 @@ void nsw::I2cMasterCodec::calculateSizesAndPositions() {
             // NOT_USED is a special register name. It means there are some bits not used in
             // the configuration but they affect the position of other configuration bits.
             // By default they will be all set to 0
-            if (i.first == "NOT_USED") {
-                register_name = "NOT_USED";
+            if (i.first == nsw::NOT_USED) {
+                register_name = std::string{nsw::NOT_USED};
                 ERS_DEBUG(3, "Not used bits : " << register_name << ", size: " << i.second << ", pos: " << pos);
             } else {
                 register_name = i.first;
@@ -83,7 +83,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
 
             unsigned value;
             // Fill not used bits with 0
-            if (register_name == "NOT_USED") {
+            if (register_name == nsw::NOT_USED) {
                 value = 0;
             } else {
                 try {
