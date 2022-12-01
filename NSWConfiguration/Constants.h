@@ -248,6 +248,10 @@ namespace nsw {
     // both idle                                 | 1    | 1
     constexpr std::uint8_t REG_PAD_ARRIVAL_BC   = 0x12;
     constexpr std::uint8_t REG_MM_ARRIVAL_BC    = 0x13;
+    constexpr std::uint8_t REG_IGNORE_PADS           = 0x14;
+    constexpr std::uint8_t REG_IGNORE_MM             = 0x15;
+    constexpr std::uint8_t REG_DISABLE_NSWMON        = 0x16;
+    constexpr std::uint8_t REG_STICKY_ERR_BCID_MATCH = 0x1d;
     constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_RST_RX           = (1 <<  9) - 1;
     constexpr std::uint32_t MASK_RST_TX           = (1 <<  9) - 1;
@@ -268,6 +272,10 @@ namespace nsw {
     constexpr std::uint32_t MASK_MM_IDLE_STATUS   = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_PAD_ARRIVAL_BC   = (1 << 16) - 1;
     constexpr std::uint32_t MASK_MM_ARRIVAL_BC    = (1 << 16) - 1;
+    constexpr std::uint32_t MASK_IGNORE_PADS           = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_IGNORE_MM             = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_DISABLE_NSWMON        = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_STICKY_ERR_BCID_MATCH = (1 <<  1) - 1;
     constexpr auto REGS = std::to_array({
         std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
         std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
@@ -284,6 +292,10 @@ namespace nsw {
         std::make_pair(REG_MM_IDLE_STATUS,   MASK_MM_IDLE_STATUS),
         std::make_pair(REG_PAD_ARRIVAL_BC,   MASK_PAD_ARRIVAL_BC),
         std::make_pair(REG_MM_ARRIVAL_BC,    MASK_MM_ARRIVAL_BC),
+        std::make_pair(REG_IGNORE_PADS,           MASK_IGNORE_PADS),
+        std::make_pair(REG_IGNORE_MM,             MASK_IGNORE_MM),
+        std::make_pair(REG_DISABLE_NSWMON,        MASK_DISABLE_NSWMON),
+        std::make_pair(REG_STICKY_ERR_BCID_MATCH, MASK_STICKY_ERR_BCID_MATCH),
     });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;

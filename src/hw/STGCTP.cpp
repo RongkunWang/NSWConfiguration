@@ -18,7 +18,10 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
   doReset();
-  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR, getSector(), nsw::stgctp::MASK_SECTOR);
+  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR,         getSector(),        nsw::stgctp::MASK_SECTOR);
+  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_PADS,    getIgnorePads(),    nsw::stgctp::MASK_IGNORE_PADS);
+  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_MM,      getIgnoreMM(),      nsw::stgctp::MASK_IGNORE_MM);
+  writeAndReadbackRegister(nsw::stgctp::REG_DISABLE_NSWMON, getDisableNSWMON(), nsw::stgctp::MASK_DISABLE_NSWMON);
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
   }
@@ -91,11 +94,6 @@ std::uint32_t nsw::hw::STGCTP::getSector() const
     return getGeoInfo().sector();
   }
   return m_config.get<std::uint32_t>("sector");
-}
-
-bool nsw::hw::STGCTP::getDoReset() const
-{
-  return m_config.get("DoReset", true);
 }
 
 void nsw::hw::STGCTP::doReset() const
