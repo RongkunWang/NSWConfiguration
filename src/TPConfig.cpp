@@ -188,12 +188,12 @@ void nsw::TPConfig::setL1ALatencyScanEnd(int val) {
 // microPod(1-3)
 // temp/loss/fiber(0-11)
 void nsw::TPConfig::setHorxEnvMonAddr(const bool tx, const std::uint8_t microPod, const bool temp, const bool loss, const std::uint8_t fiber) {
-  int val = (microPod - 1 + (tx ? 0 : 3)) << 4;
+  auto val = static_cast<std::uint32_t>((microPod - 1U + (tx ? 0U : 3U)) << 4U);
   if (temp) {
   } else if (loss) {
     val += 1;
   } else {
-    val += nsw::mmtp::NUM_FIBER_PER_MICROPOD + 1 - fiber;
+    val += nsw::mmtp::NUM_FIBERS_PER_MICROPOD + 1 - fiber;
   }
   m_config.put("HorxEnvMonAddr", val);
 }

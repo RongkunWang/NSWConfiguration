@@ -23,7 +23,7 @@ void nsw::hw::DeviceManager::addAddc(const nsw::ADDCConfig& config)
   }
 }
 
-void nsw::hw::DeviceManager::addMMTp(const nsw::TPConfig& config)
+void nsw::hw::DeviceManager::addMMTp(const boost::property_tree::ptree& config)
 {
   m_mmtps.emplace_back(m_opcManager, config);
 }

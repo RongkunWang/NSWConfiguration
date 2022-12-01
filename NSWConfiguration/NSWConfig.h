@@ -15,6 +15,8 @@
 #include "NSWConfiguration/hw/DeviceManager.h"
 #include "NSWConfiguration/monitoring/RocConfigurationRegisters.h"
 #include "NSWConfiguration/monitoring/RocStatusRegisters.h"
+#include "NSWConfiguration/monitoring/MmtpInRunStatusRegisters.h"
+#include "NSWConfiguration/monitoring/MmtpOutRunStatusRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -173,7 +175,9 @@ private:
 
     hw::DeviceManager m_deviceManager;
 
-    using MonitoringVariant = std::variant<nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters>;
+    using MonitoringVariant = std::variant<
+      nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters, 
+      nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters>;
     std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string

@@ -25,12 +25,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 tdaq_generate_isinfo(nswmonis
-    info/NswMonitoring.schema.xml
+    schema/NswMonitoring_is_info.xml
   CPP_OUTPUT is_cpp_srcs
   SIMPLE
   NAMED
   OUTPUT_DIRECTORY ${TDAQ_PACKAGE_NAME}Is
   NAMESPACE nsw::mon::is)
+
+tdaq_add_is_schema(schema/NswMonitoring_is_info.xml)
 
 tdaq_generate_dal(schema/NSWConfig.schema.xml
                   schema/NSWSCAService.schema.xml
@@ -184,8 +186,11 @@ tdaq_add_library(nswhwinterface
 tdaq_add_library(nswmonitoring
                  src/monitoring/RocStatusRegisters.cpp
                  src/monitoring/RocConfigurationRegisters.cpp
+                 src/monitoring/MmtpInRunStatusRegisters.cpp
+                 src/monitoring/MmtpOutRunStatusRegisters.cpp
                  src/monitoring/IsPublisher.cpp
   LINK_LIBRARIES nswconfig
+                 nswmonis
                  nswhwinterface
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>

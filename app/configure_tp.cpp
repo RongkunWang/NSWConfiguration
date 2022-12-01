@@ -98,7 +98,7 @@ int main(int ac, const char *av[]) {
       // hw interface
       auto mmtps = std::vector<nsw::hw::MMTP>{};
       for (const auto& config : configs) {
-        mmtps.emplace_back(opcManager, config);
+        mmtps.emplace_back(opcManager, config.getConfig());
       }
       for (const auto& tp: mmtps) {
         std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;

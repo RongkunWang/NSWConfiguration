@@ -305,12 +305,14 @@ namespace nsw {
 
   namespace mmtp {
     constexpr std::chrono::seconds FIBER_ALIGN_SLEEP{3};
-    constexpr std::size_t NUM_FIBER_PER_MICROPOD  = 12;
+    constexpr float CONVERTER_HORX_FIBER_POWER_UW = 0.1f;
+    constexpr float CONVERTER_HORX_TEMP_C         = 1. / 256.;
     constexpr std::size_t FIBER_ALIGN_ATTEMPTS    = 10;
     constexpr std::size_t FIBER_ALIGN_N_READS     = 100;
     constexpr std::size_t PIPELINE_OVERFLOW_READS = 10;
-    constexpr std::size_t NUM_FIBERS              = 32;
     constexpr std::size_t NUM_ADDCS               = 16;
+    constexpr std::size_t NUM_FIBERS              = 32;
+    constexpr std::size_t NUM_FIBERS_PER_MICROPOD = 12;
     constexpr std::size_t NUM_FIBERS_PER_QPLL     = 4;
     constexpr std::size_t NUM_QPLL                = NUM_FIBERS/NUM_FIBERS_PER_QPLL;
     constexpr std::size_t NUM_FIBER_BCID_REGS     = 4;

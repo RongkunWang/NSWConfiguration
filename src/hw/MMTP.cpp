@@ -4,13 +4,12 @@
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
 
-nsw::hw::MMTP::MMTP(OpcManager& manager, const TPConfig& config):
-  m_opcManager{manager},
-  m_config(config.getConfig()),
-  m_opcserverIp(m_config.get<std::string>("OpcServerIp")),
-  m_scaAddress(m_config.get<std::string>("OpcNodeId")),
-  m_busAddress(fmt::format("{}.I2C_0.bus0", m_scaAddress)),
-  m_name(fmt::format("{}/{}", m_opcserverIp, m_scaAddress))
+nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& config):
+  ScaAddressBase(config.get<std::string>("OpcNodeId")),
+  OpcConnectionBase(manager, config.get<std::string>("OpcServerIp"), config.get<std::string>("OpcNodeId")),
+  m_config(config),
+  m_busAddress(fmt::format("{}.I2C_0.bus0", getScaAddress())),
+  m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress()))
 {
 }
 
@@ -26,7 +25,6 @@ void nsw::hw::MMTP::writeConfiguration() const
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_DISABLE},
     {nsw::mmtp::REG_FIBER_BC_OFFSET,          FiberBCOffset()},
     {nsw::mmtp::REG_INPUT_PHASE,              GlobalInputPhase()},
-    {nsw::mmtp::REG_HORX_ENV_MON_ADDR,        HorxEnvMonAddr()},
     {nsw::mmtp::REG_INPUT_PHASEOFFSET,        GlobalInputOffset()},
     {nsw::mmtp::REG_SELFTRIGGER_DELAY,        SelfTriggerDelay()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      VmmMaskHotThresh()},
@@ -127,6 +125,19 @@ std::vector<std::uint32_t> nsw::hw::MMTP::readAlignment(const size_t n_reads) co
     }
   }
   return aligned;
+}
+
+void nsw::hw::MMTP::setHorxEnvMonAddr(const bool tx, const std::uint8_t microPod, const bool temp, const bool loss, const std::uint8_t fiber) const {
+  int val = (microPod - 1 + (tx ? 0 : 3)) << 4;
+  if (temp) {
+  } else if (loss) {
+    val += 1;
+  } else {
+    val += nsw::mmtp::NUM_FIBERS_PER_MICROPOD + 1 - fiber;
+  }
+  // not allowed to add this because it's a const function. Will need update in Monitoring Helper
+  // m_config.put("HorxEnvMonAddr", val);
+  writeRegister(nsw::mmtp::REG_HORX_ENV_MON_ADDR, val);
 }
 
 void nsw::hw::MMTP::alignArtGbtx() const

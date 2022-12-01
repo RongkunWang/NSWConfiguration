@@ -75,6 +75,12 @@ void nsw::NSWConfig::readConfigurationResource() {
     m_monitoringMap.try_emplace(std::string{nsw::mon::RocConfigurationRegisters::NAME},
                                 std::in_place_type<nsw::mon::RocConfigurationRegisters>,
                                 m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::MmtpInRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::MmtpInRunStatusRegisters>,
+                                m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::MmtpOutRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::MmtpOutRunStatusRegisters>,
+                                m_deviceManager);
 }
 
 void nsw::NSWConfig::configureRc() {

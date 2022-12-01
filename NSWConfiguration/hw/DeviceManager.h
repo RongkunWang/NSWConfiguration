@@ -66,7 +66,7 @@ namespace nsw::hw {
         addAddc(ADDCConfig{config});
       }
       else if (type == "MMTP") {
-        addMMTp(TPConfig{config});
+        addMMTp(config);
       }
       else if (type == "STGCTP") {
         addSTGCTp(config);
@@ -241,7 +241,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addMMTp(const nsw::TPConfig& config);
+    void addMMTp(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add STGCTP from ptree directly

@@ -104,4 +104,43 @@
   <superclass name="Info"/>
   <attribute name="reg115" description="reg115" type="u8" format="hex" init-value="0"/>
  </class>
+
+ <class name="PadTriggerInRunStatusRegisters">
+  <superclass name="Info"/>
+ </class>
+
+ <class name="PadTriggerOutRunStatusRegisters">
+  <superclass name="Info"/>
+ </class>
+
+ <class name="MmtpInRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="artFibersAlignment" description="32 fiber alignment status" type="bool" is-multi-value="yes"/>
+  <attribute name="artFibersBcidGood" description="32 fiber bcid the same as MMTP" type="bool" is-multi-value="yes"/>
+
+  <attribute name="idleState" description="Idle State Indicator" type="bool"/>
+  <attribute name="bcidOffset" description="BCID offset for BCID counter in Global Sync Module" type="u32"/>
+  <attribute name="suggestedBcidOffset" description="suggested BCID offset based on input ADDC BCID" type="u32"/>
+  <attribute name="nGoodOffset" description="number of ADDC that satisfies BCID offset" type="u32"/>
+  <attribute name="fiberBCIDs" description="Real time 4-bit LSB of BCID of each ART fiber" type="u8" is-multi-value="yes"/>
+ </class>
+
+ <class name="MmtpOutRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="txMicropodTemp" description="Temperature of 3 TX micropods, indexed in MTP order" type="float" is-multi-value="yes"/>
+  <attribute name="rxMicropodTemp" description="Temperature of 3 RX micropods, indexed in MTP order" type="float" is-multi-value="yes"/>
+  <attribute name="txLoss" description="Loss of 36 TX fibers" type="bool" is-multi-value="yes"/>
+  <attribute name="rxLoss" description="Loss of 36 RX fiber" type="bool" is-multi-value="yes"/>
+  <attribute name="txFibersPower" description="36 TX fiber power reading" type="float" is-multi-value="yes"/>
+  <attribute name="rxArtFibersPower" description="32 RX fiber power reading in uW (4 unconnected channel should read 0)" type="float" is-multi-value="yes"/>
+ </class>
+
+ <class name="StgctpInRunStatusRegisters">
+  <superclass name="Info"/>
+ </class>
+
+ <class name="StgctpOutRunStatusRegisters">
+  <superclass name="Info"/>
+ </class>
+
 </oks-schema>
