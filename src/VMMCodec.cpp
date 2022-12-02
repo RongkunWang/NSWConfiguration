@@ -81,7 +81,7 @@ std::string nsw::VMMCodec::buildGlobalConfig(const ptree& config, nsw::GlobalReg
         ERS_DEBUG(4, "Global 1 ");
         return buildBitStream(m_global_name_size1);
     }
-    throw std::logic_error(fmt::format("Received invalid type {}", type));
+    throw std::logic_error(fmt::format("Received invalid type {}", static_cast<int>(type)));
 }
 
 std::string nsw::VMMCodec::buildChannelConfig(const ptree& config) {
