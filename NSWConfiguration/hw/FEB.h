@@ -86,6 +86,13 @@ namespace nsw::hw {
     [[nodiscard]] const std::vector<TDS>& getTdss() const { return m_tdss; }
 
     /**
+     * \brief Test if this FEB is a SFEB6, based on the number of VMMs of this FEB
+     *
+     * \return bool is SFEB6
+     */
+    [[nodiscard]] bool isSFEB6() const { return getNumVmms() == nsw::NUM_VMM_PER_SFEB - nsw::SFEB6_FIRST_VMM; }
+
+    /**
      * \brief Configure a FEB
      *
      * \param resetVmm Reset VMMs

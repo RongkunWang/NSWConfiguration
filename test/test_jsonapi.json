@@ -830,7 +830,7 @@
     },
     "PFEB-0001":{
         "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
-        "OpcNodeId": "SCA on pFEBv2.3",
+        "OpcNodeId": "PFEB-0001",
         "rocPllCoreAnalog":{},
         "rocCoreDigital": {
             "reg014eportEnable": {
@@ -841,12 +841,16 @@
     },
     "SFEB-0001":{
         "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
-        "OpcNodeId": "SCA on sFEBv2.3",
+        "OpcNodeId": "SFEB8-0001",
         "tds2": {
             "register2" : {
                 "Chan100" : 0
             }
         }
+    },
+    "SFEB6-0001":{
+        "OpcServerIp": "pcatlnswfelix02.cern.ch:4841",
+        "OpcNodeId": "SFEB6-0001"
     },
     "A01" : { 
         "SFEB-0001":{

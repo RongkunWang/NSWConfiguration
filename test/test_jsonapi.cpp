@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(GetAllElementNames_FullConfigTree_ReturnsAllElements) {
     JsonApi cfg(file_path);
     auto elements_read = cfg.getAllElementNames();
 
-    std::set<std::string> all_elements{ "MMFE8-0001", "PFEB-0001", "SFEB-0001",
+    std::set<std::string> all_elements{ "MMFE8-0001", "PFEB-0001", "SFEB-0001", "SFEB6-0001",
                           "A01.SFEB-0001", "A01.SFEB-0002",
                           "A02.Layer0.MMFE8-0001",
                           "A02.Layer1.MMFE8-0001", "A02.Layer1.PFEB-0001" };
