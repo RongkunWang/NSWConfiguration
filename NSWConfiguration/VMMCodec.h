@@ -68,7 +68,7 @@ class VMMCodec {
 
     /// In following vectors each element is pair such as {register name, register size in bits}
     constexpr static std::array<NameSizeType, NUM_GLOBAL_REGS_SIZE0> m_global_name_size0{
-      std::pair{"reset", 2},    std::pair{"NOT_USED", 5},
+      std::pair{"reset", 2},    std::pair{nsw::NOT_USED, 5},
       std::pair{"stgc", 1},     std::pair{"slxh", 1},
       std::pair{"slh", 1},      std::pair{"sL0enaV", 1},
       std::pair{"slvs6b", 1},   std::pair{"slvsena", 1},
@@ -99,7 +99,7 @@ class VMMCodec {
       std::pair{"sp", 1}};
 
     constexpr static std::array<NameSizeType, NUM_GLOBAL_REGS_SIZE1> m_global_name_size1{
-      std::pair{"NOT_USED", 8},
+      std::pair{nsw::NOT_USED, 8},
       std::pair{"offset", 12},
       std::pair{"l0offset", 12},
       std::pair{"rollover", 12},
@@ -111,7 +111,7 @@ class VMMCodec {
       std::pair{"sL0dckinv", 1},
       std::pair{"sL0cktest", 1},
       std::pair{"nskipm", 1},
-      std::pair{"NOT_USED", 31}};
+      std::pair{nsw::NOT_USED, 31}};
 
     constexpr static std::array<NameSizeType, NUM_CHANNEL_REGS>
       m_channel_name_size{std::pair{"channel_sc", 1},
@@ -124,7 +124,7 @@ class VMMCodec {
                           std::pair{"channel_sz10b", 5},
                           std::pair{"channel_sz8b", 4},
                           std::pair{"channel_sz6b", 3},
-                          std::pair{"NOT_USED", 1}};
+                          std::pair{nsw::NOT_USED, 1}};
 
     /// List of register names, whose bits are reversed in the bitstream
     /// For instance, if value of a bitreversed register with size 5 is 3,

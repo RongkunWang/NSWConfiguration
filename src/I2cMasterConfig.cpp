@@ -67,7 +67,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
 
         ptree child;
         try {
-            child = config.get_child(address);
+            child = config.get_child(std::string{address});
         } catch (const boost::property_tree::ptree_bad_path& e) {
             std::string temp = e.what();
             nsw::MissingI2cAddress issue(ERS_HERE, temp.c_str());
@@ -87,7 +87,7 @@ i2c::AddressBitstreamMap nsw::I2cMasterCodec::buildConfig(const ptree& config) c
                 value = 0;
             } else {
                 try {
-                    value = child.get<unsigned>(register_name);
+                    value = child.get<unsigned>(std::string{register_name});
                 } catch (const boost::property_tree::ptree_bad_path& e) {
                     std::string temp = address + ": " + e.what();
                     nsw::MissingI2cRegister issue(ERS_HERE, temp.c_str());
