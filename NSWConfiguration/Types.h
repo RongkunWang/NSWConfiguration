@@ -15,7 +15,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 namespace i2c {
-    using RegisterSizePair = std::pair<std::string, size_t>;
+    using RegisterSizePair = std::pair<std::string_view, size_t>;
 
     using RegisterSizeVector = std::vector<RegisterSizePair>;
 
