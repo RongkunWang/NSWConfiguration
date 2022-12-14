@@ -72,6 +72,14 @@ namespace nsw::hw {
     std::map<std::uint8_t, std::uint32_t> readConfiguration() const;
 
     /**
+     * \brief Read the full PadTrigger address space, including sub-registers
+     *
+     * \returns a map of address to sub-register value
+     */
+    [[nodiscard]]
+    std::map<std::string, std::uint32_t> readConfigurationSubRegisters() const;
+
+    /**
      * \brief Write the full PadTrigger configuration
      */
     void writeConfiguration() const;
@@ -301,6 +309,17 @@ namespace nsw::hw {
      */
     std::uint32_t readSubRegister(const std::string& rname,
                                   const std::string& subreg) const;
+
+    /**
+     * \brief Get the sub-register of a register from the value of the register
+     *
+     * \param rname is the name of the register
+     * \param subreg is the name of the sub-register
+     * \param value is the value of the register
+     */
+    std::uint32_t getSubRegisterFromRegister(const std::string& rname,
+                                             const std::string& subreg,
+                                             const std::uint32_t value) const;
 
     /**
      * \brief Write a value to a pad trigger GPIO

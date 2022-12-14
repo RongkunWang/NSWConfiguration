@@ -237,6 +237,22 @@ std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() c
   return result;
 }
 
+std::map<std::string, std::uint32_t> nsw::hw::PadTrigger::readConfigurationSubRegisters() const
+{
+  auto result = std::map<std::string, std::uint32_t>();
+  for (const auto& [rname, subregs] : PADTRIGGER_REGISTERS) {
+    const auto value = readFPGARegister(addressFromRegisterName(rname));
+    for (const auto& [subreg, bits] : subregs) {
+      if (subreg == nsw::NOT_USED) {
+        continue;
+      }
+      result.emplace(fmt::format("{}/{}", rname, subreg),
+                     getSubRegisterFromRegister(rname, std::string{subreg}, value));
+    }
+  }
+  return result;
+}
+
 void nsw::hw::PadTrigger::writeGPIO(const std::string& name, const bool value) const
 {
   const auto addr = fmt::format("{}.{}.{}", getScaAddress(), "gpio", name);
@@ -367,13 +383,20 @@ std::uint32_t nsw::hw::PadTrigger::readFPGARegister(const std::uint8_t regAddres
 std::uint32_t nsw::hw::PadTrigger::readSubRegister(const std::string& rname,
                                                    const std::string& subreg) const
 {
+  return getSubRegisterFromRegister(rname, subreg, readFPGARegister(addressFromRegisterName(rname)));
+}
+
+std::uint32_t nsw::hw::PadTrigger::getSubRegisterFromRegister(const std::string& rname,
+                                                              const std::string& subreg,
+                                                              const std::uint32_t value) const
+{
   constexpr std::uint64_t one{1};
   const auto fpga = getFpga();
   const auto pos  = fpga.getAddressPositions().at(rname).at(subreg);
   const auto siz  = fpga.getAddressSizes()    .at(rname).at(subreg);
   const auto rpos = nsw::NUM_BITS_IN_WORD32 - pos - siz;
   const auto mask = (one << (rpos + siz)) - (one << rpos);
-  return (readFPGARegister(addressFromRegisterName(rname)) & mask) >> rpos;
+  return (value & mask) >> rpos;
 }
 
 std::uint32_t nsw::hw::PadTrigger::readPFEBRate(const std::uint32_t pfeb, const bool quiet) const

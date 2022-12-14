@@ -61,6 +61,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to toggle the Pad Trigger idle state in the control register")
         ("read,r", po::bool_switch()->
          default_value(false), "Option to read FPGA configuration and status registers")
+        ("readSubRegisters", po::bool_switch()->
+         default_value(false), "Option to read FPGA configuration and status subregisters")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -82,6 +84,7 @@ int main(int argc, const char *argv[])
     const auto toggleBcidErrorReset = vm["toggleBcidErrorReset"].as<bool>();
     const auto toggleIdleState      = vm["toggleIdleState"]     .as<bool>();
     const auto read                 = vm["read"]                .as<bool>();
+    const auto readSubRegisters     = vm["readSubRegisters"]    .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -270,6 +273,16 @@ int main(int argc, const char *argv[])
         for (const auto& [addr, val]: hw.readConfiguration()) {
           std::cout << fmt::format("{} address {:#05x}: {:#010x}", hw.getName(), addr, val)
                     << std::endl;
+        }
+      }
+    }
+
+    // read subregisters
+    if (readSubRegisters) {
+      std::cout << "Read subregisters:" << std::endl;
+      for (const auto& hw: hws) {
+        for (const auto& [addr, val]: hw.readConfigurationSubRegisters()) {
+          std::cout << addr << " " << val << std::endl;
         }
       }
     }
