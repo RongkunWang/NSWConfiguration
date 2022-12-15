@@ -87,7 +87,6 @@ void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
     m_addcs.clear();
     m_l1ddcs.clear();
-    m_pts.clear();
     m_tps.clear();
     m_deviceManager.clear();
     // m_reader.reset();
