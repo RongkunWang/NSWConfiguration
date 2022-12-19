@@ -13,7 +13,10 @@
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
+
 #include <fmt/core.h>
+
+#define R__HAS_STD_SPAN
 #include "TFile.h"
 #include "TTree.h"
 

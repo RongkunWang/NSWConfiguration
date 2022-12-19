@@ -1,5 +1,5 @@
 option(BUILD_OPEN62541_COMPAT "Build open62541-compat from source" ON)
-set(OPEN62541_COMPAT_VERSION v1.4.1 CACHE STRING "Select version of open62541-compat to build")
+set(OPEN62541_COMPAT_VERSION v1.4.2 CACHE STRING "Select version of open62541-compat to build")
 
 set(OPEN62541_COMPAT_DIR ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat)
 include(FetchContent)
@@ -77,8 +77,8 @@ macro(build_open62541_compat)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    # message(STATUS "  Enabling IPO for open62541-compat")
-    # set_target_properties(LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+    message(STATUS "  Enabling IPO for open62541-compat")
+    set_target_properties(LogIt open62541-compat PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
 
   ## Add -fPIC for shared lib inclusion

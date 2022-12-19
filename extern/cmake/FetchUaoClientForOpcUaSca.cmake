@@ -1,5 +1,5 @@
 option(BUILD_UAOCLIENTFOROPCUASCA "Build UaoClientForOpcUaSca from source" ON)
-set(UAOCLIENTFOROPCUASCA_VERSION 1.5.0-rc0 CACHE STRING "Select version of UaoClientForOpcUaSca to build")
+set(UAOCLIENTFOROPCUASCA_VERSION 1.5.2 CACHE STRING "Select version of UaoClientForOpcUaSca to build")
 
 set(UAOCLIENTFOROPCUASCA_DIR ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca)
 include(FetchContent)
@@ -7,6 +7,8 @@ include(FetchContent)
 function(fetch_UaoClientForOpcUaSca)
   message(STATUS "  Fetching UaoClientForOpcUaSca from CERN GitLab.")
   message(STATUS "  *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
+  message(STATUS "  *Patching* UaoClientForOpcUaSca")
+  set(updateCommand UPDATE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-UaoClientForOpcUaSca.sh")
 
   FetchContent_Declare(
     UaoClientForOpcUaSca
@@ -15,6 +17,7 @@ function(fetch_UaoClientForOpcUaSca)
     GIT_SHALLOW    "1"
     SOURCE_DIR	   ${UAOCLIENTFOROPCUASCA_DIR}
     BINARY_DIR     ${UAOCLIENTFOROPCUASCA_DIR}
+    ${updateCommand}
   )
 endfunction()
 
@@ -49,6 +52,22 @@ macro(build_UaoClientForOpcUaSca)
     add_compile_options(-w)
   endif()
 
+  message(CHECK_START "  Looking for UaoClientForOpcUaSca protobuf dependencies")
+  if(EXISTS "/sw/atlas/sw/lcg")
+    set(UAO_PROTOBUF_LCG_DIR "/sw/atlas/sw/lcg" CACHE INTERNAL "")
+  elseif(EXISTS "/cvmfs/sft.cern.ch/lcg")
+    set(UAO_PROTOBUF_LCG_DIR "/cvmfs/sft.cern.ch/lcg" CACHE INTERNAL "")
+  endif()
+  set(UAO_PROTOBUF_VERSION "2.5.0-aa8bd" CACHE INTERNAL "")
+  set(UAO_PROTOBUF_RELEASE $ENV{CMTCONFIG} CACHE INTERNAL "")
+  set(PROTOBUF_ROOT "${UAO_PROTOBUF_LCG_DIR}/releases/protobuf/${UAO_PROTOBUF_VERSION}/${UAO_PROTOBUF_RELEASE}" CACHE INTERNAL "")
+  if(EXISTS ${PROTOBUF_ROOT})
+    message(CHECK_PASS "    using PROTOBUF_ROOT ${PROTOBUF_ROOT}")
+  else()
+    message(CHECK_FAIL "    Unable to find a compatible protobuf release")
+  endif()
+  find_package(Protobuf 2.5.0 EXACT REQUIRED COMPONENTS libprotobuf)
+
   # FetchContent_MakeAvailable(UaoClientForOpcUaSca)
   ## Done to disable the default header installation location
   ## otherwise, use the above FetchContent_MakeAvailable
@@ -63,11 +82,9 @@ macro(build_UaoClientForOpcUaSca)
 
   ## Add -flto, if supported
   if(IPO_SUPPORTED)
-    # message(STATUS "  Enabling IPO for UaoClientForOpcUaSca")
-    # set_target_properties(UaoClientForOpcUaSca PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+    message(STATUS "  Enabling IPO for UaoClientForOpcUaSca")
+    set_target_properties(UaoClientForOpcUaSca PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
   endif()
-
-  find_package(Protobuf REQUIRED COMPONENTS libprotobuf)
 
   ## Add -fPIC for inclusion in shared libs
   set_target_properties(UaoClientForOpcUaSca
@@ -86,14 +103,8 @@ macro(build_UaoClientForOpcUaSca)
     ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/src/BitBangProtocol.pb.cc
   )
 
-  target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE PUBLIC
-    ${Protobuf_INCLUDE_DIRS}
-  )
-
   target_include_directories(UaoClientForOpcUaSca SYSTEM BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include>
-    # $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/include>
-    # $<BUILD_INTERFACE:${OPEN62541_COMPAT_DIR}/extern/open62541/include>
     $<INSTALL_INTERFACE:extern/include>
   )
 
@@ -102,10 +113,8 @@ macro(build_UaoClientForOpcUaSca)
     $<INSTALL_INTERFACE:extern/lib>
   )
 
-  target_link_libraries(UaoClientForOpcUaSca
-    PRIVATE
-      Open62541Compat::open62541-compat
-      ${Protobuf_LIBRARIES}
+ target_link_libraries(UaoClientForOpcUaSca PRIVATE
+    Open62541Compat::open62541-compat
   )
 
   install(TARGETS UaoClientForOpcUaSca
