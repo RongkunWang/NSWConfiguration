@@ -77,34 +77,39 @@ if(NOT UaoClient_FOUND)
   endif()
 endif()
 
-set(NSWCONFIG_FMT_VERSION 8.0.1 CACHE INTERNAL "Select the fmt version")
+set(NSWCONFIG_FMT_VERSION 9.1.0 CACHE INTERNAL "Select the fmt version")
 option(NSWCONFIG_USE_EXTERNAL_FMT "Use an external fmt library" OFF)
-if(NSWCONFIG_USE_EXTERNAL_FMT)
-    message(STATUS "Fetching fmt from github, using version ${NSWCONFIG_FMT_VERSION}")
+if(NOT TARGET fmt::fmt-header-only)
+    if(NSWCONFIG_USE_EXTERNAL_FMT)
+        message(STATUS "Fetching fmt from github, using version ${NSWCONFIG_FMT_VERSION}")
 
-    ## Fetch fmt from github
-    include(FetchContent)
+        ## Fetch fmt from github
+        include(FetchContent)
 
-    FetchContent_Declare(fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG ${NSWCONFIG_FMT_VERSION}
-    )
+        FetchContent_Declare(fmt
+            GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+            GIT_TAG ${NSWCONFIG_FMT_VERSION}
+        )
+    endif()
+
     option(FMT_INSTALL "Enable install for fmt project" ON)
     option(FMT_DOC "" OFF)
     option(FMT_TEST "" OFF)
     option(FMT_OS "" OFF)
+    option(FMT_OS "" ON)
+    option(FMT_SYSTEM_HEADERS "" ON)
 
-    FetchContent_GetProperties(fmt)
-    if(NOT fmt_POPULATED)
-        FetchContent_Populate(fmt)
-        add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR} EXCLUDE_FROM_ALL)
+    if(NSWCONFIG_USE_EXTERNAL_FMT)
+        FetchContent_GetProperties(fmt)
+        if(NOT fmt_POPULATED)
+            FetchContent_Populate(fmt)
+            add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif()
+    else()
+        ## Use bundled version
+        message(STATUS "Using extern/fmt bundled with NSWConfiguration")
+        add_subdirectory(fmt EXCLUDE_FROM_ALL)
     endif()
 else()
-    ## Use bundled version
-    message(STATUS "Using extern/fmt bundled with NSWConfiguration")
-    option(FMT_INSTALL "Enable install for fmt project" ON)
-    option(FMT_DOC "" OFF)
-    option(FMT_TEST "" OFF)
-    option(FMT_OS "" OFF)
-    add_subdirectory(fmt EXCLUDE_FROM_ALL)
+    message(STATUS "Target fmt is already present, reusing")
 endif()
