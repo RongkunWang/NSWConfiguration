@@ -261,3 +261,17 @@ endif()
 tdaq_add_executable(demo_opc_client_class app/demo_opc_client_class.cpp
     LINK_LIBRARIES nswopcclient
 )
+
+option(SKIP_NSW_DOCS "Disable doxygen when dependent build" OFF)
+if (NOT SKIP_NSW_DOCS)
+if (BUILD_NSW_DOCS)
+  message(STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
+  include(NSWDoxygen)
+  SetupNSWDoxygen()
+
+  if (TARGET ${TDAQ_PACKAGE_NAME}.doxygen)
+    add_dependencies(${TDAQ_PACKAGE_NAME}.doxygen nswconfigdal)
+    SetupNSWDoxygenTargets(${TDAQ_PACKAGE_NAME}.doxygen)
+  endif()
+endif()
+endif()
