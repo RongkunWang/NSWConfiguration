@@ -20,6 +20,7 @@ function(fetch_LogIt)
     GIT_SHALLOW    "1"
     SOURCE_DIR     ${LOGIT_DIR}
     BINARY_DIR     ${LOGIT_DIR}
+    UPDATE_DISCONNECTED ON
     )
 endfunction()
 

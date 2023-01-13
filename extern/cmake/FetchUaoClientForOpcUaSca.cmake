@@ -8,7 +8,7 @@ function(fetch_UaoClientForOpcUaSca)
   message(STATUS "  Fetching UaoClientForOpcUaSca from CERN GitLab.")
   message(STATUS "  *NOTE* fetching version [${UAOCLIENTFOROPCUASCA_VERSION}]")
   message(STATUS "  *Patching* UaoClientForOpcUaSca")
-  set(updateCommand UPDATE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-UaoClientForOpcUaSca.sh")
+  set(patchCommand PATCH_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-UaoClientForOpcUaSca.sh")
 
   FetchContent_Declare(
     UaoClientForOpcUaSca
@@ -17,7 +17,8 @@ function(fetch_UaoClientForOpcUaSca)
     GIT_SHALLOW    "1"
     SOURCE_DIR	   ${UAOCLIENTFOROPCUASCA_DIR}
     BINARY_DIR     ${UAOCLIENTFOROPCUASCA_DIR}
-    ${updateCommand}
+    UPDATE_DISCONNECTED ON
+    ${patchCommand}
   )
 endfunction()
 
