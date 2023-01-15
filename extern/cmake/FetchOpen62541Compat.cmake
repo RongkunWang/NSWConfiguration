@@ -7,10 +7,10 @@ include(FetchContent)
 function(fetch_open62541_compat)
   if(NOT NSWCONFIG_FETCH_METHOD STREQUAL "github")
     message(STATUS "  Fetching open62541-compat from CERN GitLab.")
-    set(updateCommand UPDATE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-open62541-compat.sh")
+    set(patchCommand PATCH_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/patch-open62541-compat.sh")
   else()
     message(STATUS "  Fetching open62541-compat from github.")
-    unset(updateCommand)
+    unset(patchCommand)
   endif()
 
   message(STATUS "  *NOTE* fetching version [${OPEN62541_COMPAT_VERSION}]")
@@ -22,7 +22,8 @@ function(fetch_open62541_compat)
     GIT_SHALLOW    "1"
     SOURCE_DIR     ${OPEN62541_COMPAT_DIR}
     BINARY_DIR     ${OPEN62541_COMPAT_DIR}
-    ${updateCommand}
+    UPDATE_DISCONNECTED ON
+    ${patchCommand}
   )
 endfunction()
 
