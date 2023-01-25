@@ -10,6 +10,7 @@
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/CommandSender.h"
+#include "NSWConfiguration/hw/ScaStatus.h"
 
 ERS_DECLARE_ISSUE(nsw,
                   OpcManagerPingFrequency,
@@ -58,6 +59,14 @@ namespace nsw {
      * \param sender Command sender to RC application
      */
     void setCommandSender(nsw::CommandSender&& sender) { m_commandSender = std::move(sender); }
+
+    /**
+     * \brief Ping a connection and check if it is reachable
+     *
+     * \param name Name of the device
+     * \param connection Corresponding OPC client
+     */
+    static hw::ScaStatus::ScaStatus testConnection(const std::string& name, const OpcClient* connection);
 
   private:
     /**

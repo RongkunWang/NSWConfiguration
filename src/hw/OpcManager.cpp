@@ -48,6 +48,21 @@ void nsw::OpcManager::clear()
   doClear();
 }
 
+nsw::hw::ScaStatus::ScaStatus nsw::OpcManager::testConnection(const std::string& name, const OpcClient* connection)
+{
+  try {
+    const auto status = connection->readScaOnline(name);
+    if (not status) {
+      return hw::ScaStatus::UNREACHABLE;
+    }
+    return hw::ScaStatus::REACHABLE;
+  } catch (const nsw::OpcConnectionIssue&) {
+    return hw::ScaStatus::SERVER_OFFLINE;
+  } catch (const nsw::OpcReadWriteIssue&) {
+    return hw::ScaStatus::SERVER_OFFLINE;
+  }
+}
+
 void nsw::OpcManager::add(const Identifier& identifier)
 {
   if (not exists(identifier)) {
