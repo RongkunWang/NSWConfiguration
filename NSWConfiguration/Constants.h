@@ -299,7 +299,7 @@ namespace nsw {
     });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;
-    constexpr std::uint32_t RST_TX_ENABLE  = 0b101111111;
+    constexpr std::uint32_t RST_TX_ENABLE  = 0b100111111;
     constexpr std::uint32_t RST_TX_DISABLE = 0b0;
   }
 
