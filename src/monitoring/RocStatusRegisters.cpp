@@ -38,5 +38,9 @@ nsw::mon::is::RocStatus nsw::mon::RocStatusRegisters::getData(const nsw::hw::FEB
                                     feb.getRoc().readRegister(43)};
   isObject.seu = feb.getRoc().readRegister(44);
   isObject.seuCounter = feb.getRoc().readRegister(53);
+  isObject.ePllVmm0_ePllInstantLock = static_cast<bool>(feb.getRoc().readValue("ePllVmm0.ePllInstantLock"));
+  isObject.ePllVmm1_ePllInstantLock = static_cast<bool>(feb.getRoc().readValue("ePllVmm1.ePllInstantLock"));
+  isObject.ePllTdc_ePllInstantLock = static_cast<bool>(feb.getRoc().readValue("ePllTdc.ePllInstantLock"));
+  isObject.ePllCore_ePllInstantLock = static_cast<bool>(feb.getRoc().readValue("ePllCore.ePllInstantLock"));
   return isObject;
 }

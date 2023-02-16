@@ -98,6 +98,10 @@
   <attribute name="statusSroc" description="Status of sROC0-4" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
   <attribute name="seu" description="Single event upset flag" type="u8" format="hex" init-value="0"/>
   <attribute name="seuCounter" description="SEU pulses counter" type="u8" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllInstantLock" description="VMM 0 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllInstantLock" description="VMM 1 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllInstantLock" description="TDC 1 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllInstantLock" description="Core Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
  </class>
 
  <class name="RocConfiguration">
