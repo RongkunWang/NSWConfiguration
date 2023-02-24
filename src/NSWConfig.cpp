@@ -65,7 +65,7 @@ void nsw::NSWConfig::readConfigurationResource() {
           m_deviceManager.add(this_pair.second);
         }
       } catch (const std::exception& e) {
-        nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Problem constructing configuration due to : {}", e.what()));
+        nsw::NSWConfigIssue issue(ERS_HERE, fmt::format("Problem constructing configuration ({}) due to : {}", name, e.what()));
         ers::fatal(issue);
       }
     }
