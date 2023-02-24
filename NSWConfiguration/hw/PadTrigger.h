@@ -615,7 +615,6 @@ namespace nsw::hw {
                          std::uint32_t val_23_16
                          ) const;
 
-
   private:
 
     /**

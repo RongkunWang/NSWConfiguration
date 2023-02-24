@@ -13,6 +13,10 @@
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Types.h"
 #include "NSWConfiguration/hw/DeviceManager.h"
+#include "NSWConfiguration/monitoring/RocConfigurationRegisters.h"
+#include "NSWConfiguration/monitoring/RocStatusRegisters.h"
+#include "NSWConfiguration/monitoring/MmtpInRunStatusRegisters.h"
+#include "NSWConfiguration/monitoring/MmtpOutRunStatusRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -89,6 +93,8 @@ class NSWConfig {
     //! Retrieve the ptree configuration
     boost::property_tree::ptree getConf();
 
+    void readConfigurationResource();
+
     //! Substitute the configuration ptree
     void substituteConf(const boost::property_tree::ptree& tree);
 
@@ -108,6 +114,38 @@ class NSWConfig {
 
     //! Enable MMTP channel rates reporting
     void enableMmtpChannelRates(bool enable) const;
+
+    /**
+     * \brief Set the command sender to the RC application
+     *
+     * \param sender Command sender to RC application
+     */
+    void setCommandSender(nsw::CommandSender&& sender) { m_deviceManager.setCommandSender(std::move(sender)); }
+    
+    /**
+     * \brief Recover from OPC crashes
+     *
+     * Try to create a connection to any board
+     *
+     * \return recovery successful
+     */
+    bool recoverOpc();
+
+    /**
+     * \brief Monitor a given group
+     *
+     * \param name Name of the monitoring group
+     * \param isDict IS dictionary
+     * \param serverName Name of the IS server
+     */
+    void monitor(const std::string& name, ISInfoDictionary* isDict, std::string_view serverName);
+
+    /**
+     * \brief Get the fraction of devices that failed to configure
+     *
+     * \return double failed fraction
+     */
+    double getFractionFailed() const { return m_deviceManager.getFractionFailed(); }
 
     hw::DeviceManager& getDeviceManager() { return m_deviceManager; }
     const hw::DeviceManager& getDeviceManager() const { return m_deviceManager; }
@@ -136,6 +174,11 @@ private:
     std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
 
     hw::DeviceManager m_deviceManager;
+
+    using MonitoringVariant = std::variant<
+      nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters, 
+      nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters>;
+    std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string
     std::string m_dbcon;

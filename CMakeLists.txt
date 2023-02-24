@@ -24,7 +24,21 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+tdaq_generate_isinfo(nswmonis
+    schema/NswMonitoring_is_info.xml
+  CPP_OUTPUT is_cpp_srcs
+  SIMPLE
+  NAMED
+  OUTPUT_DIRECTORY ${TDAQ_PACKAGE_NAME}Is
+  NAMESPACE nsw::mon::is)
+
+tdaq_add_is_schema(schema/NswMonitoring_is_info.xml)
+
 tdaq_generate_dal(schema/NSWConfig.schema.xml
+                  schema/NSWSCAService.schema.xml
+                  schema/NSWConfigurationController.schema.xml
+                  schema/NSWMonitoringController.schema.xml
+                  schema/NSWSectorController.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
   INCLUDE NSWConfigurationDal
@@ -39,7 +53,7 @@ tdaq_add_library(NSWConfig src/NSWConfig.cpp
   INCLUDE_DIRECTORIES
                  $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
-                 tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface
+                 tdaq-common::ers Boost::program_options nswconfigdal nswhwinterface nswmonitoring
 )
 
 ## Executables linked against Boost::boost
@@ -128,6 +142,10 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigConverter.cpp
                  src/OKSDeviceHierarchy.cpp
                  src/SCAGeoIdentifier.cpp
+                 src/RcUtility.cpp
+                 src/IsUtility.cpp
+  INCLUDE_DIRECTORIES
+                $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES Boost::boost
                  nswconfigdal
                  nswopcclient
@@ -158,7 +176,22 @@ tdaq_add_library(nswhwinterface
                  src/hw/MMTP.cpp
                  src/hw/TPCarrier.cpp
                  src/hw/Helper.cpp
+  INCLUDE_DIRECTORIES
+                $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
   LINK_LIBRARIES nswconfig
+    PRIVATE
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
+
+tdaq_add_library(nswmonitoring
+                 src/monitoring/RocStatusRegisters.cpp
+                 src/monitoring/RocConfigurationRegisters.cpp
+                 src/monitoring/MmtpInRunStatusRegisters.cpp
+                 src/monitoring/MmtpOutRunStatusRegisters.cpp
+                 src/monitoring/IsPublisher.cpp
+  LINK_LIBRARIES nswconfig
+                 nswmonis
+                 nswhwinterface
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
@@ -170,7 +203,33 @@ tdaq_add_executable(NSWConfigRc_main app/NSWConfigRc_main.cpp src/NSWConfigRc.cp
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
+tdaq_add_executable(NSWSCAServiceRc_main app/NSWSCAServiceRc_main.cpp src/NSWSCAServiceRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig nswconfig
+)
+
+tdaq_add_executable(NSWConfigurationControllerRc_main app/NSWConfigurationControllerRc_main.cpp src/NSWConfigurationControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
+tdaq_add_executable(NSWMonitoringControllerRc_main app/NSWMonitoringControllerRc_main.cpp src/NSWMonitoringControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
+tdaq_add_executable(NSWSectorControllerRc_main app/NSWSectorControllerRc_main.cpp src/NSWSectorControllerRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig nswconfig
+)
+
 tdaq_add_schema(schema/NSWConfig.schema.xml)
+tdaq_add_schema(schema/NSWConfigurationController.schema.xml)
+tdaq_add_schema(schema/NSWMonitoringController.schema.xml)
+tdaq_add_schema(schema/NSWSectorController.schema.xml)
+tdaq_add_schema(schema/NSWSCAService.schema.xml)
+
+tdaq_add_is_schema(info/NswMonitoring.schema.xml)
 
 # Testing
 
@@ -271,6 +330,7 @@ if (BUILD_NSW_DOCS)
 
   if (TARGET ${TDAQ_PACKAGE_NAME}.doxygen)
     add_dependencies(${TDAQ_PACKAGE_NAME}.doxygen nswconfigdal)
+    add_dependencies(${TDAQ_PACKAGE_NAME}.doxygen nswmonis)
     SetupNSWDoxygenTargets(${TDAQ_PACKAGE_NAME}.doxygen)
   endif()
 endif()

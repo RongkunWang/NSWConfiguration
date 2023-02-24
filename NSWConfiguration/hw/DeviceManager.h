@@ -8,6 +8,8 @@
 #include <concepts>
 #include <span>
 
+#include "NSWConfiguration/Concepts.h"
+#include "NSWConfiguration/Issues.h"
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/ART.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
@@ -64,7 +66,7 @@ namespace nsw::hw {
         addAddc(ADDCConfig{config});
       }
       else if (type == "MMTP") {
-        addMMTp(TPConfig{config});
+        addMMTp(config);
       }
       else if (type == "STGCTP") {
         addSTGCTp(config);
@@ -105,7 +107,7 @@ namespace nsw::hw {
      *
      * \param options A set of options to be applied
      */
-    void configure(std::span<const Options> options = {}) const;
+    void configure(std::span<const Options> options = {});
 
     /**
      * \brief Connect all devices
@@ -115,17 +117,17 @@ namespace nsw::hw {
     /**
      * \brief Enable VMM capture inputs of all ROCs
      */
-    void enableVmmCaptureInputs() const;
+    void enableVmmCaptureInputs();
 
     /**
      * \brief Disable VMM capture inputs of all ROCs
      */
-    void disableVmmCaptureInputs() const;
+    void disableVmmCaptureInputs();
 
     /**
      * \brief toggle idle state to high for all trigger electronics
      */
-    void toggleIdleStateHigh() const;
+    void toggleIdleStateHigh();
 
     /**
      * \brief Get all ARTs
@@ -192,6 +194,21 @@ namespace nsw::hw {
      * \brief Clear all OPC connections
      */
     void clearOpc();
+
+    /**
+     * \brief Set the command sender to the RC application
+     *
+     * \param sender Command sender to RC application
+     */
+    void setCommandSender(nsw::CommandSender&& sender) { m_opcManager.setCommandSender(std::move(sender)); }
+
+    /**
+     * \brief Get the fraction of devices that failed to configure
+     *
+     * \return double failed fraction
+     */
+    double getFractionFailed() const { return static_cast<double>(m_configurationErrorCounter) / m_configurationTotalCounter; }
+
   private:
     bool m_multithreaded{};
     OpcManager m_opcManager{};
@@ -202,6 +219,8 @@ namespace nsw::hw {
     std::vector<Router> m_routers{};
     std::vector<PadTrigger> m_padTriggers{};
     std::vector<TPCarrier> m_tpCarriers{};
+    std::atomic<int> m_configurationErrorCounter{};
+    std::atomic<int> m_configurationTotalCounter{};
 
     /**
      * \brief Add ROC, TDSs, and VMMs from FEBConfig object
@@ -222,7 +241,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addMMTp(const nsw::TPConfig& config);
+    void addMMTp(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add STGCTP from ptree directly
@@ -252,6 +271,23 @@ namespace nsw::hw {
      */
     void addTpCarrier(const nsw::TPCarrierConfig& config);
 
+    static bool checkSuccess(const auto& device,
+                             const std::regular_invocable<decltype(device)> auto& func,
+                             const std::regular_invocable<std::exception> auto& exceptionHandler)
+    {
+      try {
+        func(device);
+      } catch (const OpcReadWriteIssue& ex) {
+        return false;
+      } catch (const OpcConnectionIssue& ex) {
+        return false;
+      } catch (std::exception& ex) {
+        exceptionHandler(ex);
+        return false;
+      }
+      return true;
+    }
+
     /**
      * \brief Apply a function to a range of devices and handle exceptions
      *
@@ -262,26 +298,33 @@ namespace nsw::hw {
     template<std::ranges::range Range>
     void applyFunc(const Range& devices,
                    const std::regular_invocable<typename Range::value_type> auto& func,
-                   const std::regular_invocable<std::exception> auto& exceptionHandler) const
+                   const std::regular_invocable<std::exception> auto& exceptionHandler)
     {
-      try {
-        if (m_multithreaded) {
-          std::vector<std::future<void>> threads{};
-          threads.reserve(devices.size());
-          for (const auto& device : devices) {
-            threads.push_back(std::async(
-              std::launch::async, [&func](const auto& deviceLocal) { func(deviceLocal); }, device));
-          }
-          for (auto& thread : threads) {
-            thread.get();
-          }
-        } else {
-          for (const auto& device : devices) {
-            func(device);
+      m_configurationTotalCounter += static_cast<int>(std::size(devices));
+      if (m_multithreaded) {
+        std::vector<std::future<bool>> threads{};
+        threads.reserve(devices.size());
+        for (const auto& device : devices) {
+          threads.push_back(std::async(
+            std::launch::async,
+            [&func, &exceptionHandler](const auto& deviceLocal) {
+              return checkSuccess(deviceLocal, func, exceptionHandler);
+            },
+            device));
+        }
+        for (auto& thread : threads) {
+          const auto success = thread.get();
+          if (not success) {
+            ++m_configurationErrorCounter;
           }
         }
-      } catch (std::exception& ex) {
-        exceptionHandler(ex);
+      } else {
+        for (const auto& device : devices) {
+          const auto success = checkSuccess(device, func, exceptionHandler);
+          if (not success) {
+            ++m_configurationErrorCounter;
+          }
+        }
       }
     }
   };

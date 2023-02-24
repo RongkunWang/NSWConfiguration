@@ -10,6 +10,8 @@
 
 #include <ers/Issue.h>
 
+#include "NSWConfiguration/hw/ScaAddressBase.h"
+#include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/hw/OpcManager.h"
@@ -40,13 +42,13 @@ namespace nsw::hw {
    * as to write a complete configuration and read back all the
    * registers contained in the configuration.
    */
-  class MMTP
+  class MMTP : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
      * \brief Constrctor from a \ref MMTPConfig object
      */
-    MMTP(OpcManager& manager, const TPConfig& config);
+    MMTP(OpcManager& manager, const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of MM TP object
@@ -110,6 +112,23 @@ namespace nsw::hw {
     [[nodiscard]]
     const boost::property_tree::ptree& getConfig() const { return m_config; }  //!< \overload
 
+    /**
+     * \brief Read the ART ASIC "alignment" register
+     *
+     * \param n_reads Number of times to read the register
+     */
+    std::vector<std::uint32_t> readAlignment(const size_t n_reads) const;
+
+    /**
+     * \brief set the horx environment monitoring register
+     * \param tx/rx
+     * \param microPod(1-3)
+     * \param temp for temperature, 
+     * \param loss for loss of the fiber
+     * \param fiber(0-11)
+     */
+    void setHorxEnvMonAddr(bool tx, std::uint8_t microPod, bool temp, bool loss, std::uint8_t fiber) const;
+
   private:
 
     /**
@@ -119,12 +138,6 @@ namespace nsw::hw {
      */
     void alignArtGbtx() const;
 
-    /**
-     * \brief Read the ART ASIC "alignment" register
-     *
-     * \param n_reads Number of times to read the register
-     */
-    std::vector<std::uint32_t> readAlignment(const size_t n_reads) const;
 
     /**
      * \brief Get the "L1AOpeningOffset" provided by the user configuration
@@ -225,23 +238,15 @@ namespace nsw::hw {
      */
     std::set<std::uint8_t> SkipRegisters() const;
 
+
     /**
      * \brief Get the "SkipFibers" provided by the user configuration
      */
     std::set<std::uint8_t> SkipFibers() const;
 
-    mutable std::reference_wrapper<nsw::OpcManager> m_opcManager;  //!< Pointer to OpcManager
     boost::property_tree::ptree m_config; //!< config object associated with this MMTP
-    std::string m_opcserverIp;            //!< address and port of Opc Server
-    std::string m_scaAddress;             //!< SCA address of MMTP item in Opc address space
     std::string m_busAddress;             //!< Address of I2C bus
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
-
-    /**
-     * \brief Get OpcManager connection of this object
-     */
-    nsw::OpcClientPtr getConnection() const
-    { return m_opcManager.get().getConnection(m_opcserverIp, m_scaAddress); }
 
   };
 }  // namespace nsw::hw

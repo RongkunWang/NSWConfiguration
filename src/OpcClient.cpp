@@ -18,13 +18,13 @@
 #include "NSWConfiguration/Constants.h"
 
 // Generated (UaoClientForOpcUaSca/include) files
-#include "SpiSlave.h"
-#include "I2cSlave.h"
-#include "DigitalIO.h"
-#include "AnalogInput.h"
-#include "SCA.h"
-#include "IoBatch.h"
-#include "XilinxFpga.h"
+#include <SpiSlave.h>
+#include <I2cSlave.h>
+#include <DigitalIO.h>
+#include <AnalogInput.h>
+#include <SCA.h>
+#include <IoBatch.h>
+#include <XilinxFpga.h>
 #include <UaoClientForOpcUaScaUaoExceptions.h>
 
 using namespace std::chrono_literals;
@@ -324,7 +324,11 @@ std::vector<uint8_t> nsw::OpcClient::readI2c(const std::string& node, size_t num
 
 float nsw::OpcClient::readAnalogInput(const std::string& node) const {
     UaoClientForOpcUaSca::AnalogInput ainode(m_session.get(), UaNodeId(node.c_str(), 2));
-    return ainode.readValue();
+    try {
+        return ainode.readValue();
+    } catch (const UaoClientForOpcUaSca::Exceptions::BadStatusCode& ex) {
+        throw nsw::OpcReadWriteIssue(ERS_HERE, m_server_ipport, node, ex.what());
+    }
 }
 
 std::vector<std::uint16_t> nsw::OpcClient::readAnalogInputConsecutiveSamples(const std::string& node, size_t n_samples) const {
@@ -357,17 +361,29 @@ std::vector<std::uint16_t> nsw::OpcClient::readAnalogInputConsecutiveSamples(con
 
 unsigned int nsw::OpcClient::readScaID(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
-    return scanode.readId();
+    try {
+        return scanode.readId();
+    } catch (const UaoClientForOpcUaSca::Exceptions::BadStatusCode& ex) {
+        throw nsw::OpcReadWriteIssue(ERS_HERE, m_server_ipport, node, ex.what());
+    }
 }
 
 std::string nsw::OpcClient::readScaAddress(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
-    return scanode.readAddress().toUtf8();
+    try {
+        return scanode.readAddress().toUtf8();
+    } catch (const UaoClientForOpcUaSca::Exceptions::BadStatusCode& ex) {
+        throw nsw::OpcReadWriteIssue(ERS_HERE, m_server_ipport, node, ex.what());
+    }
 }
 
 bool nsw::OpcClient::readScaOnline(const std::string& node) const {
     UaoClientForOpcUaSca::SCA scanode(m_session.get(), UaNodeId(node.c_str(), std::uint16_t{2}));
-    return scanode.readOnline();
+    try {
+        return scanode.readOnline();
+    } catch (const UaoClientForOpcUaSca::Exceptions::BadStatusCode& ex) {
+        throw nsw::OpcReadWriteIssue(ERS_HERE, m_server_ipport, node, ex.what());
+    }
 }
 
 void nsw::OpcClient::writeXilinxFpga(const std::string& node, const std::string& bitfile_path) const {

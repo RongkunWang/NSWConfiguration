@@ -3,6 +3,7 @@
 
 #include "NSWConfiguration/OpcClient.h"
 #include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ScaStatus.h"
 
 namespace nsw::hw {
   /**
@@ -19,6 +20,13 @@ namespace nsw::hw {
      * \param scaAddress SCA address (OPC node ID)
      */
     OpcConnectionBase(nsw::OpcManager& manager, std::string opcServerIp, std::string scaAddress);
+
+    /**
+     * \brief Try to ping the device
+     *
+     * \return ScaStatus SCA reachable, unreachable, or server offline
+     */
+    [[nodiscard]] ScaStatus::ScaStatus ping() const;
 
   protected:
     /**

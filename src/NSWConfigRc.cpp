@@ -10,6 +10,7 @@
 
 #include <is/infodynany.h>
 
+#include "NSWConfiguration/Issues.h"
 #include "NSWConfigurationDal/NSWConfigApplication.h"
 
 #include <ers/ers.h>
@@ -60,7 +61,8 @@ void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
 
     m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
     m_NSWConfig->readConf(nswConfigApp);
-
+    m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
+    m_NSWConfig->readConfigurationResource();
     m_NSWConfig->configureRc();
     ERS_LOG("End");
 }

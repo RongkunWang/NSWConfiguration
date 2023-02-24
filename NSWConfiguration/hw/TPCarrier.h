@@ -22,7 +22,7 @@ namespace nsw::hw {
    * Register mapping: TODO
    * Documentation: TODO
    */
-  class TPCarrier : public ScaAddressBase, OpcConnectionBase
+  class TPCarrier : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
