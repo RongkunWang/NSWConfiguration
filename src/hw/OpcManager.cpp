@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iterator>
+#include <mutex>
 #include <ranges>
 #include <stop_token>
 #include <thread>
@@ -41,14 +42,12 @@ nsw::OpcClientPtr nsw::OpcManager::getConnection(const std::string& ipPort, cons
 
 nsw::OpcManager::~OpcManager()
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
   ERS_DEBUG(2, "Destructing manager");
   doClear();
 }
 
 void nsw::OpcManager::clear()
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
   ERS_DEBUG(2, "Clear");
   doClear();
 }
@@ -92,15 +91,18 @@ void nsw::OpcManager::pingConnections(std::stop_token stopToken)
   while (not stopToken.stop_requested()) {
     const auto timeBefore = std::chrono::high_resolution_clock::now();
     ERS_DEBUG(2, "Pinging all connections");
-    for (const auto& [port, connectionsPerServer] : m_connections) {
-      std::map<std::string, hw::ScaStatus::ScaStatus> status{};
-      std::transform(std::cbegin(connectionsPerServer),
-                     std::cend(connectionsPerServer),
-                     std::inserter(status, std::end(status)),
-                     [](const auto& pair) -> decltype(status)::value_type {
-                       return {pair.first, testConnection(pair.first, pair.second.get())};
-                     });
-      analyzePingResults(port, status);
+    {
+      std::unique_lock<std::mutex> lock(m_mutex);
+      for (const auto& [port, connectionsPerServer] : m_connections) {
+        std::map<std::string, hw::ScaStatus::ScaStatus> status{};
+        std::transform(std::cbegin(connectionsPerServer),
+                      std::cend(connectionsPerServer),
+                      std::inserter(status, std::end(status)),
+                      [](const auto& pair) -> decltype(status)::value_type {
+                        return {pair.first, testConnection(pair.first, pair.second.get())};
+                      });
+        analyzePingResults(port, status);
+      }
     }
     ERS_DEBUG(2, "Done pinging all connections");
     const auto sleepTime =
@@ -119,8 +121,6 @@ void nsw::OpcManager::pingConnections(std::stop_token stopToken)
 
 void nsw::OpcManager::analyzePingResults(const std::string& port, const std::map<std::string, hw::ScaStatus::ScaStatus>& result)
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
-
   // Add port if not yet added
   if (not m_badConnections.contains(port)) {
     m_badConnections.try_emplace(port);
@@ -156,7 +156,7 @@ void nsw::OpcManager::analyzePingResults(const std::string& port, const std::map
   }
 
   // Server offline, start checking for reconnect
-  if (std::ranges::any_of(
+  if (std::ranges::all_of(
         result, [](const auto& pair) { return pair.second == hw::ScaStatus::SERVER_OFFLINE; }) and
       not m_reconnectThreads.contains(port)) {
     ERS_INFO("Detected offline OPC server. Testing for restart");
@@ -199,7 +199,7 @@ void nsw::OpcManager::doClear()
 void nsw::OpcManager::testServerRestart(const std::stop_token stopToken, const std::string& server, const std::vector<std::string>& deviceNames)
 {
   const auto sleepTime{30s};
-  while (not checkServerStatus(server, deviceNames) or stopToken.stop_requested()) {
+  while (not checkServerStatus(server, deviceNames) and not stopToken.stop_requested()) {
     std::mutex mutex;
     std::unique_lock lock(mutex);
     std::condition_variable_any().wait_for(lock, stopToken, sleepTime, [] { return false; });
