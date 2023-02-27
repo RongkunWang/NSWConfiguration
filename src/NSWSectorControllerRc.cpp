@@ -54,15 +54,16 @@ void nsw::NSWSectorControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/
   m_ignoreOpcTimeoutError = app->get_ignoreOpcTimeoutError();
   m_ignoreOpcRetryError = app->get_ignoreOpcRetryLimitError();
 
+  retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONFIGURE, 0); },
+           m_opcReconnectTimeoutConfigure,
+           m_opcReconnectAttemptLimitConfigure);
+
   ERS_LOG("End");
 }
 
 void nsw::NSWSectorControllerRc::connect(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONFIGURE, 0); },
-           m_opcReconnectTimeoutConfigure,
-           m_opcReconnectAttemptLimitConfigure);
   ERS_LOG("End");
 }
 
