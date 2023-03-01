@@ -111,15 +111,11 @@ macro(build_UaoClientForOpcUaSca)
 
   target_link_directories(UaoClientForOpcUaSca BEFORE INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca>
-    $<INSTALL_INTERFACE:extern/lib>
+    $<INSTALL_INTERFACE:extern/${BINARY_TAG}/lib>
   )
 
- target_link_libraries(UaoClientForOpcUaSca PRIVATE
+  target_link_libraries(UaoClientForOpcUaSca PRIVATE
     Open62541Compat::open62541-compat
-  )
-
-  install(TARGETS UaoClientForOpcUaSca
-    DESTINATION extern/lib
   )
 
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/UaoClientForOpcUaSca/include/
@@ -129,9 +125,9 @@ macro(build_UaoClientForOpcUaSca)
 
   install(TARGETS UaoClientForOpcUaSca
     EXPORT UaoClient
-    ARCHIVE DESTINATION extern/lib
-    LIBRARY DESTINATION extern/lib
-    RUNTIME DESTINATION extern/bin
+    ARCHIVE DESTINATION extern/${BINARY_TAG}/lib
+    LIBRARY DESTINATION extern/${BINARY_TAG}/lib
+    RUNTIME DESTINATION extern/${BINARY_TAG}/bin
     PUBLIC_HEADER DESTINATION extern/include/UaoClient
     PRIVATE_HEADER DESTINATION extern/include/UaoClient
     INCLUDES DESTINATION extern/include/UaoClient
@@ -140,7 +136,7 @@ macro(build_UaoClientForOpcUaSca)
   install(EXPORT UaoClient
     FILE UaoClientTargets.cmake
     NAMESPACE UaoClient::
-    DESTINATION extern/lib/cmake/UaoClientForOpcUaSca
+    DESTINATION extern/${BINARY_TAG}/share/cmake/UaoClientForOpcUaSca
   )
 
   set(uaoclientforopcuasca_SOURCE_DIR  ${uaoclientforopcuasca_SOURCE_DIR}  PARENT_SCOPE)
