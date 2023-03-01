@@ -107,11 +107,7 @@ macro(build_open62541_compat)
   target_link_directories(open62541-compat BEFORE
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat>
-        $<INSTALL_INTERFACE:extern/lib>
-  )
-
-  install(TARGETS open62541-compat
-    DESTINATION extern/lib
+        $<INSTALL_INTERFACE:extern/${BINARY_TAG}/lib>
   )
 
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/include/
@@ -121,9 +117,9 @@ macro(build_open62541_compat)
 
   install(TARGETS open62541-compat
     EXPORT Open62541Compat
-    ARCHIVE DESTINATION extern/lib
-    LIBRARY DESTINATION extern/lib
-    RUNTIME DESTINATION extern/bin
+    ARCHIVE DESTINATION extern/${BINARY_TAG}/lib
+    LIBRARY DESTINATION extern/${BINARY_TAG}/lib
+    RUNTIME DESTINATION extern/${BINARY_TAG}/bin
     INCLUDES DESTINATION extern/include/Open62541Compat
     PUBLIC_HEADER DESTINATION extern/include/Open62541Compat
     PRIVATE_HEADER DESTINATION extern/include/Open62541Compat
@@ -137,7 +133,7 @@ macro(build_open62541_compat)
 
     target_link_directories(LogIt BEFORE INTERFACE
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt>
-      $<INSTALL_INTERFACE:extern/lib>
+      $<INSTALL_INTERFACE:extern/${BINARY_TAG}/lib>
     )
 
     install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/open62541-compat/LogIt/include/
@@ -147,9 +143,9 @@ macro(build_open62541_compat)
 
     install(TARGETS LogIt
       EXPORT Open62541Compat
-      ARCHIVE DESTINATION extern/lib
-      LIBRARY DESTINATION extern/lib
-      RUNTIME DESTINATION extern/bin
+      ARCHIVE DESTINATION extern/${BINARY_TAG}/lib
+      LIBRARY DESTINATION extern/${BINARY_TAG}/lib
+      RUNTIME DESTINATION extern/${BINARY_TAG}/bin
       INCLUDES DESTINATION extern/include/LogIt
       PUBLIC_HEADER DESTINATION extern/include/LogIt
       PRIVATE_HEADER DESTINATION extern/include/LogIt
@@ -159,7 +155,7 @@ macro(build_open62541_compat)
   install(EXPORT Open62541Compat
     FILE Open62541Compat-extern.cmake
     NAMESPACE Open62541Compat::
-    DESTINATION extern/lib/cmake/Open62541Compat
+    DESTINATION extern/${BINARY_TAG}/share/cmake/Open62541Compat
   )
 
   set(open62541-compat_SOURCE_DIR  ${open62541-compat_SOURCE_DIR}  PARENT_SCOPE)
