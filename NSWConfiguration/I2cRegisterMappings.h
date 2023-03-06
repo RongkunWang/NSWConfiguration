@@ -1211,7 +1211,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"l1id", 32},
     }},
   {"003_control_reg2", {
-      {nsw::NOT_USED,           21},
+      {nsw::NOT_USED,           19},
+      {"conf_majority_sel",      2},
       {"conf_BC_stretch_to_TP",  1},
       {"conf_BC_stretch",        1},
       {"pfeb_num",               5},
