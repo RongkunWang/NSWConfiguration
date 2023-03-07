@@ -1389,6 +1389,14 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {nsw::NOT_USED, 16},
       {"ttc_bcr_ocr_rate", 16},
     }},
+  {"016_trig_bcid_READONLY", {
+      {nsw::NOT_USED, 20},
+      {"trig_bcid", 12},
+    }},
+  {"017_pfeb_bcid_error_READONLY", {
+      {nsw::NOT_USED, 8},
+      {"pfeb_bcid_error", 24},
+    }},
 };
 
 #endif  // NSWCONFIGURATION_I2CREGISTERMAPPINGS_H_

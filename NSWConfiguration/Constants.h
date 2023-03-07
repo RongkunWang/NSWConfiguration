@@ -448,6 +448,7 @@ namespace nsw {
     constexpr std::uint32_t PFEB_BCID_DISCONNECTED = 0x5;
     constexpr std::uint32_t TRIGGER_RATE_BITSHIFT  = 16;
     constexpr std::chrono::seconds PFEB_HIT_RATE_TIME{1};
+    constexpr std::chrono::milliseconds PFEB_BCID_ERROR_TIME{100};
     constexpr std::uint8_t REG_CONTROL          = 0x00;
     constexpr std::uint8_t REG_STATUS           = 0x01;
     constexpr std::uint8_t REG_L1ID             = 0x02;
@@ -467,6 +468,8 @@ namespace nsw {
     constexpr std::uint8_t REG_PT_2_TP_LAT      = 0x13;
     constexpr std::uint8_t REG_TP_BCID_ERROR    = 0x14;
     constexpr std::uint8_t REG_TTC_BCR_OCR_RATE = 0x15;
+    constexpr std::uint8_t REG_TRIG_BCID        = 0x16;
+    constexpr std::uint8_t REG_PFEB_BCID_ERROR  = 0x17;
 
     constexpr std::uint32_t GT_RESET_ENABLE  = 0x00FFFFFF;
     constexpr std::uint32_t GT_RESET_DISABLE = 0x00000000;
