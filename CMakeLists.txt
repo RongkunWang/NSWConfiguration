@@ -129,6 +129,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
     LINK_LIBRARIES nswconfig
     LINK_LIBRARIES nswhwinterface
     LINK_LIBRARIES Boost::program_options
+    PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 endforeach()
 

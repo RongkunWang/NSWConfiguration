@@ -12,50 +12,56 @@
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/FEBConfig.h"
 
+#include <fmt/format.h>
+
 #include <boost/program_options.hpp>
+
+using namespace std::literals;
 
 namespace po = boost::program_options;
 
 struct ThreadConfig {
-  bool configure_vmm;
-  bool configure_roc;
-  bool configure_tds;
-  bool create_pulses;
-  bool readback_tds;
-  bool reset_roc;
-  bool reset_vmm;
-  bool reset_tds;
-  int vmm_to_unmask;
-  int channel_to_unmask;
+  bool configure_vmm{};
+  bool configure_roc{};
+  bool configure_tds{};
+  bool create_pulses{};
+  bool readback_tds{};
+  bool reset_roc{};
+  bool reset_vmm{};
+  bool reset_tds{};
+  bool dryrun{};
+  std::uint8_t vmm_to_unmask{};
+  std::uint8_t channel_to_unmask{};
 };
 
-int active_threads(std::vector< std::future<int> >* threads);
+int active_threads(std::vector<std::future<int>>& threads);
 int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg);
 
 int main(int ac, const char *av[]) {
-    std::string base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/";
+    constexpr auto base_folder = "/eos/atlas/atlascerngroupdisk/det-nsw/sw/configuration/config_files/"sv;
 
-    std::string description = "This program configures selected or all MMFE8/PFEB/SFEB";
-    description += "The name of the front end will be used to determine how many VMM and TDS the board contains.";
+    constexpr auto description = R"(This program configures selected or all MMFE8/PFEB/SFEB
+The name of the front end will be used to determine how many VMM and TDS the board contains.)";
 
-    bool configure_vmm;
-    bool configure_roc;
-    bool configure_tds;
-    bool create_pulses;
-    bool readback_tds;
-    bool reset_roc;
-    bool reset_vmm;
-    bool reset_tds;
-    int vmm_to_unmask;
-    int channel_to_unmask;
-    int max_threads;
+    bool configure_vmm{};
+    bool configure_roc{};
+    bool configure_tds{};
+    bool create_pulses{};
+    bool readback_tds{};
+    bool reset_roc{};
+    bool reset_vmm{};
+    bool reset_tds{};
+    bool dryrun{};
+    std::uint8_t vmm_to_unmask{};
+    std::uint8_t channel_to_unmask{};
+    int max_threads{};
     std::string config_filename;
     std::string fe_name;
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
         ("configfile,c", po::value<std::string>(&config_filename)->
-        default_value(base_folder + "integration_config.json"),
+        default_value(fmt::format("{}integration_config.json", base_folder)),
         "Configuration file path")
         ("name,n", po::value<std::string>(&fe_name)->
         default_value(""),
@@ -71,10 +77,10 @@ int main(int ac, const char *av[]) {
         "Create 10 test pulses in ROC by modifying TPInv register(Default: False)")
         ("readback-tds,T", po::bool_switch(&readback_tds)->default_value(false),
         "Readback and decode TDS values(Default: False)")
-        ("vmmtounmask,V", po::value<int>(&vmm_to_unmask)->
-        default_value(-1), "VMM to unmask (0-7) (Used for ADDC testing)")
-        ("channeltounmask,C", po::value<int>(&channel_to_unmask)->
-        default_value(-1), "VMM channel to umask (0-63) (Used for ADDC testing)")
+        ("vmmtounmask,V", po::value<std::uint8_t>(&vmm_to_unmask)->
+        default_value(static_cast<uint8_t>(-1)), "VMM to unmask (0-7) (Used for ADDC testing)")
+        ("channeltounmask,C", po::value<std::uint8_t>(&channel_to_unmask)->
+        default_value(static_cast<uint8_t>(-1)), "VMM channel to umask (0-63) (Used for ADDC testing)")
         ("max_threads,m", po::value<int>(&max_threads)->
         default_value(-1), "Maximum number of threads to run")
         ("reset,R", po::bool_switch(&reset_roc)->default_value(false),
@@ -82,7 +88,9 @@ int main(int ac, const char *av[]) {
         ("resetvmm", po::bool_switch(&reset_vmm)->default_value(false),
         "Hard reset vmm before configuration. Need to be used with -v")
         ("resettds", po::bool_switch(&reset_tds)->default_value(false),
-        "Reset TDS SER, logic, ePLL after configuring tds. Need to be used with -t");
+        "Reset TDS SER, logic, ePLL after configuring tds. Need to be used with -t")
+        ("dryrun", po::bool_switch(&dryrun)->default_value(false),
+        "Do not perform any configuration operations");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -100,12 +108,12 @@ int main(int ac, const char *av[]) {
         return 1;
     }
 
-    if (vm.count("help")) {
+    if (vm.count("help") != 0U) {
         std::cout << desc << "\n";
         return 1;
     }
 
-    nsw::ConfigReader reader1("json://" + config_filename);
+    nsw::ConfigReader reader1(fmt::format("json://{}", config_filename));
     try {
       auto config1 = reader1.readConfig();
     } catch (std::exception & e) {
@@ -116,7 +124,7 @@ int main(int ac, const char *av[]) {
     }
 
     std::set<std::string> frontend_names;
-    if (fe_name != "") {
+    if (!fe_name.empty()) {
       frontend_names.emplace(fe_name);
     } else {  // If no name is given, find all elements
       frontend_names = reader1.getAllElementNames();
@@ -126,7 +134,7 @@ int main(int ac, const char *av[]) {
 
     std::cout << "\nFollowing front ends will be configured:\n";
     std::cout <<   "========================================\n";
-    for (auto & name : frontend_names) {
+    for (const auto & name : frontend_names) {
       try {
         frontend_configs.emplace_back(reader1.readConfig(name));
         std::cout << name << std::endl;
@@ -140,7 +148,7 @@ int main(int ac, const char *av[]) {
     std::cout << "\n";
 
     // launch threads
-    auto threads = new std::vector< std::future<int> >();
+    auto threads = std::vector<std::future<int>>{};
 
     for (auto & feb : frontend_configs){
 
@@ -164,11 +172,17 @@ int main(int ac, const char *av[]) {
       cfg.reset_tds         = reset_tds;
       cfg.vmm_to_unmask     = vmm_to_unmask;
       cfg.channel_to_unmask = channel_to_unmask;
-      threads->push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
+      cfg.dryrun            = dryrun;
+
+      if (cfg.dryrun) {
+        std::cout << "Dry run specified, will not perform any configuration operations\n";
+      }
+
+      threads.push_back( std::async(std::launch::async, configure_frontend, feb, cfg) );
     }
 
     // wait
-    for (auto& thread: *threads) {
+    for (auto& thread: threads) {
         try {
             thread.get();
         } catch (ers::Issue & ex) {
@@ -182,12 +196,14 @@ int main(int ac, const char *av[]) {
 
 }
 
-int active_threads(std::vector< std::future<int> >* threads){
+int active_threads(std::vector<std::future<int>>& threads){
   int nfinished = 0;
-  for (auto& thread: *threads)
-    if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+  for (auto& thread: threads) {
+    if (thread.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
       nfinished++;
-  return (int)(threads->size()) - nfinished;
+    }
+  }
+  return static_cast<int>(threads.size()) - nfinished;
 }
 
 int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
@@ -200,14 +216,18 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
     if (cfg.reset_roc) {
         std::cout << "Only resetting ROC" << std::endl;
         auto opc_ip = feb.getOpcServerIp();
-        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 0);
+        if (not cfg.dryrun) {
+          cs.sendGPIO(opc_ip, fmt::format("{}.gpio.rocCoreResetN", feb.getAddress()), false);
+        }
         sleep(1);
-        cs.sendGPIO(opc_ip, feb.getAddress() + ".gpio.rocCoreResetN", 1);
+        if (not cfg.dryrun) {
+          cs.sendGPIO(opc_ip, fmt::format("{}.gpio.rocCoreResetN", feb.getAddress()), true);
+        }
         return 0;
     }
 
     // Send all ROC config
-    if (cfg.configure_roc) {
+    if (cfg.configure_roc and not cfg.dryrun) {
         cs.sendRocConfig(feb);
     }
 
@@ -215,7 +235,7 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
     if (cfg.configure_vmm) {
       /// This options are used for ADDC testing
         auto & vmms = feb.getVmms();
-        if (cfg.channel_to_unmask != -1 && cfg.vmm_to_unmask != -1) {
+        if (cfg.channel_to_unmask != static_cast<std::uint8_t>(-1) && cfg.vmm_to_unmask != static_cast<uint8_t>(-1)) {
             std::cout << "Unmasking channel " << cfg.channel_to_unmask << " in vmm " << cfg.vmm_to_unmask << std::endl;
             vmms[cfg.vmm_to_unmask].setChannelRegisterOneChannel("channel_sm", 0, cfg.channel_to_unmask);
             vmms[cfg.vmm_to_unmask].setGlobalRegister("sm", cfg.channel_to_unmask);
@@ -229,8 +249,9 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
             vmm.setGlobalRegister("reset", 3);  // Set reset bits to 1
           }
 
-          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
-
+          if (not cfg.dryrun) {
+            cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+          }
 
           size_t i = 0;
           for (auto & vmm : vmms) {
@@ -238,48 +259,56 @@ int configure_frontend(nsw::FEBConfig feb, ThreadConfig cfg) {
           }
         }
 
-        cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+        if (not cfg.dryrun) {
+          cs.sendVmmConfig(feb);  // Sends configuration to all vmm
+        }
         // std::cout << "Vmm:\n" << nsw::bitstringToHexString(vmms[0].getBitString()) << std::endl;
     }
 
-    if (cfg.configure_tds) {
+    if (cfg.configure_tds and not cfg.dryrun) {
         cs.sendTdsConfig(feb, cfg.reset_tds);  // Sends configuration to all tds
     }
 
     if (cfg.readback_tds) {
         std::cout << "Reading back TDS. FEB: " << feb.getAddress() << std::endl;
-        auto opc_ip = feb.getOpcServerIp();
-        auto feb_address = feb.getAddress();
-        for (auto tds : feb.getTdss()) {  // Each tds is I2cMasterConfig
+        const auto opc_ip = feb.getOpcServerIp();
+        const auto feb_address = feb.getAddress();
+        for (const auto& tds : feb.getTdss()) {  // Each tds is I2cMasterConfig
             std::cout << "\nTDS: " << tds.getName() << std::endl;
-            for (auto tds_i2c_address : tds.getAddresses()) {
-                auto address_to_read = nsw::stripReadonly(tds_i2c_address);
-                auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
-                std::string full_node_name = feb_address + "." + tds.getName()  + "." + address_to_read;
-                auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
-                std::cout << std::dec << "\n";
-                tds.decodeVector(tds_i2c_address, dataread);
-                std::cout << "Readback as bytes: ";
-                for (auto val : dataread) {
-                    std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << ", ";
+            for (const auto& tds_i2c_address : tds.getAddresses()) {
+                const auto address_to_read = nsw::stripReadonly(tds_i2c_address);
+                const auto size_in_bytes = tds.getTotalSize(tds_i2c_address)/8;
+                const auto full_node_name = fmt::format("{}.{}.{}", feb_address, tds.getName(), address_to_read);
+                if (not cfg.dryrun) {
+                    auto dataread = cs.readI2c(opc_ip, full_node_name , size_in_bytes);
+                    std::cout << std::dec << "\n";
+                    tds.decodeVector(tds_i2c_address, dataread);
+                    std::cout << "Readback as bytes: ";
+                    for (auto val : dataread) {
+                        std::cout << "0x" << std::hex << static_cast<uint32_t>(val) << ", ";
+                    }
+                    std::cout << "\n";
                 }
-                std::cout << "\n";
             }
         }
     }
 
     if (cfg.create_pulses) {
-        auto opc_ip = feb.getOpcServerIp();
-        auto sca_roc_address_analog = feb.getAddress() + "." + feb.getRocAnalog().getName();
-        uint8_t data[] = {0};
-        for (int i = 0; i < 10; i++) {
-            std::cout << "Creating 10 test pulse" << std::endl;
-            data[0] = 0xff;
-            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+        constexpr static auto NUM_TEST_PULSES{10};
+        const auto opc_ip = feb.getOpcServerIp();
+        const auto sca_roc_address_analog = fmt::format("{}.{}", feb.getAddress(), feb.getRocAnalog().getName());
+        const auto data_inv = std::vector<uint8_t>{0xff};
+        const auto data_rst = std::vector<uint8_t>{0x00};
+        for (int i = 0; i < NUM_TEST_PULSES; i++) {
+            std::cout << "Creating " << NUM_TEST_PULSES << " test pulse" << std::endl;
+            if (not cfg.dryrun) {
+                cs.sendI2c(opc_ip, fmt::format("{}.reg124vmmTpInv", sca_roc_address_analog), data_inv);
+            }
             // sleep(1);
 
-            data[0] = 0x0;
-            cs.sendI2cRaw(opc_ip, sca_roc_address_analog + ".reg124vmmTpInv", data, 1);
+            if (not cfg.dryrun) {
+                cs.sendI2c(opc_ip, fmt::format("{}.reg124vmmTpInv", sca_roc_address_analog), data_rst);
+            }
             // sleep(1);
         }
     }
