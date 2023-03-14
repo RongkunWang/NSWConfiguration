@@ -19,15 +19,16 @@ nsw::hw::TPCarrier::TPCarrier(OpcManager& manager, const boost::property_tree::p
 void nsw::hw::TPCarrier::writeConfiguration() const
 {
   const auto& regs = nsw::carrier::REGS;
-  writeRegister(regs.at("RJOUT_SEL"), RJOutSel());
+  // FIXME
+  writeRegister("RJOUT_SEL", RJOutSel());
   // writeAndReadbackRegister(regs.at("gbtPhaseAdjust"), m_config.get("gbtPhaseAdjust", 7)); // TODO: wait for Nathan to find the best value
 }
 
-std::map<std::uint32_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() const
+std::map<std::string_view, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() const
 {
-  std::map<std::uint32_t, std::uint32_t> result;
-  for (const auto& [name, reg]: nsw::carrier::REGS) {
-    if (name == "gbtPhaseAdjust") {
+  std::map<std::string_view, std::uint32_t> result;
+  for (const auto& reg: nsw::carrier::REGS) {
+    if (reg == "FIXME_gbtPhaseAdjust") {
       continue;
     }
     result.emplace(reg, readRegister(reg));
@@ -35,29 +36,26 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() c
   return result;
 }
 
-void nsw::hw::TPCarrier::writeRegister(const std::uint32_t regAddress,
+void nsw::hw::TPCarrier::writeRegister(std::string_view regAddress,
                                        const std::uint32_t value) const
 {
   nsw::hw::SCAX::writeRegister(getConnection(),
-      m_busAddress,
       regAddress,
       value);
 }
 
-std::uint32_t nsw::hw::TPCarrier::readRegister(const std::uint32_t regAddress) const
+std::uint32_t nsw::hw::TPCarrier::readRegister(std::string_view regAddress) const
 {
   return nsw::hw::SCAX::readRegister(getConnection(),
-      m_busAddress,
       regAddress
       );
 }
 
-void nsw::hw::TPCarrier::writeAndReadbackRegister(const std::uint32_t regAddress,
+void nsw::hw::TPCarrier::writeAndReadbackRegister(std::string_view regAddress,
                                                   const std::uint32_t value) const
 {
-  ERS_LOG(fmt::format("{}: writing to address 0x{:02x} with message 0x{:08x}", m_name, regAddress, value));
+  ERS_LOG(fmt::format("{}: writing to address {} with message 0x{:08x}", m_name, regAddress, value));
   nsw::hw::SCAX::writeAndReadbackRegister(getConnection(),
-      m_busAddress,
       regAddress,
       value);
 }

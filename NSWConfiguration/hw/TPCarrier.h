@@ -43,7 +43,7 @@ namespace nsw::hw {
      * \returns a map of address to register value
      */
     [[nodiscard]]
-    std::map<std::uint32_t, std::uint32_t> readConfiguration() const;
+    std::map<std::string_view, std::uint32_t> readConfiguration() const;
 
     /**
      * \brief Write the full TPCarrier configuration
@@ -53,27 +53,31 @@ namespace nsw::hw {
     /**
      * \brief Write a value to a TPCarrier register address
      *
-     * \param regAddress is the address of the register
+     *
+     * \param regAddress is the address the register, 
+     *      containing I2C bus and secondary name
      * \param value is the value to be written
      */
-    void writeRegister(std::uint32_t regAddress,
-                       std::uint32_t value) const;
+    void writeRegister(const std::string_view regAddress,
+                       const std::uint32_t value) const;
 
     /**
      * \brief Read an individual TPCarrier register by its address
      *
-     * \param regAddress is the address of the register
+     * \param regAddress is the address the register, 
+     *      containing I2C bus and secondary name
      */
     [[nodiscard]]
-    std::uint32_t readRegister(std::uint32_t regAddress) const;
+    std::uint32_t readRegister(const std::string_view regAddress) const;
 
     /**
      * \brief Write a value to a TPCarrier register address, and read it back
      *
-     * \param regAddress is the address of the register
+     * \param regAddress is the address the register, 
+     *      containing I2C bus and secondary name
      * \param value is the value to be written
      */
-    void writeAndReadbackRegister(const std::uint32_t regAddress,
+    void writeAndReadbackRegister(const std::string_view regAddress,
                                   const std::uint32_t value) const;
 
     /**

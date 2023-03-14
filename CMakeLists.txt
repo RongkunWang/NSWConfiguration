@@ -212,6 +212,8 @@ tdaq_add_library(nswhwinterface
                  src/hw/SCAX.cpp
                  src/hw/STGCTP.cpp
                  src/hw/MMTP.cpp
+                 src/hw/MMTP_v1.cpp
+                 src/hw/MMTP_v2.cpp
                  src/hw/TPCarrier.cpp
                  src/hw/Helper.cpp
   INCLUDE_DIRECTORIES

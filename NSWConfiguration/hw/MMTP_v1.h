@@ -1,44 +1,40 @@
-#ifndef NSWCONFIGURATION_HW_MMTP_H
-#define NSWCONFIGURATION_HW_MMTP_H
+#ifndef NSWCONFIGURATION_HW_MMTP_v1_H
+#define NSWCONFIGURATION_HW_MMTP_v1_H
 
 #include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include <boost/property_tree/ptree.hpp>
 
 #include <ers/Issue.h>
 
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 #include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 
-ERS_DECLARE_ISSUE(nsw,
-                  MMTPVersionMissing,
-                  message,
-                  ((std::string)message)
-                  )
 
 namespace nsw::hw {
-  class MMTP_v1;
-  class MMTP_v2;
-
   /**
    * \brief Class representing a MM Trigger Processor
    *
-   * Provides methods to read/write individual MMTP registers, as well
+   * Provides methods to read/write individual MMTP_v1 registers, as well
    * as to write a complete configuration and read back all the
    * registers contained in the configuration.
    */
-  class MMTP : public ScaAddressBase, public OpcConnectionBase
+  class MMTP_v1 : public ScaAddressBase, public OpcConnectionBase
   {
   public:
     /**
+     * \brief default constructor
+     */
+    // MMTP_v1(){};
+    /**
      * \brief Constrctor from a \ref ptree object
      */
-    MMTP(OpcManager& manager, const boost::property_tree::ptree& config);
+    MMTP_v1(OpcManager& manager, const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of MM TP object
@@ -46,10 +42,10 @@ namespace nsw::hw {
      * \returns a name of the object
      */
     [[nodiscard]]
-    std::string getName() const;
+    std::string getName() const { return m_name; };
 
     /**
-     * \brief Read the full MMTP address space
+     * \brief Read the full MMTP_v1 address space
      *
      * \returns a map of address to register value
      */
@@ -57,13 +53,13 @@ namespace nsw::hw {
     std::map<std::string, std::uint32_t> readConfiguration() const;
 
     /**
-     * \brief Write the full MMTP configuration
+     * \brief Write the full MMTP_v1 configuration
      */
     void writeConfiguration(bool doAlignArtGbtx = true) const;
 
 
     /**
-     * \brief Write an individual MMTP register by its name
+     * \brief Write an individual MMTP_v1 register by its name
      *
      * \param regAddress is the address the register, containing I2C bus and secondary name
      * \param value is the value to be written
@@ -72,7 +68,7 @@ namespace nsw::hw {
                        const std::uint32_t value) const;
 
     /**
-     * \brief Read an individual MMTP register by its name
+     * \brief Read an individual MMTP_v1 register by its name
      *
      * \param regAddress is the address the register, 
      *      containing I2C bus and secondary name
@@ -81,7 +77,7 @@ namespace nsw::hw {
     std::uint32_t readRegister(std::string_view regAddress) const;
 
     /**
-     * \brief Write a value to a MMTP register address, and read it back
+     * \brief Write a value to a MMTP_v1 register address, and read it back
      *
      * \param regAddress is the address the register, 
      *      containing I2C bus and secondary name
@@ -90,20 +86,24 @@ namespace nsw::hw {
     void writeAndReadbackRegister(std::string_view regAddress,
                                   const std::uint32_t value) const;
 
+    std::string getBusAddress(std::uint8_t bus) const {
+      return fmt::format("{0}.I2C_{1:d}.bus{1:d}", getScaAddress(), bus) ;
+    }
+
     /**
      * \brief toggle idle state to high for all trigger electronics
      */
     void toggleIdleStateHigh() const;
 
     /**
-     * \brief Get the ptree object associated with this MMTP object
+     * \brief Get the ptree object associated with this MMTP_v1 object
      *
      * Both const and non-const overloads are provided
      */
     [[nodiscard]]
-    boost::property_tree::ptree& getConfig();
+    boost::property_tree::ptree& getConfig() { return m_config; }
     [[nodiscard]]
-    const boost::property_tree::ptree& getConfig() const;  //!< \overload
+    const boost::property_tree::ptree& getConfig() const { return m_config; }  //!< \overload
 
     /**
      * \brief Read the ART ASIC "alignment" register
@@ -127,14 +127,37 @@ namespace nsw::hw {
      * \brief Enable the channel rate based on the register
      * \param enable enable (true) or disable (false) the channel rate elink
      */
-    void enableChannelRates(const bool enable) const;
+    void enableChannelRates(const bool enable) const { writeRegister(nsw::mmtp::REG_CHAN_RATE_ENABLE, static_cast<uint32_t>(enable)); }
 
   private:
 
-    // set default version
-    int m_version = 0;
-    std::shared_ptr<nsw::hw::MMTP_v1> m_impl1;
-    std::shared_ptr<nsw::hw::MMTP_v2> m_impl2;
+    /**
+     * \brief Do "alignment" of ART ASIC input data capture at the TP,
+     *        where QPLL resets are requested until the data captured from all fibers
+     *        has no errors
+     */
+    void alignArtGbtx() const;
+
+    /**
+     * \brief Get the "SkipRegisters" provided by the user configuration
+     */
+    std::set<std::uint8_t> SkipRegisters() const;
+
+    // name: bus, address
+    std::map<std::string, std::pair<std::uint8_t, std::uint32_t>> m_registersToRemember;
+    // name, bus, address
+    std::vector<std::tuple<std::string, std::uint8_t, std::uint32_t>> m_registersToRead;
+
+
+    /**
+     * \brief Get the "SkipFibers" provided by the user configuration
+     */
+    boost::property_tree::ptree m_config; //!< ptree object associated with this MMTP_v1
+    std::set<std::uint8_t> SkipFibers() const;
+
+    std::string m_name;                   //!< Name composed of OPC and SCA addresses
+    std::set<std::string_view> m_skippedReg;  //!< Set of registers which should be skipped
+
   };
 } // namespace nsw::hw
 

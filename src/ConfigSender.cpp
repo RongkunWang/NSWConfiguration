@@ -943,7 +943,7 @@ void nsw::ConfigSender::alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & ad
     // read MMTP alignment register
     auto aligned = std::vector<uint32_t>(nsw::mmtp::NUM_FIBERS);
     for (size_t read = 0; read < nsw::mmtp::FIBER_ALIGN_N_READS; read++) {
-      const auto word = readSCAXRegisterWord(tp, nsw::mmtp::REG_FIBER_ALIGNMENT);
+      const auto word = readSCAXRegisterWord(tp, nsw::mmtp::REGOLD_FIBER_ALIGNMENT);
       for (size_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
         bool align = ((word >> fiber) & 1);
         if (align) {
@@ -1018,8 +1018,8 @@ void nsw::ConfigSender::alignArtGbtxMmtp(const std::vector<nsw::ADDCConfig> & ad
     }
 
     // or, set/unset the reset
-    sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, reset);
-    sendSCAXRegister(tp, nsw::mmtp::REG_FIBER_QPLL_RESET, 0x00);
+    sendSCAXRegister(tp, nsw::mmtp::REGOLD_FIBER_QPLL_RESET, reset);
+    sendSCAXRegister(tp, nsw::mmtp::REGOLD_FIBER_QPLL_RESET, 0x00);
 
     // and take note
     n_resets++;
@@ -1053,27 +1053,27 @@ void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     // Collect registers to be written
     //
     std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
-      {nsw::mmtp::REG_ADDC_EMU_DISABLE,  static_cast<uint32_t>(true)},
-      {nsw::mmtp::REG_L1A_OPENING_OFFSET,       static_cast<uint32_t>(tp.L1AOpeningOffset())},
-      {nsw::mmtp::REG_L1A_REQUEST_OFFSET,     static_cast<uint32_t>(tp.L1ARequestOffset())},
-      {nsw::mmtp::REG_L1A_CLOSING_OFFSET,     static_cast<uint32_t>(tp.L1AClosingOffset())},
-      {nsw::mmtp::REG_L1A_TIMEOUT_WINDOW,     static_cast<uint32_t>(tp.L1ATimeoutWindow())},
-      {nsw::mmtp::REG_L1A_CONTROL,       nsw::mmtp::L1A_RESET_ENABLE},
-      {nsw::mmtp::REG_L1A_CONTROL,       nsw::mmtp::L1A_RESET_DISABLE},
-      {nsw::mmtp::REG_FIBER_BC_OFFSET,   static_cast<uint32_t>(tp.FiberBCOffset())},
-      {nsw::mmtp::REG_INPUT_PHASE,       static_cast<uint32_t>(tp.GlobalInputPhase())},
-      {nsw::mmtp::REG_HORX_ENV_MON_ADDR, static_cast<uint32_t>(tp.HorxEnvMonAddr())},
+      {nsw::mmtp::REGOLD_ADDC_EMU_DISABLE,  static_cast<uint32_t>(true)},
+      {nsw::mmtp::REGOLD_L1A_OPENING_OFFSET,       static_cast<uint32_t>(tp.L1AOpeningOffset())},
+      {nsw::mmtp::REGOLD_L1A_REQUEST_OFFSET,     static_cast<uint32_t>(tp.L1ARequestOffset())},
+      {nsw::mmtp::REGOLD_L1A_CLOSING_OFFSET,     static_cast<uint32_t>(tp.L1AClosingOffset())},
+      {nsw::mmtp::REGOLD_L1A_TIMEOUT_WINDOW,     static_cast<uint32_t>(tp.L1ATimeoutWindow())},
+      {nsw::mmtp::REGOLD_L1A_CONTROL,       nsw::mmtp::L1A_RESET_ENABLE},
+      {nsw::mmtp::REGOLD_L1A_CONTROL,       nsw::mmtp::L1A_RESET_DISABLE},
+      {nsw::mmtp::REGOLD_FIBER_BC_OFFSET,   static_cast<uint32_t>(tp.FiberBCOffset())},
+      {nsw::mmtp::REGOLD_INPUT_PHASE,       static_cast<uint32_t>(tp.GlobalInputPhase())},
+      {nsw::mmtp::REGOLD_HORX_ENV_MON_ADDR, static_cast<uint32_t>(tp.HorxEnvMonAddr())},
     };
     if (tp.GlobalInputOffset() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_INPUT_PHASEADDCOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REGOLD_INPUT_PHASEADDCOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));
     if (tp.SelfTriggerDelay() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_SELFTRIGGER_DELAY,        static_cast<uint32_t>(tp.SelfTriggerDelay())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REGOLD_SELFTRIGGER_DELAY,        static_cast<uint32_t>(tp.SelfTriggerDelay())));
     if (tp.VmmMaskHotThresh() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      static_cast<uint32_t>(tp.VmmMaskHotThresh())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REGOLD_VMM_MASK_HOT_THRESH,      static_cast<uint32_t>(tp.VmmMaskHotThresh())));
     if (tp.VmmMaskHotThreshHyst() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_HOT_THRESH_HYST, static_cast<uint32_t>(tp.VmmMaskHotThreshHyst())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REGOLD_VMM_MASK_HOT_THRESH_HYST, static_cast<uint32_t>(tp.VmmMaskHotThreshHyst())));
     if (tp.VmmMaskDrainPeriod() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    static_cast<uint32_t>(tp.VmmMaskDrainPeriod())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REGOLD_VMM_MASK_DRAIN_PERIOD,    static_cast<uint32_t>(tp.VmmMaskDrainPeriod())));
 
     const auto skippedReg = tp.SkipRegisters<std::uint8_t>();
     //

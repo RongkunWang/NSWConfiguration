@@ -10,9 +10,28 @@
 #include <chrono>
 #include <map>
 #include <cmath>
-
-#include "NSWConfiguration/SCAxRegisters.h"
 #include <any>
+
+#include <ers/Issue.h>
+
+// #include "NSWConfiguration/SCAxRegisters.h"
+ERS_DECLARE_ISSUE(nsw,
+                  MMTPFiberAlignIssue,
+                  message,
+                  ((std::string)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  MMTPReadWriteIssue,
+                  message,
+                  ((std::string)message)
+                  )
+
+ERS_DECLARE_ISSUE(nsw,
+                  MMTPReadbackMismatch,
+                  message,
+                  ((std::string)message)
+                  )
 
 namespace nsw {
   namespace scax {
@@ -30,14 +49,15 @@ namespace nsw {
     constexpr std::uint8_t REG_PRN_CHK_RESET    = 0x10;
 
     
-    const std::map<std::string, uint32_t> REGS = {
-      {"RJOUT_SEL",           0x01}, // R/W
-      {"mirrowReset",         0x02}, // R/W
-      {"gbtPhaseSkew",        0x0b}, // R
-      {"gbtPhaseAdjust",      0x0c}, // W
-      {"prnChkErrorCnt",      0x0f}, // R
-      {"prnChkReset",         0x10}, // R/W
-    };
+    // FIXME
+    constexpr std::array<std::string_view, 6> REGS({
+      "RJOUT_SEL",            // R/W
+      "mirrowReset",          // R/W
+      "gbtPhaseSkew",         // R
+      "gbtPhaseAdjust",       // W
+      "prnChkErrorCnt",       // R
+      "prnChkReset",          // R/W
+    });
   }
 
   namespace stgctp {
@@ -193,6 +213,7 @@ namespace nsw {
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;
     constexpr std::uint32_t RST_TX_ENABLE  = 0b100111111;
     constexpr std::uint32_t RST_TX_DISABLE = 0b0;
+
   }
 
   namespace mmtp {
@@ -206,144 +227,153 @@ namespace nsw {
     constexpr std::size_t NUM_FIBERS              = 32;
     constexpr std::size_t NUM_FIBERS_PER_MICROPOD = 12;
     constexpr std::size_t NUM_FIBERS_PER_QPLL     = 4;
-    constexpr std::size_t NUM_QPLL                = NUM_FIBERS/NUM_FIBERS_PER_QPLL;
+    constexpr std::size_t NUM_QPLL                = NUM_FIBERS / NUM_FIBERS_PER_QPLL;
     constexpr std::size_t NUM_FIBER_BCID_REGS     = 4;
+    constexpr std::size_t NUM_FIBERS_PER_REG      = NUM_FIBERS / NUM_FIBER_BCID_REGS;
+    constexpr std::uint8_t BYTE_MASK              = 0xf;
     constexpr std::size_t NUM_VMMS_PER_FIBER      = 32;
     constexpr std::size_t NUM_MMFE8_PER_FIBER     = 4;
     constexpr std::size_t CHAN_RATE_USLEEP        = 1e6;
     constexpr std::uint8_t DUMMY_VAL              = 0x55;
 
     // register definition. NEED TO BE obsolete; SHOULD BE uint32 since register addr is 10-bit!!!
-    constexpr std::uint8_t REG_ADDC_EMU_DISABLE   = 0x01;
-    constexpr std::uint8_t REG_FIBER_ALIGNMENT    = 0x02;
-    constexpr std::uint8_t REG_FIBER_QPLL_RESET   = 0x03;
-    constexpr std::uint8_t REG_FIBER_BCIDS_00_07  = 0x04;
-    constexpr std::uint8_t REG_FIBER_BCIDS_08_15  = 0x05;
-    constexpr std::uint8_t REG_FIBER_BCIDS_16_23  = 0x06;
-    constexpr std::uint8_t REG_FIBER_BCIDS_24_31  = 0x07;
-    constexpr std::array<std::uint8_t, NUM_FIBER_BCID_REGS> REG_FIBER_BCIDS = {
-      REG_FIBER_BCIDS_00_07,
-      REG_FIBER_BCIDS_08_15,
-      REG_FIBER_BCIDS_16_23,
-      REG_FIBER_BCIDS_24_31,
+    constexpr std::uint8_t REGOLD_ADDC_EMU_DISABLE   = 0x01;
+    constexpr std::uint8_t REGOLD_FIBER_ALIGNMENT    = 0x02;
+    constexpr std::uint8_t REGOLD_FIBER_QPLL_RESET   = 0x03;
+    constexpr std::uint8_t REGOLD_FIBER_BCIDS_00_07  = 0x04;
+    constexpr std::uint8_t REGOLD_FIBER_BCIDS_08_15  = 0x05;
+    constexpr std::uint8_t REGOLD_FIBER_BCIDS_16_23  = 0x06;
+    constexpr std::uint8_t REGOLD_FIBER_BCIDS_24_31  = 0x07;
+    constexpr std::array<std::uint8_t, NUM_FIBER_BCID_REGS> REGOLD_FIBER_BCIDS = {
+      REGOLD_FIBER_BCIDS_00_07,
+      REGOLD_FIBER_BCIDS_08_15,
+      REGOLD_FIBER_BCIDS_16_23,
+      REGOLD_FIBER_BCIDS_24_31,
     };
-    constexpr std::uint8_t REG_FIBER_BC_OFFSET          = 0x08;
-    constexpr std::uint8_t REG_DATE_CODE                = 0x09;
-    constexpr std::uint8_t REG_GIT_HASH                 = 0x0a;
-    constexpr std::uint8_t REG_INPUT_PHASE              = 0x0b;
-    constexpr std::uint8_t REG_INPUT_PHASEADDCOFFSET    = 0x0c; // for ADDC PCB3/6
-    constexpr std::uint8_t REG_INPUT_PHASEL1DDCOFFSET   = 0x32; // for L1DDC L/R
-    constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
-    constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
-    constexpr std::uint8_t REG_GBT_BCID_OK              = 0x0f;
-    constexpr std::uint8_t REG_L1A_CONTROL              = 0x10;
-    constexpr std::uint8_t REG_L1A_OPENING_OFFSET       = 0x11;
-    constexpr std::uint8_t REG_L1A_REQUEST_OFFSET       = 0x12;
-    constexpr std::uint8_t REG_L1A_CLOSING_OFFSET       = 0x13;
-    constexpr std::uint8_t REG_L1A_TIMEOUT_WINDOW       = 0x14;
-    constexpr std::uint8_t REG_L1A_BUSY_THRESHOLD       = 0x15;
-    constexpr std::uint8_t REG_GBT_PHASE_OFFSET         = 0x18;
-    constexpr std::uint8_t REG_TTC_ECR_CNT              = 0x19;
-    constexpr std::uint8_t REG_TTC_BCR_CNT              = 0x1a;
-    constexpr std::uint8_t REG_TTC_L1A_CNT              = 0x1b;
-    constexpr std::uint8_t REG_FIBER_MASK_MUX           = 0x1c;
-    constexpr std::uint8_t REG_FIBER_MASK_WRITE         = 0x1d;
-    constexpr std::uint8_t REG_PIPELINE_OVERFLOW        = 0x20;
-    constexpr std::uint8_t REG_SELFTRIGGER_DELAY        = 0x21;
-    constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH      = 0x22;
-    constexpr std::uint8_t REG_VMM_MASK_HOT_THRESH_HYST = 0x23;
-    constexpr std::uint8_t REG_VMM_MASK_DRAIN_PERIOD    = 0x24;
-    constexpr std::uint8_t REG_CHAN_RATE_ENABLE         = 0x25;
-    constexpr std::uint8_t REG_HORX_ENV_MON_ADDR        = 0x26;
-    constexpr std::uint8_t REG_HORX_ENV_MON_DATA        = 0x27;
-    constexpr std::uint8_t REG_GLO_SYNC_IDLE_STATE      = 0x28;
-    constexpr std::uint8_t REG_GLO_SYNC_BCID_OFFSET     = 0x29;
-    constexpr std::uint8_t REG_LAT_TX_IDLE_STATE        = 0x2F;
-    constexpr std::uint8_t REG_LAT_TX_BCID_OFFSET       = 0x30;
+    constexpr std::uint8_t REGOLD_FIBER_BC_OFFSET          = 0x08;
+    constexpr std::uint8_t REGOLD_DATE_CODE                = 0x09;
+    constexpr std::uint8_t REGOLD_GIT_HASH                 = 0x0a;
+    constexpr std::uint8_t REGOLD_INPUT_PHASE              = 0x0b;
+    constexpr std::uint8_t REGOLD_INPUT_PHASEADDCOFFSET    = 0x0c; // for ADDC PCB3/6
+    constexpr std::uint8_t REGOLD_INPUT_PHASEL1DDCOFFSET   = 0x32; // for L1DDC L/R
+    constexpr std::uint8_t REGOLD_FIBER_HOT_MUX            = 0x0d;
+    constexpr std::uint8_t REGOLD_FIBER_HOT_READ           = 0x0e;
+    constexpr std::uint8_t REGOLD_GBT_BCID_OK              = 0x0f;
+    constexpr std::uint8_t REGOLD_L1A_CONTROL              = 0x10;
+    constexpr std::uint8_t REGOLD_L1A_OPENING_OFFSET       = 0x11;
+    constexpr std::uint8_t REGOLD_L1A_REQUEST_OFFSET       = 0x12;
+    constexpr std::uint8_t REGOLD_L1A_CLOSING_OFFSET       = 0x13;
+    constexpr std::uint8_t REGOLD_L1A_TIMEOUT_WINDOW       = 0x14;
+    constexpr std::uint8_t REGOLD_L1A_BUSY_THRESHOLD       = 0x15;
+    constexpr std::uint8_t REGOLD_GBT_PHASE_OFFSET         = 0x18;
+    constexpr std::uint8_t REGOLD_TTC_ECR_CNT              = 0x19;
+    constexpr std::uint8_t REGOLD_TTC_BCR_CNT              = 0x1a;
+    constexpr std::uint8_t REGOLD_TTC_L1A_CNT              = 0x1b;
+    constexpr std::uint8_t REGOLD_FIBER_MASK_MUX           = 0x1c;
+    constexpr std::uint8_t REGOLD_FIBER_MASK_WRITE         = 0x1d;
+    constexpr std::uint8_t REGOLD_PIPELINE_OVERFLOW        = 0x20;
+    constexpr std::uint8_t REGOLD_SELFTRIGGER_DELAY        = 0x21;
+    constexpr std::uint8_t REGOLD_VMM_MASK_HOT_THRESH      = 0x22;
+    constexpr std::uint8_t REGOLD_VMM_MASK_HOT_THRESH_HYST = 0x23;
+    constexpr std::uint8_t REGOLD_VMM_MASK_DRAIN_PERIOD    = 0x24;
+    constexpr std::uint8_t REGOLD_CHAN_RATE_ENABLE         = 0x25;
+    constexpr std::uint8_t REGOLD_HORX_ENV_MON_ADDR        = 0x26;
+    constexpr std::uint8_t REGOLD_HORX_ENV_MON_DATA        = 0x27;
+    constexpr std::uint8_t REGOLD_GLO_SYNC_IDLE_STATE      = 0x28;
+    constexpr std::uint8_t REGOLD_GLO_SYNC_BCID_OFFSET     = 0x29;
+    constexpr std::uint8_t REGOLD_LAT_TX_IDLE_STATE        = 0x2F;
+    constexpr std::uint8_t REGOLD_LAT_TX_BCID_OFFSET       = 0x30;
 
     // for the special sectors, swapping is needed.
-    constexpr std::uint8_t REG_FIBER_REMAP_SEL          = 0x2a;
-    constexpr std::uint8_t REG_OFFSET_MODE_BCID         = 0x2b;
-    constexpr std::uint8_t REG_OFFSET_MODE_CNT          = 0x2c;
+    constexpr std::uint8_t REGOLD_FIBER_REMAP_SEL          = 0x2a;
+    constexpr std::uint8_t REGOLD_OFFSET_MODE_BCID         = 0x2b;
+    constexpr std::uint8_t REGOLD_OFFSET_MODE_CNT          = 0x2c;
     // determines the L1A
-    constexpr std::uint8_t REG_LOCAL_BCID_OFFSET        = 0x2d;
+    constexpr std::uint8_t REGOLD_LOCAL_BCID_OFFSET        = 0x2d;
 
-    // constexpr auto REGS = std::to_array({
-      // REG_ADDC_EMU_DISABLE,
-      // REG_FIBER_ALIGNMENT,
-      // REG_FIBER_QPLL_RESET,
+
+    // fixme
+    constexpr std::string_view REG_FIBER_ALIGNMENT        = "FIXME";
+    constexpr std::string_view REG_L1A_CONTROL            = "FIXME";
+    constexpr std::string_view REG_INPUT_PHASE            = "FIXME";
+    constexpr std::string_view REG_INPUT_PHASEADDCOFFSET  = "FIXME";
+    constexpr std::string_view REG_INPUT_PHASEL1DDCOFFSET = "FIXME";
+    constexpr std::string_view REG_CHAN_RATE_ENABLE       = "FIXME";
+    constexpr std::string_view REG_GLO_SYNC_IDLE_STATE    = "FIXME";
+    constexpr std::string_view REG_LAT_TX_IDLE_STATE      = "FIXME";
+    constexpr std::string_view REG_GLO_SYNC_BCID_OFFSET   = "FIXME";
+    constexpr std::string_view REG_FIBER_QPLL_RESET       = "FIXME";
+    constexpr std::string_view REG_GBT_BCID_OK            = "FIXME";
+    constexpr std::string_view REG_OFFSET_MODE_BCID       = "FIXME";
+    constexpr std::string_view REG_OFFSET_MODE_CNT        = "FIXME";
+    constexpr std::string_view REG_PIPELINE_OVERFLOW      = "FIXME";
+    constexpr std::string_view REG_HORX_ENV_MON_ADDR      = "FIXME";
+    constexpr std::string_view REG_HORX_ENV_MON_DATA      = "";
+    //  combining 4 registers
+    constexpr std::array<std::string_view, NUM_FIBER_BCID_REGS> REG_FIBER_BCIDS = {
+      "FIXME",
+      "FIXME",
+      "FIXME",
+      "FIXME",
+    };
+
+    constexpr auto registersToRead  = std::to_array({
+      // REG_DATE_CODE,
+      // REG_GIT_HASH,
+      REG_FIBER_ALIGNMENT,
+      REG_FIBER_QPLL_RESET,
       // REG_FIBER_BCIDS_00_07,
       // REG_FIBER_BCIDS_08_15,
       // REG_FIBER_BCIDS_16_23,
       // REG_FIBER_BCIDS_24_31,
       // REG_FIBER_BC_OFFSET,
-      // REG_DATE_CODE,
-      // REG_GIT_HASH,
-      // REG_L1A_CONTROL,
-      // REG_LOCAL_BCID_OFFSET,
+      REG_L1A_CONTROL,
       // REG_L1A_OPENING_OFFSET,
       // REG_L1A_REQUEST_OFFSET,
       // REG_L1A_CLOSING_OFFSET,
-      // REG_L1A_BUSY_THRESHOLD,
       // REG_L1A_TIMEOUT_WINDOW,
       // REG_TTC_ECR_CNT,
       // REG_TTC_BCR_CNT,
       // REG_TTC_L1A_CNT,
-      // REG_INPUT_PHASE,
-      // REG_INPUT_PHASEADDCOFFSET,
-      // REG_INPUT_PHASEL1DDCOFFSET,
+      REG_INPUT_PHASE,
+      REG_INPUT_PHASEADDCOFFSET,
+      REG_INPUT_PHASEL1DDCOFFSET,
       // REG_FIBER_HOT_MUX,
       // REG_FIBER_HOT_READ,
       // REG_GBT_BCID_OK,
-      // // REG_FIBER_MASK_MUX,
-      // // REG_FIBER_MASK_WRITE,
-      // REG_PIPELINE_OVERFLOW,
+      REG_PIPELINE_OVERFLOW,
       // REG_SELFTRIGGER_DELAY,
       // REG_VMM_MASK_HOT_THRESH,
       // REG_VMM_MASK_HOT_THRESH_HYST,
       // REG_VMM_MASK_DRAIN_PERIOD,
-      // REG_CHAN_RATE_ENABLE,
-      // REG_HORX_ENV_MON_DATA,
-      // REG_GLO_SYNC_IDLE_STATE,
-      // REG_GLO_SYNC_BCID_OFFSET,
-      // REG_LAT_TX_IDLE_STATE,
-      // REG_LAT_TX_BCID_OFFSET,
+      REG_CHAN_RATE_ENABLE,
+      REG_GLO_SYNC_IDLE_STATE,
+      REG_GLO_SYNC_BCID_OFFSET,
       // REG_FIBER_REMAP_SEL,
-      // REG_OFFSET_MODE_BCID,
-      // REG_OFFSET_MODE_CNT,
-    // });
-
-
-    // if any use-case specific registers is called elsewhere in NSWConfiguration/NSWCalibration, define it in the constructor for it!
-    constexpr auto registersToRemember  = std::to_array({
-        "gloSyncIdleState",
-        "FIBER_ALIGNMENT",
-        "REG_L1A_CONTROL",
+      REG_OFFSET_MODE_BCID,
+      REG_OFFSET_MODE_CNT,
         });
 
-    constexpr auto registersToRead  = std::to_array({
-        "ADDC_EMU_DISABLE",
-        "FIBER_ALIGNMENT",
+    // FIXME: change with all proper names
+    constexpr std::array<std::pair<std::string_view, std::uint32_t>, 1> registersToWrite({
+        std::make_pair("ADDC_EMU_DISABLE", 1),
         });
-
-    constexpr auto registersToWrite = std::to_array({
-        "ADDC_EMU_DISABLE",
-        "L1AOpeningOffset",
-        "L1ARequestOffset",
-        "L1AClosingOffset",
-        "L1ATimeoutWindow",
-        "FiberBCOffset",
-        "GlobalInputPhase",
-        "GlobalInputOffset",
-        "gbtL1ddPhaseOffset"
-        "SelfTriggerDelay",
-        "VmmMaskHotThresh",
-        "VmmMaskHotThreshHyst",
-        "VmmMaskDrainPeriod",
-        "gloSyncBcidOffset",
-        "latTxBCIDOffset",
-        "fiberRemapSel",
-        });
+        // "L1AOpeningOffset",
+        // "L1ARequestOffset",
+        // "L1AClosingOffset",
+        // "L1ATimeoutWindow",
+        // "FiberBCOffset",
+        // "GlobalInputPhase",
+        // "GlobalInputOffset",
+        // "gbtL1ddPhaseOffset"
+        // "SelfTriggerDelay",
+        // "VmmMaskHotThresh",
+        // "VmmMaskHotThreshHyst",
+        // "VmmMaskDrainPeriod",
+        // "gloSyncBcidOffset",
+        // "latTxBCIDOffset",
+        // "fiberRemapSel",
+        // });
 
     constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
       std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),

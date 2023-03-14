@@ -45,13 +45,11 @@ nsw::mon::is::MmtpInRunStatusRegisters nsw::mon::MmtpInRunStatusRegisters::getDa
   is.nGoodOffset = tp.readRegister(nsw::mmtp::REG_OFFSET_MODE_CNT);
 
   is.fiberBCIDs.clear();
-  const auto numFibersPerReg = nsw::mmtp::NUM_FIBERS / nsw::mmtp::REG_FIBER_BCIDS.size();
   for (auto reg : nsw::mmtp::REG_FIBER_BCIDS) {
     const auto val = tp.readRegister(reg);
-    for (std::size_t  i = 0; i < numFibersPerReg; ++i) {
+    for (std::size_t  i = 0; i < nsw::mmtp::NUM_FIBERS_PER_REG; ++i) {
       // FIXME: Proper name for magic number please
-      constexpr static auto BYTE_MASK = unsigned{0xf};
-      is.fiberBCIDs.push_back((val >> (i * 4)) & BYTE_MASK);
+      is.fiberBCIDs.push_back((val >> (i * 4)) & nsw::mmtp::BYTE_MASK);
     }
   }
 

@@ -55,22 +55,21 @@ void nsw::hw::SCAX::writeAndReadbackRegister(const OpcClientPtr opcConnection,
 
 
 void nsw::hw::SCAX::writeRegister(const OpcClientPtr opcConnection,
-                                  const std::string& node,
+                                  std::string_view node,
                                   const std::uint32_t value) {
   const auto data = nsw::intToByteVector(value,      nsw::NUM_BYTES_IN_WORD32, nsw::scax::SCAX_LITTLE_ENDIAN);
-  nsw::hw::SCA::sendI2c(opcConnection, node, data);
-
+  nsw::hw::SCA::sendI2c(opcConnection, std::string(node), data);
 }
 
 std::uint32_t nsw::hw::SCAX::readRegister(const OpcClientPtr opcConnection,
-                                          const std::string& node)
+                                          std::string_view node)
 {
-  const auto data = nsw::hw::SCA::readI2c(opcConnection, node, nsw::NUM_BYTES_IN_WORD32);
+  const auto data = nsw::hw::SCA::readI2c(opcConnection, std::string(node), nsw::NUM_BYTES_IN_WORD32);
   return nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN);
 }
 
 void nsw::hw::SCAX::writeAndReadbackRegister(const OpcClientPtr opcConnection,
-                                             const std::string& node,
+                                             std::string_view  node,
                                              const std::uint32_t value)
 {
   writeRegister(opcConnection, node, value);
@@ -82,20 +81,15 @@ void nsw::hw::SCAX::writeAndReadbackRegister(const OpcClientPtr opcConnection,
   }
 }
 
-std::set<std::uint8_t> nsw::hw::SCAX::SkipRegisters(const boost::property_tree::ptree& config)
-{
-  const auto key = "SkipRegisters";
-  if (config.count(key) == 0) {
-    return std::set<std::uint8_t>();
-  }
-  return nsw::getSetFromPtree<std::uint8_t>(config, key);
-}
 
-std::set<std::string> nsw::hw::SCAX::SkipRegistersStr(const boost::property_tree::ptree& config)
+std::set<std::string_view> nsw::hw::SCAX::SkipRegisters(const boost::property_tree::ptree& config)
 {
+  std::set<std::string_view> skippedRegSet;
   const auto key = "SkipRegisters";
-  if (config.count(key) == 0) {
-    return std::set<std::string>();
-  }
-  return nsw::getSetFromPtree<std::string>(config, key);
+  if (config.count(key) != 0) {
+    auto v = nsw::getSetFromPtree<std::string>(config, key);
+    std::copy(v.begin(), v.end(),
+                      std::inserter(skippedRegSet, skippedRegSet.begin()));
+  } 
+  return skippedRegSet;
 }

@@ -10,9 +10,8 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
   OpcConnectionBase(manager, config.get<std::string>("OpcServerIp"), config.get<std::string>("OpcNodeId")),
   m_config(config),
   m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress())),
-  m_skippedReg(nsw::hw::SCAX::SkipRegistersStr(m_config))
+  m_skippedReg(nsw::hw::SCAX::SkipRegisters(m_config))
 {
-
 }
 
 void nsw::hw::STGCTP::writeConfiguration() const
@@ -22,6 +21,10 @@ void nsw::hw::STGCTP::writeConfiguration() const
   writeRegister(nsw::stgctp::REG_SECTOR,         getSector());
 
   for (const auto & [reg, defVal] : nsw::stgctp::registersToWrite) {
+    if (m_skippedReg.contains(reg)) {
+      ERS_LOG(fmt::format("{}: skip writing to {}", m_name, reg));
+      continue;
+    }
     if(reg.find("_WO_") != std::string::npos) {
       if (defVal.type() == typeid(unsigned int)) {
         writeRegister(reg, m_config.get(reg, std::any_cast<unsigned int>(defVal)));
@@ -42,12 +45,16 @@ void nsw::hw::STGCTP::writeConfiguration() const
   }
 }
 
-std::map<std::string, std::uint32_t> nsw::hw::STGCTP::readConfiguration() const
+std::vector<std::pair<std::string, std::uint32_t>> nsw::hw::STGCTP::readConfiguration() const
 {
-  std::map<std::string, std::uint32_t> result;
+  std::vector<std::pair<std::string, std::uint32_t>> result;
   for (const auto& reg: nsw::stgctp::registersToRead) {
+    if (m_skippedReg.contains(reg)) {
+      ERS_LOG(fmt::format("{}: skip reading from {}", m_name, reg));
+      continue;
+    }
     try {
-      result.emplace(reg, readRegister(reg));
+      result.emplace_back(reg, readRegister(reg));
     } catch (std::exception & ex) {
       ERS_INFO(fmt::format("{}: failed to read reg {}", m_name, reg));
       break;
@@ -56,31 +63,23 @@ std::map<std::string, std::uint32_t> nsw::hw::STGCTP::readConfiguration() const
   return result;
 }
 
-void nsw::hw::STGCTP::writeRegister(const std::string regAddress,
+void nsw::hw::STGCTP::writeRegister(std::string_view regAddress,
                                     const std::uint32_t value) const
 {
   ERS_LOG(fmt::format("About to write register {} = {}", regAddress, value));
-  if (m_skippedReg.contains(regAddress)) {
-    ERS_LOG(fmt::format("{}: skip writing to {}", m_name, regAddress));
-    return;
-  }
   nsw::hw::SCAX::writeRegister(getConnection(),
       fmt::format("{}.{}", getScaAddress(), regAddress),
       value);
 }
 
-std::uint32_t nsw::hw::STGCTP::readRegister(const std::string regAddress) const
+std::uint32_t nsw::hw::STGCTP::readRegister(std::string_view regAddress) const
 {
   ERS_LOG(fmt::format("About to read register {}", regAddress));
-  if (m_skippedReg.contains(regAddress)) {
-    ERS_LOG(fmt::format("{}: skip reading {}, return dummy value {:#x}", m_name, regAddress, nsw::DEADBEEF));
-    return nsw::DEADBEEF;
-  }
   return nsw::hw::SCAX::readRegister(getConnection(),
       fmt::format("{}.{}", getScaAddress(), regAddress));
 }
 
-void nsw::hw::STGCTP::writeAndReadbackRegister(const std::string regAddress,
+void nsw::hw::STGCTP::writeAndReadbackRegister(std::string_view regAddress,
                                                const std::uint32_t value) const
 {
   if (m_skippedReg.contains(regAddress)) {
@@ -113,7 +112,7 @@ void nsw::hw::STGCTP::doReset() const
   if (getDoReset()) {
     ERS_LOG(fmt::format("{}: toggling RX resets", getName()));
     writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_ENABLE);
-    nsw::snooze(1s);
+    nsw::snooze(2s);
     writeRegister(nsw::stgctp::REG_RST_RX, nsw::stgctp::RST_RX_DISABLE);
     nsw::snooze(2s);
     ERS_LOG(fmt::format("{}: toggling TX resets", getName()));

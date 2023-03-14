@@ -21,7 +21,7 @@ nsw::mon::is::CarriertpInRunStatusRegisters nsw::mon::CarriertpInRunStatusRegist
 {
   auto is = nsw::mon::is::CarriertpInRunStatusRegisters{};
 
-  std::uint32_t regval = tp.readRegister(nsw::carrier::REG_GBT_PHASE_SKEW);
+  std::uint32_t regval = tp.readRegister("FIXME_gbtPhaseSkew");
    is.txFramePhase = (regval & 0xF);
    is.rxFramePhase = ((regval >> 4 ) & 0xF) ;
    is.rxGbtPhase   = ((regval >> 8 ) & 0xF);
