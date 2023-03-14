@@ -8,6 +8,8 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/SCAInterface.h"
+#include "NSWConfiguration/hw/SCAX.h"
 
 #include <boost/program_options.hpp>
 
@@ -20,6 +22,7 @@ int main(int argc, const char *argv[]) {
     std::string description = "This program is for sending/receiving messages from the SCX on the TP.";
 
     std::string opc_ip;
+    bool newMode, oldMode;
     bool readMode;
     bool writeMode;
     std::string slaveAddr;
@@ -28,6 +31,8 @@ int main(int argc, const char *argv[]) {
     po::options_description desc(description);
     desc.add_options()
         ("help,h", "produce help message")
+        ("old,O", po::bool_switch(&oldMode),
+            "enable old read mode (Default: False)")
         ("read,R", po::bool_switch(&readMode)->default_value(false),
             "read value at address(Default: False)")
         ("write,W", po::bool_switch(&writeMode)->default_value(false),
@@ -50,25 +55,20 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
+
+    newMode = !oldMode;
+
     nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
-
-    // auto addcconfig0 = reader1.readConfig("A01.ROC_L01_M01"); // THIS NEEDS CHANGE!!! fine for now
-    // nsw::TPConfig tp(addcconfig0);
-    // tp.dump();
-
-    // Seqence of actions to send ADDC config
-    // auto opc_ip = tp.getOpcServerIp();
-    // auto sca_tp_address = tp.getAddress();
 
     int test = 0;
 
     std::vector<uint8_t> data;
-    std::vector<uint8_t> outdata;
 
     std::vector<uint8_t> regAddrVec;
 
     unsigned long registerAddressValue = std::strtoul(regAddr.data(), 0, 16);
-    assert(registerAddressValue < 0x0400);
+    if(!newMode)
+      assert(registerAddressValue < 0x0400);
 
     // Clean up strings
     auto cleanup = [](std::string & string) {
@@ -102,13 +102,20 @@ int main(int argc, const char *argv[]) {
     if (readMode) {
         if (test == 0) {
             std::cout << "... Testing the readout of a register via I2c..." << std::endl;
-            outdata = cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
-            for (uint i=0; i < outdata.size(); i++) {
-                std::cout << std::hex << unsigned(outdata[i]) << std::endl;
+            if (newMode)  {
+              auto p = new nsw::OpcClient(opc_ip);
+              auto outdata = nsw::hw::SCAX::readRegister(p, slaveAddr);
+              std::cout << std::hex << outdata << std::dec << std::endl;
+            } else {
+              auto outdata = cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
+              for (uint i=0; i < outdata.size(); i++) {
+                  std::cout << std::hex << unsigned(outdata[i]) << std::dec << std::endl;
+              }
+              std::cout << " in bit string: " << nsw::vectorToBitString(outdata, true);
             }
-            std::cout << " in bit string: " << nsw::vectorToBitString(outdata, true);
         }
     }
+
 
     if (writeMode) {
         // Example
@@ -118,9 +125,13 @@ int main(int argc, const char *argv[]) {
         //             [4,5,6,7] last..first bytes of message
         // Already have the first four bytes of vector stored as regAddrVec.
         // Just need to encode the message.
-        data = nsw::hexStringToByteVector(message, 4, true);
+        data = nsw::hexStringToByteVector(message, 4, nsw::scax::SCAX_LITTLE_ENDIAN);
+        auto dataU32 = nsw::byteVectorToWord32(data, nsw::scax::SCAX_LITTLE_ENDIAN);
+
         std::cout << "... Message to write: " << message << std::endl;
+
         std::cout << "... ... in a byte vector: ";
+        data = nsw::hexStringToByteVector(message, 4, true);
         for (uint i=0; i < data.size(); i++) {
             std::cout << std::hex << unsigned(data[i]) << " ";
         }
@@ -134,14 +145,12 @@ int main(int argc, const char *argv[]) {
         }
 
         if (test == 0) {
+          if(newMode) {
+            auto p = new nsw::OpcClient(opc_ip);
+            nsw::hw::SCAX::writeRegister(p, slaveAddr, dataU32);
+          } else {
             cs.sendI2cRaw(opc_ip, slaveAddr, entirePayload.data(), entirePayload.size() );
-            if (readMode) {
-                std::cout << "... Reading data back from register: " << std::endl;
-                outdata = cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
-                for (uint i=0; i < outdata.size(); i++) {
-                    std::cout << std::hex << unsigned(outdata[i]) << std::endl;
-                }
-            }
+          }
         }
     }
 

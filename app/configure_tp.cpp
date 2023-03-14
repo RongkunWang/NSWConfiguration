@@ -6,8 +6,6 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/STGCTP.h"
 #include "NSWConfiguration/hw/MMTP.h"
@@ -28,8 +26,8 @@ int main(int ac, const char *av[]) {
     bool dry_run{false};
     bool hw{false};
     constexpr std::uint32_t dummy{nsw::DEADBEEF};
-    std::uint32_t readRegister{dummy};
-    std::uint32_t writeRegister{dummy};
+    std::string readRegister;
+    std::string writeRegister;
     std::uint32_t writeValue{dummy};
     po::options_description desc(description);
     desc.add_options()
@@ -38,11 +36,11 @@ int main(int ac, const char *av[]) {
         default_value(confdir + "full_small_sector_14_internalPulser_ADDC.json"),
         "Configuration file path")
         ("dry_run",   po::bool_switch()->default_value(false), "Option to NOT send configurations")
-        ("hw",        po::bool_switch()->default_value(false), "Option to use hw interface")
+        ("hw",        po::bool_switch()->default_value(false), "[Deprecated!] You don't need to use it now.")
         ("writeConfig", po::bool_switch()->default_value(false), "STGCTP option: write configuration")
         ("readConfig", po::bool_switch()->default_value(false), "STGCTP option: read configuration")
-        ("readRegister", po::value<std::uint32_t>(&readRegister)->default_value(dummy), "Register to read (only for sTGCTP for now)")
-        ("writeRegister", po::value<std::uint32_t>(&writeRegister)->default_value(dummy), "Register to write (only for sTGCTP for now)")
+        ("readRegister", po::value<std::string>(&readRegister)->default_value(""), "Register to read")
+        ("writeRegister", po::value<std::string>(&writeRegister)->default_value(""), "Register to write")
         ("writeValue", po::value<std::uint32_t>(&writeValue)->default_value(dummy), "Value to write")
         ("tp,t", po::value<std::string>(&tp_name)->
         default_value("MMTP"),
@@ -72,12 +70,12 @@ int main(int ac, const char *av[]) {
     }
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
-      if (readRegister != dummy) {
-        std::cout << fmt::format("Reg {:#04x}: read {:#010x}", readRegister, tp.readRegister(readRegister, nsw::scax::BITMASK_ALL)) << std::endl;
+      if (readRegister != "") {
+        std::cout << fmt::format("Reg {}: read {:#010x}", readRegister, tp.readRegister(readRegister)) << std::endl;
       }
-      if (writeRegister != dummy) {
-        std::cout << fmt::format("Reg {:#04x}: write {:#010x}", writeRegister, writeValue) << std::endl;
-        tp.writeRegister(writeRegister, writeValue);
+      if (writeRegister != "") {
+        std::cout << fmt::format("Reg {}: write {:#010x}", writeRegister, writeValue) << std::endl;
+        tp.writeRegister( writeRegister, writeValue);
       }
       if (writeConfig) {
         std::cout << "Write configuration:" << std::endl;
@@ -86,49 +84,42 @@ int main(int ac, const char *av[]) {
       if (readConfig) {
         std::cout << "Read configuration:" << std::endl;
         for (const auto& [reg, val]: tp.readConfiguration()) {
-          std::cout << fmt::format("Reg {:#04x}: val = {:#010x}", reg, val) << std::endl;
+          std::cout << fmt::format("Reg {}: val = {:#010x}", reg, val) << std::endl;
         }
       }
     }
 
     // MM TP
-    const auto configs = nsw::ConfigReader::makeObjects<nsw::TPConfig>(json_filename, "TP", tp_name);
+    const auto mmtp_configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree> (json_filename, "MMTP", tp_name);
+
+    // hw interface
+    auto mmtps = std::vector<nsw::hw::MMTP>{};
+    for (const auto& config : mmtp_configs) {
+      mmtps.emplace_back(opcManager, config);
+    }
+    for (const auto& tp: mmtps) {
+      std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;
+      if (writeConfig || readConfig) {
+        for (const auto& [addr, val]: tp.readConfiguration()) {
+          fmt::print("{} {:#010x}: {:#010x}\n", val.first, addr, val.second);
+        }
+      }
+
+      if (writeConfig) {
+        tp.writeConfiguration();
+        tp.enableChannelRates(tp.getConfig().get<bool>("EnableChannelRates"));
+
+        std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
+        for (const auto& [addr, val]: tp.readConfiguration()) {
+          fmt::print("{} {:#010x}: {:#010x}\n", val.first, addr, val.second);
+        }
+      }
+    }
 
     if (hw) {
-      // hw interface
-      auto mmtps = std::vector<nsw::hw::MMTP>{};
-      for (const auto& config : configs) {
-        mmtps.emplace_back(opcManager, config.getConfig());
-      }
-      for (const auto& tp: mmtps) {
-        std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;
-        if (writeConfig || readConfig) {
-          for (const auto& [addr, val]: tp.readConfiguration()) {
-            fmt::print("{:#010x}: {:#010x}\n", addr, val);
-          }
-        }
-
-        if (writeConfig) {
-          tp.writeConfiguration();
-          tp.enableChannelRates(tp.getConfig().get<bool>("EnableChannelRates"));
-          std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
-          for (const auto& [addr, val]: tp.readConfiguration()) {
-            fmt::print("{:#010x}: {:#010x}\n", addr, val);
-          }
-        }
-      }
-    } else {
-      // config sender
-      for (const auto& tp: configs) {
-        std::cout << fmt::format("Found MM TP {}/{}", tp.getOpcServerIp(), tp.getAddress()) << std::endl;
-      }
-      nsw::ConfigSender cs;
-      for (const auto& tp: configs) {
-        tp.dump();
-        if (!dry_run) {
-          cs.sendTPConfig(tp);
-        }
-      }
+      std::cout << "************************" << std::endl;
+      std::cout << "Please note that --hw is now deprecated. By default we'll be using hw interface. So please consider removing this option." << std::endl;
+      std::cout << "************************" << std::endl;
     }
 
     return 0;

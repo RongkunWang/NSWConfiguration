@@ -63,7 +63,7 @@ namespace nsw::hw {
      * \returns a map of address to register value
      */
     [[nodiscard]]
-    std::map<std::uint32_t, std::uint32_t> readConfiguration() const;
+    std::map<std::uint32_t, std::pair<std::string, std::uint32_t>> readConfiguration() const;
 
     /**
      * \brief Write the full MMTP configuration
@@ -76,16 +76,34 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister(std::uint32_t regAddress,
-                       std::uint32_t value) const;
+    void writeRegister(const std::uint32_t regAddress,
+                       const std::uint32_t value,
+                       const std::uint8_t bus = 0) const;
 
+    /**
+     * \brief Write an individual MMTP register by its name
+     *
+     * \param regName is the json Name of the register, defined in TPConstants.h
+     * \param value is the value to be written
+     */
+    void writeRegister(const std::string regName,
+                       const std::uint32_t value) const;
     /**
      * \brief Read an individual MMTP register by its address
      *
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(std::uint32_t regAddress) const;
+    std::uint32_t readRegister(std::uint32_t regAddress,
+                               std::uint8_t bus = 0) const;
+
+    /**
+     * \brief Read an individual MMTP register by its name
+     *
+     * \param regName is the json Name of the register, defined in TPConstants.h
+     */
+    [[nodiscard]]
+    std::uint32_t readRegister(const std::string regName) const;
 
     /**
      * \brief Write a value to a MMTP register address, and read it back
@@ -94,7 +112,12 @@ namespace nsw::hw {
      * \param value is the value to be written
      */
     void writeAndReadbackRegister(std::uint32_t regAddress,
-                                  std::uint32_t value) const;
+                                  std::uint32_t value,
+                                  std::uint8_t bus = 0) const;
+
+    std::string getBusAddress(std::uint8_t bus) const {
+      return fmt::format("{0}.I2C_{1}.bus{1}", getScaAddress(), bus) ;
+    }
 
     /**
      * \brief toggle idle state to high for all trigger electronics
@@ -148,72 +171,72 @@ namespace nsw::hw {
     /**
      * \brief Get the "L1AOpeningOffset" provided by the user configuration
      */
-    std::uint32_t L1AOpeningOffset() const { return m_config.get<std::uint32_t>("L1AOpeningOffset"); }
+    // std::uint32_t L1AOpeningOffset() const { return m_config.get<std::uint32_t>("L1AOpeningOffset"); }
 
     /**
      * \brief Get the "L1ARequestOffset" provided by the user configuration
      */
-    std::uint32_t L1ARequestOffset() const { return m_config.get<std::uint32_t>("L1ARequestOffset"); }
+    // std::uint32_t L1ARequestOffset() const { return m_config.get<std::uint32_t>("L1ARequestOffset"); }
 
     /**
      * \brief Get the "L1AClosingOffset" provided by the user configuration
      */
-    std::uint32_t L1AClosingOffset() const { return m_config.get<std::uint32_t>("L1AClosingOffset"); }
+    // std::uint32_t L1AClosingOffset() const { return m_config.get<std::uint32_t>("L1AClosingOffset"); }
 
     /**
      * \brief Get the "L1AClosingOffset" provided by the user configuration
      */
-    std::uint32_t L1ATimeoutWindow() const { return m_config.get<std::uint32_t>("L1ATimeoutWindow"); }
+    // std::uint32_t L1ATimeoutWindow() const { return m_config.get<std::uint32_t>("L1ATimeoutWindow"); }
 
     /**
      * \brief Get the "FiberBCOffset" provided by the user configuration
      */
-    std::uint32_t FiberBCOffset() const { return m_config.get<std::uint32_t>("FiberBCOffset"); }
+    // std::uint32_t FiberBCOffset() const { return m_config.get<std::uint32_t>("FiberBCOffset"); }
 
     /**
      * \brief Get the "SelfTriggerDelay" provided by the user configuration
      */
-    std::uint32_t SelfTriggerDelay() const { return m_config.get<std::uint32_t>("SelfTriggerDelay"); }
+    // std::uint32_t SelfTriggerDelay() const { return m_config.get<std::uint32_t>("SelfTriggerDelay"); }
 
     /**
      * \brief Get the "VmmMaskHotThresh" provided by the user configuration
      */
-    std::uint32_t VmmMaskHotThresh() const { return m_config.get("VmmMaskHotThresh", std::uint32_t{0xA}); }
+    // std::uint32_t VmmMaskHotThresh() const { return m_config.get("VmmMaskHotThresh", std::uint32_t{0xA}); }
 
     /**
      * \brief Get the "VmmMaskHotThreshHyst" provided by the user configuration
      */
-    std::uint32_t VmmMaskHotThreshHyst() const { return m_config.get("VmmMaskHotThreshHyst", std::uint32_t{0x3}); }
+    // std::uint32_t VmmMaskHotThreshHyst() const { return m_config.get("VmmMaskHotThreshHyst", std::uint32_t{0x3}); }
 
     /**
      * \brief Get the "VmmMaskDrainPeriod" provided by the user configuration
      */
-    std::uint32_t VmmMaskDrainPeriod() const { return m_config.get("VmmMaskDrainPeriod", std::uint32_t{0x9c40}); }
+    // std::uint32_t VmmMaskDrainPeriod() const { return m_config.get("VmmMaskDrainPeriod", std::uint32_t{0x9c40}); }
 
     /**
      * \brief Get the "L1ALatencyScanStart" provided by the user configuration
      */
-    std::uint32_t L1ALatencyScanStart() const { return m_config.get("L1ALatencyScanStart", std::uint32_t{0}); }
+    // std::uint32_t L1ALatencyScanStart() const { return m_config.get("L1ALatencyScanStart", std::uint32_t{0}); }
 
     /**
      * \brief Get the "L1ALatencyScanEnd" provided by the user configuration
      */
-    std::uint32_t L1ALatencyScanEnd() const { return m_config.get("L1ALatencyScanEnd", std::uint32_t{50}); }
+    // std::uint32_t L1ALatencyScanEnd() const { return m_config.get("L1ALatencyScanEnd", std::uint32_t{50}); }
 
     /**
      * \brief Get the "HorxEnvMonAddr" provided by the user configuration
      */
-    std::uint32_t HorxEnvMonAddr() const { return m_config.get("HorxEnvMonAddr", std::uint32_t{0}); }
+    // std::uint32_t HorxEnvMonAddr() const { return m_config.get("HorxEnvMonAddr", std::uint32_t{0}); }
 
     /**
      * \brief Get the "gloSyncIdleState" provided by the user configuration; write to 0 will not overwrite an idle state of 1 because idle state from 1-->0 is triggered by OCR
      */
-    std::uint32_t gloSyncIdleState() const { return m_config.get("gloSyncIdleState", std::uint32_t{0}); }
+    // std::uint32_t gloSyncIdleState() const { return m_config.get("gloSyncIdleState", std::uint32_t{0}); }
 
     /**
      * \brief Get the "gloSyncBcidOffset" provided by the user configuration
      */
-    std::uint32_t gloSyncBcidOffset() const { return m_config.get("gloSyncBcidOffset", std::uint32_t{0}); }
+    // std::uint32_t gloSyncBcidOffset() const { return m_config.get("gloSyncBcidOffset", std::uint32_t{0}); }
 
     /**
      * \brief Get the "fiberRemapSel" provided by the user configuration; 
@@ -222,22 +245,29 @@ namespace nsw::hw {
      * 2: star-2 and star-3 swap(outer two out of the three). C08
      * For latest, see https://espace.cern.ch/ATLAS-NSW-ELX/_layouts/15/WopiFrame.aspx?sourcedoc=/ATLAS-NSW-ELX/Shared%20Documents/NSW%20Trigger%20Processor/NSWTP_Connections.pptx
      */
-    std::uint32_t fiberRemapSel() const { return m_config.get("fiberRemapSel", std::uint32_t{0}); }
+    // std::uint32_t fiberRemapSel() const { return m_config.get("fiberRemapSel", std::uint32_t{0}); }
 
     /**
      * \brief Get the "SkipRegisters" provided by the user configuration
      */
     std::set<std::uint8_t> SkipRegisters() const;
 
+    // name: bus, address
+    std::map<std::string, std::pair<std::uint8_t, std::uint32_t>> m_registersToRemember;
+    // name, bus, address
+    std::vector<std::tuple<std::string, std::uint8_t, std::uint32_t>> m_registersToRead;
+    // name, bus, address default value
+    std::vector<std::tuple<std::string, std::uint8_t, std::uint32_t, std::uint32_t>> m_registersToWrite;
+
 
     /**
      * \brief Get the "SkipFibers" provided by the user configuration
      */
+    boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
     std::set<std::uint8_t> SkipFibers() const;
 
-    boost::property_tree::ptree m_config; //!< config object associated with this MMTP
-    std::string m_busAddress;             //!< Address of I2C bus
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
+    std::set<std::uint8_t> m_skippedReg;  //!< Set of registers which should be skipped
 
   };
 } // namespace nsw::hw
