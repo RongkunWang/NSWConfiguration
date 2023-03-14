@@ -1,4 +1,5 @@
 #include "NSWConfiguration/monitoring/MmtpInRunStatusRegisters.h"
+#include "NSWConfiguration/TPConstants.h"
 
 nsw::mon::MmtpInRunStatusRegisters::MmtpInRunStatusRegisters(
   const nsw::hw::DeviceManager& deviceManager) :

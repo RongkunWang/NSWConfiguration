@@ -11,10 +11,11 @@
 #include <map>
 #include <cmath>
 
-namespace nsw {
+#include "NSWConfiguration/SCAxRegisters.h"
 
+namespace nsw {
   namespace scax {
-    constexpr bool SCAX_LITTLE_ENDIAN = true;
+    constexpr bool SCAX_LITTLE_ENDIAN = false;
     constexpr std::uint32_t BITMASK_ALL = 0xffffffff;
   }
 
@@ -39,9 +40,38 @@ namespace nsw {
   }
 
   namespace stgctp {
+    constexpr auto registersToRead  = std::to_array({
+        "bus0.REG_ERR_BCID_MATCH",
+        });
+
+    // to be corrected by however needed
+    // OPC&json name; value
+    constexpr auto registersToWrite = std::to_array({
+        std::make_tuple("bus0.IgnorePads", 0), 
+        std::make_tuple("bus0.IgnoreMM", 0),
+        std::make_tuple("bus0.DisableNSWMON", 0),
+        std::make_tuple("bus0.L1A_OPENING_OFFSET", 0x22),
+        std::make_tuple("bus0.L1A_REQUEST_OFFSET", 0x20),
+        std::make_tuple("bus0.L1A_CLOSING_OFFSET", 0x1e),
+        std::make_tuple("bus0.REG_L1A_TIMEOUT_WINDOW", 0x60),
+        std::make_tuple("bus0.L1A_PAD_EN", 1),
+        std::make_tuple("bus0.REG_L1A_MERGE_EN", 1),
+        std::make_tuple("bus0.REG_STGC_GLOSYNC_BCID_OFFSET", 0),
+        std::make_tuple("bus0.REG_BUSY", 0),
+        std::make_tuple("bus0.REG_MON_DISABLE", 0),
+        std::make_tuple("bus0.REG_NSW_MON_LIMIT", 10),
+        std::make_tuple("bus0.REG_MON_LIMIT", 100197),
+        std::make_tuple("bus0.REG_MM_NSW_MON_EN", 1),
+        std::make_tuple("bus0.REG_SMALL_SECTOR", 0),
+        std::make_tuple("bus0.REG_MM_NSW_MON_EN", 1),
+        });
+
+    constexpr auto REG_SECTOR           = "bus0.SectorID";
+    constexpr auto REG_RST_RX           = "bus0.RstRx";
+    constexpr auto REG_RST_TX           = "bus0.RstTx";
     constexpr std::uint8_t REG_ERR_BCID_MATCH   = 0x00;
-    constexpr std::uint8_t REG_RST_RX           = 0x01;
-    constexpr std::uint8_t REG_RST_TX           = 0x02;
+    // constexpr std::uint8_t REG_RST_RX           = 0x01;
+    // constexpr std::uint8_t REG_RST_TX           = 0x02;
     constexpr std::uint8_t REG_SL_LATENCY_COMP  = 0x03;
     constexpr std::uint8_t REG_BCR_RATE         = 0x04;
     constexpr std::uint8_t REG_PAD_BXID_SYNC_OK = 0x05;
@@ -53,7 +83,7 @@ namespace nsw {
     constexpr std::uint8_t REG_VALID_NULL_ERROR = 0x0b;
     constexpr std::uint8_t REG_STGC_MM_DISABLE  = 0x0c;
     constexpr std::uint8_t REG_TO_SL_RATE       = 0x0d;
-    constexpr std::uint8_t REG_SECTOR           = 0x0e;
+    // constexpr std::uint8_t REG_SECTOR           = 0x0e;
     constexpr std::uint8_t REG_MM_BXID_SYNC_OK  = 0x0f;
     constexpr std::uint8_t REG_PAD_IDLE_STATUS  = 0x10; // equal to pad trigger empty flag in FIFO
     constexpr std::uint8_t REG_MM_IDLE_STATUS   = 0x11;
@@ -121,42 +151,43 @@ namespace nsw {
     constexpr std::uint32_t MASK_SMALL_SECTOR             = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_NO_STRETCH               = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_SYNC_FIFO_EMPTY          = (1 <<  1) - 1;
-    constexpr auto REGS = std::to_array({
-        std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
-        std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
-        std::make_pair(REG_PAD_BXID_SYNC_OK, MASK_PAD_BXID_SYNC_OK),
-        std::make_pair(REG_PAD_RATE,         MASK_PAD_RATE),
-        std::make_pair(REG_IN_RUN,           MASK_IN_RUN),
-        std::make_pair(REG_STRIPS_HIT_RATE,  MASK_STRIPS_HIT_RATE),
-        std::make_pair(REG_DESKEW_OFFSET,    MASK_DESKEW_OFFSET),
-        std::make_pair(REG_VALID_NULL_ERROR, MASK_VALID_NULL_ERROR),
-        std::make_pair(REG_TO_SL_RATE,       MASK_TO_SL_RATE),
-        std::make_pair(REG_SECTOR,           MASK_SECTOR),
-        std::make_pair(REG_MM_BXID_SYNC_OK,  MASK_MM_BXID_SYNC_OK),
-        std::make_pair(REG_PAD_IDLE_STATUS,  MASK_PAD_IDLE_STATUS),
-        std::make_pair(REG_MM_IDLE_STATUS,   MASK_MM_IDLE_STATUS),
-        std::make_pair(REG_PAD_ARRIVAL_BC,   MASK_PAD_ARRIVAL_BC),
-        std::make_pair(REG_MM_ARRIVAL_BC,    MASK_MM_ARRIVAL_BC),
-        std::make_pair(REG_IGNORE_PADS,           MASK_IGNORE_PADS),
-        std::make_pair(REG_IGNORE_MM,             MASK_IGNORE_MM),
-        std::make_pair(REG_STGC_MM_DISABLE,       MASK_STGC_MM_DISABLE),
-        std::make_pair(REG_DISABLE_NSWMON,        MASK_DISABLE_NSWMON),
-        std::make_pair(REG_L1A_OPENING_OFFSET,       MASK_L1A_OPENING_OFFSET),
-        std::make_pair(REG_L1A_REQUEST_OFFSET,       MASK_L1A_REQUEST_OFFSET),
-        std::make_pair(REG_L1A_CLOSING_OFFSET,       MASK_L1A_CLOSING_OFFSET),
-        std::make_pair(REG_L1A_TIMEOUT_WINDOW,       MASK_L1A_TIMEOUT_WINDOW),
-        std::make_pair(REG_L1A_PAD_EN,               MASK_L1A_PAD_EN),
-        std::make_pair(REG_L1A_MERGE_EN,             MASK_L1A_MERGE_EN),
-        std::make_pair(REG_STICKY_ERR_BCID_MATCH,    MASK_STICKY_ERR_BCID_MATCH),
-        std::make_pair(REG_BUSY,                     MASK_BUSY),
-        std::make_pair(REG_MON_DISABLE,              MASK_MON_DISABLE),
-        std::make_pair(REG_NSW_MON_LIMIT,            MASK_NSW_MON_LIMIT),
-        std::make_pair(REG_MON_LIMIT,                MASK_MON_LIMIT),
-        std::make_pair(REG_MM_NSW_MON_EN,            MASK_MM_NSW_MON_EN),
-        std::make_pair(REG_SMALL_SECTOR,             MASK_SMALL_SECTOR),
-        std::make_pair(REG_NO_STRETCH,               MASK_NO_STRETCH),
-        std::make_pair(REG_SYNC_FIFO_EMPTY,          MASK_SYNC_FIFO_EMPTY),
-    });
+    // constexpr auto REGS = std::to_array({
+        // std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
+        // std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
+        // std::make_pair(REG_PAD_BXID_SYNC_OK, MASK_PAD_BXID_SYNC_OK),
+        // std::make_pair(REG_PAD_RATE,         MASK_PAD_RATE),
+        // std::make_pair(REG_IN_RUN,           MASK_IN_RUN),
+        // std::make_pair(REG_STRIPS_HIT_RATE,  MASK_STRIPS_HIT_RATE),
+        // std::make_pair(REG_DESKEW_OFFSET,    MASK_DESKEW_OFFSET),
+        // std::make_pair(REG_VALID_NULL_ERROR, MASK_VALID_NULL_ERROR),
+        // std::make_pair(REG_TO_SL_RATE,       MASK_TO_SL_RATE),
+        // std::make_pair(REG_SECTOR,           MASK_SECTOR),
+        // std::make_pair(REG_MM_BXID_SYNC_OK,  MASK_MM_BXID_SYNC_OK),
+        // std::make_pair(REG_PAD_IDLE_STATUS,  MASK_PAD_IDLE_STATUS),
+        // std::make_pair(REG_MM_IDLE_STATUS,   MASK_MM_IDLE_STATUS),
+        // std::make_pair(REG_PAD_ARRIVAL_BC,   MASK_PAD_ARRIVAL_BC),
+        // std::make_pair(REG_MM_ARRIVAL_BC,    MASK_MM_ARRIVAL_BC),
+        // std::make_pair(REG_IGNORE_PADS,           MASK_IGNORE_PADS),
+        // std::make_pair(REG_IGNORE_MM,             MASK_IGNORE_MM),
+        // std::make_pair(REG_STGC_MM_DISABLE,       MASK_STGC_MM_DISABLE),
+        // std::make_pair(REG_DISABLE_NSWMON,        MASK_DISABLE_NSWMON),
+        // std::make_pair(REG_L1A_OPENING_OFFSET,       MASK_L1A_OPENING_OFFSET),
+        // std::make_pair(REG_L1A_REQUEST_OFFSET,       MASK_L1A_REQUEST_OFFSET),
+        // std::make_pair(REG_L1A_CLOSING_OFFSET,       MASK_L1A_CLOSING_OFFSET),
+        // std::make_pair(REG_L1A_TIMEOUT_WINDOW,       MASK_L1A_TIMEOUT_WINDOW),
+        // std::make_pair(REG_L1A_PAD_EN,               MASK_L1A_PAD_EN),
+        // std::make_pair(REG_L1A_MERGE_EN,             MASK_L1A_MERGE_EN),
+        // std::make_pair(REG_STICKY_ERR_BCID_MATCH,    MASK_STICKY_ERR_BCID_MATCH),
+        // std::make_pair(REG_STGC_GLOSYNC_BCID_OFFSET, MASK_STGC_GLOSYNC_BCID_OFFSET),
+        // std::make_pair(REG_BUSY,                     MASK_BUSY),
+        // std::make_pair(REG_MON_DISABLE,              MASK_MON_DISABLE),
+        // std::make_pair(REG_NSW_MON_LIMIT,            MASK_NSW_MON_LIMIT),
+        // std::make_pair(REG_MON_LIMIT,                MASK_MON_LIMIT),
+        // std::make_pair(REG_MM_NSW_MON_EN,            MASK_MM_NSW_MON_EN)
+        // std::make_pair(REG_SMALL_SECTOR,             MASK_SMALL_SECTOR),
+        // std::make_pair(REG_NO_STRETCH,               MASK_NO_STRETCH),
+        // std::make_pair(REG_SYNC_FIFO_EMPTY,          MASK_SYNC_FIFO_EMPTY),
+        // });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;
     constexpr std::uint32_t RST_TX_ENABLE  = 0b100111111;
@@ -180,6 +211,8 @@ namespace nsw {
     constexpr std::size_t NUM_MMFE8_PER_FIBER     = 4;
     constexpr std::size_t CHAN_RATE_USLEEP        = 1e6;
     constexpr std::uint8_t DUMMY_VAL              = 0x55;
+
+    // register definition. NEED TO BE obsolete; SHOULD BE uint32 since register addr is 10-bit!!!
     constexpr std::uint8_t REG_ADDC_EMU_DISABLE   = 0x01;
     constexpr std::uint8_t REG_FIBER_ALIGNMENT    = 0x02;
     constexpr std::uint8_t REG_FIBER_QPLL_RESET   = 0x03;
@@ -226,57 +259,91 @@ namespace nsw {
     constexpr std::uint8_t REG_GLO_SYNC_BCID_OFFSET     = 0x29;
     constexpr std::uint8_t REG_LAT_TX_IDLE_STATE        = 0x2F;
     constexpr std::uint8_t REG_LAT_TX_BCID_OFFSET       = 0x30;
+
     // for the special sectors, swapping is needed.
     constexpr std::uint8_t REG_FIBER_REMAP_SEL          = 0x2a;
     constexpr std::uint8_t REG_OFFSET_MODE_BCID         = 0x2b;
     constexpr std::uint8_t REG_OFFSET_MODE_CNT          = 0x2c;
-    // determins the L1A
+    // determines the L1A
     constexpr std::uint8_t REG_LOCAL_BCID_OFFSET        = 0x2d;
-    // should not contain Write-only, because attempting to read Write-Only register will fail.
-    constexpr auto REGS = std::to_array({
-      REG_ADDC_EMU_DISABLE,
-      REG_FIBER_ALIGNMENT,
-      REG_FIBER_QPLL_RESET,
-      REG_FIBER_BCIDS_00_07,
-      REG_FIBER_BCIDS_08_15,
-      REG_FIBER_BCIDS_16_23,
-      REG_FIBER_BCIDS_24_31,
-      REG_FIBER_BC_OFFSET,
-      REG_DATE_CODE,
-      REG_GIT_HASH,
-      REG_L1A_CONTROL,
-      REG_LOCAL_BCID_OFFSET,
-      REG_L1A_OPENING_OFFSET,
-      REG_L1A_REQUEST_OFFSET,
-      REG_L1A_CLOSING_OFFSET,
-      REG_L1A_BUSY_THRESHOLD,
-      REG_L1A_TIMEOUT_WINDOW,
-      REG_TTC_ECR_CNT,
-      REG_TTC_BCR_CNT,
-      REG_TTC_L1A_CNT,
-      REG_INPUT_PHASE,
-      REG_INPUT_PHASEADDCOFFSET,
-      REG_INPUT_PHASEL1DDCOFFSET,
-      REG_FIBER_HOT_MUX,
-      REG_FIBER_HOT_READ,
-      REG_GBT_BCID_OK,
-      // REG_FIBER_MASK_MUX,
-      // REG_FIBER_MASK_WRITE,
-      REG_PIPELINE_OVERFLOW,
-      REG_SELFTRIGGER_DELAY,
-      REG_VMM_MASK_HOT_THRESH,
-      REG_VMM_MASK_HOT_THRESH_HYST,
-      REG_VMM_MASK_DRAIN_PERIOD,
-      REG_CHAN_RATE_ENABLE,
-      REG_HORX_ENV_MON_DATA,
-      REG_GLO_SYNC_IDLE_STATE,
-      REG_GLO_SYNC_BCID_OFFSET,
-      REG_LAT_TX_IDLE_STATE,
-      REG_LAT_TX_BCID_OFFSET,
-      REG_FIBER_REMAP_SEL,
-      REG_OFFSET_MODE_BCID,
-      REG_OFFSET_MODE_CNT,
-    });
+
+    // constexpr auto REGS = std::to_array({
+      // REG_ADDC_EMU_DISABLE,
+      // REG_FIBER_ALIGNMENT,
+      // REG_FIBER_QPLL_RESET,
+      // REG_FIBER_BCIDS_00_07,
+      // REG_FIBER_BCIDS_08_15,
+      // REG_FIBER_BCIDS_16_23,
+      // REG_FIBER_BCIDS_24_31,
+      // REG_FIBER_BC_OFFSET,
+      // REG_DATE_CODE,
+      // REG_GIT_HASH,
+      // REG_L1A_CONTROL,
+      // REG_LOCAL_BCID_OFFSET,
+      // REG_L1A_OPENING_OFFSET,
+      // REG_L1A_REQUEST_OFFSET,
+      // REG_L1A_CLOSING_OFFSET,
+      // REG_L1A_BUSY_THRESHOLD,
+      // REG_L1A_TIMEOUT_WINDOW,
+      // REG_TTC_ECR_CNT,
+      // REG_TTC_BCR_CNT,
+      // REG_TTC_L1A_CNT,
+      // REG_INPUT_PHASE,
+      // REG_INPUT_PHASEADDCOFFSET,
+      // REG_INPUT_PHASEL1DDCOFFSET,
+      // REG_FIBER_HOT_MUX,
+      // REG_FIBER_HOT_READ,
+      // REG_GBT_BCID_OK,
+      // // REG_FIBER_MASK_MUX,
+      // // REG_FIBER_MASK_WRITE,
+      // REG_PIPELINE_OVERFLOW,
+      // REG_SELFTRIGGER_DELAY,
+      // REG_VMM_MASK_HOT_THRESH,
+      // REG_VMM_MASK_HOT_THRESH_HYST,
+      // REG_VMM_MASK_DRAIN_PERIOD,
+      // REG_CHAN_RATE_ENABLE,
+      // REG_HORX_ENV_MON_DATA,
+      // REG_GLO_SYNC_IDLE_STATE,
+      // REG_GLO_SYNC_BCID_OFFSET,
+      // REG_LAT_TX_IDLE_STATE,
+      // REG_LAT_TX_BCID_OFFSET,
+      // REG_FIBER_REMAP_SEL,
+      // REG_OFFSET_MODE_BCID,
+      // REG_OFFSET_MODE_CNT,
+    // });
+
+
+    // if any use-case specific registers is called elsewhere in NSWConfiguration/NSWCalibration, define it in the constructor for it!
+    constexpr auto registersToRemember  = std::to_array({
+        "gloSyncIdleState",
+        "FIBER_ALIGNMENT",
+        "REG_L1A_CONTROL",
+        });
+
+    constexpr auto registersToRead  = std::to_array({
+        "ADDC_EMU_DISABLE",
+        "FIBER_ALIGNMENT",
+        });
+
+    constexpr auto registersToWrite = std::to_array({
+        "ADDC_EMU_DISABLE",
+        "L1AOpeningOffset",
+        "L1ARequestOffset",
+        "L1AClosingOffset",
+        "L1ATimeoutWindow",
+        "FiberBCOffset",
+        "GlobalInputPhase",
+        "GlobalInputOffset",
+        "gbtL1ddPhaseOffset"
+        "SelfTriggerDelay",
+        "VmmMaskHotThresh",
+        "VmmMaskHotThreshHyst",
+        "VmmMaskDrainPeriod",
+        "gloSyncBcidOffset",
+        "latTxBCIDOffset",
+        "fiberRemapSel",
+        });
+
     constexpr std::array<std::pair<std::string_view, std::string_view>, NUM_ADDCS> ORDERED_ADDCS = {
       std::make_pair( "ADDC_L1P6_IPR", "L0/O" ),
       std::make_pair( "ADDC_L1P3_IPL", "L0/E" ),
@@ -299,8 +366,7 @@ namespace nsw {
     constexpr std::uint32_t L1A_RESET_ENABLE  = 0xFF;
     constexpr std::uint32_t L1A_RESET_DISABLE = 0x00;
     constexpr std::uint32_t FIBER_QPLL_RESET_DISABLE = 0x00;
+
   }
-
-}  // namespace nsw
-
+}
 #endif  // NSWCONFIGURATION_TPCONSTANTS_H_

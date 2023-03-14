@@ -133,12 +133,12 @@ int nsw::TPConfig::VmmMaskDrainPeriod() const {
 bool nsw::TPConfig::EnableChannelRates() const {
     return m_config.get<bool>("EnableChannelRates");
 }
-int nsw::TPConfig::L1ALatencyScanStart() const {
-    return m_config.get("L1ALatencyScanStart", int{0});
-}
-int nsw::TPConfig::L1ALatencyScanEnd() const {
-    return m_config.get("L1ALatencyScanEnd", int{50});
-}
+// int nsw::TPConfig::L1ALatencyScanStart() const {
+    // return m_config.get("L1ALatencyScanStart", int{0});
+// }
+// int nsw::TPConfig::L1ALatencyScanEnd() const {
+    // return m_config.get("L1ALatencyScanEnd", int{50});
+// }
 int nsw::TPConfig::HorxEnvMonAddr() const {
     return m_config.get("HorxEnvMonAddr", int{0});
 }
@@ -179,12 +179,12 @@ void nsw::TPConfig::setVmmMaskDrainPeriod(int val) {
 void nsw::TPConfig::setEnableChannelRates(bool val) {
   m_config.put("EnableChannelRates", val);
 }
-void nsw::TPConfig::setL1ALatencyScanStart(int val) {
-  m_config.put("L1ALatencyScanStart", val);
-}
-void nsw::TPConfig::setL1ALatencyScanEnd(int val) {
-  m_config.put("L1ALatencyScanEnd", val);
-}
+// void nsw::TPConfig::setL1ALatencyScanStart(int val) {
+  // m_config.put("L1ALatencyScanStart", val);
+// }
+// void nsw::TPConfig::setL1ALatencyScanEnd(int val) {
+  // m_config.put("L1ALatencyScanEnd", val);
+// }
 // tx/rx
 // microPod(1-3)
 // temp/loss/fiber(0-11)

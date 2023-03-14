@@ -161,20 +161,15 @@ private:
     //! Configure all ADDCs in m_addcs
     void configureADDCs();
     void configureADDC(const std::string& name);
-    void alignADDCsToTP();
 
     //! Configure L1DDC's
     void configureL1DDCs();
     void configureL1DDC(const nsw::L1DDCConfig& l1ddc);
 
-    //! Configure all Trigger Processors
-    void configureTPs();
-
     std::unique_ptr<nsw::ConfigReader> m_reader;
     std::unique_ptr<nsw::ConfigSender> m_sender;
 
     std::map<std::string, ADDCConfig>          m_addcs;       //! Each element is [frontend_name, frontend_config]
-    std::map<std::string, TPConfig>            m_tps;         //!
     std::map<std::string, L1DDCConfig>         m_l1ddcs;      //!
 
     hw::DeviceManager m_deviceManager;
