@@ -111,6 +111,11 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
   }
   ERS_LOG("Uploading bitfile via SCA JTAG, this will take a minute...");
   nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
+  nsw::snooze();
+  if (not readGPIO(FPGA_DONE)) {
+    throw nsw::PadTriggerConfigError
+      (ERS_HERE, fmt::format("Upload failed for {}", m_name));
+  }
   ERS_LOG("Upload finished");
 }
 
