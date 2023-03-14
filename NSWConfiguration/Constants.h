@@ -13,6 +13,7 @@
 #include <map>
 #include <cmath>
 
+
 namespace nsw {
   /// Traditional magic debug value
   constexpr std::uint32_t DEADBEEF = 0xdeadbeef;

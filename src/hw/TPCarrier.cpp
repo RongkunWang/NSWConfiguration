@@ -38,19 +38,28 @@ std::map<std::uint32_t, std::uint32_t> nsw::hw::TPCarrier::readConfiguration() c
 void nsw::hw::TPCarrier::writeRegister(const std::uint32_t regAddress,
                                        const std::uint32_t value) const
 {
-  nsw::hw::SCAX::writeRegister(getConnection(), m_busAddress, regAddress, value);
+  nsw::hw::SCAX::writeRegister(getConnection(),
+      m_busAddress,
+      regAddress,
+      value);
 }
 
 std::uint32_t nsw::hw::TPCarrier::readRegister(const std::uint32_t regAddress) const
 {
-  return nsw::hw::SCAX::readRegister(getConnection(), m_busAddress, regAddress);
+  return nsw::hw::SCAX::readRegister(getConnection(),
+      m_busAddress,
+      regAddress
+      );
 }
 
 void nsw::hw::TPCarrier::writeAndReadbackRegister(const std::uint32_t regAddress,
                                                   const std::uint32_t value) const
 {
   ERS_LOG(fmt::format("{}: writing to address 0x{:02x} with message 0x{:08x}", m_name, regAddress, value));
-  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), m_busAddress, regAddress, value);
+  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(),
+      m_busAddress,
+      regAddress,
+      value);
 }
 
 std::uint32_t nsw::hw::TPCarrier::RJOutSel() const {

@@ -33,7 +33,7 @@ namespace nsw::hw {
   {
   public:
     /**
-     * \brief Constrctor from a \ref STGCTPConfig object
+     * \brief Constrctor from a \ref ptree object
      */
     STGCTP(OpcManager& manager, const boost::property_tree::ptree& config);
 
@@ -51,7 +51,7 @@ namespace nsw::hw {
      * \returns a map of address to register value
      */
     [[nodiscard]]
-    std::map<std::uint32_t, std::uint32_t> readConfiguration() const;
+    std::map<std::string, std::uint32_t> readConfiguration() const;
 
     /**
      * \brief Write the full STGCTP configuration
@@ -64,7 +64,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeRegister(std::uint32_t regAddress,
+    void writeRegister(std::string regAddress,
                        std::uint32_t value) const;
 
     /**
@@ -73,8 +73,7 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      */
     [[nodiscard]]
-    std::uint32_t readRegister(std::uint32_t regAddress,
-                               std::uint32_t mask) const;
+    std::uint32_t readRegister(std::string regAddress) const;
 
     /**
      * \brief Write a value to a STGCTP register address, and read it back
@@ -82,14 +81,9 @@ namespace nsw::hw {
      * \param regAddress is the address of the register
      * \param value is the value to be written
      */
-    void writeAndReadbackRegister(std::uint32_t regAddress,
-                                  std::uint32_t value,
-                                  std::uint32_t mask) const;
+    void writeAndReadbackRegister(std::string regAddress,
+                                  std::uint32_t value) const;
 
-    /**
-     * \brief Get the "SkipRegisters" provided by the user configuration
-     */
-    std::set<std::uint8_t> SkipRegisters() const;
 
     /**
      * \brief Get the ptree object associated with this STGCTP object
@@ -109,27 +103,11 @@ namespace nsw::hw {
 
     /**
      * \brief Get DoReset from the user config
+     * this is a sw register, doesn't exist on fw
      */
     [[nodiscard]]
     bool getDoReset() const { return m_config.get("DoReset", true); };
 
-    /**
-     * \brief Get IgnorePads from the user config
-     */
-    [[nodiscard]]
-    bool getIgnorePads() const { return m_config.get("IgnorePads", false); };
-
-    /**
-     * \brief Get IgnoreMM from the user config
-     */
-    [[nodiscard]]
-    bool getIgnoreMM() const { return m_config.get("IgnoreMM", false); };
-
-    /**
-     * \brief Get DisableNSWMON from the user config
-     */
-    [[nodiscard]]
-    bool getDisableNSWMON() const { return m_config.get("DisableNSWMON", false); };
 
     /**
      * \brief Get L1AOpeningOffset from the user config
@@ -222,9 +200,8 @@ namespace nsw::hw {
 
   private:
     boost::property_tree::ptree m_config; //!< ptree object associated with this STGCTP
-    std::string m_scaAddressFPGA;         //!< SCA address of STGCTP FPGA line, namely I2C_0, bus0
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
-    std::set<std::uint8_t> m_skippedReg;  //!< Set of registers which should be skipped
+    std::set<std::string> m_skippedReg;  //!< Set of registers which should be skipped
 
   };
 }  // namespace nsw::hw

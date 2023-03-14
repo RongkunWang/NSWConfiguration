@@ -117,7 +117,6 @@ void nsw::NSWConfig::unconfigureRc() {
     ERS_INFO("Start");
     m_addcs.clear();
     m_l1ddcs.clear();
-    m_tps.clear();
     m_deviceManager.clear();
     m_monitoringMap.clear();
     // m_reader.reset();
@@ -205,24 +204,7 @@ void nsw::NSWConfig::configureADDC(const std::string& name) {
     ERS_LOG("Finished config to: " << name);
 }
 
-void nsw::NSWConfig::alignADDCsToTP() {
-    ERS_LOG("Checking alignment of ADDCs to TP");
-    if (!m_simulation) {
-        m_sender->alignArtGbtxMmtp(m_addcs, m_tps);
-    }
-    ERS_LOG("Finished checking alignment of ADDCs to TP");
-}
 
-void nsw::NSWConfig::configureTPs() {
-    ERS_LOG("Configuring TPs. Total number: " << m_tps.size() );
-    for (const auto& kv : m_tps) {
-        auto configuration = m_tps.at(kv.first);
-        if (!m_simulation) {
-            m_sender->sendTPConfig(configuration);
-        }
-        ERS_LOG("Finished config to: " << kv.first);
-    }
-}
 
 size_t nsw::NSWConfig::active_threads() {
     size_t nfinished = 0;

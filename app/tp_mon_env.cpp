@@ -7,9 +7,11 @@
 #include <functional>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/ConfigSender.h"
+#include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/MMTP.h"
 #include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/hw/SCAInterface.h"
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -112,9 +114,6 @@ void printTable(const PrintData ptab,
   }
 }
 
-uint32_t query(
-    const Input& input, const TreeData& data,
-    const std::string& printOut, const std::string& message);
 void loop(const Input& input, TreeData& data, TTree& tree);
 
 int main(int argc, const char *argv[]) {
@@ -198,6 +197,7 @@ int main(int argc, const char *argv[]) {
 
 void loop(const Input& input, TreeData& data, TTree& tree) {
   int iteration = 0;
+  auto opcManager = nsw::OpcManager{};
   // iteration
   while((input.Niteration == 0 || iteration < input.Niteration) && !stop ) {
     PrintData ptab;
@@ -230,18 +230,15 @@ void loop(const Input& input, TreeData& data, TTree& tree) {
 
             // dummy tree to use function
             pt::ptree ptree;
-            ptree.put("OpcServerIp", "");
-            ptree.put("OpcNodeId", "");
-            nsw::TPConfig tp(ptree);
+            ptree.put("OpcServerIp", data.opc_ip);
+            ptree.put("OpcNodeId", *it);
 
+            // MM TP
+            nsw::hw::MMTP tp(opcManager, ptree);
             auto colName = fmt::format("mp{0}_{1}_temp", microPod, TRX);
             data.envName.push_back(colName);
             tp.setHorxEnvMonAddr(is_tx, microPod, true, false, 0);
-            data.envData.push_back( query(
-                  input, data,
-                  fmt::format("MicroPod {0} {1} temperature {2}", microPod, TRX, 
-                    input.humanReadable ? "(In C)" : ""),
-                  fmt::format("{0:x}", tp.HorxEnvMonAddr())) / (input.humanReadable?256.:1.));
+            data.envData.push_back( tp.readRegister(nsw::mmtp::REG_HORX_ENV_MON_DATA) / (input.humanReadable?256.:1.));
 
             if (input.printTable) {
               ptab.column.push_back(colName);
@@ -253,10 +250,7 @@ void loop(const Input& input, TreeData& data, TTree& tree) {
               colName = fmt::format("mp{0}_{1}_loss", microPod, TRX);
               data.envName.push_back(colName);
               tp.setHorxEnvMonAddr(is_tx, microPod, false, true, 0);
-              data.envData.push_back( query(
-                    input, data,
-                    fmt::format("MicroPod {0} {1} loss", microPod, TRX),
-                    fmt::format("{0:x}", tp.HorxEnvMonAddr())));
+              data.envData.push_back( tp.readRegister(nsw::mmtp::REG_HORX_ENV_MON_DATA));
 
               if (input.printTable) {
                 ptab.column.push_back(colName);
@@ -267,11 +261,7 @@ void loop(const Input& input, TreeData& data, TTree& tree) {
                 colName = fmt::format("mp{0}_{1}_fb{2}", microPod, TRX, fiber);
                 data.envName.push_back(colName);
                 tp.setHorxEnvMonAddr(is_tx, microPod, false, false, fiber);
-                data.envData.push_back( query(
-                      input, data,
-                      fmt::format("MicroPod {0} {1} fiber {2} optical power {3}", microPod, TRX, fiber, 
-                      input.humanReadable ? "(In micro Watt)" : ""),
-                      fmt::format("{0:x}", tp.HorxEnvMonAddr())) / (input.humanReadable?10.:1.));
+                data.envData.push_back( tp.readRegister(nsw::mmtp::REG_HORX_ENV_MON_DATA) / (input.humanReadable?10.:1.));
                 if (input.printTable) {
                   ptab.column.push_back(colName);
                   ptab.value.back().push_back(data.envData.back());
@@ -312,66 +302,3 @@ void loop(const Input& input, TreeData& data, TTree& tree) {
   } // iteration
 }
 
-uint32_t query(
-    const Input& input, const TreeData& data,
-    const std::string& printOut, const std::string& message) {
-  if (input.debug) { 
-    std::cout <<  "==========================================" << std::endl;
-    std::cout << "Doing " << printOut << std::endl;
-    std::cout <<  "==========================================" << std::endl;
-  }
-
-
-  std::string regAddrWrite(fmt::format("{0:x}", nsw::mmtp::REG_HORX_ENV_MON_ADDR));
-  std::string regAddrRead( fmt::format("{0:x}", nsw::mmtp::REG_HORX_ENV_MON_DATA));
-  if(input.isSTGC) {
-    // TODO: implement sTGC after they add their register mapping
-    return -1;
-    regAddrWrite = fmt::format("{0:x}", nsw::mmtp::REG_HORX_ENV_MON_ADDR);
-    regAddrRead  = fmt::format("{0:x}", nsw::mmtp::REG_HORX_ENV_MON_DATA);
-  }
-  std::vector<uint8_t> regAddrWriteVec = nsw::hexStringToByteVector(regAddrWrite, 4, true);
-  std::vector<uint8_t> regAddrReadVec  = nsw::hexStringToByteVector(regAddrRead,  4, true);
-
-  nsw::ConfigSender cs;  // in principle the config sender is all that is needed for now
-
-
-  // Write
-  // Example
-  // data = {0x00, 0x00, 0x00, 0x0a, 0xff, 0xff, 0xff, 0xff}; //8
-  //             [0] first byte of address
-  //             [1] second byte of address
-  //             [4,5,6,7] last..first bytes of message
-  // Already have the first four bytes of vector stored as regAddrWriteVec.
-  // Just need to encode the message.
-  std::vector<uint8_t> indata = nsw::hexStringToByteVector(message, 4, true);
-  if (input.debug) { 
-    std::cout << "... Message(register value) to write: " << message << std::endl;
-  }
-
-  std::vector<uint8_t> entirePayload(regAddrWriteVec);
-  entirePayload.insert(entirePayload.end(), indata.begin(), indata.end() );
-
-  if (input.debug) { 
-    std::cout <<  "entire payload ";
-    for (uint i=0; i < entirePayload.size(); i++) {
-      std::cout << std::hex << unsigned(entirePayload[i]) << " "; 
-    }
-    std::cout << std::endl;
-  }
-  cs.sendI2cRaw(data.opc_ip, data.slaveAddr, entirePayload.data(), entirePayload.size() );
-
-  // Read
-  std::vector<uint8_t> outdata = cs.readI2cAtAddress(data.opc_ip, data.slaveAddr, regAddrReadVec.data(), regAddrReadVec.size(), 4);
-  uint32_t out = nsw::byteVectorToWord32(outdata, true);
-  if (input.debug) {
-    for (uint i=0; i < outdata.size(); i++) {
-      std::cout << std::hex << unsigned(outdata[i]) << std::endl;
-    }
-    std::cout << " in 32-bit word: " << std::dec << out << std::endl;;
-    std::cout << " in bit string: " << nsw::vectorToBitString(outdata, true) << std::endl;
-  }
-  // overwrite the two communication message
-  std::cout << "\033[1A\033[J";
-  return out;
-}

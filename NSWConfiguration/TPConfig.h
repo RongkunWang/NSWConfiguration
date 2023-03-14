@@ -47,8 +47,8 @@ class TPConfig: public SCAConfig {
     int VmmMaskHotThreshHyst() const;
     int VmmMaskDrainPeriod() const;
     bool EnableChannelRates() const;
-    int L1ALatencyScanStart() const;
-    int L1ALatencyScanEnd() const;
+    // int L1ALatencyScanStart() const;
+    // int L1ALatencyScanEnd() const;
     int HorxEnvMonAddr() const;
 
     void setL1AOpeningOffset(int val);
@@ -63,8 +63,8 @@ class TPConfig: public SCAConfig {
     void setVmmMaskHotThreshHyst(int val);
     void setVmmMaskDrainPeriod(int val);
     void setEnableChannelRates(bool val);
-    void setL1ALatencyScanStart(int val);
-    void setL1ALatencyScanEnd(int val);
+    // void setL1ALatencyScanStart(int val);
+    // void setL1ALatencyScanEnd(int val);
     void setHorxEnvMonAddr(bool tx, std::uint8_t microPod, bool temp, bool loss, std::uint8_t fiber);
 };
 

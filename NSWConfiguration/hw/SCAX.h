@@ -13,8 +13,9 @@ ERS_DECLARE_ISSUE(nsw,
 
 namespace nsw::hw::SCAX {
 
+  // OLD interface has reg address before node name to allow for overload! (applicable to STGCTP, TPCarrier, MMTP now)
   /**
-   * \brief Write register function
+   * \brief THE OLD Write register function
    *
    * \param opcConnection OPC server connection
    * \param node name of the OPC node
@@ -25,9 +26,8 @@ namespace nsw::hw::SCAX {
                      const std::string& node,
                      const std::uint32_t regAddress,
                      const std::uint32_t value);
-
   /**
-   * \brief Read register function
+   * \brief THE OLD Read register function
    *
    * \param opcConnection OPC server connection
    * \param node name of the OPC node
@@ -40,7 +40,7 @@ namespace nsw::hw::SCAX {
                              const std::uint32_t mask = nsw::scax::BITMASK_ALL);
 
   /**
-   * \brief Write, readback, and check register function
+   * \brief THE OLD Write, readback, and check register function
    *
    * \param opcConnection OPC server connection
    * \param node name of the OPC node
@@ -53,6 +53,58 @@ namespace nsw::hw::SCAX {
                                 const std::uint32_t regAddress,
                                 const std::uint32_t value,
                                 const std::uint32_t mask = nsw::scax::BITMASK_ALL);
+
+
+
+
+
+  /**
+   * \brief Write register function
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node
+   * \param regAddress register address
+   * \param value value to be written
+   *
+   * Uses nsw::OpcClient::writeI2cRaw
+   */
+  void writeRegister(const OpcClientPtr opcConnection,
+                     const std::string& node,
+                     const std::uint32_t value);
+
+  /**
+   * \brief Read register function
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node (including the register name that maps address)
+   * \param mask bitmask for the 32-bits read
+   *
+   * Uses nsw::OpcClient::readI2c
+   */
+  std::uint32_t readRegister(const OpcClientPtr opcConnection,
+                             const std::string& node);
+
+  /**
+   * \brief Write, readback, and check register function
+   *
+   * \param opcConnection OPC server connection
+   * \param node name of the OPC node (including the register name that maps address)
+   * \param value value to be written
+   * \param mask bitmask for the 32-bits read
+   */
+  void writeAndReadbackRegister(const OpcClientPtr opcConnection,
+                                const std::string& node,
+                                const std::uint32_t value);
+
+    /**
+     * \brief Get the "SkipRegisters" provided by the user configuration
+     */
+    std::set<std::uint8_t> SkipRegisters(const boost::property_tree::ptree& config);
+
+    /**
+     * \brief Get the "SkipRegisters" provided by the user configuration
+     */
+    std::set<std::string> SkipRegistersStr(const boost::property_tree::ptree& config);
 
 }  // namespace nsw::hw::SCAX
 
