@@ -105,12 +105,20 @@
   <attribute name="reg115" description="reg115" type="u8" format="hex" init-value="0"/>
  </class>
 
- <class name="PadTriggerInRunStatusRegisters">
+ <class name="PadTriggerRegisters">
   <superclass name="Info"/>
- </class>
-
- <class name="PadTriggerOutRunStatusRegisters">
-  <superclass name="Info"/>
+  <attribute name="conf_bcid_offset" description="BCID offset" type="u32" format="hex" init-value="0"/>
+  <attribute name="conf_ro_bc_offset" description="Readout BC offset" type="u32" format="hex" init-value="0"/>
+  <attribute name="trigger_rate" description="Coincidence trigger rate" type="u32" init-value="0"/>
+  <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
+  <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
+  <attribute name="pfeb_status" description="PFEB status" type="u32" format="hex" init-value="0"/>
+  <attribute name="pad_bcid_error" description="Pad BCID error" type="u32" init-value="0"/>
+  <attribute name="pad_bcid_error_dif" description="Pad BCID error diff" type="u32" init-value="0"/>
+  <attribute name="pt_2_tp_lat" description="PT-2-TP latency" type="u32" init-value="0"/>
+  <attribute name="tp_bcid_error" description="TP BCID error" type="u32" init-value="0"/>
+  <attribute name="tp_bcid_error_dif" description="TP BCID error diff" type="u32" init-value="0"/>
+  <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
  </class>
 
  <class name="MmtpInRunStatusRegisters">

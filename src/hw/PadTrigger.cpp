@@ -742,3 +742,11 @@ BcidVector nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_00,
   return bcids;
 }
 
+std::uint32_t nsw::hw::PadTrigger::readFPGATemperature() const {
+  return xadcToCelsius(readSubRegister("001_status_reg_READONLY", "xadc_temp_out"));
+}
+
+std::uint32_t nsw::hw::PadTrigger::xadcToCelsius(std::uint32_t temp) {
+  // www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf
+  return static_cast<std::uint32_t>((static_cast<double>(temp) * 503.975 / 4096) - 273.15);
+}

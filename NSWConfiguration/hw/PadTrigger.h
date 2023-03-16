@@ -615,6 +615,17 @@ namespace nsw::hw {
                          std::uint32_t val_23_16
                          ) const;
 
+    /**
+     * \brief Read the FPGA temperature via a status register
+     */
+    std::uint32_t readFPGATemperature() const;
+
+    /**
+     * \brief Convert a Xilinx XADC value into a temperature
+     * Report integer temperature because decimal places arent important
+     */
+    static std::uint32_t xadcToCelsius(std::uint32_t temp);
+
   private:
 
     /**
