@@ -17,6 +17,7 @@
 #include "NSWConfiguration/monitoring/RocStatusRegisters.h"
 #include "NSWConfiguration/monitoring/MmtpInRunStatusRegisters.h"
 #include "NSWConfiguration/monitoring/MmtpOutRunStatusRegisters.h"
+#include "NSWConfiguration/monitoring/PadTriggerRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -177,7 +178,8 @@ private:
 
     using MonitoringVariant = std::variant<
       nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters, 
-      nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters>;
+      nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters,
+      nsw::mon::PadTriggerRegisters>;
     std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string

@@ -188,6 +188,7 @@ tdaq_add_library(nswmonitoring
                  src/monitoring/RocConfigurationRegisters.cpp
                  src/monitoring/MmtpInRunStatusRegisters.cpp
                  src/monitoring/MmtpOutRunStatusRegisters.cpp
+                 src/monitoring/PadTriggerRegisters.cpp
                  src/monitoring/IsPublisher.cpp
   LINK_LIBRARIES nswconfig
                  nswmonis

@@ -18,7 +18,6 @@
 namespace po = boost::program_options;
 
 bool file_exists(std::string fname);
-double xilinx_temperature_conversion(uint32_t temp);
 
 int main(int argc, const char *argv[]) 
 {
@@ -180,7 +179,7 @@ int main(int argc, const char *argv[])
         std::cout << fmt::format(" Readback {:#05x}: {:#010x}", i2c_reg_08, val) << std::endl;
         if (i2c_reg_08 == nsw::padtrigger::REG_STATUS) {
           const auto temp = val & 0xfff;
-          std::cout << fmt::format(" -> {}C", xilinx_temperature_conversion(temp)) << std::endl;
+          std::cout << fmt::format(" -> {}C", nsw::hw::PadTrigger::xadcToCelsius(temp)) << std::endl;
         }
       }
     }
@@ -288,11 +287,6 @@ int main(int argc, const char *argv[])
     }
 
     return 0;
-}
-
-double xilinx_temperature_conversion(uint32_t temp) {
-  // www.xilinx.com/support/documentation/user_guides/ug480_7Series_XADC.pdf
-  return (temp * 503.975 / 4096) - 273.15;
 }
 
 bool file_exists(std::string fname) {
