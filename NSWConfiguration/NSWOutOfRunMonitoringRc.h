@@ -1,18 +1,18 @@
-#ifndef NSWCONFIGURATION_NSWMONITORINGCONTROLLERRC_H
-#define NSWCONFIGURATION_NSWMONITORINGCONTROLLERRC_H
+#ifndef NSWCONFIGURATION_NSWOUTOFRUNMONITORINGRC_H
+#define NSWCONFIGURATION_NSWOUTOFRUNMONITORINGRC_H
 
 #include <memory>
 #include <string_view>
 #include <thread>
 
-#include "NSWConfiguration/CommandSender.h"
-#include "NSWConfiguration/monitoring/Config.h"
-#include "NSWConfigurationDal/NSWMonitoringControllerApplication.h"
-
 #include <ipc/partition.h>
 #include <is/infodictionary.h>
-
 #include <RunControl/RunControl.h>
+
+#include <NSWConfigurationDal/NSWOutOfRunMonitoringApplication.h>
+
+#include "NSWConfiguration/NSWConfig.h"
+#include "NSWConfiguration/monitoring/Config.h"
 
 namespace daq::rc {
   class SubTransitionCmd;
@@ -27,7 +27,7 @@ namespace nsw {
    * Recieves commands from sector controller and sends commands to SCA service. Controls the
    * configuration of devices.
    */
-  class NSWMonitoringControllerRc : public daq::rc::Controllable
+  class NSWOutOfRunMonitoringRc : public daq::rc::Controllable
   {
   public:
     /**
@@ -35,7 +35,7 @@ namespace nsw {
      *
      * @param partitionName Name of the partition
      */
-    explicit NSWMonitoringControllerRc(std::string partitionName);
+    explicit NSWOutOfRunMonitoringRc(std::string partitionName);
 
     /**
      * \brief Read OKS database and create command senders, send IS server name to SCA service
@@ -43,31 +43,24 @@ namespace nsw {
     void configure(const daq::rc::TransitionCmd& /*cmd*/) override;
 
     /**
-     * \brief Receive user commands
-     *
-     * \param cmd User command
+     * \brief Start monitoring
      */
-    void user(const daq::rc::UserCmd& cmd) override;
+    void prepareForRun(const daq::rc::TransitionCmd& /*cmd*/) override;
+
+    /**
+     * \brief Stop monitoring
+     */
+    void stopRecording(const daq::rc::TransitionCmd& /*cmd*/) override;
 
   private:
-    nsw::CommandSender m_scaServiceSender;  //!< Command sender to SCA service application
     IPCPartition m_ipcpartition;
-    const nsw::dal::NSWMonitoringControllerApplication* m_app{};
-    std::unique_ptr<ISInfoDictionary> m_isDictionary;
+    std::unique_ptr<NSWConfig> m_NSWConfig{};
+    const nsw::dal::NSWOutOfRunMonitoringApplication* m_app{};
+    std::unique_ptr<ISInfoDictionary> m_isDictionary{nullptr};
     std::string m_partitionName;
     std::string m_monitoringIsServerName;
     std::vector<nsw::mon::Config> m_configs;
     std::map<std::string, std::jthread> m_threads;
-
-    /**
-     * \brief Start moniotring threads for all groups
-     */
-    void startMonitoringAll();
-
-    /**
-     * \brief Stop moniotring threads for all groups
-     */
-    void stopMonitoringAll();
   };
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_NSWCONFIGRC_H_
