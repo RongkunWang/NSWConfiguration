@@ -2,6 +2,7 @@
 
 #include <dal/ResourceSetAND.h>
 #include <dal/util.h>
+#include <ers/ers.h>
 #include <RunControl/Common/OnlineServices.h>
 
 #include <NSWConfigurationDal/NSW_MonitoringGroup.h>
@@ -18,6 +19,10 @@ std::vector<nsw::mon::Config> nsw::mon::parseMonitoringGroups(const std::string&
     throw NSWInvalidPartition(ERS_HERE);
   }
   const auto* groupSet = conf.get<daq::core::ResourceSetAND>(groupSetName);
+  if (groupSet == nullptr) {
+    ers::error(NSWMonitoringGroupSetNotFound(ERS_HERE, groupSetName));
+    return {};
+  }
   const auto groupsBase = groupSet->get_Contains();
   std::vector<mon::Config> configs{};
   configs.reserve(std::size(groupsBase));

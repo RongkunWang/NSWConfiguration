@@ -27,6 +27,13 @@ ERS_DECLARE_ISSUE(
               timeActual),
   ((std::string)group)((long)timeLimit)((long)timeActual))
 
+ERS_DECLARE_ISSUE(
+  nsw,
+  NSWMonitoringGroupSetNotFound,
+  fmt::format("Did not find monitoring group set with name {}. Will not monitor anything.",
+              group),
+  ((std::string)group))
+
 namespace nsw::mon {
   /**
    * \brief Parse monitoring groups from OKS and create config objects
