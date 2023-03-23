@@ -461,7 +461,7 @@ namespace nsw {
     constexpr std::uint8_t REG_MASK_TO_0        = 0x0B;
     constexpr std::uint8_t REG_MASK_TO_1        = 0x0C;
     constexpr std::uint8_t REG_STATUS2          = 0x0D;
-    constexpr std::uint8_t REG_GT_RESET         = 0x0E;
+    constexpr std::uint8_t REG_CONTROL3         = 0x0E;
     constexpr std::uint8_t REG_PFEB_STATUS      = 0x0F;
     constexpr std::uint8_t REG_BCID_ERROR       = 0x12;
     constexpr std::uint8_t REG_PT_2_TP_LAT      = 0x13;
