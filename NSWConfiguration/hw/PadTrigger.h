@@ -193,8 +193,8 @@ namespace nsw::hw {
      * \param subreg is the name of the sub-register
      * \param subval is the value to write
      */
-    void writeResetSubRegister(const std::string& subreg, std::uint32_t subval) const
-    { writeSubRegister("00E_gt_reset", subreg, subval); }
+    void writeControl3SubRegister(const std::string& subreg, std::uint32_t subval) const
+    { writeSubRegister("00E_control_reg3", subreg, subval); }
 
     /**
      * \brief Toggle (write) the OCR enable from enabled to disabled
@@ -265,25 +265,25 @@ namespace nsw::hw {
      * \brief Enable the pad trigger BCID error checker reset
      */
     void writeBcidResetEnable() const
-    { writeResetSubRegister("bcid_error_rst", 0b11); };
+    { writeControl3SubRegister("bcid_error_rst", 0b11); };
 
     /**
      * \brief Disable the pad trigger BCID error checker reset
      */
     void writeBcidResetDisable() const
-    { writeResetSubRegister("bcid_error_rst", 0b00); };
+    { writeControl3SubRegister("bcid_error_rst", 0b00); };
 
     /**
      * \brief Enable the pad trigger GT reset
      */
     void writeGtResetEnable() const
-    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_ENABLE); }
+    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_CONTROL3, nsw::padtrigger::GT_RESET_ENABLE); }
 
     /**
      * \brief Disable the pad trigger GT reset
      */
     void writeGtResetDisable() const
-    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_GT_RESET, nsw::padtrigger::GT_RESET_DISABLE); }
+    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_CONTROL3, nsw::padtrigger::GT_RESET_DISABLE); }
 
     /**
      * \brief Write readout BC offset (latency)

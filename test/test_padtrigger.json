@@ -126,7 +126,7 @@
             "01": 0,
             "00": 0
         },
-        "00E_gt_reset": {
+        "00E_control_reg3": {
             "bcid_error_rst": 0,
             "reset": 0
         }

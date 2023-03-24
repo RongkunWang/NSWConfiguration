@@ -1364,7 +1364,7 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"IdleState", 1},
       {"pfeb_hit_rate", 16},
     }},
-  {"00E_gt_reset", {
+  {"00E_control_reg3", {
       {nsw::NOT_USED, 6},
       {"bcid_error_rst", 2},
       {"reset", 24},
