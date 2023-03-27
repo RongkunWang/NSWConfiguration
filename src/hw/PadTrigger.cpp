@@ -32,6 +32,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   toggleIdleState();
   toggleOcrEnable();
   toggleBcidErrorReset();
+  toggleGtRxLolReset();
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -195,12 +196,25 @@ void nsw::hw::PadTrigger::toggleGtReset() const
     return;
   }
   ERS_INFO(fmt::format("toggleGtReset of {}", m_name));
-  writeGtResetDisable();
-  writeGtResetEnable();
-  writeGtResetDisable();
+  writeGtSoftResetDisable();
+  writeGtSoftResetEnable();
+  writeGtSoftResetDisable();
   nsw::snooze();
   const auto pfeb_status = readFPGARegister(nsw::padtrigger::REG_PFEB_STATUS);
   ERS_INFO(fmt::format("{} PFEB status: 0x{:08x}", m_name, pfeb_status));
+}
+
+void nsw::hw::PadTrigger::toggleGtRxLolReset() const
+{
+  if (not GtRxLolReset()) {
+    ERS_INFO(fmt::format("Skipping GtRxLolReset of {}", m_name));
+    return;
+  }
+  ERS_INFO(fmt::format("toggleGtRxLolReset of {}", m_name));
+  writeGtRxLolResetDisable();
+  writeGtRxLolResetEnable();
+  writeGtRxLolResetDisable();
+  nsw::snooze();
 }
 
 void nsw::hw::PadTrigger::toggleIdleState() const

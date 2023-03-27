@@ -127,8 +127,17 @@
             "00": 0
         },
         "00E_control_reg3": {
+            "ro_bcid_error_rst": 0,
+            "trig_bcid_error_rst": 0,
             "bcid_error_rst": 0,
-            "reset": 0
+            "gt_soft_reset": 0
+        },
+        "010_gt_rx_reset": {
+            "gt_rx_lol_reset": 0,
+            "gt_rx_reset": 0
+        },
+        "011_gt_tx_reset": {
+            "gt_tx_reset": 0
         }
     },
     "PadTriggerSCA_00":{
