@@ -207,6 +207,11 @@ namespace nsw::hw {
     void toggleGtReset() const;
 
     /**
+     * \brief Toggle (write) the GT RX LOL reset from enabled to disabled
+     */
+    void toggleGtRxLolReset() const;
+
+    /**
      * \brief Toggle (write) the idle state from 1 to 0
      */
     void toggleIdleState() const;
@@ -262,28 +267,64 @@ namespace nsw::hw {
     { writeControlSubRegister("conf_startIdleState", std::uint32_t{false}); };
 
     /**
-     * \brief Enable the pad trigger BCID error checker reset
+     * \brief Enable the pad trigger internal BCID error checker reset
      */
     void writeBcidResetEnable() const
     { writeControl3SubRegister("bcid_error_rst", 0b11); };
 
     /**
-     * \brief Disable the pad trigger BCID error checker reset
+     * \brief Disable the pad trigger internal BCID error checker reset
      */
     void writeBcidResetDisable() const
     { writeControl3SubRegister("bcid_error_rst", 0b00); };
 
     /**
+     * \brief Enable the pad trigger PFEB BCID error checker reset (readout)
+     */
+    void writePFEBBcidResetReadoutEnable() const
+    { writeControl3SubRegister("ro_bcid_error_rst", std::uint32_t{true}); };
+
+    /**
+     * \brief Disable the pad trigger PFEB BCID error checker reset (readout)
+     */
+    void writePFEBBcidResetReadoutDisable() const
+    { writeControl3SubRegister("ro_bcid_error_rst", std::uint32_t{false}); };
+
+    /**
+     * \brief Enable the pad trigger PFEB BCID error checker reset (trigger)
+     */
+    void writePFEBBcidResetTriggerEnable() const
+    { writeControl3SubRegister("trig_bcid_error_rst", std::uint32_t{true}); };
+
+    /**
+     * \brief Disable the pad trigger PFEB BCID error checker reset (trigger)
+     */
+    void writePFEBBcidResetTriggerDisable() const
+    { writeControl3SubRegister("trig_bcid_error_rst", std::uint32_t{false}); };
+
+    /**
      * \brief Enable the pad trigger GT reset
      */
-    void writeGtResetEnable() const
-    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_CONTROL3, nsw::padtrigger::GT_RESET_ENABLE); }
+    void writeGtSoftResetEnable() const
+    { writeControl3SubRegister("gt_soft_reset", nsw::padtrigger::GT_RESET_ENABLE); };
 
     /**
      * \brief Disable the pad trigger GT reset
      */
-    void writeGtResetDisable() const
-    { writeAndReadbackFPGARegister(nsw::padtrigger::REG_CONTROL3, nsw::padtrigger::GT_RESET_DISABLE); }
+    void writeGtSoftResetDisable() const
+    { writeControl3SubRegister("gt_soft_reset", nsw::padtrigger::GT_RESET_DISABLE); };
+
+    /**
+     * \brief Enable the pad trigger GT LOL reset
+     */
+    void writeGtRxLolResetEnable() const
+    { writeSubRegister("010_gt_rx_reset", "gt_rx_lol_reset", std::uint32_t{true}); }
+
+    /**
+     * \brief Disable the pad trigger GT LOL reset
+     */
+    void writeGtRxLolResetDisable() const
+    { writeSubRegister("010_gt_rx_reset", "gt_rx_lol_reset", std::uint32_t{false}); }
 
     /**
      * \brief Write readout BC offset (latency)
@@ -566,6 +607,13 @@ namespace nsw::hw {
     [[nodiscard]]
     bool GtReset() const
     { return m_ptree.get("GtReset", false); };
+
+    /**
+     * \brief Get the "GtRxLolReset" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool GtRxLolReset() const
+    { return m_ptree.get("GtRxLolReset", false); };
 
     /**
      * \brief Get the "BcidErrorReset" provided by the user configuration

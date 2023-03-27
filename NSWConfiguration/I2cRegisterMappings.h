@@ -1365,13 +1365,24 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pfeb_hit_rate", 16},
     }},
   {"00E_control_reg3", {
-      {nsw::NOT_USED, 6},
+      {nsw::NOT_USED, 4},
+      {"ro_bcid_error_rst", 1},
+      {"trig_bcid_error_rst", 1},
       {"bcid_error_rst", 2},
-      {"reset", 24},
+      {"gt_soft_reset", 24},
     }},
   {"00F_pfeb_status_READONLY", {
       {nsw::NOT_USED, 8},
       {"status", 24},
+    }},
+  {"010_gt_rx_reset", {
+      {nsw::NOT_USED, 7},
+      {"gt_rx_lol_reset", 1},
+      {"gt_rx_reset", 24},
+    }},
+  {"011_gt_tx_reset", {
+      {nsw::NOT_USED, 8},
+      {"gt_tx_reset", 24},
     }},
   {"012_pad_bcid_error_READONLY", {
       {"pad_bcid_error_dif", 16},

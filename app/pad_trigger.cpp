@@ -54,6 +54,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to toggle the Pad Trigger OCR enable")
         ("toggleGtReset", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger GT resets")
+        ("toggleGtRxLolReset", po::bool_switch()->
+         default_value(false), "Option to toggle the Pad Trigger GT RX LOL resets")
         ("toggleBcidErrorReset", po::bool_switch()->
          default_value(false), "Option to toggle the Pad Trigger BCID resets")
         ("toggleIdleState", po::bool_switch()->
@@ -80,6 +82,7 @@ int main(int argc, const char *argv[])
     const auto uploadBitfile        = vm["uploadBitfile"]       .as<bool>();
     const auto toggleOcrEnable      = vm["toggleOcrEnable"]     .as<bool>();
     const auto toggleGtReset        = vm["toggleGtReset"]       .as<bool>();
+    const auto toggleGtRxLolReset   = vm["toggleGtRxLolReset"]  .as<bool>();
     const auto toggleBcidErrorReset = vm["toggleBcidErrorReset"].as<bool>();
     const auto toggleIdleState      = vm["toggleIdleState"]     .as<bool>();
     const auto read                 = vm["read"]                .as<bool>();
@@ -132,6 +135,9 @@ int main(int argc, const char *argv[])
       }
       else if (toggleGtReset and not hw.GtReset()) {
         error = "GtReset";
+      }
+      else if (toggleGtRxLolReset and not hw.GtRxLolReset()) {
+        error = "GtRxLolReset";
       }
       else if (toggleBcidErrorReset and not hw.BcidErrorReset()) {
         error = "BcidErrorReset";
@@ -234,6 +240,11 @@ int main(int argc, const char *argv[])
         }
         hw.toggleGtReset();
       }
+    }
+
+    // GT RX LOL reset
+    if (toggleGtRxLolReset) {
+      std::ranges::for_each(hws, [](const auto& hw){ hw.toggleGtRxLolReset(); });
     }
 
     // BCID reset
