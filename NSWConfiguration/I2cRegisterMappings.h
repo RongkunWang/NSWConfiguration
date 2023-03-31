@@ -1211,7 +1211,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"l1id", 32},
     }},
   {"003_control_reg2", {
-      {nsw::NOT_USED,           19},
+      {nsw::NOT_USED,           14},
+      {"conf_ttc_latency",       5},
       {"conf_majority_sel",      2},
       {"conf_BC_stretch_to_TP",  1},
       {"conf_BC_stretch",        1},
@@ -1399,6 +1400,18 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
   {"015_ttc_rate_READONLY", {
       {nsw::NOT_USED, 16},
       {"ttc_bcr_ocr_rate", 16},
+    }},
+  {"016_trig_bcid_READONLY", {
+      {nsw::NOT_USED, 20},
+      {"trig_bcid", 12},
+    }},
+  {"017_pfeb_bcid_error_READONLY", {
+      {nsw::NOT_USED, 8},
+      {"pfeb_bcid_error", 24},
+    }},
+  {"018_gt_rx_lol_READONLY", {
+      {nsw::NOT_USED, 8},
+      {"gt_rx_lol", 24},
     }},
 };
 

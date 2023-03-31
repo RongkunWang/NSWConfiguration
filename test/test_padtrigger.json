@@ -12,6 +12,7 @@
             "conf_ro_bc_offset[7]": 0
         },
         "003_control_reg2": {
+            "conf_ttc_latency": 0,
             "conf_BC_stretch_to_TP": 1,
             "conf_BC_stretch": 1,
             "conf_majority_sel": 0,
