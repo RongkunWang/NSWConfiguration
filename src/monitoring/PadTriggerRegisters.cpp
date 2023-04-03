@@ -28,7 +28,7 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.trigger_rate       = dev.readSubRegister("001_status_reg_READONLY", "trigger_rate");
   is.xadc_temp          = dev.readFPGATemperature();
   is.pfeb_bcids         = dev.readPFEBBCIDs();
-  is.pfeb_status        = dev.readSubRegister("00F_pfeb_status_READONLY", "status");
+  is.pfeb_status        = dev.readPFEBBcidErrorReadout();
   is.pad_bcid_error     = dev.readSubRegister("012_pad_bcid_error_READONLY", "pad_bcid_error");
   is.pad_bcid_error_dif = dev.readSubRegister("012_pad_bcid_error_READONLY", "pad_bcid_error_dif");
   is.pt_2_tp_lat        = dev.readSubRegister("013_pt_2_tp_lat_READONLY", "pt_2_tp_lat");
