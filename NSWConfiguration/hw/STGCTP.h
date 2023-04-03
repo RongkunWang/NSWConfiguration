@@ -132,6 +132,78 @@ namespace nsw::hw {
     bool getDisableNSWMON() const { return m_config.get("DisableNSWMON", false); };
 
     /**
+     * \brief Get L1AOpeningOffset from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getL1AOpeningOffset() const { return m_config.get("L1AOpeningOffset", std::uint32_t{0x22}); };
+
+    /**
+     * \brief Get L1ARequestOffset from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getL1ARequestOffset() const { return m_config.get("L1ARequestOffset", std::uint32_t{0x20}); };
+
+    /**
+     * \brief Get L1AClosingOffset from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getL1AClosingOffset() const { return m_config.get("L1AClosingOffset", std::uint32_t{0x1e}); };
+
+    /**
+     * \brief Get L1ATimeoutWindow from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getL1ATimeoutWindow() const { return m_config.get("L1ATimeoutWindow", std::uint32_t{0x60}); };
+
+    /**
+     * \brief Get L1APadEnable from the user config
+     */
+    [[nodiscard]]
+    bool getL1APadEnable() const { return m_config.get("L1APadEnable", true); };
+
+    /**
+     * \brief Get L1AMergeEnable from the user config
+     */
+    [[nodiscard]]
+    bool getL1AMergeEnable() const { return m_config.get("L1AMergeEnable", true); };
+
+    /**
+     * \brief Get GlobalSyncBcidOffset from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getGlobalSyncBcidOffset() const { return m_config.get("GlobalSyncBcidOffset", std::uint32_t{0x0}); };
+
+    /**
+     * \brief Get Busy from the user config
+     */
+    [[nodiscard]]
+    bool getBusy() const { return m_config.get("Busy", false); };
+
+    /**
+     * \brief Get MonitoringDisable from the user config
+     */
+    [[nodiscard]]
+    bool getMonitoringDisable() const { return m_config.get("MonitoringDisable", false); };
+
+    /**
+     * \brief Get NSWMONLimit from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getNSWMONLimit() const { return m_config.get("NSWMONLimit", std::uint32_t{10}); };
+
+    /**
+     * \brief Get MonitoringLimit from the user config
+     */
+    [[nodiscard]]
+    std::uint32_t getMonitoringLimit() const { return m_config.get("MonitoringLimit", std::uint32_t{100197}); };
+
+    /**
+     * \brief Get MMNSWMONEnable from the user config
+     */
+    [[nodiscard]]
+    bool getMMNSWMONEnable() const { return m_config.get("MMNSWMONEnable", true); };
+
+    /**
      * \brief reset the trigger processor
      */
     void doReset() const;

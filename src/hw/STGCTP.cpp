@@ -18,10 +18,22 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
   doReset();
-  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR,         getSector(),        nsw::stgctp::MASK_SECTOR);
-  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_PADS,    getIgnorePads(),    nsw::stgctp::MASK_IGNORE_PADS);
-  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_MM,      getIgnoreMM(),      nsw::stgctp::MASK_IGNORE_MM);
-  writeAndReadbackRegister(nsw::stgctp::REG_DISABLE_NSWMON, getDisableNSWMON(), nsw::stgctp::MASK_DISABLE_NSWMON);
+  writeAndReadbackRegister(nsw::stgctp::REG_SECTOR,                   getSector(),               nsw::stgctp::MASK_SECTOR);
+  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_PADS,              getIgnorePads(),           nsw::stgctp::MASK_IGNORE_PADS);
+  writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_MM,                getIgnoreMM(),             nsw::stgctp::MASK_IGNORE_MM);
+  writeAndReadbackRegister(nsw::stgctp::REG_DISABLE_NSWMON,           getDisableNSWMON(),        nsw::stgctp::MASK_DISABLE_NSWMON);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_OPENING_OFFSET,       getL1AOpeningOffset(),     nsw::stgctp::MASK_L1A_OPENING_OFFSET);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_REQUEST_OFFSET,       getL1ARequestOffset(),     nsw::stgctp::MASK_L1A_REQUEST_OFFSET);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_CLOSING_OFFSET,       getL1AClosingOffset(),     nsw::stgctp::MASK_L1A_CLOSING_OFFSET);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_TIMEOUT_WINDOW,       getL1ATimeoutWindow(),     nsw::stgctp::MASK_L1A_TIMEOUT_WINDOW);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_PAD_EN,               getL1APadEnable(),         nsw::stgctp::MASK_L1A_PAD_EN);
+  writeAndReadbackRegister(nsw::stgctp::REG_L1A_MERGE_EN,             getL1AMergeEnable(),       nsw::stgctp::MASK_L1A_MERGE_EN);
+  writeAndReadbackRegister(nsw::stgctp::REG_STGC_GLOSYNC_BCID_OFFSET, getGlobalSyncBcidOffset(), nsw::stgctp::MASK_STGC_GLOSYNC_BCID_OFFSET);
+  writeAndReadbackRegister(nsw::stgctp::REG_BUSY,                     getBusy(),                 nsw::stgctp::MASK_BUSY);
+  writeAndReadbackRegister(nsw::stgctp::REG_MON_DISABLE,              getMonitoringDisable(),    nsw::stgctp::MASK_MON_DISABLE);
+  writeAndReadbackRegister(nsw::stgctp::REG_NSW_MON_LIMIT,            getNSWMONLimit(),          nsw::stgctp::MASK_NSW_MON_LIMIT);
+  writeAndReadbackRegister(nsw::stgctp::REG_MON_LIMIT,                getMonitoringLimit(),      nsw::stgctp::MASK_MON_LIMIT);
+  writeAndReadbackRegister(nsw::stgctp::REG_MM_NSW_MON_EN,            getMMNSWMONEnable(),       nsw::stgctp::MASK_MM_NSW_MON_EN);
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
   }
