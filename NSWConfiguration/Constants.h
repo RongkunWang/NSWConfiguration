@@ -251,7 +251,19 @@ namespace nsw {
     constexpr std::uint8_t REG_IGNORE_PADS           = 0x14;
     constexpr std::uint8_t REG_IGNORE_MM             = 0x15;
     constexpr std::uint8_t REG_DISABLE_NSWMON        = 0x16;
-    constexpr std::uint8_t REG_STICKY_ERR_BCID_MATCH = 0x1d;
+    constexpr std::uint8_t REG_L1A_OPENING_OFFSET       = 0x17;
+    constexpr std::uint8_t REG_L1A_REQUEST_OFFSET       = 0x18;
+    constexpr std::uint8_t REG_L1A_CLOSING_OFFSET       = 0x19;
+    constexpr std::uint8_t REG_L1A_TIMEOUT_WINDOW       = 0x1a;
+    constexpr std::uint8_t REG_L1A_PAD_EN               = 0x1b;
+    constexpr std::uint8_t REG_L1A_MERGE_EN             = 0x1c;
+    constexpr std::uint8_t REG_STICKY_ERR_BCID_MATCH    = 0x1d;
+    constexpr std::uint8_t REG_STGC_GLOSYNC_BCID_OFFSET = 0x1e;
+    constexpr std::uint8_t REG_BUSY                     = 0x1f;
+    constexpr std::uint8_t REG_MON_DISABLE              = 0x20;
+    constexpr std::uint8_t REG_NSW_MON_LIMIT            = 0x21;
+    constexpr std::uint8_t REG_MON_LIMIT                = 0x22;
+    constexpr std::uint8_t REG_MM_NSW_MON_EN            = 0x23;
     constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_RST_RX           = (1 <<  9) - 1;
     constexpr std::uint32_t MASK_RST_TX           = (1 <<  9) - 1;
@@ -275,7 +287,19 @@ namespace nsw {
     constexpr std::uint32_t MASK_IGNORE_PADS           = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_IGNORE_MM             = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_DISABLE_NSWMON        = (1 <<  1) - 1;
-    constexpr std::uint32_t MASK_STICKY_ERR_BCID_MATCH = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_L1A_OPENING_OFFSET       = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_L1A_REQUEST_OFFSET       = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_L1A_CLOSING_OFFSET       = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_L1A_TIMEOUT_WINDOW       = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_L1A_PAD_EN               = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_L1A_MERGE_EN             = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_STICKY_ERR_BCID_MATCH    = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_STGC_GLOSYNC_BCID_OFFSET = (1 << 12) - 1;
+    constexpr std::uint32_t MASK_BUSY                     = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_MON_DISABLE              = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_NSW_MON_LIMIT            = (1 <<  7) - 1;
+    constexpr std::uint32_t MASK_MON_LIMIT                = (1 << 17) - 1;
+    constexpr std::uint32_t MASK_MM_NSW_MON_EN            = (1 <<  1) - 1;
     constexpr auto REGS = std::to_array({
         std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
         std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
@@ -295,7 +319,19 @@ namespace nsw {
         std::make_pair(REG_IGNORE_PADS,           MASK_IGNORE_PADS),
         std::make_pair(REG_IGNORE_MM,             MASK_IGNORE_MM),
         std::make_pair(REG_DISABLE_NSWMON,        MASK_DISABLE_NSWMON),
-        std::make_pair(REG_STICKY_ERR_BCID_MATCH, MASK_STICKY_ERR_BCID_MATCH),
+        std::make_pair(REG_L1A_OPENING_OFFSET,       MASK_L1A_OPENING_OFFSET),
+        std::make_pair(REG_L1A_REQUEST_OFFSET,       MASK_L1A_REQUEST_OFFSET),
+        std::make_pair(REG_L1A_CLOSING_OFFSET,       MASK_L1A_CLOSING_OFFSET),
+        std::make_pair(REG_L1A_TIMEOUT_WINDOW,       MASK_L1A_TIMEOUT_WINDOW),
+        std::make_pair(REG_L1A_PAD_EN,               MASK_L1A_PAD_EN),
+        std::make_pair(REG_L1A_MERGE_EN,             MASK_L1A_MERGE_EN),
+        std::make_pair(REG_STICKY_ERR_BCID_MATCH,    MASK_STICKY_ERR_BCID_MATCH),
+        std::make_pair(REG_STGC_GLOSYNC_BCID_OFFSET, MASK_STGC_GLOSYNC_BCID_OFFSET),
+        std::make_pair(REG_BUSY,                     MASK_BUSY),
+        std::make_pair(REG_MON_DISABLE,              MASK_MON_DISABLE),
+        std::make_pair(REG_NSW_MON_LIMIT,            MASK_NSW_MON_LIMIT),
+        std::make_pair(REG_MON_LIMIT,                MASK_MON_LIMIT),
+        std::make_pair(REG_MM_NSW_MON_EN,            MASK_MM_NSW_MON_EN),
     });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;
