@@ -64,6 +64,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to read FPGA configuration and status registers")
         ("readSubRegisters", po::bool_switch()->
          default_value(false), "Option to read FPGA configuration and status subregisters")
+        ("readPFEBBcidError", po::bool_switch()->
+         default_value(false), "Option to read PFEB bcid error registers")
         ("val", po::value<int>(&val)
          ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -87,6 +89,7 @@ int main(int argc, const char *argv[])
     const auto toggleIdleState      = vm["toggleIdleState"]     .as<bool>();
     const auto read                 = vm["read"]                .as<bool>();
     const auto readSubRegisters     = vm["readSubRegisters"]    .as<bool>();
+    const auto readPFEBBcidError    = vm["readPFEBBcidError"]   .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -295,6 +298,16 @@ int main(int argc, const char *argv[])
           std::cout << addr << " " << val << std::endl;
         }
       }
+    }
+
+    // read PFEB BCID error registers
+    if (readPFEBBcidError) {
+      std::ranges::for_each(hws, [](const auto& hw){
+        const auto error_readout = hw.readPFEBBcidErrorReadout();
+        const auto error_trigger = hw.readPFEBBcidErrorTrigger();
+        std::cout << fmt::format("PFEB BCID error (readout): {:#010x}", error_readout) << std::endl;
+        std::cout << fmt::format("PFEB BCID error (trigger): {:#010x}", error_trigger) << std::endl;
+      });
     }
 
     return 0;

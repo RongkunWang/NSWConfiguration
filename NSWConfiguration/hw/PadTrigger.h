@@ -222,6 +222,16 @@ namespace nsw::hw {
     void toggleBcidErrorReset() const;
 
     /**
+     * \brief Toggle the PFEB BCID error reset (readout) from enabled to disabled
+     */
+    void togglePFEBBcidResetReadout() const;
+
+    /**
+     * \brief Toggle the PFEB BCID error reset (readout) from enabled to disabled
+     */
+    void togglePFEBBcidResetTrigger() const;
+
+    /**
      * \brief Enable the pad trigger readout
      */
     void writeReadoutEnable() const
@@ -425,6 +435,18 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::vector<std::uint32_t> readPFEBRates() const;
+
+    /**
+     * \brief Read the PFEB BCID error word (readout)
+     */
+    [[nodiscard]]
+    std::uint32_t readPFEBBcidErrorReadout() const;
+
+    /**
+     * \brief Read the PFEB BCID error word (trigger)
+     */
+    [[nodiscard]]
+    std::uint32_t readPFEBBcidErrorTrigger() const;
 
     /**
      * \brief Read and decode the PFEB BCID status registers.

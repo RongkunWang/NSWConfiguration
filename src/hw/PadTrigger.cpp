@@ -32,7 +32,11 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   toggleIdleState();
   toggleOcrEnable();
   toggleBcidErrorReset();
+  togglePFEBBcidResetReadout();
+  togglePFEBBcidResetTrigger();
   toggleGtRxLolReset();
+  ERS_INFO(fmt::format("{} PFEB BCID error: 0x{:08x}",
+                       m_name, readPFEBBcidErrorReadout()));
 }
 
 void nsw::hw::PadTrigger::writeRepeatersConfiguration() const
@@ -200,8 +204,6 @@ void nsw::hw::PadTrigger::toggleGtReset() const
   writeGtSoftResetEnable();
   writeGtSoftResetDisable();
   nsw::snooze();
-  const auto pfeb_status = readFPGARegister(nsw::padtrigger::REG_PFEB_STATUS);
-  ERS_INFO(fmt::format("{} PFEB status: 0x{:08x}", m_name, pfeb_status));
 }
 
 void nsw::hw::PadTrigger::toggleGtRxLolReset() const
@@ -244,6 +246,24 @@ void nsw::hw::PadTrigger::toggleBcidErrorReset() const
   const auto tp_bcid_error  = readFPGARegister(nsw::padtrigger::REG_TP_BCID_ERROR);
   ERS_INFO(fmt::format("{} BCID error status: {:#010x} (pad) {:#010x} (tp)",
                        m_name, pad_bcid_error, tp_bcid_error));
+}
+
+void nsw::hw::PadTrigger::togglePFEBBcidResetReadout() const
+{
+  ERS_LOG(fmt::format("togglePFEBBcidResetReadout of {}", m_name));
+  writePFEBBcidResetReadoutDisable();
+  writePFEBBcidResetReadoutEnable();
+  writePFEBBcidResetReadoutDisable();
+  nsw::snooze();
+}
+
+void nsw::hw::PadTrigger::togglePFEBBcidResetTrigger() const
+{
+  ERS_LOG(fmt::format("togglePFEBBcidResetTrigger of {}", m_name));
+  writePFEBBcidResetTriggerDisable();
+  writePFEBBcidResetTriggerEnable();
+  writePFEBBcidResetTriggerDisable();
+  nsw::snooze();
 }
 
 std::map<std::uint8_t, std::uint32_t> nsw::hw::PadTrigger::readConfiguration() const
@@ -432,6 +452,20 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBRates() const
     rates.push_back(readPFEBRate(pfeb, quiet));
   }
   return rates;
+}
+
+std::uint32_t nsw::hw::PadTrigger::readPFEBBcidErrorReadout() const
+{
+  const auto ret = readSubRegister("00F_pfeb_status_READONLY", "status");
+  togglePFEBBcidResetReadout();
+  return ret;
+}
+
+std::uint32_t nsw::hw::PadTrigger::readPFEBBcidErrorTrigger() const
+{
+  const auto ret = readSubRegister("017_pfeb_bcid_error_READONLY", "pfeb_bcid_error");
+  togglePFEBBcidResetTrigger();
+  return ret;
 }
 
 BcidVector nsw::hw::PadTrigger::readPFEBBCIDs() const
