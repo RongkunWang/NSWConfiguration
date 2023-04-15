@@ -94,8 +94,6 @@ class JsonApi: public ConfigReaderApi {
 
 
  private:
-  static std::string get_json_git_revision(const std::string& cfgfile);
-
   std::string m_file_path;
   nsw::DeviceMap m_devices{};
   boost::property_tree::ptree m_config;  /// Ptree that holds all configuration

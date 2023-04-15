@@ -1,20 +1,18 @@
 #include "NSWConfiguration/ConfigReaderJsonApi.h"
 
+#include <filesystem>
 #include <stdexcept>
 #include <regex>
-#include <filesystem>
-
-#include <git2.h>
-
-#include <ers/ers.h>
 
 #include <boost/property_tree/json_parser.hpp>
-#include <filesystem>
 #include <boost/optional/optional.hpp>
 
 
 #include <fmt/core.h>
 
+#include <ers/ers.h>
+
+#include "NSWConfiguration/GitWrapper.h"
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Utility.h"
 
@@ -420,88 +418,6 @@ ptree JsonApi::readRouter(const std::string& element) const {
     return feb;
 }
 
-std::string JsonApi::get_json_git_revision(const std::string& cfgfile) {
-    std::string gitsummary = "No git information";
-    std::string gitsha = "Unknown";
-
-    git_libgit2_init();
-
-    git_buf root = {nullptr, 0, 0};
-
-    if (git_repository_discover(&root, cfgfile.c_str(), 0, nullptr) == 0) {
-        const auto reporoot = std::string(root.ptr);
-        ERS_LOG(fmt::format("Found ({}) repository for {}", reporoot, cfgfile));
-
-        git_repository *repo = nullptr;
-        if (git_repository_open(&repo, reporoot.c_str()) == 0) {
-            git_revwalk *walker;
-
-            if (git_revwalk_new(&walker, repo) == 0) {
-                if (git_revwalk_push_head(walker) == 0) {
-                    git_oid oid;
-
-                    if (git_revwalk_next(&oid, walker) == 0) {
-                        constexpr static auto GITHASHLENGTH = 12;
-                        std::array<char, GITHASHLENGTH+1> shortsha{0};
-                        git_oid_tostr(shortsha.data(), GITHASHLENGTH, &oid);
-
-                        gitsha = fmt::format("{}", shortsha.data());
-
-                        git_object *obj = nullptr;
-                        if (git_revparse_single(&obj, repo, "HEAD^{tree}") == 0) {
-                            auto *tree = reinterpret_cast<git_tree *>(obj);
-
-                            const auto count = git_tree_entrycount(tree);
-                            const auto *entry = git_tree_entry_byindex(tree, 0);
-                            const auto *name = git_tree_entry_name(entry);
-
-                            const auto cfg_file_name = [&cfgfile, &reporoot]() -> std::string {
-                                const auto GIT_REPO = std::string{".git/"};
-                                const auto repo_base = reporoot.substr(0, reporoot.size()-GIT_REPO.size());
-                                if (cfgfile.rfind(repo_base) != std::string::npos) {
-                                    return cfgfile.substr(repo_base.size());
-                                } else {
-                                    return cfgfile;
-                                }
-                            }();
-
-                            git_tree_entry *entry2 = nullptr;
-                            if (git_tree_entry_bypath(&entry2, tree, cfg_file_name.c_str()) == 0) {
-                                gitsummary = fmt::format("{} has git SHA: {}", cfgfile, gitsha);
-                            } else {
-                                gitsummary = fmt::format("{} (untracked) in repository with git SHA: {}", cfgfile, gitsha);
-                            }
-
-                            git_tree_entry_free(entry2);
-                        } else {
-                          gitsummary = fmt::format("{} (untrackable) in repository with git SHA: {}", cfgfile, gitsha);
-                        }
-                        git_object_free(obj);
-                    }
-                } else {
-                    gitsummary = fmt::format("Unable to fine commit");
-                }
-            } else {
-                gitsummary = fmt::format("Unable to create revwalker");
-            }
-
-            git_revwalk_free(walker);
-        } else {
-            gitsummary = fmt::format("Unable to open repository for {}", reporoot);
-        }
-
-        git_repository_free(repo);
-    } else {
-        gitsummary = fmt::format("Unable to find repository for {}", cfgfile);
-    }
-
-    git_buf_free(&root);
-
-    git_libgit2_shutdown();
-
-    return gitsummary;
-}
-
 ptree JsonApi::read() {
 
     std::string s = "Reading json configuration from " + m_file_path;
@@ -513,7 +429,14 @@ ptree JsonApi::read() {
       throw nsw::ConfigIssue(ERS_HERE, msg.c_str());
     }
 
-    ERS_LOG(fmt::format("{}", get_json_git_revision(m_file_path)));
+    try {
+      auto wrapper = nsw::git::GitInterface();
+      ERS_LOG(fmt::format("{}", wrapper.get_git_revision(m_file_path)));
+    } catch (const std::runtime_error& ex) {
+      ERS_LOG(fmt::format("{}\n", ex.what()));
+    } catch (const std::exception& ex) {
+      ERS_LOG(fmt::format("{}\n", ex.what()));
+    }
 
     // temporary objects for reading in JSON file for cleaning
     std::stringstream jsonStringStream;

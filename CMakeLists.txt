@@ -152,6 +152,14 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
   )
 endforeach()
 
+tdaq_add_library(nswgit src/GitWrapper.cpp
+  LINK_LIBRARIES tdaq-common::ers
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+                 PkgConfig::libgit2
+    PRIVATE
+                 stdc++fs
+)
+
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigReaderJsonApi.cpp
                  src/Utility.cpp src/ConfigSender.cpp
@@ -180,7 +188,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  ichandler
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
     PRIVATE
-                 PkgConfig::libgit2
+                 nswgit
                  stdc++fs
 )
 
