@@ -12,6 +12,10 @@
             "conf_ro_bc_offset[7]": 0
         },
         "003_control_reg2": {
+            "conf_ro_trig_bc_offset": 0,
+            "conf_ro_trig_offset_en": 0,
+            "conf_auto_mask_pfeb_to_0": 0,
+            "conf_nsw_side": 0,
             "conf_ttc_latency": 0,
             "conf_BC_stretch_to_TP": 1,
             "conf_BC_stretch": 1,
@@ -139,6 +143,9 @@
         },
         "011_gt_tx_reset": {
             "gt_tx_reset": 0
+        },
+        "01C_control_reg4": {
+            "trig_bcid_select": 0
         }
     },
     "PadTriggerSCA_00":{

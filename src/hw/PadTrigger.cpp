@@ -454,6 +454,13 @@ std::vector<std::uint32_t> nsw::hw::PadTrigger::readPFEBRates() const
   return rates;
 }
 
+std::uint32_t nsw::hw::PadTrigger::readGtRxLol() const
+{
+  const auto ret = readSubRegister("018_gt_rx_lol_READONLY", "gt_rx_lol");
+  toggleGtRxLolReset();
+  return ret;
+}
+
 std::uint32_t nsw::hw::PadTrigger::readPFEBBcidErrorReadout() const
 {
   const auto ret = readSubRegister("00F_pfeb_status_READONLY", "status");

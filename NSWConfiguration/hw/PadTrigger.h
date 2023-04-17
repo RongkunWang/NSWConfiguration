@@ -423,6 +423,12 @@ namespace nsw::hw {
     void describeSkew(const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
 
     /**
+     * \brief Read the GT RX LOL word, and toggle sticky reset afterward
+     */
+    [[nodiscard]]
+    std::uint32_t readGtRxLol() const;
+
+    /**
      * \brief Read the rate of an input PFEB from a status register
      *
      * \param pfeb is the pfeb number
