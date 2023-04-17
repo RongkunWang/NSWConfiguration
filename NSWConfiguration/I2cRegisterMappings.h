@@ -1211,13 +1211,17 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"l1id", 32},
     }},
   {"003_control_reg2", {
-      {nsw::NOT_USED,           14},
-      {"conf_ttc_latency",       5},
-      {"conf_majority_sel",      2},
-      {"conf_BC_stretch_to_TP",  1},
-      {"conf_BC_stretch",        1},
-      {"pfeb_num",               5},
-      {"conf_sectorID",          4},
+      {nsw::NOT_USED,              3},
+      {"conf_ro_trig_bc_offset",   8},
+      {"conf_ro_trig_offset_en",   1},
+      {"conf_auto_mask_pfeb_to_0", 1},
+      {"conf_nsw_side",            1},
+      {"conf_ttc_latency",         5},
+      {"conf_majority_sel",        2},
+      {"conf_BC_stretch_to_TP",    1},
+      {"conf_BC_stretch",          1},
+      {"pfeb_num",                 5},
+      {"conf_sectorID",            4},
     }},
   {"004_PFEB_delay_reg2", {
       {"23", 4},
@@ -1397,12 +1401,13 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"tp_bcid_error_dif", 16},
       {"tp_bcid_error", 16},
     }},
-  {"015_ttc_rate_READONLY", {
-      {nsw::NOT_USED, 16},
+  {"015_ttc_mon_0_READONLY", {
+      {"ttc_test_pulse_rate", 16},
       {"ttc_bcr_ocr_rate", 16},
     }},
   {"016_trig_bcid_READONLY", {
-      {nsw::NOT_USED, 20},
+      {nsw::NOT_USED, 4},
+      {"trig_bcid_rate", 16},
       {"trig_bcid", 12},
     }},
   {"017_pfeb_bcid_error_READONLY", {
@@ -1412,6 +1417,22 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
   {"018_gt_rx_lol_READONLY", {
       {nsw::NOT_USED, 8},
       {"gt_rx_lol", 24},
+    }},
+  {"019_ttc_mon_1_READONLY", {
+      {"ttc_l0a_rate", 16},
+      {"ttc_l1a_rate", 16},
+    }},
+  {"01A_ttc_mon_2_READONLY", {
+      {"ttc_ec0r_rate", 16},
+      {"ttc_ecr_rate", 16},
+    }},
+  {"01B_ttc_mon_3_READONLY", {
+      {"ttc_sca_reset_rate", 16},
+      {"ttc_soft_reset_rate", 16},
+    }},
+  {"01C_control_reg4", {
+      {nsw::NOT_USED, 20},
+      {"trig_bcid_select", 12},
     }},
 };
 

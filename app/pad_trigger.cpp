@@ -26,7 +26,7 @@ int main(int argc, const char *argv[])
     std::string gpio_name{""};
     std::string i2c_reg{""};
     std::string i2c_val{""};
-    int val{0};
+    int gpio_val{0};
 
     // options
     po::options_description desc(std::string("Pad trigger configuration script"));
@@ -64,10 +64,12 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to read FPGA configuration and status registers")
         ("readSubRegisters", po::bool_switch()->
          default_value(false), "Option to read FPGA configuration and status subregisters")
+        ("readGtRxLol", po::bool_switch()->
+         default_value(false), "Option to read GT RX LOL subregister")
         ("readPFEBBcidError", po::bool_switch()->
          default_value(false), "Option to read PFEB bcid error registers")
-        ("val", po::value<int>(&val)
-         ->default_value(-1), "Multi-purpose value for reading and writing. If no value given, will read-only.")
+        ("gpio_val", po::value<int>(&gpio_val)
+         ->default_value(-1), "GPIO value for writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
          ->default_value(""), "i2c register for SCA communication (0xHEX).")
         ("i2c_val", po::value<std::string>(&i2c_val)
@@ -89,6 +91,7 @@ int main(int argc, const char *argv[])
     const auto toggleIdleState      = vm["toggleIdleState"]     .as<bool>();
     const auto read                 = vm["read"]                .as<bool>();
     const auto readSubRegisters     = vm["readSubRegisters"]    .as<bool>();
+    const auto readGtRxLol          = vm["readGtRxLol"]         .as<bool>();
     const auto readPFEBBcidError    = vm["readPFEBBcidError"]   .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
@@ -166,9 +169,9 @@ int main(int argc, const char *argv[])
     // GPIO read/write
     if (gpio_name != "") {
       for (const auto& hw: hws) {
-        if (val != -1) {
-          std::cout << fmt::format("{} -> write {}", hw.getName(), val) << std::endl;
-          hw.writeGPIO(gpio_name, static_cast<bool>(val));
+        if (gpio_val != -1) {
+          std::cout << fmt::format("{} -> write {}", hw.getName(), gpio_val) << std::endl;
+          hw.writeGPIO(gpio_name, static_cast<bool>(gpio_val));
         }
         std::cout << fmt::format("{} -> read {}", hw.getName(), hw.readGPIO(gpio_name)) << std::endl;
       }
@@ -298,6 +301,13 @@ int main(int argc, const char *argv[])
           std::cout << addr << " " << val << std::endl;
         }
       }
+    }
+
+    // read PFEB BCID error registers
+    if (readGtRxLol) {
+      std::ranges::for_each(hws, [](const auto& hw){
+        std::cout << fmt::format("GT RX LOL: {:#010x}", hw.readGtRxLol()) << std::endl;
+      });
     }
 
     // read PFEB BCID error registers
