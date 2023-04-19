@@ -1,18 +1,18 @@
 #include "NSWConfiguration/ConfigReaderJsonApi.h"
 
+#include <filesystem>
 #include <stdexcept>
 #include <regex>
-#include <filesystem>
-
-#include <ers/ers.h>
 
 #include <boost/property_tree/json_parser.hpp>
-#include <filesystem>
 #include <boost/optional/optional.hpp>
 
 
 #include <fmt/core.h>
 
+#include <ers/ers.h>
+
+#include "NSWConfiguration/GitWrapper.h"
 #include "NSWConfiguration/OKSDeviceHierarchy.h"
 #include "NSWConfiguration/Utility.h"
 
@@ -419,6 +419,7 @@ ptree JsonApi::readRouter(const std::string& element) const {
 }
 
 ptree JsonApi::read() {
+
     std::string s = "Reading json configuration from " + m_file_path;
     ERS_LOG(s);
 
@@ -426,6 +427,15 @@ ptree JsonApi::read() {
     if (not std::filesystem::exists(m_file_path)) {
       const auto msg = fmt::format("File does not exist: {}", m_file_path);
       throw nsw::ConfigIssue(ERS_HERE, msg.c_str());
+    }
+
+    try {
+      auto wrapper = nsw::git::GitInterface();
+      ERS_LOG(fmt::format("{}", wrapper.get_git_revision(m_file_path)));
+    } catch (const std::runtime_error& ex) {
+      ERS_LOG(fmt::format("{}\n", ex.what()));
+    } catch (const std::exception& ex) {
+      ERS_LOG(fmt::format("{}\n", ex.what()));
     }
 
     // temporary objects for reading in JSON file for cleaning

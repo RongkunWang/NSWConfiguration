@@ -16,6 +16,30 @@ set(TDAQ_DB_PROJECT muons)
 
 find_package(ROOT REQUIRED COMPONENTS Core Tree RIO)
 
+find_package(libgit2 QUIET)
+if(NOT libgit2_FOUND)
+  find_package(PkgConfig)
+  find_path(LIBGIT2_PC_DIR NAMES lib64
+    HINTS
+      "${LCG_RELEASE_DIR}/libgit2/*/${BINARY_TAG}"
+  )
+
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${LIBGIT2_PC_DIR}")
+  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${LIBGIT2_PC_DIR}")
+
+  find_package(PkgConfig)
+  if(PkgConfig_FOUND)
+    set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
+    pkg_search_module(libgit2 REQUIRED IMPORTED_TARGET libgit2)
+    set(LIBGIT_PATH ${LIBGIT2_PREFIX})
+
+  endif()
+endif()
+
+if(NOT libgit2_FOUND AND NOT DEFINED libgit2_QUIET)
+  message(FATAL_ERROR "Could NOT find libgit2")
+endif()
+
 option(ENABLE_NSW_DEBUG "Compile with all DEBUG messages" OFF)
 if(ENABLE_NSW_DEBUG)
   remove_definitions(-DERS_NO_DEBUG)
@@ -105,6 +129,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
     LINK_LIBRARIES nswconfig
     LINK_LIBRARIES nswhwinterface
     LINK_LIBRARIES Boost::program_options
+    PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 endforeach()
 
@@ -126,6 +151,14 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
     LINK_LIBRARIES Boost::program_options
   )
 endforeach()
+
+tdaq_add_library(nswgit src/GitWrapper.cpp
+  LINK_LIBRARIES tdaq-common::ers
+                 $<BUILD_INTERFACE:fmt::fmt-header-only>
+                 PkgConfig::libgit2
+    PRIVATE
+                 stdc++fs
+)
 
 tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  src/ConfigReaderJsonApi.cpp
@@ -155,6 +188,7 @@ tdaq_add_library(nswconfig src/ConfigReader.cpp src/ConfigReaderApi.cpp
                  ichandler
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
     PRIVATE
+                 nswgit
                  stdc++fs
 )
 
