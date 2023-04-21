@@ -66,7 +66,7 @@ namespace nsw::mon {
     constexpr static std::string_view KEY_STATS{"Statistics"};
     std::map<std::string, std::jthread> threads{};
     for (const auto& config : configs) {
-      threads[config.m_name] = std::jthread{[&config, &isDict, &isServerName, &appName, &monFunc](
+      threads[config.m_name] = std::jthread{[&config, isDict, &isServerName, &appName, &monFunc](
                                               const std::stop_token stopToken) {
         while (not stopToken.stop_requested()) {
           const auto startTime = std::chrono::high_resolution_clock::now();
