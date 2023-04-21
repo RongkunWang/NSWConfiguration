@@ -107,14 +107,11 @@ class NSWConfig {
     //! Stop recording transition. Disable VMMs (symmetry)
     void stopRc();
 
-    //! Enable VMMs (after VMM config)
+    //! Enable VMMs (after VMM config); used in a user() function
     void enableVmmCaptureInputs();
 
-    //! Disable VMMs (setting register 8 to 0)
+    //! Disable VMMs (setting register 8 to 0); symmetric to the above
     void disableVmmCaptureInputs();
-
-    //! Enable MMTP channel rates reporting
-    void enableMmtpChannelRates(bool enable) const;
 
     /**
      * \brief Set the command sender to the RC application

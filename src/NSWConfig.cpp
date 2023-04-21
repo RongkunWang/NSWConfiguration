@@ -247,36 +247,14 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
     m_deviceManager.disableVmmCaptureInputs();
 }
 
-void nsw::NSWConfig::enableMmtpChannelRates(bool enable) const {
-  ERS_LOG("Enabling MMTP channel rates reporting: " << enable);
-  bool quiet = true;
-  nsw::ConfigSender configSender;
-  for (const auto& kv : m_tps) {
-    const auto config = m_tps.at(kv.first);
-    try {
-      if (config.EnableChannelRates()) {
-        if (!m_simulation) {
-          configSender.sendSCAXRegister(config, nsw::mmtp::REG_CHAN_RATE_ENABLE,
-                                        static_cast<uint32_t>(enable), quiet);
-        }
-      } else {
-        ERS_LOG("enableMmtpChannelRates skipped for " << kv.first);
-      }
-    } catch (std::exception & ex) {
-      nsw::NSWConfigIssue issue(ERS_HERE, "enableMmtpChannelRates failed: " + std::string(ex.what()));
-      ers::warning(issue);
-    }
-    ERS_LOG("Finished enabling " << kv.first);
-  }
-}
 
 void nsw::NSWConfig::startRc() {
-    enableMmtpChannelRates(true);
+  m_deviceManager.enableMmtpChannelRates(true);
 }
 
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
-    enableMmtpChannelRates(false);
+    m_deviceManager.enableMmtpChannelRates(false); 
     m_deviceManager.toggleIdleStateHigh();
 }
 

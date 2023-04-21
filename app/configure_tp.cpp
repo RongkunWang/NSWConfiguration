@@ -41,11 +41,11 @@ int main(int ac, const char *av[]) {
         ("hw",        po::bool_switch()->default_value(false), "Option to use hw interface")
         ("writeConfig", po::bool_switch()->default_value(false), "STGCTP option: write configuration")
         ("readConfig", po::bool_switch()->default_value(false), "STGCTP option: read configuration")
-        ("readRegister", po::value<std::uint32_t>(&readRegister)->default_value(dummy), "Register to read")
-        ("writeRegister", po::value<std::uint32_t>(&writeRegister)->default_value(dummy), "Register to write")
+        ("readRegister", po::value<std::uint32_t>(&readRegister)->default_value(dummy), "Register to read (only for sTGCTP for now)")
+        ("writeRegister", po::value<std::uint32_t>(&writeRegister)->default_value(dummy), "Register to write (only for sTGCTP for now)")
         ("writeValue", po::value<std::uint32_t>(&writeValue)->default_value(dummy), "Value to write")
         ("tp,t", po::value<std::string>(&tp_name)->
-        default_value("MMTP_A14"),
+        default_value("MMTP"),
         "Name of trigger processor");
 
     po::variables_map vm;
@@ -102,13 +102,19 @@ int main(int ac, const char *av[]) {
       }
       for (const auto& tp: mmtps) {
         std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;
-        for (const auto& [addr, val]: tp.readConfiguration()) {
-          fmt::print("{:#010x}: {:#010x}\n", addr, val);
+        if (writeConfig || readConfig) {
+          for (const auto& [addr, val]: tp.readConfiguration()) {
+            fmt::print("{:#010x}: {:#010x}\n", addr, val);
+          }
         }
-        tp.writeConfiguration();
-        std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
-        for (const auto& [addr, val]: tp.readConfiguration()) {
-          fmt::print("{:#010x}: {:#010x}\n", addr, val);
+
+        if (writeConfig) {
+          tp.writeConfiguration();
+          tp.EnableChannelRates(true);
+          std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
+          for (const auto& [addr, val]: tp.readConfiguration()) {
+            fmt::print("{:#010x}: {:#010x}\n", addr, val);
+          }
         }
       }
     } else {

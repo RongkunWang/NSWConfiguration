@@ -86,6 +86,22 @@ void nsw::hw::DeviceManager::connect() const
   }
 }
 
+void nsw::hw::DeviceManager::enableMmtpChannelRates(const bool enable)
+{
+  ERS_LOG("Enabling MMTP channel rates reporting: " << enable);
+  // enable = true, then check if json ask to enable it
+  // enable = false, disable it
+  applyFunc(
+    m_mmtps,
+    [&enable](const auto &dev) { dev.EnableChannelRates(enable); },
+    [](const auto &ex) {
+      nsw::NSWHWConfigIssue issue(
+        ERS_HERE, fmt::format("Toggling MMTP channel rate failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
+
+}
+
 void nsw::hw::DeviceManager::enableVmmCaptureInputs()
 {
   m_configurationErrorCounter = 0;
