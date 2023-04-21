@@ -129,6 +129,17 @@ namespace nsw::hw {
      */
     void setHorxEnvMonAddr(bool tx, std::uint8_t microPod, bool temp, bool loss, std::uint8_t fiber) const;
 
+    /**
+     * \brief Get the "EnableChannelRates" provided by the user configuration
+     */
+    bool EnableChannelRates() const { return m_config.get<bool>("EnableChannelRates"); }
+
+
+    /**
+     * \brief Enable the channel rate based on configuration
+     */
+    bool EnableChannelRates(const bool enable) const { writeRegister(nsw::mmtp::REG_CHAN_RATE_ENABLE, static_cast<uint32_t>(enable && EnableChannelRates())); }
+
   private:
 
     /**
@@ -227,11 +238,6 @@ namespace nsw::hw {
      * For latest, see https://espace.cern.ch/ATLAS-NSW-ELX/_layouts/15/WopiFrame.aspx?sourcedoc=/ATLAS-NSW-ELX/Shared%20Documents/NSW%20Trigger%20Processor/NSWTP_Connections.pptx
      */
     std::uint32_t fiberRemapSel() const { return m_config.get("fiberRemapSel", std::uint32_t{0}); }
-
-    /**
-     * \brief Get the "EnableChannelRates" provided by the user configuration
-     */
-    bool EnableChannelRates() const { return m_config.get<bool>("EnableChannelRates"); }
 
     /**
      * \brief Get the "SkipRegisters" provided by the user configuration

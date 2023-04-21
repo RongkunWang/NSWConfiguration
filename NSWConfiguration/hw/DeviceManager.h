@@ -115,6 +115,11 @@ namespace nsw::hw {
     void connect() const;
 
     /**
+     * \brief enableMmtpChannelRates for all Mmtps
+     */
+    void enableMmtpChannelRates(bool enable);
+
+    /**
      * \brief Enable VMM capture inputs of all ROCs
      */
     void enableVmmCaptureInputs();
