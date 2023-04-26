@@ -42,6 +42,8 @@ void nsw::NSWConfigurationControllerRc::user(const daq::rc::UserCmd& usrCmd)
   const std::vector<std::string> args{usrCmd.currentFSMState()};
   if (usrCmd.commandName() == nsw::commands::CONFIGURE) {
     m_scaServiceSender.send(nsw::commands::CONFIGURE, args, 0);
+  } else if (usrCmd.commandName() == nsw::commands::CONNECT) {
+    m_scaServiceSender.send(nsw::commands::CONNECT, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::UNCONFIGURE) {
     m_scaServiceSender.send(nsw::commands::UNCONFIGURE, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::START) {

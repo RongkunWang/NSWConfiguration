@@ -112,7 +112,18 @@ namespace nsw::hw {
     /**
      * \brief Connect all devices
      */
-    void connect() const;
+    void connect(std::span<const Options> options = {});
+
+
+    /**
+     * \brief Unconfigure all devices
+     */
+    void unconfigure(std::span<const Options> options = {});
+
+    /**
+     * \brief Disconnect all devices
+     */
+    void disconnect(std::span<const Options> options = {});
 
     /**
      * \brief enableMmtpChannelRates for all Mmtps

@@ -110,7 +110,7 @@ int main(int ac, const char *av[]) {
 
         if (writeConfig) {
           tp.writeConfiguration();
-          tp.EnableChannelRates(true);
+          tp.enableChannelRates(tp.getConfig().get<bool>("EnableChannelRates"));
           std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
           for (const auto& [addr, val]: tp.readConfiguration()) {
             fmt::print("{:#010x}: {:#010x}\n", addr, val);

@@ -105,7 +105,9 @@ void nsw::NSWConfig::configureRc() {
 }
 
 void nsw::NSWConfig::connectRc() {
+  ERS_INFO("Start");
   m_deviceManager.connect();
+  ERS_INFO("End");
 }
 
 void nsw::NSWConfig::unconfigureRc() {
