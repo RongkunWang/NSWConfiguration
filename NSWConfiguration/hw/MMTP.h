@@ -129,16 +129,12 @@ namespace nsw::hw {
      */
     void setHorxEnvMonAddr(bool tx, std::uint8_t microPod, bool temp, bool loss, std::uint8_t fiber) const;
 
-    /**
-     * \brief Get the "EnableChannelRates" provided by the user configuration
-     */
-    bool EnableChannelRates() const { return m_config.get<bool>("EnableChannelRates"); }
-
 
     /**
-     * \brief Enable the channel rate based on configuration
+     * \brief Enable the channel rate based on the register
+     * \param enable enable (true) or disable (false) the channel rate elink
      */
-    bool EnableChannelRates(const bool enable) const { writeRegister(nsw::mmtp::REG_CHAN_RATE_ENABLE, static_cast<uint32_t>(enable && EnableChannelRates())); }
+    void enableChannelRates(const bool enable) const { writeRegister(nsw::mmtp::REG_CHAN_RATE_ENABLE, static_cast<uint32_t>(enable)); }
 
   private:
 

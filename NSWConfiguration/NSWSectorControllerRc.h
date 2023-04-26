@@ -138,6 +138,8 @@ namespace nsw {
     std::future<void> m_reconnect;
     std::chrono::seconds m_opcReconnectTimeoutConfigure{};
     std::uint64_t m_opcReconnectAttemptLimitConfigure{};
+    std::chrono::seconds m_opcReconnectTimeoutConnect{};
+    std::uint64_t m_opcReconnectAttemptLimitConnect{};
     std::chrono::seconds m_opcReconnectTimeoutStart{};
     std::uint64_t m_opcReconnectAttemptLimitStart{};
     bool m_ignoreOpcTimeoutError{};

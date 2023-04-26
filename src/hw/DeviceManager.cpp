@@ -76,7 +76,7 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
   conf(m_tpCarriers, "TP Carrier");
 }
 
-void nsw::hw::DeviceManager::connect() const
+void nsw::hw::DeviceManager::connect(std::span<const Options> options) 
 {
   // MMG TP config and STG TP config are racing because
   // they are in different config applications.
@@ -86,6 +86,10 @@ void nsw::hw::DeviceManager::connect() const
   }
 }
 
+void nsw::hw::DeviceManager::unconfigure(std::span<const Options> options) {}
+
+void nsw::hw::DeviceManager::disconnect(std::span<const Options> options) {}
+
 void nsw::hw::DeviceManager::enableMmtpChannelRates(const bool enable)
 {
   ERS_LOG("Enabling MMTP channel rates reporting: " << enable);
@@ -93,7 +97,7 @@ void nsw::hw::DeviceManager::enableMmtpChannelRates(const bool enable)
   // enable = false, disable it
   applyFunc(
     m_mmtps,
-    [&enable](const auto &dev) { dev.EnableChannelRates(enable); },
+    [&enable](const auto &dev) { dev.enableChannelRates(enable && dev.getConfig().template get<bool>("EnableChannelRates")); },
     [](const auto &ex) {
       nsw::NSWHWConfigIssue issue(
         ERS_HERE, fmt::format("Toggling MMTP channel rate failed due to: {}", ex.what()));

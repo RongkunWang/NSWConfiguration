@@ -64,6 +64,16 @@ void nsw::NSWSectorControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/
 void nsw::NSWSectorControllerRc::connect(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
+  // Retrieving the configuration db
+  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+  const auto* app = rcBase.cast<nsw::dal::NSWSectorControllerApplication>();
+
+  m_opcReconnectTimeoutConnect = std::chrono::seconds{app->get_opcReconnectTimeoutConnect()};
+  m_opcReconnectAttemptLimitConnect = app->get_opcReconnectAttemptsConnect();
+  retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONNECT, 0); },
+           m_opcReconnectTimeoutConnect,
+           m_opcReconnectAttemptLimitConnect);
   ERS_LOG("End");
 }
 
