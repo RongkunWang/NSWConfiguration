@@ -85,16 +85,15 @@
  <file path="daq/schema/df.schema.xml"/>
 </include>
 
- <class name="NSW_MonitoringGroup" description="Group of devices and parameters to be monitored">
-  <superclass name="ResourceSetAND"/>
-  <attribute name="frequency" description="Frequency in seconds" type="u64" is-not-null="yes"/>
- </class>
-
- <class name="NSWMonitoringControllerApplication" description="NSW Configuration Application that configures FE">
+ <class name="NSWOutOfRunMonitoringApplication" description="NSW monitoring application which runs in the initial partition">
   <superclass name="RunControlApplication"/>
   <superclass name="ResourceSet"/>
   <attribute name="monitoringIsServerName" description="Name of IS monitoring server" type="string" is-not-null="yes"/>
   <attribute name="monitoringGroupSetName" description="Name of the group holding monitoring groups" type="string" is-not-null="yes"/>
+  <attribute name="maxThreads" description="Maximum number of threads for parallel FEB configuring." type="u32" init-value="99" is-not-null="yes"/>
+  <attribute name="resetVMM" description="Will reset vmm right before configuring it. A fail-safe mechanism." type="bool" init-value="true" is-not-null="yes"/>
+  <attribute name="resetTDS" description="Will reset TDS SER, logic, ePLL after configuring normally." type="bool" init-value="false" is-not-null="yes"/>
+  <attribute name="dbConnection" description="Database connection string, depending on the starting word(json, xml, oracle), different ConfigReader APIs are used" type="string" init-value="json:///afs/cern.ch/user/c/cyildiz/public/nsw-work/work/NSWConfiguration/data/integration_config.json" is-not-null="yes"/>
  </class>
 
 </oks-schema>

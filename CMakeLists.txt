@@ -62,6 +62,7 @@ tdaq_generate_dal(schema/NSWConfig.schema.xml
                   schema/NSWSCAService.schema.xml
                   schema/NSWConfigurationController.schema.xml
                   schema/NSWMonitoringController.schema.xml
+                  schema/NSWOutOfRunMonitoring.schema.xml
                   schema/NSWSectorController.schema.xml
   NAMESPACE nsw::dal
   INCLUDE_DIRECTORIES DFConfiguration dal
@@ -224,6 +225,7 @@ tdaq_add_library(nswmonitoring
                  src/monitoring/MmtpOutRunStatusRegisters.cpp
                  src/monitoring/PadTriggerRegisters.cpp
                  src/monitoring/IsPublisher.cpp
+                 src/monitoring/Utility.cpp
   LINK_LIBRARIES nswconfig
                  nswmonis
                  nswhwinterface
@@ -253,6 +255,11 @@ tdaq_add_executable(NSWMonitoringControllerRc_main app/NSWMonitoringControllerRc
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
 )
 
+tdaq_add_executable(NSWOutOfRunMonitoringRc_main app/NSWOutOfRunMonitoringRc_main.cpp src/NSWOutOfRunMonitoringRc.cpp
+  LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
+                 tdaq-common::ers Boost::program_options nswconfigdal NSWConfig
+)
+
 tdaq_add_executable(NSWSectorControllerRc_main app/NSWSectorControllerRc_main.cpp src/NSWSectorControllerRc.cpp
   LINK_LIBRARIES nswconfig tdaq::daq-df-dal tdaq::rc_ItemCtrl
                  tdaq-common::ers Boost::program_options nswconfigdal NSWConfig nswconfig
@@ -261,6 +268,7 @@ tdaq_add_executable(NSWSectorControllerRc_main app/NSWSectorControllerRc_main.cp
 tdaq_add_schema(schema/NSWConfig.schema.xml)
 tdaq_add_schema(schema/NSWConfigurationController.schema.xml)
 tdaq_add_schema(schema/NSWMonitoringController.schema.xml)
+tdaq_add_schema(schema/NSWOutOfRunMonitoring.schema.xml)
 tdaq_add_schema(schema/NSWSectorController.schema.xml)
 tdaq_add_schema(schema/NSWSCAService.schema.xml)
 
