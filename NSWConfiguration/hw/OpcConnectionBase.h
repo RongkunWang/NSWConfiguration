@@ -28,6 +28,13 @@ namespace nsw::hw {
      */
     [[nodiscard]] ScaStatus::ScaStatus ping() const;
 
+    /**
+     * \brief Check if the device is reachable
+     *
+     * \return reachable
+     */
+    [[nodiscard]] bool reachable() const;
+
   protected:
     /**
      * \brief Get the Opc Server IP

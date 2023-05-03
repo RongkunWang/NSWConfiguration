@@ -18,3 +18,8 @@ nsw::hw::ScaStatus::ScaStatus nsw::hw::OpcConnectionBase::ping() const
     return ScaStatus::SERVER_OFFLINE;
   }
 }
+
+bool nsw::hw::OpcConnectionBase::reachable() const
+{
+  return ping() == ScaStatus::REACHABLE;
+}
