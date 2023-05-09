@@ -365,7 +365,6 @@
   <superclass name="Info"/>
   <attribute name="artFibersAlignment" description="32 fiber alignment status" type="bool" is-multi-value="yes"/>
   <attribute name="artFibersBcidGood" description="32 fiber bcid the same as MMTP" type="bool" is-multi-value="yes"/>
-
   <attribute name="idleState" description="Idle State Indicator" type="bool"/>
   <attribute name="bcidOffset" description="BCID offset for BCID counter in Global Sync Module" type="u32"/>
   <attribute name="suggestedBcidOffset" description="suggested BCID offset based on input ADDC BCID" type="u32"/>
@@ -385,10 +384,43 @@
 
  <class name="StgctpInRunStatusRegisters">
   <superclass name="Info"/>
+  <attribute name="ErrBCIDmatch" description="errBCIDmatch" type="bool"/>
+  <attribute name="SLLatencyComp" description="Sector Logic Latancy comparison" type="u32"/>
+  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
+  <attribute name="PadBCidSyncOk" description="BCID is incrementing properly T/F" type="bool"/>
+  <attribute name="PadHitRate" description="counts the pad hit rate per second" type="u32"/>
+  <attribute name="MMDisable" description="mm trigger path enabled or disabled" type="bool"/>
+  <attribute name="ToSLHitRate" description="samples the trigger rate decisions to SL per sec." type="u32"/>
+  <attribute name="SectorID" description="sector ID" type="u32"/>
+  <attribute name="MMBCidSyncOk" description="continous reception of MM BCID T/F" type="bool"/>
+  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
+  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
+  <attribute name="PadArrivalBC" description="counts from the moment OCR is received in the sTGC TP until the pad_idle_flag goes low" type="u32"/>
+  <attribute name="MMArrivalBC" description="counts from the moment OCR is received in the sTGC TP until the mm_idle_flag goes low" type="u32"/>
+  <attribute name="IgnorePads" description="sTGC pad in SL T/F" type="bool"/>
+  <attribute name="IgnoreMM" description="MM in SL T/F" type="bool"/>
+  <attribute name="DisableNSWMon" description="Disabled the NSWMON bit transmission to SL. T/F" type="bool"/>
+  <attribute name="L1AOpeningOffset" description="L1A opening offset. should be bigger than l1a_request_offset and l1a_closing_offset. Initial value 0x22." type="u32"/>
+  <attribute name="L1ARequestOffset" description="L1A request offset. should GT l1a_closing_offset and LT l1a_closing_offset. Initial value 0x20." type="u32"/>
+  <attribute name="L1AClosingOffset" description="L1A closing offset. should LT l1a_closing_offset and l1a_closing_offset. Initial value 0x1e." type="u32"/>
+  <attribute name="L1ATimeoutWindow" description="L1A timeout window, should VGT l1a_opening_offset ~= l1a_request_offset + 0x20. Initial value 0x40." type="u32"/>
+  <attribute name="L1APadEnabled" description="L1A pad stream packets enabled T/F" type="bool"/>
+  <attribute name="L1AMergeEnabled" description="L1A merge stream packets enabled T/F" type="bool"/>
+  <attribute name="StickyErrBCIDmatch" description="Run sync was lost once T/F" type="bool"/>
+  <attribute name="Busy" description="Busy T/F" type="bool"/>
+  <attribute name="MonDisabled" description="Monitoring disabled T/F" type="bool"/>
+  <attribute name="NSWMonLimit" description="Limit of the amount of NSW_MON segments to SL per sec." type="u32"/>
+  <attribute name="MonLimit" description="Monitoring Limit on the Elink rate. default 1kHz" type="u32"/>
+  <attribute name="MM_NSWMonEnabled" description="NSW_MON coming from MM TP segments goes all the way to CTP. T/F" type="bool"/>
+
  </class>
 
  <class name="StgctpOutRunStatusRegisters">
   <superclass name="Info"/>
+  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
+  <attribute name="SectorID" description="sector ID" type="u32"/>
+  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
+  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
  </class>
 
 </oks-schema>

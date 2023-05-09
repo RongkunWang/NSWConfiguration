@@ -57,8 +57,8 @@ void nsw::NSWConfig::readConfigurationResource() {
         if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
         else if (element == "Router")        { m_deviceManager.add(this_pair.second); }
         else if (element == "PadTrigger")    { m_deviceManager.add(this_pair.second); }
-        else if (element == "MMTP")            { m_deviceManager.add(this_pair.second); }
-        else if (element == "STGTP")            { m_deviceManager.add(this_pair.second); }
+        else if (element == "MMTP")          { m_deviceManager.add(this_pair.second); }
+        else if (element == "STGCTP")        { m_deviceManager.add(this_pair.second); }
         else if (element == "TPCarrier")     { m_deviceManager.add(this_pair.second); }
         else if (element == "L1DDC")         { m_l1ddcs.emplace(this_pair); }
         else {
@@ -80,6 +80,12 @@ void nsw::NSWConfig::readConfigurationResource() {
                                 m_deviceManager);
     m_monitoringMap.try_emplace(std::string{nsw::mon::MmtpOutRunStatusRegisters::NAME},
                                 std::in_place_type<nsw::mon::MmtpOutRunStatusRegisters>,
+                                m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::StgctpInRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::StgctpInRunStatusRegisters>,
+                                m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::StgctpOutRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::StgctpOutRunStatusRegisters>,
                                 m_deviceManager);
     m_monitoringMap.try_emplace(std::string{nsw::mon::PadTriggerRegisters::NAME},
                                 std::in_place_type<nsw::mon::PadTriggerRegisters>,
