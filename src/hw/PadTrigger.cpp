@@ -461,6 +461,17 @@ std::uint32_t nsw::hw::PadTrigger::readGtRxLol() const
   return ret;
 }
 
+std::uint32_t nsw::hw::PadTrigger::readBcidTriggerRate(const std::uint32_t bcid) const
+{
+  constexpr bool quiet{false};
+  constexpr std::uint32_t nbcs{0xdec};
+  const auto wait = std::chrono::seconds{2};
+  const auto bcidmod = (bcid + nbcs) % nbcs;
+  writeSubRegister("01C_control_reg4", "trig_bcid_select", bcidmod, quiet);
+  nsw::snooze(wait);
+  return readSubRegister("016_trig_bcid_READONLY", "trig_bcid_rate");
+}
+
 std::uint32_t nsw::hw::PadTrigger::readPFEBBcidErrorReadout() const
 {
   const auto ret = readSubRegister("00F_pfeb_status_READONLY", "status");
@@ -475,12 +486,20 @@ std::uint32_t nsw::hw::PadTrigger::readPFEBBcidErrorTrigger() const
   return ret;
 }
 
+DelayVector nsw::hw::PadTrigger::readPFEBDelays() const
+{
+  const auto delays_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_23_16);
+  const auto delays_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_15_08);
+  const auto delays_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_DELAY_07_00);
+  return PFEBValues(delays_07_00, delays_15_08, delays_23_16);
+}
+
 BcidVector nsw::hw::PadTrigger::readPFEBBCIDs() const
 {
   const auto bcids_23_16 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_23_16);
   const auto bcids_15_08 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_15_08);
   const auto bcids_07_00 = readFPGARegister(nsw::padtrigger::REG_PFEB_BCID_07_00);
-  return PFEBBCIDs(bcids_07_00, bcids_15_08, bcids_23_16);
+  return PFEBValues(bcids_07_00, bcids_15_08, bcids_23_16);
 }
 
 std::vector<BcidVector> nsw::hw::PadTrigger::readPFEBBCIDs(std::size_t nread) const
@@ -770,31 +789,31 @@ std::uint32_t nsw::hw::PadTrigger::firmware_dateword() const {
   return dateword;
 }
 
-BcidVector nsw::hw::PadTrigger::PFEBBCIDs(std::uint32_t val_07_00,
-                                          std::uint32_t val_15_08,
-                                          std::uint32_t val_23_16
-                                          ) const {
-  BcidVector bcids_07_00 = {};
-  BcidVector bcids_15_08 = {};
-  BcidVector bcids_23_16 = {};
-  BcidVector bcids  = {};
+ValueVector nsw::hw::PadTrigger::PFEBValues(std::uint32_t val_07_00,
+                                            std::uint32_t val_15_08,
+                                            std::uint32_t val_23_16
+                                            ) const {
+  ValueVector vals_07_00 = {};
+  ValueVector vals_15_08 = {};
+  ValueVector vals_23_16 = {};
+  ValueVector vals  = {};
   size_t bit_position = 0;
   while (bit_position < nsw::NUM_BITS_IN_WORD32) {
-    bcids_07_00.push_back( (val_07_00 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
-    bcids_15_08.push_back( (val_15_08 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
-    bcids_23_16.push_back( (val_23_16 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    vals_07_00.push_back( (val_07_00 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    vals_15_08.push_back( (val_15_08 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
+    vals_23_16.push_back( (val_23_16 >> bit_position) & nsw::padtrigger::PFEB_BCID_BITMASK );
     bit_position += nsw::padtrigger::NUM_BITS_PER_PFEB_BCID;
   }
-  for (const auto bcid: bcids_07_00) {
-    bcids.push_back(bcid);
+  for (const auto val: vals_07_00) {
+    vals.push_back(val);
   }
-  for (const auto bcid: bcids_15_08) {
-    bcids.push_back(bcid);
+  for (const auto val: vals_15_08) {
+    vals.push_back(val);
   }
-  for (const auto bcid: bcids_23_16) {
-    bcids.push_back(bcid);
+  for (const auto val: vals_23_16) {
+    vals.push_back(val);
   }
-  return bcids;
+  return vals;
 }
 
 std::uint32_t nsw::hw::PadTrigger::readFPGATemperature() const {
