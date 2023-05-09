@@ -44,11 +44,11 @@ nsw::mon::is::MmtpInRunStatusRegisters nsw::mon::MmtpInRunStatusRegisters::getDa
   for (auto reg : nsw::mmtp::REG_FIBER_BCIDS) {
     const auto val = tp.readRegister(reg);
     for (std::size_t  i = 0; i < numFibersPerReg; ++i) {
-      // FIXME: Proper name for magic number
+      // FIXME: Proper name for magic number please
       constexpr static auto BYTE_MASK = unsigned{0xf};
       is.fiberBCIDs.push_back((val >> (i * 4)) & BYTE_MASK);
     }
   }
 
   return is;
-}
+}  

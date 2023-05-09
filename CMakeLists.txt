@@ -223,6 +223,8 @@ tdaq_add_library(nswmonitoring
                  src/monitoring/RocConfigurationRegisters.cpp
                  src/monitoring/MmtpInRunStatusRegisters.cpp
                  src/monitoring/MmtpOutRunStatusRegisters.cpp
+                 src/monitoring/StgctpInRunStatusRegisters.cpp
+                 src/monitoring/StgctpOutRunStatusRegisters.cpp
                  src/monitoring/PadTriggerRegisters.cpp
                  src/monitoring/IsPublisher.cpp
                  src/monitoring/Utility.cpp
