@@ -24,7 +24,7 @@ ERS_DECLARE_ISSUE(nsw,
                   )
 ERS_DECLARE_ISSUE(nsw,
                   NSWConfigurationError,
-                  fmt::format("Configuration of {}% failed. {}", fraction * 100, message),
+                  fmt::format("Configuration of {:.2f}% failed. {}", fraction * 100, message),
                   ((double)fraction)((std::string)message))
 ERS_DECLARE_ISSUE(nsw,
                   NSWAppNotFound,
