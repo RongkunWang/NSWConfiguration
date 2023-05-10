@@ -48,19 +48,19 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.gt_rx_lol          = dev.readGtRxLol();
   // -----
   for (size_t it = 0; it < is.pfeb_delays.size(); ++it) {
-    std::cout << fmt::format("is.pfeb_bcids({:02}):  {}", it, is.pfeb_bcids.at(it)) << std::endl;
-    std::cout << fmt::format("is.pfeb_delays({:02}): {}", it, is.pfeb_delays.at(it)) << std::endl;
+    ERS_INFO( fmt::format("is.pfeb_bcids({:02}):  {}", it, is.pfeb_bcids.at(it)) );
+    ERS_INFO( fmt::format("is.pfeb_delays({:02}): {}", it, is.pfeb_delays.at(it)) );
   }
-  std::cout << fmt::format("is.pfeb_status: {:#010x}",  is.pfeb_status) << std::endl;
-  std::cout << fmt::format("is.pad_bcid_error: {}",     is.pad_bcid_error) << std::endl;
-  std::cout << fmt::format("is.pad_bcid_error_dif: {}", is.pad_bcid_error_dif) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_select: {}",   is.trig_bcid_select) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_m3: {}",  is.trig_bcid_rate_m3) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_m2: {}",  is.trig_bcid_rate_m2) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_m1: {}",  is.trig_bcid_rate_m1) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate: {}",     is.trig_bcid_rate) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_p1: {}",  is.trig_bcid_rate_p1) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_p2: {}",  is.trig_bcid_rate_p2) << std::endl;
-  std::cout << fmt::format("is.trig_bcid_rate_p3: {}",  is.trig_bcid_rate_p3) << std::endl;
+  ERS_INFO( fmt::format("is.pfeb_status: {:#010x}",  is.pfeb_status) );
+  ERS_INFO( fmt::format("is.pad_bcid_error: {}",     is.pad_bcid_error) );
+  ERS_INFO( fmt::format("is.pad_bcid_error_dif: {}", is.pad_bcid_error_dif) );
+  ERS_INFO( fmt::format("is.trig_bcid_select: {}",   is.trig_bcid_select) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_m3: {}",  is.trig_bcid_rate_m3) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_m2: {}",  is.trig_bcid_rate_m2) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_m1: {}",  is.trig_bcid_rate_m1) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate: {}",     is.trig_bcid_rate) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_p1: {}",  is.trig_bcid_rate_p1) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_p2: {}",  is.trig_bcid_rate_p2) );
+  ERS_INFO( fmt::format("is.trig_bcid_rate_p3: {}",  is.trig_bcid_rate_p3) );
   return is;
 }
