@@ -62,7 +62,7 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
       });
   };
 
-  m_configurationErrorCounter = 0;
+  resetErrorCounters();
   conf(
     m_febs, "FEB",
     std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
@@ -76,19 +76,25 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
   conf(m_tpCarriers, "TP Carrier");
 }
 
-void nsw::hw::DeviceManager::connect(std::span<const Options> options) 
+void nsw::hw::DeviceManager::connect(std::span<const Options> /*options*/)
 {
   // MMG TP config and STG TP config are racing because
   // they are in different config applications.
   // Racing is fine, if STG TP is reset afterward.
-  for (const auto& dev: m_stgctps) {
-    dev.doReset();
-  }
+  resetErrorCounters();
+  applyFunc(
+    m_stgctps,
+    [](const auto& dev) { dev.doReset(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(ERS_HERE,
+                                  fmt::format("Resetting STGCTP failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
 }
 
-void nsw::hw::DeviceManager::unconfigure(std::span<const Options> options) {}
+void nsw::hw::DeviceManager::unconfigure(std::span<const Options> /*options*/) {}
 
-void nsw::hw::DeviceManager::disconnect(std::span<const Options> options) {}
+void nsw::hw::DeviceManager::disconnect(std::span<const Options> /*options*/) {}
 
 void nsw::hw::DeviceManager::enableMmtpChannelRates(const bool enable)
 {
@@ -108,7 +114,7 @@ void nsw::hw::DeviceManager::enableMmtpChannelRates(const bool enable)
 
 void nsw::hw::DeviceManager::enableVmmCaptureInputs()
 {
-  m_configurationErrorCounter = 0;
+  resetErrorCounters();
   applyFunc(
     m_febs,
     [](const auto& device) { device.getRoc().enableVmmCaptureInputs(); },
@@ -121,7 +127,7 @@ void nsw::hw::DeviceManager::enableVmmCaptureInputs()
 
 void nsw::hw::DeviceManager::disableVmmCaptureInputs()
 {
-  m_configurationErrorCounter = 0;
+  resetErrorCounters();
   applyFunc(
     m_febs,
     [](const auto& device) { device.getRoc().disableVmmCaptureInputs(); },
@@ -175,4 +181,18 @@ void nsw::hw::DeviceManager::clear()
 void nsw::hw::DeviceManager::clearOpc()
 {
   m_opcManager.clear();
+}
+
+double nsw::hw::DeviceManager::getFractionFailed() const
+{
+  if (m_configurationTotalCounter == 0) {
+    return 0;
+  }
+  return static_cast<double>(m_configurationErrorCounter) / m_configurationTotalCounter;
+}
+
+void nsw::hw::DeviceManager::resetErrorCounters()
+{
+  m_configurationErrorCounter = 0;
+  m_configurationTotalCounter = 0;
 }

@@ -223,7 +223,12 @@ namespace nsw::hw {
      *
      * \return double failed fraction
      */
-    double getFractionFailed() const { return static_cast<double>(m_configurationErrorCounter) / m_configurationTotalCounter; }
+    [[nodiscard]] double getFractionFailed() const;
+
+    /**
+     * \brief Reset the error counters to 0
+     */
+    void resetErrorCounters();
 
   private:
     bool m_multithreaded{};
