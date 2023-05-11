@@ -264,6 +264,8 @@ namespace nsw {
     constexpr std::uint8_t REG_NSW_MON_LIMIT            = 0x21;
     constexpr std::uint8_t REG_MON_LIMIT                = 0x22;
     constexpr std::uint8_t REG_MM_NSW_MON_EN            = 0x23;
+    constexpr std::uint8_t REG_SMALL_SECTOR             = 0x24;
+    constexpr std::uint8_t REG_NO_STRETCH               = 0x25;
     constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_RST_RX           = (1 <<  9) - 1;
     constexpr std::uint32_t MASK_RST_TX           = (1 <<  9) - 1;
@@ -300,6 +302,8 @@ namespace nsw {
     constexpr std::uint32_t MASK_NSW_MON_LIMIT            = (1 <<  7) - 1;
     constexpr std::uint32_t MASK_MON_LIMIT                = (1 << 17) - 1;
     constexpr std::uint32_t MASK_MM_NSW_MON_EN            = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_SMALL_SECTOR             = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_NO_STRETCH               = (1 <<  1) - 1;
     constexpr auto REGS = std::to_array({
         std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
         std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
@@ -326,12 +330,13 @@ namespace nsw {
         std::make_pair(REG_L1A_PAD_EN,               MASK_L1A_PAD_EN),
         std::make_pair(REG_L1A_MERGE_EN,             MASK_L1A_MERGE_EN),
         std::make_pair(REG_STICKY_ERR_BCID_MATCH,    MASK_STICKY_ERR_BCID_MATCH),
-        std::make_pair(REG_STGC_GLOSYNC_BCID_OFFSET, MASK_STGC_GLOSYNC_BCID_OFFSET),
         std::make_pair(REG_BUSY,                     MASK_BUSY),
         std::make_pair(REG_MON_DISABLE,              MASK_MON_DISABLE),
         std::make_pair(REG_NSW_MON_LIMIT,            MASK_NSW_MON_LIMIT),
         std::make_pair(REG_MON_LIMIT,                MASK_MON_LIMIT),
         std::make_pair(REG_MM_NSW_MON_EN,            MASK_MM_NSW_MON_EN),
+        std::make_pair(REG_SMALL_SECTOR,             MASK_SMALL_SECTOR),
+        std::make_pair(REG_NO_STRETCH,               MASK_NO_STRETCH),
     });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;

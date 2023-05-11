@@ -204,6 +204,18 @@ namespace nsw::hw {
     bool getMMNSWMONEnable() const { return m_config.get("MMNSWMONEnable", true); };
 
     /**
+     * \brief Get SmallSector from the user config
+     */
+    [[nodiscard]]
+    bool getSmallSector() const { return m_config.get("SmallSector", false); };
+
+    /**
+     * \brief Get NoStretch from the user config
+     */
+    [[nodiscard]]
+    bool getNoStretch() const { return m_config.get("NoStretch", false); };
+
+    /**
      * \brief reset the trigger processor
      */
     void doReset() const;
