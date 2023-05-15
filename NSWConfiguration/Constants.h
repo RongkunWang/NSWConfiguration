@@ -387,6 +387,7 @@ namespace nsw {
     constexpr std::uint8_t REG_L1A_REQUEST_OFFSET       = 0x12;
     constexpr std::uint8_t REG_L1A_CLOSING_OFFSET       = 0x13;
     constexpr std::uint8_t REG_L1A_TIMEOUT_WINDOW       = 0x14;
+    constexpr std::uint8_t REG_L1A_BUSY_THRESHOLD       = 0x15;
     constexpr std::uint8_t REG_GBT_PHASE_OFFSET         = 0x18;
     constexpr std::uint8_t REG_TTC_ECR_CNT              = 0x19;
     constexpr std::uint8_t REG_TTC_BCR_CNT              = 0x1a;
@@ -403,10 +404,14 @@ namespace nsw {
     constexpr std::uint8_t REG_HORX_ENV_MON_DATA        = 0x27;
     constexpr std::uint8_t REG_GLO_SYNC_IDLE_STATE      = 0x28;
     constexpr std::uint8_t REG_GLO_SYNC_BCID_OFFSET     = 0x29;
+    constexpr std::uint8_t REG_LAT_TX_IDLE_STATE        = 0x2F;
+    constexpr std::uint8_t REG_LAT_TX_BCID_OFFSET       = 0x30;
     // for the special sectors, swapping is needed.
     constexpr std::uint8_t REG_FIBER_REMAP_SEL          = 0x2a;
     constexpr std::uint8_t REG_OFFSET_MODE_BCID         = 0x2b;
     constexpr std::uint8_t REG_OFFSET_MODE_CNT          = 0x2c;
+    // determins the L1A
+    constexpr std::uint8_t REG_LOCAL_BCID_OFFSET        = 0x2d;
     // should not contain Write-only, because attempting to read Write-Only register will fail.
     constexpr auto REGS = std::to_array({
       REG_ADDC_EMU_DISABLE,
@@ -420,9 +425,11 @@ namespace nsw {
       REG_DATE_CODE,
       REG_GIT_HASH,
       REG_L1A_CONTROL,
+      REG_LOCAL_BCID_OFFSET,
       REG_L1A_OPENING_OFFSET,
       REG_L1A_REQUEST_OFFSET,
       REG_L1A_CLOSING_OFFSET,
+      REG_L1A_BUSY_THRESHOLD,
       REG_L1A_TIMEOUT_WINDOW,
       REG_TTC_ECR_CNT,
       REG_TTC_BCR_CNT,
@@ -443,6 +450,8 @@ namespace nsw {
       REG_HORX_ENV_MON_DATA,
       REG_GLO_SYNC_IDLE_STATE,
       REG_GLO_SYNC_BCID_OFFSET,
+      REG_LAT_TX_IDLE_STATE,
+      REG_LAT_TX_BCID_OFFSET,
       REG_FIBER_REMAP_SEL,
       REG_OFFSET_MODE_BCID,
       REG_OFFSET_MODE_CNT,
