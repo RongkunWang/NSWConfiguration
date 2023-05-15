@@ -23,6 +23,11 @@ nsw::mon::is::PadTriggerRegisters
 nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
 {
   auto is = nsw::mon::is::PadTriggerRegisters{};
+  is.reachable_sca  = dev.reachable();
+  is.reachable_fpga = is.reachable_sca and dev.readFPGADone();
+  if (not is.reachable_fpga) {
+    return is;
+  }
   is.conf_bcid_offset   = dev.readSubRegister("000_control_reg", "conf_bcid_offset");
   is.conf_ro_bc_offset  = dev.readSubRegister("000_control_reg", "conf_ro_bc_offset");
   is.trigger_rate       = dev.readSubRegister("001_status_reg_READONLY", "trigger_rate");
