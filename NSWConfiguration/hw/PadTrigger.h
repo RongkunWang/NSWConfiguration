@@ -345,6 +345,12 @@ namespace nsw::hw {
     { writeControlSubRegister("conf_ro_bc_offset", val); };
 
     /**
+     * \brief Read the GPIO which indicates if the FPGA has firmware uploaded
+     */
+    [[nodiscard]]
+    bool readFPGADone() const;
+
+    /**
      * \brief Read an individual pad trigger FPGA register by its address
      *
      * \param regAddress is the address of the register

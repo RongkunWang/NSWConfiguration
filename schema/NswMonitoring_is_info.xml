@@ -349,6 +349,8 @@
   <attribute name="conf_ro_bc_offset" description="Readout BC offset" type="u32" format="hex" init-value="0"/>
   <attribute name="trigger_rate" description="Coincidence trigger rate" type="u32" init-value="0"/>
   <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
+  <attribute name="reachable_sca" description="Reachable SCA" type="bool" init-value="0"/>
+  <attribute name="reachable_fpga" description="Reachable FPGA" type="bool" init-value="0"/>
   <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_status" description="PFEB status" type="u32" format="hex" init-value="0"/>
   <attribute name="pfeb_bcid_error" description="PFEB BCID alignment error" type="u32" format="hex" init-value="0"/>
