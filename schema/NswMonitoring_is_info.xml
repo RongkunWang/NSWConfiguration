@@ -365,6 +365,8 @@
   <superclass name="Info"/>
   <attribute name="artFibersAlignment" description="32 fiber alignment status" type="bool" is-multi-value="yes"/>
   <attribute name="artFibersBcidGood" description="32 fiber bcid the same as MMTP" type="bool" is-multi-value="yes"/>
+  <attribute name="nArtFibersAligned" description="N fibers aligned" type="u32"/>
+  <attribute name="nArtFibersBcidGood" description="N fibers with bcid the same as MMTP" type="u32"/>
   <attribute name="idleState" description="Idle State Indicator" type="bool"/>
   <attribute name="bcidOffset" description="BCID offset for BCID counter in Global Sync Module" type="u32"/>
   <attribute name="suggestedBcidOffset" description="suggested BCID offset based on input ADDC BCID" type="u32"/>
