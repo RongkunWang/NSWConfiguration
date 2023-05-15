@@ -21,6 +21,8 @@ void nsw::hw::MMTP::writeConfiguration() const
     {nsw::mmtp::REG_L1A_REQUEST_OFFSET,       L1ARequestOffset()},
     {nsw::mmtp::REG_L1A_CLOSING_OFFSET,       L1AClosingOffset()},
     {nsw::mmtp::REG_L1A_TIMEOUT_WINDOW,       L1ATimeoutWindow()},
+    {nsw::mmtp::REG_L1A_BUSY_THRESHOLD,       m_config.get<std::uint32_t>("L1ABusyThreshold", 7)},
+    {nsw::mmtp::REG_LOCAL_BCID_OFFSET,        m_config.get<std::uint32_t>("LocalBcidOffset", 37)},
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_ENABLE},
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_DISABLE},
     {nsw::mmtp::REG_FIBER_BC_OFFSET,          FiberBCOffset()},
@@ -32,6 +34,10 @@ void nsw::hw::MMTP::writeConfiguration() const
     {nsw::mmtp::REG_VMM_MASK_DRAIN_PERIOD,    VmmMaskDrainPeriod()},
     {nsw::mmtp::REG_GLO_SYNC_IDLE_STATE,      gloSyncIdleState()},
     {nsw::mmtp::REG_GLO_SYNC_BCID_OFFSET,     gloSyncBcidOffset()},
+    {nsw::mmtp::REG_LAT_TX_IDLE_STATE,        1},
+    // FIXME remove this once Nathan put it a pulse
+    {nsw::mmtp::REG_LAT_TX_IDLE_STATE,        0},
+    {nsw::mmtp::REG_LAT_TX_BCID_OFFSET,       m_config.get<std::uint32_t>("latTxBcidOffset", 100)},
     {nsw::mmtp::REG_FIBER_REMAP_SEL,          fiberRemapSel()},
   };
 
@@ -92,6 +98,9 @@ void nsw::hw::MMTP::writeAndReadbackRegister(const std::uint32_t regAddress,
 void nsw::hw::MMTP::toggleIdleStateHigh() const
 {
   writeRegister(nsw::mmtp::REG_GLO_SYNC_IDLE_STATE, 1);
+  writeRegister(nsw::mmtp::REG_LAT_TX_IDLE_STATE, 1);
+  // FIXME remove this once Nathan put it a pulse
+  writeRegister(nsw::mmtp::REG_LAT_TX_IDLE_STATE, 0);
 }
 
 std::set<std::uint8_t> nsw::hw::MMTP::SkipRegisters() const
