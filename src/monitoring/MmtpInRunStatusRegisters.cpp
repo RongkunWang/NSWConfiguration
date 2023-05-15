@@ -28,11 +28,15 @@ nsw::mon::is::MmtpInRunStatusRegisters nsw::mon::MmtpInRunStatusRegisters::getDa
                  std::back_inserter(is.artFibersAlignment),
                  [&](std::uint32_t c) { return static_cast<bool>(c); });
 
+  is.nArtFibersAligned = std::accumulate(is.artFibersAlignment.begin(), is.artFibersAlignment.end(), 0U);
+
   is.artFibersBcidGood.clear();
   const auto word = tp.readRegister(nsw::mmtp::REG_GBT_BCID_OK);
   for (std::size_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
     is.artFibersBcidGood.push_back((word >> fiber) & 1);
   }
+
+  is.nArtFibersBcidGood = std::accumulate(is.artFibersBcidGood.begin(), is.artFibersBcidGood.end(), 0U);
 
   is.idleState = (tp.readRegister(nsw::mmtp::REG_GLO_SYNC_IDLE_STATE) != 0U);
   is.bcidOffset = tp.readRegister(nsw::mmtp::REG_GLO_SYNC_BCID_OFFSET);
