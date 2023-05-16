@@ -322,6 +322,7 @@ namespace nsw {
         std::make_pair(REG_MM_ARRIVAL_BC,    MASK_MM_ARRIVAL_BC),
         std::make_pair(REG_IGNORE_PADS,           MASK_IGNORE_PADS),
         std::make_pair(REG_IGNORE_MM,             MASK_IGNORE_MM),
+        std::make_pair(REG_STGC_MM_DISABLE,       MASK_STGC_MM_DISABLE),
         std::make_pair(REG_DISABLE_NSWMON,        MASK_DISABLE_NSWMON),
         std::make_pair(REG_L1A_OPENING_OFFSET,       MASK_L1A_OPENING_OFFSET),
         std::make_pair(REG_L1A_REQUEST_OFFSET,       MASK_L1A_REQUEST_OFFSET),
