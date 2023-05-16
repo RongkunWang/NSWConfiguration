@@ -30,7 +30,7 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   }
   is.conf_bcid_offset   = dev.readSubRegister("000_control_reg", "conf_bcid_offset");
   is.conf_ro_bc_offset  = dev.readSubRegister("000_control_reg", "conf_ro_bc_offset");
-  is.trigger_rate       = dev.readSubRegister("001_status_reg_READONLY", "trigger_rate");
+  is.trigger_rate       = dev.readSubRegister("00B_trigger_rate_READONLY", "trigger_rate");
   is.xadc_temp          = dev.readFPGATemperature();
   is.pfeb_bcids         = dev.readPFEBBCIDs();
   is.pfeb_status        = dev.readPFEBBcidErrorReadout();
