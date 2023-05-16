@@ -1203,8 +1203,7 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"conf_ro_bc_offset",     7},
     }},
   {"001_status_reg_READONLY", {
-      {"trigger_rate",  16},
-      {nsw::NOT_USED,    4},
+      {nsw::NOT_USED,   20},
       {"xadc_temp_out", 12},
     }},
   {"002_l1_id_reg_READONLY", {
@@ -1310,59 +1309,11 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"01", 1},
       {"00", 1},
     }},
-  {"00B_PFEB_mask_to_0", {
-      {nsw::NOT_USED, 8},
-      {"23", 1},
-      {"22", 1},
-      {"21", 1},
-      {"20", 1},
-      {"19", 1},
-      {"18", 1},
-      {"17", 1},
-      {"16", 1},
-      {"15", 1},
-      {"14", 1},
-      {"13", 1},
-      {"12", 1},
-      {"11", 1},
-      {"10", 1},
-      {"09", 1},
-      {"08", 1},
-      {"07", 1},
-      {"06", 1},
-      {"05", 1},
-      {"04", 1},
-      {"03", 1},
-      {"02", 1},
-      {"01", 1},
-      {"00", 1},
+  {"00B_trigger_rate_READONLY", {
+      {"trigger_rate", 32},
     }},
-  {"00C_PFEB_mask_to_1", {
-      {nsw::NOT_USED, 8},
-      {"23", 1},
-      {"22", 1},
-      {"21", 1},
-      {"20", 1},
-      {"19", 1},
-      {"18", 1},
-      {"17", 1},
-      {"16", 1},
-      {"15", 1},
-      {"14", 1},
-      {"13", 1},
-      {"12", 1},
-      {"11", 1},
-      {"10", 1},
-      {"09", 1},
-      {"08", 1},
-      {"07", 1},
-      {"06", 1},
-      {"05", 1},
-      {"04", 1},
-      {"03", 1},
-      {"02", 1},
-      {"01", 1},
-      {"00", 1},
+  {"00C_trig_bcid_rate_READONLY", {
+      {"trig_bcid_rate", 32},
     }},
   {"00D_status_reg2_READONLY", {
       {nsw::NOT_USED, 15},
@@ -1406,8 +1357,7 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"ttc_bcr_ocr_rate", 16},
     }},
   {"016_trig_bcid_READONLY", {
-      {nsw::NOT_USED, 4},
-      {"trig_bcid_rate", 16},
+      {nsw::NOT_USED, 20},
       {"trig_bcid", 12},
     }},
   {"017_pfeb_bcid_error_READONLY", {
@@ -1433,6 +1383,635 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
   {"01C_control_reg4", {
       {nsw::NOT_USED, 20},
       {"trig_bcid_select", 12},
+    }},
+  // --------------------------
+  {"030_pfeb_00_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"031_pfeb_00_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"032_pfeb_00_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"033_pfeb_00_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"034_pfeb_01_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"035_pfeb_01_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"036_pfeb_01_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"037_pfeb_01_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"038_pfeb_02_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"039_pfeb_02_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"03A_pfeb_02_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"03B_pfeb_02_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"03C_pfeb_03_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"03D_pfeb_03_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"03E_pfeb_03_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"03F_pfeb_03_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"040_pfeb_04_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"041_pfeb_04_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"042_pfeb_04_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"043_pfeb_04_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"044_pfeb_05_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"045_pfeb_05_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"046_pfeb_05_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"047_pfeb_05_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"048_pfeb_06_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"049_pfeb_06_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"04A_pfeb_06_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"04B_pfeb_06_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"04C_pfeb_07_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"04D_pfeb_07_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"04E_pfeb_07_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"04F_pfeb_07_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"050_pfeb_08_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"051_pfeb_08_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"052_pfeb_08_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"053_pfeb_08_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"054_pfeb_09_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"055_pfeb_09_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"056_pfeb_09_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"057_pfeb_09_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"058_pfeb_10_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"059_pfeb_10_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"05A_pfeb_10_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"05B_pfeb_10_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"05C_pfeb_11_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"05D_pfeb_11_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"05E_pfeb_11_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"05F_pfeb_11_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"060_pfeb_12_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"061_pfeb_12_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"062_pfeb_12_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"063_pfeb_12_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"064_pfeb_13_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"065_pfeb_13_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"066_pfeb_13_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"067_pfeb_13_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"068_pfeb_14_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"069_pfeb_14_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"06A_pfeb_14_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"06B_pfeb_14_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"06C_pfeb_15_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"06D_pfeb_15_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"06E_pfeb_15_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"06F_pfeb_15_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"070_pfeb_16_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"071_pfeb_16_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"072_pfeb_16_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"073_pfeb_16_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"074_pfeb_17_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"075_pfeb_17_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"076_pfeb_17_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"077_pfeb_17_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"078_pfeb_18_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"079_pfeb_18_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"07A_pfeb_18_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"07B_pfeb_18_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"07C_pfeb_19_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"07D_pfeb_19_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"07E_pfeb_19_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"07F_pfeb_19_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"080_pfeb_20_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"081_pfeb_20_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"082_pfeb_20_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"083_pfeb_20_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"084_pfeb_21_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"085_pfeb_21_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"086_pfeb_21_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"087_pfeb_21_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"088_pfeb_22_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"089_pfeb_22_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"08A_pfeb_22_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"08B_pfeb_22_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"08C_pfeb_23_mask_to_0_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"08D_pfeb_23_mask_to_0_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"08E_pfeb_23_mask_to_0_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"08F_pfeb_23_mask_to_0_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"090_pfeb_00_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"091_pfeb_00_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"092_pfeb_00_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"093_pfeb_00_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"094_pfeb_01_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"095_pfeb_01_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"096_pfeb_01_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"097_pfeb_01_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"098_pfeb_02_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"099_pfeb_02_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"09A_pfeb_02_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"09B_pfeb_02_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"09C_pfeb_03_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"09D_pfeb_03_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"09E_pfeb_03_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"09F_pfeb_03_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0A0_pfeb_04_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0A1_pfeb_04_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0A2_pfeb_04_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0A3_pfeb_04_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0A4_pfeb_05_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0A5_pfeb_05_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0A6_pfeb_05_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0A7_pfeb_05_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0A8_pfeb_06_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0A9_pfeb_06_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0AA_pfeb_06_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0AB_pfeb_06_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0AC_pfeb_07_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0AD_pfeb_07_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0AE_pfeb_07_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0AF_pfeb_07_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0B0_pfeb_08_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0B1_pfeb_08_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0B2_pfeb_08_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0B3_pfeb_08_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0B4_pfeb_09_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0B5_pfeb_09_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0B6_pfeb_09_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0B7_pfeb_09_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0B8_pfeb_10_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0B9_pfeb_10_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0BA_pfeb_10_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0BB_pfeb_10_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0BC_pfeb_11_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0BD_pfeb_11_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0BE_pfeb_11_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0BF_pfeb_11_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0C0_pfeb_12_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0C1_pfeb_12_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0C2_pfeb_12_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0C3_pfeb_12_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0C4_pfeb_13_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0C5_pfeb_13_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0C6_pfeb_13_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0C7_pfeb_13_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0C8_pfeb_14_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0C9_pfeb_14_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0CA_pfeb_14_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0CB_pfeb_14_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0CC_pfeb_15_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0CD_pfeb_15_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0CE_pfeb_15_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0CF_pfeb_15_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0D0_pfeb_16_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0D1_pfeb_16_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0D2_pfeb_16_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0D3_pfeb_16_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0D4_pfeb_17_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0D5_pfeb_17_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0D6_pfeb_17_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0D7_pfeb_17_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0D8_pfeb_18_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0D9_pfeb_18_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0DA_pfeb_18_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0DB_pfeb_18_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0DC_pfeb_19_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0DD_pfeb_19_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0DE_pfeb_19_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0DF_pfeb_19_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0E0_pfeb_20_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0E1_pfeb_20_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0E2_pfeb_20_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0E3_pfeb_20_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0E4_pfeb_21_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0E5_pfeb_21_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0E6_pfeb_21_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0E7_pfeb_21_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0E8_pfeb_22_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0E9_pfeb_22_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0EA_pfeb_22_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0EB_pfeb_22_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0EC_pfeb_23_mask_to_1_A", {
+      {nsw::NOT_USED, 8},
+      {"pads[103:96]", 24},
+    }},
+  {"0ED_pfeb_23_mask_to_1_B", {
+      {"pads[95:64]", 32},
+    }},
+  {"0EE_pfeb_23_mask_to_1_C", {
+      {"pads[63:32]", 32},
+    }},
+  {"0EF_pfeb_23_mask_to_1_D", {
+      {"pads[31:0]", 32},
+    }},
+  {"0F0_pfeb_mask_enable", {
+      {nsw::NOT_USED, 8},
+      {"pfeb_mask_enable", 24},
     }},
 };
 
