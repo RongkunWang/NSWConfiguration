@@ -30,13 +30,13 @@ void nsw::hw::STGCTP::writeConfiguration() const
   writeAndReadbackRegister(nsw::stgctp::REG_L1A_PAD_EN,               getL1APadEnable(),                nsw::stgctp::MASK_L1A_PAD_EN);
   writeAndReadbackRegister(nsw::stgctp::REG_L1A_MERGE_EN,             getL1AMergeEnable(),              nsw::stgctp::MASK_L1A_MERGE_EN);
   writeRegister           (nsw::stgctp::REG_STGC_GLOSYNC_BCID_OFFSET, getGlobalSyncBcidOffset());
-  writeAndReadbackRegister(nsw::stgctp::REG_BUSY,                     getBusy(),                        nsw::stgctp::MASK_BUSY);
-  writeAndReadbackRegister(nsw::stgctp::REG_MON_DISABLE,              getMonitoringDisable(),           nsw::stgctp::MASK_MON_DISABLE);
-  writeAndReadbackRegister(nsw::stgctp::REG_NSW_MON_LIMIT,            getNSWMONLimit(),                 nsw::stgctp::MASK_NSW_MON_LIMIT);
-  writeAndReadbackRegister(nsw::stgctp::REG_MON_LIMIT,                getMonitoringLimit(),             nsw::stgctp::MASK_MON_LIMIT);
-  writeRegister           (nsw::stgctp::REG_MM_NSW_MON_EN,            getMMNSWMONEnable());
-  writeAndReadbackRegister(nsw::stgctp::REG_SMALL_SECTOR,             getSmallSector(),                 nsw::stgctp::MASK_SMALL_SECTOR);
-  writeAndReadbackRegister(nsw::stgctp::REG_NO_STRETCH,               getNoStretch(),                   nsw::stgctp::MASK_NO_STRETCH);
+  writeAndReadbackRegister(nsw::stgctp::REG_BUSY,                     getBusy(),                 nsw::stgctp::MASK_BUSY);
+  writeAndReadbackRegister(nsw::stgctp::REG_MON_DISABLE,              getMonitoringDisable(),    nsw::stgctp::MASK_MON_DISABLE);
+  writeAndReadbackRegister(nsw::stgctp::REG_NSW_MON_LIMIT,            getNSWMONLimit(),          nsw::stgctp::MASK_NSW_MON_LIMIT);
+  writeAndReadbackRegister(nsw::stgctp::REG_MON_LIMIT,                getMonitoringLimit(),      nsw::stgctp::MASK_MON_LIMIT);
+  writeAndReadbackRegister(nsw::stgctp::REG_MM_NSW_MON_EN,            getMMNSWMONEnable(),       nsw::stgctp::MASK_MM_NSW_MON_EN);
+  writeAndReadbackRegister(nsw::stgctp::REG_SMALL_SECTOR,             getSmallSector(),          nsw::stgctp::MASK_SMALL_SECTOR);
+  writeAndReadbackRegister(nsw::stgctp::REG_NO_STRETCH,               getNoStretch(),            nsw::stgctp::MASK_NO_STRETCH);
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {:#04x}: val = {:#010x}", m_name, reg, val));
   }
