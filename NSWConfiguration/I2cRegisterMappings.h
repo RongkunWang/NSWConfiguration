@@ -1381,7 +1381,9 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"ttc_soft_reset_rate", 16},
     }},
   {"01C_control_reg4", {
-      {nsw::NOT_USED, 20},
+      {nsw::NOT_USED, 13},
+      {"conf_counter320_sel", 3},
+      {"conf_bcid_dly", 4},
       {"trig_bcid_select", 12},
     }},
   // --------------------------
