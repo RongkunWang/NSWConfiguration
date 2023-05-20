@@ -17,6 +17,7 @@
 
 using BcidVector  = std::vector<std::uint32_t>;
 using DelayVector = std::vector<std::uint32_t>;
+using ValueVector = std::vector<std::uint32_t>;
 
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfusion,
@@ -435,6 +436,14 @@ namespace nsw::hw {
     std::uint32_t readGtRxLol() const;
 
     /**
+     * \brief Read the trigger rate of a particular BCID
+     *
+     * \param bcid is the BCID
+     */
+    [[nodiscard]]
+    std::uint32_t readBcidTriggerRate(const std::uint32_t bcid) const;
+
+    /**
      * \brief Read the rate of an input PFEB from a status register
      *
      * \param pfeb is the pfeb number
@@ -459,6 +468,13 @@ namespace nsw::hw {
      */
     [[nodiscard]]
     std::uint32_t readPFEBBcidErrorTrigger() const;
+
+    /**
+     * \brief Read and decode the PFEB delay registers.
+     *        Element i is the BCID of PFEB i.
+     */
+    [[nodiscard]]
+    DelayVector readPFEBDelays() const;
 
     /**
      * \brief Read and decode the PFEB BCID status registers.
@@ -690,12 +706,18 @@ namespace nsw::hw {
     { return m_ptree.get<std::uint32_t>("LatencyScanNBC"); };
 
     /**
+     * \brief Get the "TrigBcidSelect" if provided by the user configuration
+     */
+    std::uint32_t TrigBcidSelect() const
+    { return m_ptree.get("TrigBcidSelect", std::uint32_t{0x39}); };
+
+    /**
      * \brief Decode a vector of PFEB BCIDs from the three PFEB BCID registers
      */
-    BcidVector PFEBBCIDs(std::uint32_t val_07_00,
-                         std::uint32_t val_15_08,
-                         std::uint32_t val_23_16
-                         ) const;
+    ValueVector PFEBValues(std::uint32_t val_07_00,
+                           std::uint32_t val_15_08,
+                           std::uint32_t val_23_16
+                           ) const;
 
     /**
      * \brief Read the FPGA temperature via a status register
