@@ -351,7 +351,9 @@
   <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
   <attribute name="reachable_sca" description="Reachable SCA" type="bool" init-value="0"/>
   <attribute name="reachable_fpga" description="Reachable FPGA" type="bool" init-value="0"/>
+  <attribute name="pfeb_delays" description="PFEB delay" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
+  <attribute name="pfeb_statuses" description="PFEB statuses" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_status" description="PFEB status" type="u32" format="hex" init-value="0"/>
   <attribute name="pfeb_bcid_error" description="PFEB BCID alignment error" type="u32" format="hex" init-value="0"/>
   <attribute name="pad_bcid_error" description="Pad BCID error" type="u32" init-value="0"/>
@@ -359,6 +361,14 @@
   <attribute name="pt_2_tp_lat" description="PT-2-TP latency" type="u32" init-value="0"/>
   <attribute name="tp_bcid_error" description="TP BCID error" type="u32" init-value="0"/>
   <attribute name="tp_bcid_error_dif" description="TP BCID error diff" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_select" description="BCID trigger selected" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m3" description="BCID-3 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m2" description="BCID-2 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m1" description="BCID-1 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate" description="BCID trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p1" description="BCID+1 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p2" description="BCID+2 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p3" description="BCID+3 trigger rate" type="u32" init-value="0"/>
   <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
   <attribute name="gt_rx_lol" description="GT RX LOL" type="u32" format="hex" init-value="0"/>
  </class>
