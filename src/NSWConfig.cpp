@@ -255,6 +255,10 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
     m_deviceManager.disableVmmCaptureInputs();
 }
 
+void nsw::NSWConfig::toggleIdleStateHigh() {
+    m_deviceManager.toggleIdleStateHigh();
+}
+
 
 void nsw::NSWConfig::startRc() {
   m_deviceManager.enableMmtpChannelRates(true);
@@ -263,7 +267,7 @@ void nsw::NSWConfig::startRc() {
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     m_deviceManager.enableMmtpChannelRates(false); 
-    m_deviceManager.toggleIdleStateHigh();
+    toggleIdleStateHigh();
 }
 
 bool nsw::NSWConfig::recoverOpc() {

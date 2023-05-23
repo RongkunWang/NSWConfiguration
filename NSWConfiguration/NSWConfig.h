@@ -115,6 +115,9 @@ class NSWConfig {
     //! Disable VMMs (setting register 8 to 0); symmetric to the above
     void disableVmmCaptureInputs();
 
+    //! toggle Idle State High for trigger devices
+    void toggleIdleStateHigh();
+
     /**
      * \brief Set the command sender to the RC application
      *
