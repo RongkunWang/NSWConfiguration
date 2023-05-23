@@ -146,6 +146,11 @@ namespace nsw::hw {
     void toggleIdleStateHigh();
 
     /**
+     * \brief reconfigure the trigger electronics to resync after the clock switch
+     */
+    void resyncTrigger();
+
+    /**
      * \brief Get all ARTs
      *
      * \return std::vector<ART>& ARTs

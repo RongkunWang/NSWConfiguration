@@ -166,6 +166,29 @@ void nsw::hw::DeviceManager::toggleIdleStateHigh()
     });
 }
 
+void nsw::hw::DeviceManager::resyncTrigger()
+{
+  const auto conf = [this](const auto& devices, const std::string& deviceName, const auto... params) {
+    ERS_INFO(fmt::format("Configuring {} {}", devices.size(), deviceName));
+    applyFunc(
+      devices,
+      [&params...](const auto& device) { device.writeConfiguration(params...); },
+      [](const auto& ex) {
+        nsw::NSWHWConfigIssue issue(
+          ERS_HERE, fmt::format("Configuration of device failed due to non OPC related issue: {}", ex.what()));
+        ers::error(issue);
+      });
+  };
+
+  conf(m_arts, "ART");
+  conf(m_mmtps, "MMTP");
+  conf(m_routers, "Router");
+  conf(m_padTriggers, "Pad Trigger");
+  conf(m_stgctps, "STGCTP");
+  conf(m_tpCarriers, "TP Carrier");
+
+}
+
 void nsw::hw::DeviceManager::clear()
 {
   clearOpc();

@@ -255,8 +255,8 @@ void nsw::NSWConfig::disableVmmCaptureInputs() {
     m_deviceManager.disableVmmCaptureInputs();
 }
 
-void nsw::NSWConfig::toggleIdleStateHigh() {
-    m_deviceManager.toggleIdleStateHigh();
+void nsw::NSWConfig::resyncTrigger() {
+    m_deviceManager.resyncTrigger();
 }
 
 
@@ -267,7 +267,7 @@ void nsw::NSWConfig::startRc() {
 void nsw::NSWConfig::stopRc() {
     disableVmmCaptureInputs();
     m_deviceManager.enableMmtpChannelRates(false); 
-    toggleIdleStateHigh();
+    m_deviceManager.toggleIdleStateHigh();
 }
 
 bool nsw::NSWConfig::recoverOpc() {
