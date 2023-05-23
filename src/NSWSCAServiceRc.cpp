@@ -119,6 +119,10 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->enableVmmCaptureInputs();
     checkErrorCounter();
+  } else if (commandName == nsw::commands::RESYNC_TRIGGER) {
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
+    m_NSWConfig->toggleIdleStateHigh();
+    checkErrorCounter();
   } else if (commandName == nsw::commands::RECOVER_OPC or
              commandName == nsw::commands::RECOVER_OPC_MESSAGE) {
     notifyScaUnavailable();

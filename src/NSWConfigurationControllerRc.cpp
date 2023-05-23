@@ -52,6 +52,8 @@ void nsw::NSWConfigurationControllerRc::user(const daq::rc::UserCmd& usrCmd)
     m_scaServiceSender.send(nsw::commands::STOP, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::ENABLE_VMM) {
     m_scaServiceSender.send(nsw::commands::ENABLE_VMM, args, 0);
+  } else if (usrCmd.commandName() == nsw::commands::RESYNC_TRIGGER) {
+    m_scaServiceSender.send(nsw::commands::RESYNC_TRIGGER, args, 0);
   } else {
     ers::warning(nsw::NSWUnkownCommand(ERS_HERE, usrCmd.commandName()));
   }

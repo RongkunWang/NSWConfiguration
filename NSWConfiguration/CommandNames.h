@@ -10,6 +10,7 @@ namespace nsw::commands {
   constexpr static std::string_view CONNECT{"connect"};
   constexpr static std::string_view UNCONFIGURE{"unconfigure"};
   constexpr static std::string_view ENABLE_VMM{"enableVmmCaptureInputs"};
+  constexpr static std::string_view RESYNC_TRIGGER{"resyncTrigger"};
   constexpr static std::string_view RECONNECT_OPC{"reconnectOpc"};
   constexpr static std::string_view MONITOR{"monitor"};
   constexpr static std::string_view SCA_DISCONNECTED{"scaServiceUnavailable"};

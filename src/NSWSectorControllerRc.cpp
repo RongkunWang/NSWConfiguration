@@ -124,6 +124,10 @@ void nsw::NSWSectorControllerRc::user(const daq::rc::UserCmd& usrCmd)
     retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::ENABLE_VMM, 0); },
              m_opcReconnectTimeoutStart,
              m_opcReconnectAttemptLimitStart);
+  } else if (commandName == nsw::commands::RESYNC_TRIGGER) {
+    retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::RESYNC_TRIGGER, 0); },
+             m_opcReconnectTimeoutStart,
+             m_opcReconnectAttemptLimitStart);
   } else if (commandName == nsw::commands::SCA_DISCONNECTED) {
     if (m_scaAvailable) {
       m_scaAvailable = false;
