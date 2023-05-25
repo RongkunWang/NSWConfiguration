@@ -266,6 +266,7 @@ namespace nsw {
     constexpr std::uint8_t REG_MM_NSW_MON_EN            = 0x23;
     constexpr std::uint8_t REG_SMALL_SECTOR             = 0x24;
     constexpr std::uint8_t REG_NO_STRETCH               = 0x25;
+    constexpr std::uint8_t REG_SYNC_FIFO_EMPTY          = 0x28;
     constexpr std::uint32_t MASK_ERR_BCID_MATCH   = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_RST_RX           = (1 <<  9) - 1;
     constexpr std::uint32_t MASK_RST_TX           = (1 <<  9) - 1;
@@ -304,6 +305,7 @@ namespace nsw {
     constexpr std::uint32_t MASK_MM_NSW_MON_EN            = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_SMALL_SECTOR             = (1 <<  1) - 1;
     constexpr std::uint32_t MASK_NO_STRETCH               = (1 <<  1) - 1;
+    constexpr std::uint32_t MASK_SYNC_FIFO_EMPTY          = (1 <<  1) - 1;
     constexpr auto REGS = std::to_array({
         std::make_pair(REG_ERR_BCID_MATCH,   MASK_ERR_BCID_MATCH),
         std::make_pair(REG_BCR_RATE,         MASK_BCR_RATE),
@@ -338,6 +340,7 @@ namespace nsw {
         std::make_pair(REG_MM_NSW_MON_EN,            MASK_MM_NSW_MON_EN),
         std::make_pair(REG_SMALL_SECTOR,             MASK_SMALL_SECTOR),
         std::make_pair(REG_NO_STRETCH,               MASK_NO_STRETCH),
+        std::make_pair(REG_SYNC_FIFO_EMPTY,          MASK_SYNC_FIFO_EMPTY),
     });
     constexpr std::uint32_t RST_RX_ENABLE  = 0b111111111;
     constexpr std::uint32_t RST_RX_DISABLE = 0b0;
