@@ -87,9 +87,12 @@ void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
 void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
     auto main_transition = cmd.mainTransitionCmd();
     auto sub_transition = cmd.subTransition();
+    ERS_LOG("Sub transition received: " << sub_transition << " (mainTransition: " << main_transition << ")");
 
     if (sub_transition == "FIXME_CONFIG")
     {
+        ERS_INFO("Start Config SubTransition");
+
         // Retrieving the configuration db
         daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
         const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
@@ -111,13 +114,14 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
         m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
         m_NSWConfig->readConfigurationResource();
         m_NSWConfig->configureRc();
+        ERS_INFO("End Config SubTransition");
     }
     else if (sub_transition == "FIXME_STGCTP_RESET") 
     {
+        ERS_INFO("Start STGC TP RESET SubTransition");
         m_NSWConfig->resetSTGCTP();
+        ERS_INFO("End STGC TP RESET SubTransition");
     }
-
-    ERS_LOG("Sub transition received: " << sub_transition << " (mainTransition: " << main_transition << ")");
 }
 
 
