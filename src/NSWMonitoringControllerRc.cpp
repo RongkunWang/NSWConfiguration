@@ -37,22 +37,6 @@ nsw::NSWMonitoringControllerRc::NSWMonitoringControllerRc(std::string partitionN
 void nsw::NSWMonitoringControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  // Retrieving the configuration db
-  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-  m_ipcpartition = rcSvc.getIPCPartition();
-  m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
-  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-  m_app = rcBase.cast<dal::NSWMonitoringControllerApplication>();
-
-  m_monitoringIsServerName = m_app->get_monitoringIsServerName();
-
-  m_scaServiceSender =
-    CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
-                  std::make_unique<daq::rc::CommandSender>(m_ipcpartition, m_app->UID()));
-
-  m_configs = mon::parseMonitoringGroups(m_partitionName, m_app->get_monitoringGroupSetName());
-  m_scaServiceSender.send(nsw::commands::MON_IS_SERVER_NAME, {m_monitoringIsServerName});
-
   ERS_LOG("End");
 }
 
@@ -90,4 +74,37 @@ void nsw::NSWMonitoringControllerRc::stopMonitoringAll()
     thread.second.join();
   }
   m_threads.clear();
+}
+
+
+void nsw::NSWMonitoringControllerRc::subTransition(const daq::rc::SubTransitionCmd& cmd)
+{
+  auto main_transition = cmd.mainTransitionCmd();
+  auto sub_transition = cmd.subTransition();
+
+  ERS_LOG(fmt::format(
+    "Sub transition received: {} (mainTransition: {})", sub_transition, main_transition));
+
+  if (sub_transition == "FIXME_CONFIG")
+  {
+    ERS_INFO("Start Configure SubTransition");
+
+    // Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    m_ipcpartition = rcSvc.getIPCPartition();
+    m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    m_app = rcBase.cast<dal::NSWMonitoringControllerApplication>();
+
+    m_monitoringIsServerName = m_app->get_monitoringIsServerName();
+
+    m_scaServiceSender =
+      CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
+                    std::make_unique<daq::rc::CommandSender>(m_ipcpartition, m_app->UID()));
+
+    m_configs = mon::parseMonitoringGroups(m_partitionName, m_app->get_monitoringGroupSetName());
+    m_scaServiceSender.send(nsw::commands::MON_IS_SERVER_NAME, {m_monitoringIsServerName});
+    
+    ERS_INFO("End Configure SubTransition");
+  }
 }

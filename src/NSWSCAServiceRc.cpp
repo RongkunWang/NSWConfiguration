@@ -136,7 +136,7 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
   }
 }
 
-void nsw::NSWConfigurationControllerRc::subTransition(const daq::rc::SubTransitionCmd& cmd)
+void nsw::NSWSCAServiceRc::subTransition(const daq::rc::SubTransitionCmd& cmd)
 {
   auto main_transition = cmd.mainTransitionCmd();
   auto sub_transition = cmd.subTransition();
@@ -148,7 +148,7 @@ void nsw::NSWConfigurationControllerRc::subTransition(const daq::rc::SubTransiti
   {
     ERS_INFO("Start Configure SubTransition");
 
-      // Retrieving the configuration db
+    // Retrieving the configuration db
     daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
     const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
     const auto* app = rcBase.cast<dal::NSWSCAServiceApplication>();
