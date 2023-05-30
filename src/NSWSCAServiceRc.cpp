@@ -79,6 +79,11 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->configureRc();
     checkErrorCounter();
+  } else if (commandName == nsw::commands::RESET_STGCTP) {
+    m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
+    m_NSWConfig->resetSTGCTP();
+    checkErrorCounter();
+  }
   } else if (commandName == nsw::commands::CONNECT) {
     m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(true));
     m_NSWConfig->connectRc();
