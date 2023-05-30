@@ -1,5 +1,6 @@
 #ifndef NSWCONFIGURATION_HW_FEB_H
 #define NSWCONFIGURATION_HW_FEB_H
+
 #include <vector>
 
 #include "NSWConfiguration/Constants.h"
