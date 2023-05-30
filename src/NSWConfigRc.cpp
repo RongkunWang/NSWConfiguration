@@ -43,27 +43,7 @@ bool nsw::NSWConfigRc::simulationFromIS() {
 
 void nsw::NSWConfigRc::configure(const daq::rc::TransitionCmd&) {
     ERS_INFO("Start");
-    // Retrieving the configuration db
-    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-    const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
-    m_is_db_name = nswConfigApp->get_dbISName();
-
-    // Retrieve the ipc partition
-    m_ipcpartition = rcSvc.getIPCPartition();
-
-    // Get the IS dictionary for the current partition
-    is_dictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
-
-    if (!m_simulation_lock) {
-        m_simulation = simulationFromIS();
-    }
-
-    m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
-    m_NSWConfig->readConf(nswConfigApp);
-    m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
-    m_NSWConfig->readConfigurationResource();
-    m_NSWConfig->configureRc();
+    
     ERS_LOG("End");
 }
 
@@ -107,6 +87,35 @@ void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
 void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
     auto main_transition = cmd.mainTransitionCmd();
     auto sub_transition = cmd.subTransition();
+
+    if (sub_transition == "FIXME_CONFIG")
+    {
+        // Retrieving the configuration db
+        daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+        const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+        const nsw::dal::NSWConfigApplication* nswConfigApp = rcBase.cast<nsw::dal::NSWConfigApplication>();
+        m_is_db_name = nswConfigApp->get_dbISName();
+
+        // Retrieve the ipc partition
+        m_ipcpartition = rcSvc.getIPCPartition();
+
+        // Get the IS dictionary for the current partition
+        is_dictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+
+        if (!m_simulation_lock) {
+            m_simulation = simulationFromIS();
+        }
+
+        m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
+        m_NSWConfig->readConf(nswConfigApp);
+        m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
+        m_NSWConfig->readConfigurationResource();
+        m_NSWConfig->configureRc();
+    }
+    else if (sub_transition == "FIXME_STGCTP_RESET") 
+    {
+        m_NSWConfig->resetSTGCTP();
+    }
 
     ERS_LOG("Sub transition received: " << sub_transition << " (mainTransition: " << main_transition << ")");
 }

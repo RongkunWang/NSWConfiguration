@@ -114,7 +114,6 @@ namespace nsw::hw {
      */
     void connect(std::span<const Options> options = {});
 
-
     /**
      * \brief Unconfigure all devices
      */
@@ -144,6 +143,16 @@ namespace nsw::hw {
      * \brief toggle idle state to high for all trigger electronics
      */
     void toggleIdleStateHigh();
+
+    /**
+     * \brief Reset STGTP (in a sub-transition after everything else is configured)
+     * 
+     *   MMTP config and STGCTP config are racing because
+     *   they are in different config applications.
+     *   Racing is fine, but we need to guarantee a STG TP is reset afterward. 
+     *   We decide to do the main config, STGC in their corresponding subTransitions in sequence.
+     */
+    void resetSTGCTP();
 
     /**
      * \brief Get all ARTs
