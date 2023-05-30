@@ -21,18 +21,6 @@
 void nsw::NSWConfigurationControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  // Retrieving the configuration db
-  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-  const auto* app = rcBase.cast<dal::NSWConfigurationControllerApplication>();
-
-  m_ipcpartition = rcSvc.getIPCPartition();
-  m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
-
-  m_scaServiceSender =
-    CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
-                  std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
-
   ERS_LOG("End");
 }
 
@@ -44,6 +32,8 @@ void nsw::NSWConfigurationControllerRc::user(const daq::rc::UserCmd& usrCmd)
     m_scaServiceSender.send(nsw::commands::CONFIGURE, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::CONNECT) {
     m_scaServiceSender.send(nsw::commands::CONNECT, args, 0);
+  } else if (usrCmd.commandName() == nsw::commands::RESET_STGCTP) {
+    m_scaServiceSender.send(nsw::commands::RESET_STGCTP, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::UNCONFIGURE) {
     m_scaServiceSender.send(nsw::commands::UNCONFIGURE, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::START) {
@@ -54,5 +44,33 @@ void nsw::NSWConfigurationControllerRc::user(const daq::rc::UserCmd& usrCmd)
     m_scaServiceSender.send(nsw::commands::ENABLE_VMM, args, 0);
   } else {
     ers::warning(nsw::NSWUnkownCommand(ERS_HERE, usrCmd.commandName()));
+  }
+}
+
+void nsw::NSWConfigurationControllerRc::subTransition(const daq::rc::SubTransitionCmd& cmd)
+{
+  auto main_transition = cmd.mainTransitionCmd();
+  auto sub_transition = cmd.subTransition();
+
+  ERS_LOG(fmt::format(
+    "Sub transition received: {} (mainTransition: {})", sub_transition, main_transition));
+
+  if (sub_transition == "FIXME_CONFIG")
+  {
+    ERS_INFO("Start Configure SubTransition");
+
+    // Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const auto* app = rcBase.cast<dal::NSWConfigurationControllerApplication>();
+
+    m_ipcpartition = rcSvc.getIPCPartition();
+    m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+
+    m_scaServiceSender =
+      CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
+                    std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
+
+    ERS_INFO("End Configure SubTransition");
   }
 }

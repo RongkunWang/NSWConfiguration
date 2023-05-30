@@ -150,7 +150,7 @@ namespace nsw::hw {
      *   MMTP config and STGCTP config are racing because
      *   they are in different config applications.
      *   Racing is fine, but we need to guarantee a STG TP is reset afterward. 
-     *   We decide to do the main config, STGC in their corresponding subTransitions in sequence.
+     *   We decide to do the config of all devices, and then STGC TP reset in their corresponding subTransitions in sequence, as part of the Configure transition.
      */
     void resetSTGCTP();
 

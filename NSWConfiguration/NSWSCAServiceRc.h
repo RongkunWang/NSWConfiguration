@@ -45,6 +45,13 @@ namespace nsw {
     void user(const daq::rc::UserCmd& cmd) override;
 
     /**
+     * \brief Used to replace main Config sequence
+     *
+     * \param cmd : sub transition command
+     */
+    void subTransition(const daq::rc::SubTransitionCmd& /*cmd*/) override;
+    
+    /**
      * \brief Get simulation switch from IS
      *
      * \return true simulation mode, do not talk to HW

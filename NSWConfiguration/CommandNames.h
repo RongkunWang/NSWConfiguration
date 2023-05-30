@@ -6,7 +6,10 @@
 namespace nsw::commands {
   constexpr static std::string_view STOP{"stop"};
   constexpr static std::string_view START{"start"};
+  // the CONFIGURE of all main devices in a subTransition in Configure transition
   constexpr static std::string_view CONFIGURE{"configure"};
+  // reset the stgc tp in another subTransition in Configure transition
+  constexpr static std::string_view RESET_STGCTP{"resetStgcTp"};
   constexpr static std::string_view CONNECT{"connect"};
   constexpr static std::string_view UNCONFIGURE{"unconfigure"};
   constexpr static std::string_view ENABLE_VMM{"enableVmmCaptureInputs"};

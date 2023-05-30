@@ -43,31 +43,6 @@ bool nsw::NSWSCAServiceRc::simulationFromIS()
 void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  // Retrieving the configuration db
-  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-  const auto* app = rcBase.cast<dal::NSWSCAServiceApplication>();
-  m_isDbName = app->get_dbISName();
-  m_sectorId = extractSectorIdFromApp(app->UID());
-
-  // Retrieve the ipc partition
-  m_ipcpartition = rcSvc.getIPCPartition();
-
-  // Get the IS dictionary for the current partition
-  m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
-
-  m_errorThresholdContinue = app->get_errorThresholdContinue();
-  m_errorThresholdRecover = app->get_errorThresholdRecover();
-  m_simulation = simulationFromIS();
-
-  m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
-  m_NSWConfig->readConf(app);
-  m_NSWConfig->setCommandSender(
-    {app->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID())});
-  m_sectorControllerSender =
-    CommandSender(findSegmentSiblingApp("NSWSectorControllerApplication"),
-                  std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
-  m_NSWConfig->readConfigurationResource();
   ERS_LOG("End");
 }
 
@@ -158,5 +133,47 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
     }
   } else {
     ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
+  }
+}
+
+void nsw::NSWConfigurationControllerRc::subTransition(const daq::rc::SubTransitionCmd& cmd)
+{
+  auto main_transition = cmd.mainTransitionCmd();
+  auto sub_transition = cmd.subTransition();
+
+  ERS_LOG(fmt::format(
+    "Sub transition received: {} (mainTransition: {})", sub_transition, main_transition));
+
+  if (sub_transition == "FIXME_CONFIG")
+  {
+    ERS_INFO("Start Configure SubTransition");
+
+      // Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const auto* app = rcBase.cast<dal::NSWSCAServiceApplication>();
+    m_isDbName = app->get_dbISName();
+    m_sectorId = extractSectorIdFromApp(app->UID());
+
+    // Retrieve the ipc partition
+    m_ipcpartition = rcSvc.getIPCPartition();
+
+    // Get the IS dictionary for the current partition
+    m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+
+    m_errorThresholdContinue = app->get_errorThresholdContinue();
+    m_errorThresholdRecover = app->get_errorThresholdRecover();
+    m_simulation = simulationFromIS();
+
+    m_NSWConfig = std::make_unique<NSWConfig>(m_simulation);
+    m_NSWConfig->readConf(app);
+    m_NSWConfig->setCommandSender(
+      {app->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID())});
+    m_sectorControllerSender =
+      CommandSender(findSegmentSiblingApp("NSWSectorControllerApplication"),
+                    std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
+    m_NSWConfig->readConfigurationResource();
+    
+    ERS_INFO("End Configure SubTransition");
   }
 }

@@ -91,7 +91,7 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
 
     if (sub_transition == "FIXME_CONFIG")
     {
-        ERS_INFO("Start Config SubTransition");
+        ERS_INFO("Start Configure SubTransition");
 
         // Retrieving the configuration db
         daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
@@ -114,7 +114,7 @@ void nsw::NSWConfigRc::subTransition(const daq::rc::SubTransitionCmd& cmd) {
         m_NSWConfig->setCommandSender({nswConfigApp->UID(), std::make_unique<daq::rc::CommandSender>(m_ipcpartition, nswConfigApp->UID())});
         m_NSWConfig->readConfigurationResource();
         m_NSWConfig->configureRc();
-        ERS_INFO("End Config SubTransition");
+        ERS_INFO("End Configure SubTransition");
     }
     else if (sub_transition == "FIXME_STGCTP_RESET") 
     {

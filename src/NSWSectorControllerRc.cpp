@@ -27,37 +27,6 @@ using namespace std::chrono_literals;
 void nsw::NSWSectorControllerRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
-  // Retrieving the configuration db
-  daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
-  const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
-  const auto* app = rcBase.cast<nsw::dal::NSWSectorControllerApplication>();
-
-  m_isDbName = app->get_dbISName();
-  m_sectorId = extractSectorIdFromApp(app->UID());
-  m_ipcpartition = rcSvc.getIPCPartition();
-  m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
-
-  m_scaServiceSender =
-    nsw::CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
-                       std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
-  m_configurationControllerSender =
-    nsw::CommandSender(findSegmentSiblingApp("NSWConfigurationControllerApplication"),
-                       std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
-  m_monitoringControllerSender =
-    nsw::CommandSender(findSegmentSiblingApp("NSWMonitoringControllerApplication"),
-                       std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
-
-  m_opcReconnectTimeoutConfigure = std::chrono::seconds{app->get_opcReconnectTimeoutConfigure()};
-  m_opcReconnectAttemptLimitConfigure = app->get_opcReconnectAttemptsConfigure();
-  m_opcReconnectTimeoutStart = std::chrono::seconds{app->get_opcReconnectTimeoutStart()};
-  m_opcReconnectAttemptLimitStart = app->get_opcReconnectAttemptsStart();
-  m_ignoreOpcTimeoutError = app->get_ignoreOpcTimeoutError();
-  m_ignoreOpcRetryError = app->get_ignoreOpcRetryLimitError();
-
-  retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONFIGURE, 0); },
-           m_opcReconnectTimeoutConfigure,
-           m_opcReconnectAttemptLimitConfigure);
-
   ERS_LOG("End");
 }
 
@@ -158,6 +127,63 @@ void nsw::NSWSectorControllerRc::subTransition(const daq::rc::SubTransitionCmd& 
 
   ERS_LOG(fmt::format(
     "Sub transition received: {} (mainTransition: {})", sub_transition, main_transition));
+
+
+
+  if (sub_transition == "FIXME_CONFIG")
+  {
+    ERS_INFO("Start Configure SubTransition");
+
+    // Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const auto* app = rcBase.cast<nsw::dal::NSWSectorControllerApplication>();
+
+    m_isDbName = app->get_dbISName();
+    m_sectorId = extractSectorIdFromApp(app->UID());
+    m_ipcpartition = rcSvc.getIPCPartition();
+    m_isDictionary = std::make_unique<ISInfoDictionary>(m_ipcpartition);
+
+    m_scaServiceSender =
+      nsw::CommandSender(findSegmentSiblingApp("NSWSCAServiceApplication"),
+                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
+    m_configurationControllerSender =
+      nsw::CommandSender(findSegmentSiblingApp("NSWConfigurationControllerApplication"),
+                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
+    m_monitoringControllerSender =
+      nsw::CommandSender(findSegmentSiblingApp("NSWMonitoringControllerApplication"),
+                        std::make_unique<daq::rc::CommandSender>(m_ipcpartition, app->UID()));
+
+    m_opcReconnectTimeoutConfigure = std::chrono::seconds{app->get_opcReconnectTimeoutConfigure()};
+    m_opcReconnectAttemptLimitConfigure = app->get_opcReconnectAttemptsConfigure();
+    m_opcReconnectTimeoutStart = std::chrono::seconds{app->get_opcReconnectTimeoutStart()};
+    m_opcReconnectAttemptLimitStart = app->get_opcReconnectAttemptsStart();
+    m_ignoreOpcTimeoutError = app->get_ignoreOpcTimeoutError();
+    m_ignoreOpcRetryError = app->get_ignoreOpcRetryLimitError();
+
+    retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::CONFIGURE, 0); },
+            m_opcReconnectTimeoutConfigure,
+            m_opcReconnectAttemptLimitConfigure);
+
+    ERS_INFO("End Configure SubTransition");
+  }
+  else if (sub_transition == "FIXME_STGCTP_RESET")
+  {
+    ERS_INFO("Start STGC TP RESET SubTransition");
+
+    // Retrieving the configuration db
+    daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
+    const daq::core::RunControlApplicationBase& rcBase = rcSvc.getApplication();
+    const auto* app = rcBase.cast<nsw::dal::NSWSectorControllerApplication>();
+
+    m_opcReconnectTimeoutConnect = std::chrono::seconds{app->get_opcReconnectTimeoutConnect()};
+    m_opcReconnectAttemptLimitConnect = app->get_opcReconnectAttemptsConnect();
+    retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::RESET_STGCTP, 0); },
+            m_opcReconnectTimeoutConnect,
+            m_opcReconnectAttemptLimitConnect);
+
+    ERS_INFO("End STGC TP RESET SubTransition");
+  }
 }
 
 bool nsw::NSWSectorControllerRc::recoverOpc(const std::chrono::seconds timeout) const

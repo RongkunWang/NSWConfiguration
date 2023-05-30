@@ -36,6 +36,13 @@ namespace nsw {
      * \param cmd User command
      */
     void user(const daq::rc::UserCmd& cmd) override;
+    
+    /**
+     * \brief Used to replace main Config sequence
+     *
+     * \param cmd : sub transition command
+     */
+    void subTransition(const daq::rc::SubTransitionCmd& /*cmd*/) override;
 
   private:
     nsw::CommandSender m_scaServiceSender;  //!< Command sender to SCA service application
