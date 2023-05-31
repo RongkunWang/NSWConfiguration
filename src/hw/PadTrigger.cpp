@@ -9,6 +9,7 @@
 #include <fmt/core.h>
 #include <stdexcept>
 #include <regex>
+#include <ranges>
 
 nsw::hw::PadTrigger::PadTrigger(OpcManager& manager, const boost::property_tree::ptree& config):
   ScaAddressBase(config.get<std::string>("OpcNodeId")),
@@ -28,6 +29,7 @@ void nsw::hw::PadTrigger::writeConfiguration() const
   writeJTAGBitfileConfiguration();
   writeFPGAConfiguration();
   toggleGtReset();
+  select320Strobe();
   deskewPFEBs();
   toggleIdleState();
   toggleOcrEnable();
@@ -564,8 +566,10 @@ bool nsw::hw::PadTrigger::checkPFEBBCIDs(const BcidVector& bcids) const
   const bool any_unique       = std::any_of(bcids.cbegin(), bcids.cend(), is_unique);
   const bool all_decrementing = std::is_sorted(bcids.crbegin(), bcids.crend()) or
                                 std::is_sorted(rotated_bcids.crbegin(), rotated_bcids.crend());
+  const bool all_incrementing = std::is_sorted(bcids.cbegin(), bcids.cend()) or
+                                std::is_sorted(rotated_bcids.cbegin(), rotated_bcids.cend());
 
-  return any_unique and all_decrementing;
+  return any_unique and (all_decrementing or all_incrementing);
 }
 
 BcidVector nsw::hw::PadTrigger::getViableBcids(const std::vector<BcidVector>& bcidPerPfebPerDelay) const
@@ -727,6 +731,63 @@ void nsw::hw::PadTrigger::deskewPFEBs() const
   ERS_INFO(fmt::format("Target delays: {}", joinHexReversed(targetDelays)));
   ERS_INFO(fmt::format("New BCIDs: {}", joinHexReversed(readPFEBBCIDs())));
 }
+
+void nsw::hw::PadTrigger::select320Strobe() const
+{
+  if (not true) {
+    ERS_INFO(fmt::format("Skipping select320Strobe of {}", m_name));
+    return;
+  }
+  ERS_INFO("Start of select320Strobe");
+  const auto bcidPerPfebPerStrobe = readMedianPFEBBCIDAtEachStrobe();
+  describeStrobe(bcidPerPfebPerStrobe);
+  const auto targetStrobe = getTargetStrobe(bcidPerPfebPerStrobe);
+  writeSubRegister("01C_control_reg4", "conf_counter320_sel", targetStrobe);
+}
+
+std::vector<BcidVector> nsw::hw::PadTrigger::readMedianPFEBBCIDAtEachStrobe(const std::size_t nread) const
+{
+  auto collated_bcids = std::vector<BcidVector>(nsw::padtrigger::NUM_PFEBS);
+  for (const auto strb: std::views::iota(ZERO32, nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC)) {
+    writeSubRegister("01C_control_reg4", "conf_counter320_sel", strb);
+    pushBackColumn(collated_bcids, readMedianPFEBBCIDs(nread));
+  }
+  return collated_bcids;
+}
+
+void nsw::hw::PadTrigger::describeStrobe(const std::vector<BcidVector>& bcidPerPfebPerStrobe) const
+{
+  for (std::size_t pfeb = 0; pfeb < bcidPerPfebPerStrobe.size(); pfeb++) {
+    const auto& bcidPerStrobe = bcidPerPfebPerStrobe.at(pfeb);
+    ERS_LOG(fmt::format("PFEB {:02}: {}", pfeb, joinHexReversed(bcidPerStrobe)));
+  }
+}
+
+std::uint32_t nsw::hw::PadTrigger::getTargetStrobe(const std::vector<BcidVector>& bcidPerPfebPerStrobe) const
+{
+  StrobeVector viableStrobes{};
+  for (const auto strb: std::views::iota(ZERO32, nsw::padtrigger::NUM_INPUT_DELAYS_PER_BC)) {
+    BcidVector bcidsPerStrobe{};
+    for (const auto pfeb: std::views::iota(ZERO32, bcidPerPfebPerStrobe.size())) {
+      if (not checkPFEBBCIDs(bcidPerPfebPerStrobe.at(pfeb))) {
+        continue;
+      }
+      bcidsPerStrobe.push_back(bcidPerPfebPerStrobe.at(pfeb).at(strb));
+    }
+    if (bcidsPerStrobe.empty()) {
+      continue;
+    }
+    if (std::ranges::all_of(bcidsPerStrobe, [&](const auto val){ return val == bcidsPerStrobe.front(); })) {
+      viableStrobes.push_back(strb);
+    }
+  }
+  const auto targetStrobe = viableStrobes.empty() ?
+    ZERO32 : *std::ranges::min_element(viableStrobes);
+  ERS_LOG(fmt::format("Viable strobes: {}", joinHexReversed(viableStrobes)));
+  ERS_LOG(fmt::format("Target strobe: {}", targetStrobe));
+  return targetStrobe;
+}
+
 
 std::string nsw::hw::PadTrigger::joinHexReversed(const std::vector<uint32_t>& vec) {
   if (vec.empty()) {
