@@ -734,7 +734,7 @@ void nsw::hw::PadTrigger::deskewPFEBs() const
 
 void nsw::hw::PadTrigger::select320Strobe() const
 {
-  if (not true) {
+  if (not SelectStrobe()) {
     ERS_INFO(fmt::format("Skipping select320Strobe of {}", m_name));
     return;
   }
