@@ -1386,8 +1386,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
     }},
   // --------------------------
   {"030_pfeb_00_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"031_pfeb_00_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1399,8 +1399,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"034_pfeb_01_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"035_pfeb_01_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1412,8 +1412,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"038_pfeb_02_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"039_pfeb_02_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1425,8 +1425,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"03C_pfeb_03_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"03D_pfeb_03_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1438,8 +1438,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"040_pfeb_04_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"041_pfeb_04_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1451,8 +1451,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"044_pfeb_05_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"045_pfeb_05_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1464,8 +1464,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"048_pfeb_06_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"049_pfeb_06_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1477,8 +1477,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"04C_pfeb_07_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"04D_pfeb_07_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1490,8 +1490,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"050_pfeb_08_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"051_pfeb_08_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1503,8 +1503,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"054_pfeb_09_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"055_pfeb_09_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1516,8 +1516,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"058_pfeb_10_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"059_pfeb_10_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1529,8 +1529,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"05C_pfeb_11_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"05D_pfeb_11_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1542,8 +1542,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"060_pfeb_12_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"061_pfeb_12_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1555,8 +1555,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"064_pfeb_13_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"065_pfeb_13_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1568,8 +1568,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"068_pfeb_14_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"069_pfeb_14_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1581,8 +1581,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"06C_pfeb_15_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"06D_pfeb_15_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1594,8 +1594,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"070_pfeb_16_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"071_pfeb_16_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1607,8 +1607,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"074_pfeb_17_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"075_pfeb_17_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1620,8 +1620,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"078_pfeb_18_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"079_pfeb_18_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1633,8 +1633,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"07C_pfeb_19_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"07D_pfeb_19_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1646,8 +1646,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"080_pfeb_20_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"081_pfeb_20_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1659,8 +1659,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"084_pfeb_21_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"085_pfeb_21_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1672,8 +1672,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"088_pfeb_22_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"089_pfeb_22_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1685,8 +1685,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"08C_pfeb_23_mask_to_0_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"08D_pfeb_23_mask_to_0_B", {
       {"pads[95:64]", 32},
@@ -1698,8 +1698,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"090_pfeb_00_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"091_pfeb_00_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1711,8 +1711,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"094_pfeb_01_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"095_pfeb_01_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1724,8 +1724,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"098_pfeb_02_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"099_pfeb_02_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1737,8 +1737,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"09C_pfeb_03_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"09D_pfeb_03_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1750,8 +1750,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0A0_pfeb_04_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0A1_pfeb_04_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1763,8 +1763,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0A4_pfeb_05_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0A5_pfeb_05_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1776,8 +1776,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0A8_pfeb_06_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0A9_pfeb_06_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1789,8 +1789,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0AC_pfeb_07_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0AD_pfeb_07_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1802,8 +1802,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0B0_pfeb_08_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0B1_pfeb_08_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1815,8 +1815,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0B4_pfeb_09_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0B5_pfeb_09_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1828,8 +1828,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0B8_pfeb_10_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0B9_pfeb_10_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1841,8 +1841,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0BC_pfeb_11_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0BD_pfeb_11_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1854,8 +1854,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0C0_pfeb_12_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0C1_pfeb_12_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1867,8 +1867,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0C4_pfeb_13_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0C5_pfeb_13_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1880,8 +1880,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0C8_pfeb_14_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0C9_pfeb_14_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1893,8 +1893,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0CC_pfeb_15_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0CD_pfeb_15_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1906,8 +1906,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0D0_pfeb_16_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0D1_pfeb_16_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1919,8 +1919,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0D4_pfeb_17_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0D5_pfeb_17_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1932,8 +1932,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0D8_pfeb_18_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0D9_pfeb_18_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1945,8 +1945,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0DC_pfeb_19_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0DD_pfeb_19_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1958,8 +1958,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0E0_pfeb_20_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0E1_pfeb_20_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1971,8 +1971,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0E4_pfeb_21_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0E5_pfeb_21_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1984,8 +1984,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0E8_pfeb_22_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0E9_pfeb_22_mask_to_1_B", {
       {"pads[95:64]", 32},
@@ -1997,8 +1997,8 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {"pads[31:0]", 32},
     }},
   {"0EC_pfeb_23_mask_to_1_A", {
-      {nsw::NOT_USED, 8},
-      {"pads[103:96]", 24},
+      {nsw::NOT_USED, 24},
+      {"pads[103:96]", 8},
     }},
   {"0ED_pfeb_23_mask_to_1_B", {
       {"pads[95:64]", 32},
