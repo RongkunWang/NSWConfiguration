@@ -687,6 +687,13 @@ namespace nsw::hw {
     { return m_ptree.get("Deskew", false); };
 
     /**
+     * \brief Get the "DeskewScanOnly" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool DeskewScanOnly() const
+    { return m_ptree.get("DeskewScanOnly", false); };
+
+    /**
      * \brief Get the "ForceFirmwareUpload" provided by the user configuration
      */
     [[nodiscard]]
