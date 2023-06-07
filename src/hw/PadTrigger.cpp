@@ -714,17 +714,22 @@ void nsw::hw::PadTrigger::deskewPFEBs() const
     ERS_INFO(fmt::format("Skipping deskew of {}", m_name));
     return;
   }
+  if (DeskewScanOnly()) {
+    ERS_LOG("Scanning delays only. Wont apply deskew results");
+  }
 
   ERS_INFO("Start of PFEB deskew");
+  const auto existingDelays = readPFEBDelays();
   const auto bcidPerPfebPerDelay = readMedianPFEBBCIDAtEachDelay(nsw::padtrigger::NUM_DESKEW_READS);
   describeSkew(bcidPerPfebPerDelay);
   const auto targetBcid = getTargetBcid(bcidPerPfebPerDelay);
   const auto targetDelays = getTargetDelays(targetBcid, bcidPerPfebPerDelay);
-  writePFEBDelay(targetDelays);
+  const auto chosenDelays = (DeskewScanOnly()) ? existingDelays : targetDelays;
+  writePFEBDelay(chosenDelays);
 
   // summarize
   ERS_LOG(fmt::format("Target BCID: {:x}", targetBcid));
-  ERS_INFO(fmt::format("Target delays: {}", joinHexReversed(targetDelays)));
+  ERS_INFO(fmt::format("Chosen delays: {}", joinHexReversed(chosenDelays)));
   ERS_INFO(fmt::format("New BCIDs: {}", joinHexReversed(readPFEBBCIDs())));
 }
 
