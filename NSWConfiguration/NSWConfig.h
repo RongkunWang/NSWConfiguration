@@ -115,6 +115,9 @@ class NSWConfig {
     //! Disable VMMs (setting register 8 to 0); symmetric to the above
     void disableVmmCaptureInputs();
 
+    //! \see nsw::hw::DeviceManager::resetSTGCTP()
+    void resetSTGCTP() { m_deviceManager.resetSTGCTP(); }
+
     /**
      * \brief Set the command sender to the RC application
      *

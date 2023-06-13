@@ -7,6 +7,7 @@ namespace nsw::commands {
   constexpr static std::string_view STOP{"stop"};
   constexpr static std::string_view START{"start"};
   constexpr static std::string_view CONFIGURE{"configure"};
+  constexpr static std::string_view RESET_STGCTP{"resetStgctpLinks"};
   constexpr static std::string_view CONNECT{"connect"};
   constexpr static std::string_view UNCONFIGURE{"unconfigure"};
   constexpr static std::string_view ENABLE_VMM{"enableVmmCaptureInputs"};
