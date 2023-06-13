@@ -78,18 +78,6 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
 
 void nsw::hw::DeviceManager::connect(std::span<const Options> /*options*/)
 {
-  // MMG TP config and STG TP config are racing because
-  // they are in different config applications.
-  // Racing is fine, if STG TP is reset afterward.
-  resetErrorCounters();
-  applyFunc(
-    m_stgctps,
-    [](const auto& dev) { dev.doReset(); },
-    [](const auto& ex) {
-      nsw::NSWHWConfigIssue issue(ERS_HERE,
-                                  fmt::format("Resetting STGCTP failed due to: {}", ex.what()));
-      ers::error(issue);
-    });
 }
 
 void nsw::hw::DeviceManager::unconfigure(std::span<const Options> /*options*/) {}
@@ -162,6 +150,19 @@ void nsw::hw::DeviceManager::toggleIdleStateHigh()
     [](const auto& ex) {
       nsw::NSWHWConfigIssue issue(
         ERS_HERE, fmt::format("Resetting sTGC TP failed due to: {}", ex.what()));
+      ers::error(issue);
+    });
+}
+
+void nsw::hw::DeviceManager::resetSTGCTP()
+{
+  resetErrorCounters();
+  applyFunc(
+    m_stgctps,
+    [](const auto& dev) { dev.doReset(); },
+    [](const auto& ex) {
+      nsw::NSWHWConfigIssue issue(ERS_HERE,
+                                  fmt::format("Resetting STGCTP failed due to: {}", ex.what()));
       ers::error(issue);
     });
 }

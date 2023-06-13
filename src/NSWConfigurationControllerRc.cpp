@@ -44,6 +44,8 @@ void nsw::NSWConfigurationControllerRc::user(const daq::rc::UserCmd& usrCmd)
     m_scaServiceSender.send(nsw::commands::CONFIGURE, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::CONNECT) {
     m_scaServiceSender.send(nsw::commands::CONNECT, args, 0);
+  } else if (usrCmd.commandName() == nsw::commands::RESET_STGCTP) {
+    m_scaServiceSender.send(nsw::commands::RESET_STGCTP, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::UNCONFIGURE) {
     m_scaServiceSender.send(nsw::commands::UNCONFIGURE, args, 0);
   } else if (usrCmd.commandName() == nsw::commands::START) {

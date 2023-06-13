@@ -148,6 +148,10 @@ void nsw::NSWSectorControllerRc::user(const daq::rc::UserCmd& usrCmd)
                                   "OPC server restarted while running. Data taking is most likely "
                                   "impossible until reconfiguration."));
     }
+  } else if (usrCmd.commandName() == nsw::commands::RESET_STGCTP) {
+    retryOpc([this]() { m_configurationControllerSender.send(nsw::commands::RESET_STGCTP, 0); },
+             m_opcReconnectTimeoutStart,
+             m_opcReconnectAttemptLimitStart);
   }
 }
 

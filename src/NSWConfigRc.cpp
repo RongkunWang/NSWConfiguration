@@ -10,6 +10,7 @@
 
 #include <is/infodynany.h>
 
+#include "NSWConfiguration/CommandNames.h"
 #include "NSWConfiguration/Issues.h"
 #include "NSWConfigurationDal/NSWConfigApplication.h"
 
@@ -98,9 +99,13 @@ void nsw::NSWConfigRc::unconfigure(const daq::rc::TransitionCmd&) {
 
 void nsw::NSWConfigRc::user(const daq::rc::UserCmd& usrCmd) {
   ERS_LOG("User command received: " << usrCmd.commandName());
-  if (usrCmd.commandName() == "enableVmmCaptureInputs")
+  if (usrCmd.commandName() == nsw::commands::ENABLE_VMM)
   {
     m_NSWConfig->enableVmmCaptureInputs();
+  }
+  else if (usrCmd.commandName() == nsw::commands::RESET_STGCTP)
+  {
+    m_NSWConfig->resetSTGCTP();
   }
 }
 
