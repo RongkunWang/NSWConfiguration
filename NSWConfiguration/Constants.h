@@ -487,7 +487,7 @@ namespace nsw {
   namespace padtrigger {
     constexpr bool SCA_LITTLE_ENDIAN = false;
     constexpr std::uint32_t NUM_INPUT_DELAYS       = 16;
-    constexpr std::uint32_t NUM_INPUT_DELAYS_PER_BC = 6;
+    constexpr std::uint32_t NUM_INPUT_DELAYS_PER_BC = 8;
     constexpr std::uint32_t NUM_INPUT_DELAYS_MARGIN = 2;
     constexpr std::uint32_t NUM_BITS_PER_PFEB_DELAY = 4;
     constexpr std::uint32_t NUM_PFEBS              = 24;

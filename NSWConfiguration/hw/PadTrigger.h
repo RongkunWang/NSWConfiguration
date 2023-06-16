@@ -18,6 +18,7 @@
 using BcidVector  = std::vector<std::uint32_t>;
 using DelayVector = std::vector<std::uint32_t>;
 using ValueVector = std::vector<std::uint32_t>;
+using StrobeVector = std::vector<std::uint32_t>;
 
 ERS_DECLARE_ISSUE(nsw,
                   PadTriggerConfusion,
@@ -418,6 +419,38 @@ namespace nsw::hw {
                                   std::uint8_t regAddress) const;
 
     /**
+     * \brief Read the PFEB BCIDs at each 320 strobe select, and adjust accordingly
+     */
+    void select320Strobe() const;
+
+    /**
+     * \brief Read and decode the PFEB BCID status registers multiple times,
+     *        and calculate median, for each possible 320 strobe select.
+     *        Element (i)(j) is the median BCID of PFEB i for select setting j.
+     *
+     * \param nread number of times to read and decode the BCIDs
+     */
+    [[nodiscard]]
+    std::vector<BcidVector> readMedianPFEBBCIDAtEachStrobe
+      (std::size_t nread = nsw::padtrigger::NUM_DESKEW_READS) const;
+
+    /**
+     * \brief Write messages regarding the measured 320 strobe scan
+     *
+     * \param bcidsPerPfebPerDelay For each PFEB, the BCIDs observed when scanning 320 strobes
+     */
+    void describeStrobe(const std::vector<BcidVector>& bcidPerPfebPerStrobe) const;
+
+    /**
+     * \brief Return the target strobe, given a list of BCID observed for each PFEB and strobe.
+     *        The target strobe should be the smallest strobe for which all PFEBs have the same BCID.
+     *
+     * \param bcidsPerPfebPerStrobe For each PFEB, the BCIDs observed when scanning the strobe
+     */
+    [[nodiscard]]
+    std::uint32_t getTargetStrobe(const std::vector<BcidVector>& bcidPerPfebPerStrobe) const;
+
+    /**
      * \brief Read the PFEB BCIDs, and adjust delays to deskew them
      */
     void deskewPFEBs() const;
@@ -694,6 +727,13 @@ namespace nsw::hw {
     { return m_ptree.get("DeskewScanOnly", false); };
 
     /**
+     * \brief Get the "SelectStrobe" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool SelectStrobe() const
+    { return m_ptree.get("SelectStrobe", false); };
+
+    /**
      * \brief Get the "ForceFirmwareUpload" provided by the user configuration
      */
     [[nodiscard]]
@@ -790,6 +830,7 @@ namespace nsw::hw {
     }};
 
     static constexpr std::string_view FPGA_DONE{"FPGA_DONE"};
+    static constexpr std::uint32_t ZERO32{0};
 
   };
 
