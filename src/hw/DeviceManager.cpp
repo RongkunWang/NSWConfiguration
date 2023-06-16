@@ -207,7 +207,7 @@ void nsw::hw::DeviceManager::resetErrorCounters()
 void nsw::hw::DeviceManager::publishConfigurationErrors(const ISInfoDictionary* isDict, const std::string_view isServer) const
 {
   auto boards = std::vector<std::string>{};
-  const auto getRoc = [] (const FEB& feb) {
+  const auto getRoc = [] (const FEB& feb) -> const ROC& {
     return feb.getRoc();
   };
   const auto filter = [] (const ROC& roc) {
