@@ -720,6 +720,13 @@ namespace nsw::hw {
     { return m_ptree.get("Deskew", false); };
 
     /**
+     * \brief Get the "SelectStrobe" provided by the user configuration
+     */
+    [[nodiscard]]
+    bool SelectStrobe() const
+    { return m_ptree.get("SelectStrobe", false); };
+
+    /**
      * \brief Get the "ForceFirmwareUpload" provided by the user configuration
      */
     [[nodiscard]]
