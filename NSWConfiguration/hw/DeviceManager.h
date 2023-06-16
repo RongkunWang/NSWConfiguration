@@ -347,9 +347,9 @@ namespace nsw::hw {
           threads.push_back(std::async(
             std::launch::async,
             [&func, &exceptionHandler](const auto& deviceLocal) {
-              return checkSuccess(deviceLocal, func, exceptionHandler);
+              return checkSuccess(deviceLocal.get(), func, exceptionHandler);
             },
-            device));
+            std::ref(device)));
         }
         for (auto& thread : threads) {
           const auto success = thread.get();
