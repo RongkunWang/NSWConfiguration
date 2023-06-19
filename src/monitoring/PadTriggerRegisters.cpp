@@ -49,7 +49,9 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.pt_2_tp_lat        = dev.readSubRegister("013_pt_2_tp_lat_READONLY", "pt_2_tp_lat");
   is.tp_bcid_error      = dev.readSubRegister("014_tp_bcid_error_READONLY", "tp_bcid_error");
   is.tp_bcid_error_dif  = dev.readSubRegister("014_tp_bcid_error_READONLY", "tp_bcid_error_dif");
-  is.trig_bcid_select   = dev.TrigBcidSelect();
+  // is.trig_bcid_select   = dev.TrigBcidSelect();
+  is.trig_bcid_select   = dev.readFPGARegister(0xF0);
+  ERS_INFO("is.trig_bcid_select = " << is.trig_bcid_select);
   is.trig_bcid_rate_m3  = dev.readBcidTriggerRate(is.trig_bcid_select - 3);
   is.trig_bcid_rate_m2  = dev.readBcidTriggerRate(is.trig_bcid_select - 2);
   is.trig_bcid_rate_m1  = dev.readBcidTriggerRate(is.trig_bcid_select - 1);

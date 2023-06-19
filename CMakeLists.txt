@@ -149,6 +149,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
   tdaq_add_executable(nsw_${appsrc} app/${appsrc}.cpp
     LINK_LIBRARIES nswconfig
     LINK_LIBRARIES nswhwinterface
+    LINK_LIBRARIES nswmonitoring
     LINK_LIBRARIES Boost::program_options
   )
 endforeach()
