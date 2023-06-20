@@ -49,9 +49,9 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.pt_2_tp_lat        = dev.readSubRegister("013_pt_2_tp_lat_READONLY", "pt_2_tp_lat");
   is.tp_bcid_error      = dev.readSubRegister("014_tp_bcid_error_READONLY", "tp_bcid_error");
   is.tp_bcid_error_dif  = dev.readSubRegister("014_tp_bcid_error_READONLY", "tp_bcid_error_dif");
-  // is.trig_bcid_select   = dev.TrigBcidSelect();
-  is.trig_bcid_select   = dev.readFPGARegister(0xF0);
-  ERS_INFO("is.trig_bcid_select = " << is.trig_bcid_select);
+  is.trig_bcid_select   = dev.TrigBcidSelect();
+  // is.trig_bcid_select   = dev.readFPGARegister(0xF0);
+
   is.trig_bcid_rate_m3  = dev.readBcidTriggerRate(is.trig_bcid_select - 3);
   is.trig_bcid_rate_m2  = dev.readBcidTriggerRate(is.trig_bcid_select - 2);
   is.trig_bcid_rate_m1  = dev.readBcidTriggerRate(is.trig_bcid_select - 1);
@@ -59,6 +59,18 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.trig_bcid_rate_p1  = dev.readBcidTriggerRate(is.trig_bcid_select + 1);
   is.trig_bcid_rate_p2  = dev.readBcidTriggerRate(is.trig_bcid_select + 2);
   is.trig_bcid_rate_p3  = dev.readBcidTriggerRate(is.trig_bcid_select + 3);
+  ERS_INFO("is.trig_bcid_select 3sec sleep = " << is.trig_bcid_select);
+  // ERS_INFO("is.trig_bcid_select 2sec sleep = " << is.trig_bcid_select);
+
+  // ERS_INFO("Not scanning this time = " << is.trig_bcid_select);
+  // is.trig_bcid_rate_m3  = 0;
+  // is.trig_bcid_rate_m2  = 0;
+  // is.trig_bcid_rate_m1  = 0;
+  // is.trig_bcid_rate     = dev.readFPGARegister(0x0C);
+  // is.trig_bcid_rate_p1  = 0;
+  // is.trig_bcid_rate_p2  = 0;
+  // is.trig_bcid_rate_p3  = 0;
+
   is.ttc_bcr_ocr_rate   = dev.readSubRegister("015_ttc_mon_0_READONLY", "ttc_bcr_ocr_rate");
   is.gt_rx_lol          = dev.readGtRxLol();
   return is;

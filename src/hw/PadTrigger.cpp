@@ -463,7 +463,8 @@ std::uint32_t nsw::hw::PadTrigger::readBcidTriggerRate(const std::uint32_t bcid)
 {
   constexpr bool quiet{true};
   constexpr std::uint32_t nbcs{0xdec};
-  const auto wait = std::chrono::seconds{2};
+  const auto wait = std::chrono::seconds{3};
+  // const auto wait = std::chrono::seconds{2};
   const auto bcidmod = (bcid + nbcs) % nbcs;
   writeSubRegister("01C_control_reg4", "trig_bcid_select", bcidmod, quiet);
   nsw::snooze(wait);
