@@ -49,7 +49,9 @@ nsw::mon::is::StgctpInRunStatusRegisters nsw::mon::StgctpInRunStatusRegisters::g
   is.NSWMonLimit = tp.readRegister(nsw::stgctp::REG_NSW_MON_LIMIT,           nsw::stgctp::MASK_NSW_MON_LIMIT);
   is.MonLimit = tp.readRegister(nsw::stgctp::REG_MON_LIMIT,                  nsw::stgctp::MASK_MON_LIMIT);
   is.MM_NSWMonEnabled = (tp.readRegister(nsw::stgctp::REG_MM_NSW_MON_EN,     nsw::stgctp::MASK_MM_NSW_MON_EN) != 0U);
-
+  is.SmallSector = (tp.readRegister(nsw::stgctp::REG_SMALL_SECTOR,           nsw::stgctp::MASK_SMALL_SECTOR) != 0U);
+  is.NoStretch   = (tp.readRegister(nsw::stgctp::REG_NO_STRETCH,             nsw::stgctp::MASK_NO_STRETCH)   != 0U);
+  is.SyncFiFoEmpty = (tp.readRegister(nsw::stgctp::REG_SYNC_FIFO_EMPTY,      nsw::stgctp::MASK_SYNC_FIFO_EMPTY) != 0U);
 
   return is;
 }
