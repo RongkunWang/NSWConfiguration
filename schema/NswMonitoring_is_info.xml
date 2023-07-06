@@ -426,6 +426,10 @@
   <attribute name="NSWMonLimit" description="Limit of the amount of NSW_MON segments to SL per sec." type="u32"/>
   <attribute name="MonLimit" description="Monitoring Limit on the Elink rate. default 1kHz" type="u32"/>
   <attribute name="MM_NSWMonEnabled" description="NSW_MON coming from MM TP segments goes all the way to CTP. T/F" type="bool"/>
+  <attribute name="SmallSector" description="Indicates if the sector is small(1) or large(0)" type="bool"/>
+  <attribute name="NoStretch" description="1 is stretching disabled, 0 is stretch is enabled. " type="bool"/>
+  <attribute name="SyncFiFoEmpty" description="FIFO empty 1 if not TP reset hasnt been performed or perhaps SCAx comm lost.." type="bool"/>
+
 
  </class>
 
