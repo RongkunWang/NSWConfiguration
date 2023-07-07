@@ -43,7 +43,7 @@ void nsw::hw::DeviceManager::addPadTrigger(const boost::property_tree::ptree& co
   m_padTriggers.emplace_back(m_opcManager, config);
 }
 
-void nsw::hw::DeviceManager::addTpCarrier(const nsw::TPCarrierConfig& config)
+void nsw::hw::DeviceManager::addTpCarrier(const boost::property_tree::ptree& config)
 {
   m_tpCarriers.emplace_back(m_opcManager, config);
 }

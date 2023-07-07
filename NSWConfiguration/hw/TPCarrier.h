@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/hw/OpcConnectionBase.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
@@ -28,7 +27,7 @@ namespace nsw::hw {
     /**
      * \brief Constrctor from a \ref TPCarrierConfig object
      */
-    TPCarrier(nsw::OpcManager& manager, const TPCarrierConfig& config);
+    TPCarrier(nsw::OpcManager& manager, const boost::property_tree::ptree& config);
 
     /**
      * \brief Name of TP Carrier object
@@ -78,17 +77,13 @@ namespace nsw::hw {
                                   const std::uint32_t value) const;
 
     /**
-     * \brief Get the \ref TPCarrierConfig object associated with this TPCarrier object
-     *
-     * Both const and non-const overloads are provided
+     * \brief Get the setting for RJ45 output selection based on values in json.
      */
     [[nodiscard]]
-    TPCarrierConfig& getConfig() { return m_config; }
-    [[nodiscard]]
-    const TPCarrierConfig& getConfig() const { return m_config; }  //!< \overload
+    std::uint32_t RJOutSel() const;
 
   private:
-    TPCarrierConfig m_config;   //!< TPCarrierConfig object associated with this TPCarrier
+    boost::property_tree::ptree m_config;  //!< Configuration ptree that contains at least OpcServerIp and OpcNodeId
     std::string m_busAddress;   //!< Address of the I2C bus of this SCAX
     std::string m_name;         //!< Name of this hardware object
   };

@@ -78,7 +78,7 @@ namespace nsw::hw {
         addPadTrigger(config);
       }
       else if (type == "TPCarrier") {
-        addTpCarrier(TPCarrierConfig{config});
+        addTpCarrier(config);
       }
       else {
         throw NSWHWConfigIssue(ERS_HERE, fmt::format("Received an unknown device type {}", type));
@@ -299,7 +299,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addTpCarrier(const nsw::TPCarrierConfig& config);
+    void addTpCarrier(const boost::property_tree::ptree&);
 
     static bool checkSuccess(const auto& device,
                              const std::regular_invocable<decltype(device)> auto& func,

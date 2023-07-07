@@ -14,7 +14,6 @@
 #include "NSWConfiguration/L1DDCConfig.h"
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/ARTConfig.h"
-#include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/GBTxConfig.h"
 #include "NSWConfiguration/Constants.h"
@@ -166,7 +165,6 @@ class ConfigSender {
 
     /// High level send/read functions (SCAX, TP, TPCarrier)
     void sendTPConfig(const nsw::TPConfig& tp, bool quiet = false);
-    void sendTPCarrierConfig(const nsw::TPCarrierConfig& carrier, const bool quiet = false);
     void sendSCAXRegister                (const nsw::SCAConfig& scax, uint8_t address, uint32_t message, bool quiet = false);
     uint32_t readSCAXRegisterWord        (const nsw::SCAConfig& scax, uint8_t address);
     std::vector<uint8_t> readSCAXRegister(const nsw::SCAConfig& scax, uint8_t address);
