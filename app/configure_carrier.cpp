@@ -3,17 +3,23 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/TPCarrierConfig.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
 
 #include <boost/program_options.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 namespace po = boost::program_options;
+namespace pt = boost::property_tree;
+
+using boost::property_tree::ptree;
 
 int main(int ac, const char *av[]) {
 
@@ -36,9 +42,11 @@ int main(int ac, const char *av[]) {
     ("sim", po::bool_switch()
      ->default_value(false),
      "Option to NOT send configurations")
+    ("writeConfig", po::bool_switch()->default_value(false), "STGCTP option: write configuration")
+    ("readConfig", po::bool_switch()->default_value(false), "STGCTP option: read configuration")
     ("name,n", po::value<std::string>(&name)
      ->default_value(default_name),
-     "Name of trigger processor")
+     "Name of the carrier")
     ;
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
@@ -48,14 +56,15 @@ int main(int ac, const char *av[]) {
     std::cout << desc << std::endl;
     return 1;
   }
+  const auto writeConfig = vm["writeConfig"].as<bool>();
+  const auto readConfig  = vm["readConfig"] .as<bool>();
 
   //
   // parse config
   //
-  auto cfg = "json://" + config_filename;
-  auto carriers = nsw::ConfigReader::makeObjects
-    <nsw::TPCarrierConfig>
-    (cfg, "TPCarrier", name);
+  const auto json_filename = fmt::format("json://{}", config_filename);
+  const auto carriers = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>
+    (json_filename, "TPCarrier", name);
 
   //
   // send config
@@ -64,12 +73,25 @@ int main(int ac, const char *av[]) {
   for (const auto& carrier_cfg: carriers) {
     nsw::hw::TPCarrier carrier_hw(manager, carrier_cfg);
     std::cout << std::endl;
-    std::cout << "  " << carrier_cfg.getOpcServerIp()
-              << ", " << carrier_cfg.getAddress()
-              << ": RJOutSel = " << carrier_cfg.RJOutSel() << std::endl;
+    std::cout << ": RJOutSel = " << carrier_hw.RJOutSel() << std::endl;
     std::cout << std::endl;
     if (!simulation) {
-      carrier_hw.writeConfiguration();
+      if (writeConfig) {
+        carrier_hw.writeConfiguration();
+      } 
+      if (readConfig) {
+        for (const auto& [reg, val]: carrier_hw.readConfiguration()) {
+          std::string regName("");
+          for (const auto & [regNameRef, regRef]: nsw::carrier::REGS) {
+            if (regRef != reg) continue;
+            regName = regNameRef;
+            break;
+}
+          std::cout << 
+            fmt::format("Reg {:<20}[{:#04x}]:", regName, reg) << 
+            fmt::format("val = {:#010x}", val) << std::endl;
+        }
+      }
     }
   }
 

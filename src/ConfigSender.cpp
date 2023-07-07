@@ -1046,9 +1046,6 @@ void nsw::ConfigSender::sendSCAXRegister(const nsw::SCAConfig& scax, uint8_t add
   sendI2cRaw(scax.getOpcServerIp(), scax.getAddress(), payload.data(), payload.size());
 }
 
-void nsw::ConfigSender::sendTPCarrierConfig(const nsw::TPCarrierConfig& carrier, const bool quiet) {
-  sendSCAXRegister(carrier, nsw::carrier::REG_RJOUT_SEL, carrier.RJOutSel(), quiet);
-}
 
 void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
     //

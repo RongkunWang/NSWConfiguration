@@ -100,7 +100,11 @@ std::string nsw::getElementType(const std::string& element_name) {
         }
         if (element_name.starts_with("MM")) {
             if (element_name.find("/TrigProc/") != std::string::npos) {
-                return "MMTP";
+                if (element_name.find("/E0") != std::string::npos) {
+                    return "MMTP";
+                } else if (element_name.find("/E1") != std::string::npos) {
+                    return "TPCarrier";
+                }
             }
             if (element_name.find("/Strip/") != std::string::npos) {
                 return "MMFE8";
@@ -117,7 +121,11 @@ std::string nsw::getElementType(const std::string& element_name) {
                 return "PFEB";
             }
             if (element_name.find("/TrigProc/") != std::string::npos) {
-                return "STGCTP";
+                if (element_name.find("/E0") != std::string::npos) {
+                    return "STGCTP";
+                } else if (element_name.find("/E1") != std::string::npos) {
+                    return "TPCarrier";
+                }
             }
         }
         throw std::runtime_error(fmt::format("Unknown front end element type: {}", element_name));
