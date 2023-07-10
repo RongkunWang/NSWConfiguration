@@ -346,6 +346,18 @@ namespace nsw::hw {
     { writeControlSubRegister("conf_ro_bc_offset", val); };
 
     /**
+     * \brief Read the FPGA program GPIO
+     */
+    [[nodiscard]]
+    bool readFPGAProgram() const;
+
+    /**
+     * \brief Read the FPGA init GPIO
+     */
+    [[nodiscard]]
+    bool readFPGAInit() const;
+
+    /**
      * \brief Read the GPIO which indicates if the FPGA has firmware uploaded
      */
     [[nodiscard]]
@@ -789,6 +801,8 @@ namespace nsw::hw {
         // clang-format on
     }};
 
+    static constexpr std::string_view FPGA_PROGRAM{"FPGA_PROGRAM"};
+    static constexpr std::string_view FPGA_INIT{"FPGA_INIT"};
     static constexpr std::string_view FPGA_DONE{"FPGA_DONE"};
 
   };

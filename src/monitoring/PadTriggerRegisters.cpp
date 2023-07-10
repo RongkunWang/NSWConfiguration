@@ -25,6 +25,8 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   auto is = nsw::mon::is::PadTriggerRegisters{};
   is.reachable_sca  = dev.reachable();
   is.reachable_fpga = is.reachable_sca and dev.readFPGADone();
+  is.fpga_program   = is.reachable_sca and dev.readFPGAProgram();
+  is.fpga_init      = is.reachable_sca and dev.readFPGAInit();
   if (not is.reachable_fpga) {
     return is;
   }

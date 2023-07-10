@@ -351,6 +351,8 @@
   <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
   <attribute name="reachable_sca" description="Reachable SCA" type="bool" init-value="0"/>
   <attribute name="reachable_fpga" description="Reachable FPGA" type="bool" init-value="0"/>
+  <attribute name="fpga_program" description="FPGA program gpio" type="bool" init-value="0"/>
+  <attribute name="fpga_init" description="FPGA init gpio" type="bool" init-value="0"/>
   <attribute name="pfeb_delays" description="PFEB delay" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_statuses" description="PFEB statuses" type="u32" is-multi-value="yes"/>
