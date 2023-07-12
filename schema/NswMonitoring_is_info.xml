@@ -372,6 +372,7 @@
   <attribute name="trig_bcid_rate_p2" description="BCID+2 trigger rate" type="u32" init-value="0"/>
   <attribute name="trig_bcid_rate_p3" description="BCID+3 trigger rate" type="u32" init-value="0"/>
   <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
+  <attribute name="ttc_l1a_rate" description="TTC L1A rate" type="u32" init-value="0"/>
   <attribute name="gt_rx_lol" description="GT RX LOL" type="u32" format="hex" init-value="0"/>
  </class>
 
