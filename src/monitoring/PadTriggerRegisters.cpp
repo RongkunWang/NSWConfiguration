@@ -25,6 +25,8 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   auto is = nsw::mon::is::PadTriggerRegisters{};
   is.reachable_sca  = dev.reachable();
   is.reachable_fpga = is.reachable_sca and dev.readFPGADone();
+  is.fpga_program   = is.reachable_sca and dev.readFPGAProgram();
+  is.fpga_init      = is.reachable_sca and dev.readFPGAInit();
   if (not is.reachable_fpga) {
     return is;
   }
@@ -58,6 +60,7 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.trig_bcid_rate_p2  = dev.readBcidTriggerRate(is.trig_bcid_select + 2);
   is.trig_bcid_rate_p3  = dev.readBcidTriggerRate(is.trig_bcid_select + 3);
   is.ttc_bcr_ocr_rate   = dev.readSubRegister("015_ttc_mon_0_READONLY", "ttc_bcr_ocr_rate");
+  is.ttc_l1a_rate       = dev.readSubRegister("019_ttc_mon_1_READONLY", "ttc_l1a_rate");
   is.gt_rx_lol          = dev.readGtRxLol();
   return is;
 }

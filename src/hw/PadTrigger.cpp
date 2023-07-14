@@ -410,6 +410,16 @@ std::uint8_t nsw::hw::PadTrigger::readVTTxRegister(const std::uint8_t vttx,
   return val.at(0);
 }
 
+bool nsw::hw::PadTrigger::readFPGAProgram() const
+{
+  return readGPIO(FPGA_PROGRAM);
+}
+
+bool nsw::hw::PadTrigger::readFPGAInit() const
+{
+  return readGPIO(FPGA_INIT);
+}
+
 bool nsw::hw::PadTrigger::readFPGADone() const
 {
   return readGPIO(FPGA_DONE);
