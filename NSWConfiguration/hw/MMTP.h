@@ -69,7 +69,7 @@ namespace nsw::hw {
     /**
      * \brief Write the full MMTP configuration
      */
-    void writeConfiguration() const;
+    void writeConfiguration(bool doAlignArtGbtx = true) const;
 
     /**
      * \brief Write a value to a MMTP register address

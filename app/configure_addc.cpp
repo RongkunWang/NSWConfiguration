@@ -149,16 +149,14 @@ int main(int argc, const char *argv[])
                                                    regAddrVec.data(), regAddrVec.size(), 4);
                 for (auto & addc : addc_configs) {
                     for (auto art : addc.getARTs()) {
-                        if (art.IsMyTP(tp.first, tp.second)) {
-                            auto aligned = art.IsAlignedWithTP(outdata);
-                            std::stringstream result;
-                            result << addc.getAddress()         << " "
-                                   << art.getName()             << " "
-                                   << art.TP_GBTxAlignmentBit() << " "
-                                   << aligned << std::endl;
-                            myfile << result.str();
-                            std::cout << result.str();
-                        }
+                        auto aligned = art.IsAlignedWithTP(outdata);
+                          std::stringstream result;
+                          result << addc.getAddress()         << " "
+                                 << art.getName()             << " "
+                                 << art.TP_GBTxAlignmentBit() << " "
+                                 << aligned << std::endl;
+                          myfile << result.str();
+                          std::cout << result.str();
                     }
                 }
             }

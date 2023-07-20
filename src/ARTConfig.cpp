@@ -69,6 +69,13 @@ int nsw::ARTConfig::TP_GBTxAlignmentSleepTime() const {
     return m_config.get<int>("TP_GBTxAlignmentSleepTime");
 }
 
+bool nsw::ARTConfig::IsAlignedWithTP(const std::uint32_t val) const {
+  const auto data = nsw::intToByteVector(val,      
+      nsw::NUM_BYTES_IN_WORD32, 
+      nsw::scax::SCAX_LITTLE_ENDIAN);
+  return IsAlignedWithTP(data);
+}
+
 bool nsw::ARTConfig::IsAlignedWithTP(const std::vector<uint8_t>& vec) const {
     // bit of interest
     const auto boi = TP_GBTxAlignmentBit();

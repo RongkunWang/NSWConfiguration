@@ -13,7 +13,7 @@ nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& conf
 {
 }
 
-void nsw::hw::MMTP::writeConfiguration() const
+void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
 {
   std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
     {nsw::mmtp::REG_ADDC_EMU_DISABLE,         nsw::mmtp::ADDC_EMU_DISABLE},
@@ -55,7 +55,9 @@ void nsw::hw::MMTP::writeConfiguration() const
     }
   }
 
-  alignArtGbtx();
+  if (doAlignArtGbtx) {
+    alignArtGbtx();
+  }
 }
 
 std::map<std::uint32_t, std::uint32_t> nsw::hw::MMTP::readConfiguration() const
