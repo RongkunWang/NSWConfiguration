@@ -57,6 +57,7 @@ class ARTConfig {
     std::string getOpcNodeId_TP() const;
     uint8_t BcidFromTp(const std::vector<uint8_t>& vec) const;
     bool IsAlignedWithTP(const std::vector<uint8_t>& vec) const;
+    bool IsAlignedWithTP(const std::uint32_t val) const;
     bool IsMyTP(const std::string& ServerIp, const std::string& NodeId) const;
     bool failsafe() const;
 
