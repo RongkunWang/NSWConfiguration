@@ -20,6 +20,7 @@
 #include "NSWConfiguration/monitoring/StgctpInRunStatusRegisters.h"
 #include "NSWConfiguration/monitoring/StgctpOutRunStatusRegisters.h"
 #include "NSWConfiguration/monitoring/PadTriggerRegisters.h"
+#include "NSWConfiguration/monitoring/CarriertpInRunStatusRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -182,7 +183,8 @@ private:
       nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters, 
       nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters,
       nsw::mon::StgctpInRunStatusRegisters, nsw::mon::StgctpOutRunStatusRegisters,
-      nsw::mon::PadTriggerRegisters>;
+      nsw::mon::PadTriggerRegisters,
+      nsw::mon::CarriertpInRunStatusRegisters>;
     std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string

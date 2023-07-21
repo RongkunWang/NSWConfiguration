@@ -226,6 +226,7 @@ tdaq_add_library(nswmonitoring
                  src/monitoring/StgctpInRunStatusRegisters.cpp
                  src/monitoring/StgctpOutRunStatusRegisters.cpp
                  src/monitoring/PadTriggerRegisters.cpp
+                 src/monitoring/CarriertpInRunStatusRegisters.cpp
                  src/monitoring/IsPublisher.cpp
                  src/monitoring/Utility.cpp
   LINK_LIBRARIES nswconfig
