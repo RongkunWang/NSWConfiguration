@@ -218,6 +218,12 @@ namespace nsw {
     constexpr std::uint32_t RJOUT_SEL_STGC = 0x00;
     constexpr std::uint32_t RJOUT_SEL_MM   = 0x01;
     constexpr std::uint8_t REG_RJOUT_SEL = 0x01;
+    constexpr std::uint8_t REG_MIRROW_RESET  = 0x02;
+    constexpr std::uint8_t REG_GBT_PHASE_SKEW  = 0x0b;
+    constexpr std::uint8_t REG_PRN_CHK_ERROR_CNT  = 0x0f;
+    constexpr std::uint8_t REG_PRN_CHK_RESET    = 0x10;
+
+    
     const std::map<std::string, uint32_t> REGS = {
       {"RJOUT_SEL",           0x01}, // R/W
       {"mirrowReset",         0x02}, // R/W

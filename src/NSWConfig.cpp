@@ -90,6 +90,9 @@ void nsw::NSWConfig::readConfigurationResource() {
     m_monitoringMap.try_emplace(std::string{nsw::mon::PadTriggerRegisters::NAME},
                                 std::in_place_type<nsw::mon::PadTriggerRegisters>,
                                 m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::CarriertpInRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::CarriertpInRunStatusRegisters>,
+                                m_deviceManager);
 }
 
 void nsw::NSWConfig::configureRc() {
