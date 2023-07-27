@@ -3,6 +3,9 @@
 
 #include <string>
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
 #include <ers/ers.h>
 #include <RunControl/Common/CommandSender.h>
 #include <RunControl/Common/RunControlCommands.h>
@@ -17,12 +20,12 @@ namespace nsw {
     {}
     void send(const std::string_view command, const std::vector<std::string>& args = {}) const
     {
-      ERS_LOG("Sending message " << command << " to " << m_name);
+      ERS_LOG(fmt::format("Sending message '{}' to '{}': args {}", command,  m_name, args));
       m_commandSender->sendCommand(m_name, daq::rc::UserCmd{std::string{command}, args});
     }
     void send(const std::string_view command, const unsigned long timeout) const
     {
-      ERS_LOG("Sending message " << command << " to " << m_name);
+      ERS_LOG(fmt::format("Sending message '{}' to '{}': timeout {}", command, m_name, timeout));
       auto userCmd = daq::rc::UserCmd{std::string{command}, {}};
       m_commandSender->sendCommand(m_name, userCmd, timeout);
     }
@@ -30,7 +33,7 @@ namespace nsw {
               const std::vector<std::string>& args,
               const unsigned long timeout) const
     {
-      ERS_LOG("Sending message " << command << " to " << m_name);
+      ERS_LOG(fmt::format("Sending message '{}' to '{}': timeout {}, args {}", command,  m_name, timeout, args));
       auto userCmd = daq::rc::UserCmd{std::string{command}, args};
       m_commandSender->sendCommand(m_name, userCmd, timeout);
     }

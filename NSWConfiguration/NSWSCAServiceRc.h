@@ -60,11 +60,12 @@ namespace nsw {
     double m_errorThresholdContinue{};
     double m_errorThresholdRecover{};
     bool m_simulation{false};
-
     std::string m_isDbName;  //!< Name of the IS server to retrieve NSW parameters from
 
     IPCPartition m_ipcpartition;
     std::unique_ptr<ISInfoDictionary> m_isDictionary;
+
+    mutable std::mutex m_mutex{};  //<! Mutex for synchronization
   };
 }  // namespace nsw
 
