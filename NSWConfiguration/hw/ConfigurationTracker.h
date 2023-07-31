@@ -12,7 +12,7 @@ namespace nsw::hw::internal {
   /**
    * \brief Used to infer the conversion map
    */
-  enum class DeviceType { ROC, TDS, ART, PadTrigger, Router, TP, TPCarrier };
+  enum class DeviceType { ROC, TDS, ART, PadTrigger, Router, TP, TPCarrier, GBTx };
 
   /**
    * \brief Type selector for the translation map (depends on device type)
@@ -31,6 +31,7 @@ namespace nsw::hw::internal {
    */
   template<>
   struct configTypeSelector<DeviceType::TDS> {
+    using registerType = std::uint8_t;
     using valueType = __uint128_t;
   };
 
@@ -39,6 +40,7 @@ namespace nsw::hw::internal {
    */
   template<>
   struct configTypeSelector<DeviceType::ROC> {
+    using registerType = std::uint8_t;
     using valueType = std::uint8_t;
   };
 
@@ -47,6 +49,7 @@ namespace nsw::hw::internal {
    */
   template<>
   struct configTypeSelector<DeviceType::TP> {
+    using registerType = std::uint8_t;
     using valueType = std::uint32_t;
   };
 
@@ -55,6 +58,7 @@ namespace nsw::hw::internal {
    */
   template<>
   struct configTypeSelector<DeviceType::TPCarrier> {
+    using registerType = std::uint8_t;
     using valueType = std::uint32_t;
   };
 
@@ -63,6 +67,16 @@ namespace nsw::hw::internal {
    */
   template<>
   struct configTypeSelector<DeviceType::ART> {
+    using registerType = std::uint8_t;
+    using valueType = std::uint8_t;
+  };
+
+  /**
+   * \brief GBTx 8 bit registers
+   */
+  template<>
+  struct configTypeSelector<DeviceType::GBTx> {
+    using registerType = std::uint16_t;
     using valueType = std::uint8_t;
   };
 
@@ -70,9 +84,12 @@ namespace nsw::hw::internal {
   using valueType_t = typename configTypeSelector<Device>::valueType;
 
   template<DeviceType Device>
+  using registerType_t = typename configTypeSelector<Device>::registerType;
+
+  template<DeviceType Device>
   class ConfigurationTrackerMap
   {
-    using RegAddress = std::uint8_t;
+    using RegAddress = registerType_t<Device>;
     using Value = valueType_t<Device>;
     using Data = std::map<RegAddress, Value>;
   public:
