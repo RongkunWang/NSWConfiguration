@@ -92,21 +92,24 @@ namespace nsw::hw::internal {
     using RegAddress = registerType_t<Device>;
     using Value = valueType_t<Device>;
     using Data = std::map<RegAddress, Value>;
+    using DataVector = std::vector<Value>;
   public:
     void update(RegAddress reg, Value value);
     void update(const Data& values);
+    void update(const DataVector& values);
     void validate(RegAddress reg, Value value);
     void validate(const Data& values);
+    void validate(const DataVector& values);
     [[nodiscard]] std::set<RegAddress> getErrors() const;
 
   private:
     [[nodiscard]] bool check(RegAddress reg, Value value) const;
     void updateErrors(RegAddress reg, bool result);
+    [[nodiscard]] static Data convertVector(const DataVector& values);
 
     Data m_currentData{};
     std::set<RegAddress> m_errors{};
   };
-
 }  // namespace nsw::hw::internal
 
 #endif
