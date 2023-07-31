@@ -32,5 +32,6 @@ ERS_DECLARE_ISSUE(nsw,
                               className,
                               segmentName),
                   ((std::string)className)((std::string)segmentName))
+ERS_DECLARE_ISSUE(nsw, NSWGBTxIssue, message, ((std::string)message))
 
 #endif

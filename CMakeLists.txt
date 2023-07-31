@@ -209,6 +209,9 @@ tdaq_add_library(nswhwinterface
                  src/hw/ScaAddressBase.cpp
                  src/hw/OpcConnectionBase.cpp
                  src/hw/FEB.cpp
+                 src/hw/GBTxI2c.cpp
+                 src/hw/GBTxIC.cpp
+                 src/hw/L1DDC.cpp
                  src/hw/ROC.cpp
                  src/hw/VMM.cpp
                  src/hw/TDS.cpp
@@ -222,7 +225,8 @@ tdaq_add_library(nswhwinterface
                  src/hw/Helper.cpp
   INCLUDE_DIRECTORIES
                 $<$<VERSION_EQUAL:${TDAQ_VERSION},9.4.0>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/omni/include>>
-  LINK_LIBRARIES nswconfig
+  LINK_LIBRARIES ichandler
+                 nswconfig
     PRIVATE
                  $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
