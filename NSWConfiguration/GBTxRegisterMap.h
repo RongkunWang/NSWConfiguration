@@ -4,356 +4,349 @@
 #include "NSWConfiguration/Types.h"
 
 
-std::unordered_map<std::string,gbtx::regMap> compiledGbtxRegisterMap(){
-    // Return this pre-compiled register map
-    // If possible, this should be loaded from a config file instead of using this
+static const std::unordered_map<std::string, gbtx::regMap> GBTX_REGISTER_MAP = {
+    {"paTrainEC",                       {"paTrainEC","Train EC channel",{0,1,2},{245,245,245}}},
+    {"paTrainGroup6",                   {"paTrainGroup6","Train channels (0-7)",{0,0,0},{222,223,224}}},
+    {"paTrainGroup5",                   {"paTrainGroup5","Train channels (0-7)",{0,0,0},{198,199,200}}},
+    {"paTrainGroup4",                   {"paTrainGroup4","Train channels (0-7)",{0,0,0},{174,175,176}}},
+    {"paTrainGroup3",                   {"paTrainGroup3","Train channels (0-7)",{0,0,0},{150,151,152}}},
+    {"paTrainGroup2",                   {"paTrainGroup2","Train channels (0-7)",{0,0,0},{126,127,128}}},
+    {"paTrainGroup1",                   {"paTrainGroup1","Train channels (0-7)",{0,0,0},{102,103,104}}},
+    {"paTrainGroup0",                   {"paTrainGroup0","Train channels (0-7)",{0,0,0},{78,79,80}}},
 
-    std::unordered_map<std::string,gbtx::regMap> registerMaps;
+    {"paResetEC",                       {"paResetEC","Reset EC channel",{0,1,2},{251,251,251}}},
+    {"paResetGroup0",                   {"paResetGroup0","Reset channels (0-7)",{0,0,0},{84,85,86}}},
+    {"paResetGroup1",                   {"paResetGroup1","Reset channels (0-7)",{0,0,0},{108,109,110}}},
+    {"paResetGroup2",                   {"paResetGroup2","Reset channels (0-7)",{0,0,0},{132,133,134}}},
+    {"paResetGroup3",                   {"paResetGroup3","Reset channels (0-7)",{0,0,0},{156,157,158}}},
+    {"paResetGroup4",                   {"paResetGroup4","Reset channels (0-7)",{0,0,0},{180,181,182}}},
+    {"paResetGroup5",                   {"paResetGroup5","Reset channels (0-7)",{0,0,0},{204,205,206}}},
+    {"paResetGroup6",                   {"paResetGroup6","Reset channels (0-7)",{0,0,0},{228,229,230}}},
 
-    registerMaps["paTrainEC"]                       = gbtx::regMap{"paTrainEC","Train EC channel",{0,1,2},{245,245,245}};
-    registerMaps["paTrainGroup6"]                   = gbtx::regMap{"paTrainGroup6","Train channels (0-7)",{0,0,0},{222,223,224}};
-    registerMaps["paTrainGroup5"]                   = gbtx::regMap{"paTrainGroup5","Train channels (0-7)",{0,0,0},{198,199,200}};
-    registerMaps["paTrainGroup4"]                   = gbtx::regMap{"paTrainGroup4","Train channels (0-7)",{0,0,0},{174,175,176}};
-    registerMaps["paTrainGroup3"]                   = gbtx::regMap{"paTrainGroup3","Train channels (0-7)",{0,0,0},{150,151,152}};
-    registerMaps["paTrainGroup2"]                   = gbtx::regMap{"paTrainGroup2","Train channels (0-7)",{0,0,0},{126,127,128}};
-    registerMaps["paTrainGroup1"]                   = gbtx::regMap{"paTrainGroup1","Train channels (0-7)",{0,0,0},{102,103,104}};
-    registerMaps["paTrainGroup0"]                   = gbtx::regMap{"paTrainGroup0","Train channels (0-7)",{0,0,0},{78,79,80}};
-
-    registerMaps["paResetEC"]                       = gbtx::regMap{"paResetEC","Reset EC channel",{0,1,2},{251,251,251}};
-    registerMaps["paResetGroup0"]                   = gbtx::regMap{"paResetGroup0","Reset channels (0-7)",{0,0,0},{84,85,86}};
-    registerMaps["paResetGroup1"]                   = gbtx::regMap{"paResetGroup1","Reset channels (0-7)",{0,0,0},{108,109,110}};
-    registerMaps["paResetGroup2"]                   = gbtx::regMap{"paResetGroup2","Reset channels (0-7)",{0,0,0},{132,133,134}};
-    registerMaps["paResetGroup3"]                   = gbtx::regMap{"paResetGroup3","Reset channels (0-7)",{0,0,0},{156,157,158}};
-    registerMaps["paResetGroup4"]                   = gbtx::regMap{"paResetGroup4","Reset channels (0-7)",{0,0,0},{180,181,182}};
-    registerMaps["paResetGroup5"]                   = gbtx::regMap{"paResetGroup5","Reset channels (0-7)",{0,0,0},{204,205,206}};
-    registerMaps["paResetGroup6"]                   = gbtx::regMap{"paResetGroup6","Reset channels (0-7)",{0,0,0},{228,229,230}};
-
-    registerMaps["paPhaseSelectGroup0Channel4"]     = gbtx::regMap{"paPhaseSelectGroup0Channel4","Select sample phase channel 4",{0,0,0},{67,71,75}};
-    registerMaps["paPhaseSelectGroup5Channel4"]     = gbtx::regMap{"paPhaseSelectGroup5Channel4","Select sample phase channel 4",{0,0,0},{187,191,195}};
-    registerMaps["paPhaseSelectGroup5Channel6"]     = gbtx::regMap{"paPhaseSelectGroup5Channel6","Select sample phase channel 6",{0,0,0},{186,190,194}};
-    registerMaps["paPhaseSelectGroup5Channel7"]     = gbtx::regMap{"paPhaseSelectGroup5Channel7","Select sample phase channel 7",{4,4,4},{186,190,194}};
-    registerMaps["paPhaseSelectGroup5Channel0"]     = gbtx::regMap{"paPhaseSelectGroup5Channel0","Select sample phase channel 0",{0,0,0},{189,193,197}};
-    registerMaps["paPhaseSelectGroup5Channel5"]     = gbtx::regMap{"paPhaseSelectGroup5Channel5","Select sample phase channel 5",{4,4,4},{187,191,195}};
-    registerMaps["paPhaseSelectGroup5Channel3"]     = gbtx::regMap{"paPhaseSelectGroup5Channel3","Select sample phase channel 3",{4,4,4},{188,192,196}};
-    registerMaps["paPhaseSelectGroup2Channel3"]     = gbtx::regMap{"paPhaseSelectGroup2Channel3","Select sample phase channel 3",{4,4,4},{116,120,124}};
-    registerMaps["paPhaseSelectGroup2Channel2"]     = gbtx::regMap{"paPhaseSelectGroup2Channel2","Select sample phase channel 2",{0,0,0},{116,120,124}};
-    registerMaps["paPhaseSelectGroup2Channel1"]     = gbtx::regMap{"paPhaseSelectGroup2Channel1","Select sample phase channel 1",{4,4,4},{117,121,125}};
-    registerMaps["paPhaseSelectGroup2Channel0"]     = gbtx::regMap{"paPhaseSelectGroup2Channel0","Select sample phase channel 0",{0,0,0},{117,121,125}};
-    registerMaps["paPhaseSelectGroup2Channel7"]     = gbtx::regMap{"paPhaseSelectGroup2Channel7","Select sample phase channel 7",{4,4,4},{114,118,122}};
-    registerMaps["paPhaseSelectGroup2Channel6"]     = gbtx::regMap{"paPhaseSelectGroup2Channel6","Select sample phase channel 6",{0,0,0},{114,118,122}};
-    registerMaps["paPhaseSelectGroup2Channel5"]     = gbtx::regMap{"paPhaseSelectGroup2Channel5","Select sample phase channel 5",{4,4,4},{115,119,123}};
-    registerMaps["paPhaseSelectGroup2Channel4"]     = gbtx::regMap{"paPhaseSelectGroup2Channel4","Select sample phase channel 4",{0,0,0},{115,119,123}};
-    registerMaps["paPhaseSelectEC"]                 = gbtx::regMap{"paPhaseSelectEC","Select sample phase EC channel",{0,0,0},{233,237,241}};
-    registerMaps["paPhaseSelectGroup4Channel5"]     = gbtx::regMap{"paPhaseSelectGroup4Channel5","Select sample phase channel 5",{4,4,4},{163,167,171}};
-    registerMaps["paPhaseSelectGroup4Channel4"]     = gbtx::regMap{"paPhaseSelectGroup4Channel4","Select sample phase channel 4",{0,0,0},{163,167,171}};
-    registerMaps["paPhaseSelectGroup4Channel7"]     = gbtx::regMap{"paPhaseSelectGroup4Channel7","Select sample phase channel 7",{4,4,4},{162,166,170}};
-    registerMaps["paPhaseSelectGroup4Channel6"]     = gbtx::regMap{"paPhaseSelectGroup4Channel6","Select sample phase channel 6",{0,0,0},{162,166,170}};
-    registerMaps["paPhaseSelectGroup4Channel1"]     = gbtx::regMap{"paPhaseSelectGroup4Channel1","Select sample phase channel 1",{4,4,4},{165,169,173}};
-    registerMaps["paPhaseSelectGroup4Channel0"]     = gbtx::regMap{"paPhaseSelectGroup4Channel0","Select sample phase channel 0",{0,0,0},{165,169,173}};
-    registerMaps["paPhaseSelectGroup4Channel3"]     = gbtx::regMap{"paPhaseSelectGroup4Channel3","Select sample phase channel 3",{4,4,4},{164,168,172}};
-    registerMaps["paPhaseSelectGroup4Channel2"]     = gbtx::regMap{"paPhaseSelectGroup4Channel2","Select sample phase channel 2",{0,0,0},{164,168,172}};
-    registerMaps["paPhaseSelectGroup6Channel7"]     = gbtx::regMap{"paPhaseSelectGroup6Channel7","Select sample phase channel 7",{4,4,4},{210,214,218}};
-    registerMaps["paPhaseSelectGroup6Channel6"]     = gbtx::regMap{"paPhaseSelectGroup6Channel6","Select sample phase channel 6",{0,0,0},{210,214,218}};
-    registerMaps["paPhaseSelectGroup6Channel5"]     = gbtx::regMap{"paPhaseSelectGroup6Channel5","Select sample phase channel 5",{4,4,4},{211,215,219}};
-    registerMaps["paPhaseSelectGroup6Channel3"]     = gbtx::regMap{"paPhaseSelectGroup6Channel3","Select sample phase channel 3",{4,4,4},{212,216,220}};
-    registerMaps["paPhaseSelectGroup6Channel2"]     = gbtx::regMap{"paPhaseSelectGroup6Channel2","Select sample phase channel 2",{0,0,0},{212,216,220}};
-    registerMaps["paPhaseSelectGroup6Channel1"]     = gbtx::regMap{"paPhaseSelectGroup6Channel1","Select sample phase channel 1",{4,4,4},{213,217,221}};
-    registerMaps["paPhaseSelectGroup6Channel0"]     = gbtx::regMap{"paPhaseSelectGroup6Channel0","Select sample phase channel 0",{0,0,0},{213,217,221}};
-    registerMaps["paPhaseSelectGroup5Channel1"]     = gbtx::regMap{"paPhaseSelectGroup5Channel1","Select sample phase channel 1",{4,4,4},{189,193,197}};
-    registerMaps["paPhaseSelectGroup1Channel0"]     = gbtx::regMap{"paPhaseSelectGroup1Channel0","Select sample phase channel 0",{0,0,0},{93,97,101}};
-    registerMaps["paPhaseSelectGroup1Channel1"]     = gbtx::regMap{"paPhaseSelectGroup1Channel1","Select sample phase channel 1",{4,4,4},{93,97,101}};
-    registerMaps["paPhaseSelectGroup1Channel2"]     = gbtx::regMap{"paPhaseSelectGroup1Channel2","Select sample phase channel 2",{0,0,0},{92,96,100}};
-    registerMaps["paPhaseSelectGroup1Channel3"]     = gbtx::regMap{"paPhaseSelectGroup1Channel3","Select sample phase channel 3",{4,4,4},{92,96,100}};
-    registerMaps["paPhaseSelectGroup1Channel4"]     = gbtx::regMap{"paPhaseSelectGroup1Channel4","Select sample phase channel 4",{0,0,0},{91,95,99}};
-    registerMaps["paPhaseSelectGroup1Channel5"]     = gbtx::regMap{"paPhaseSelectGroup1Channel5","Select sample phase channel 5",{4,4,4},{91,95,99}};
-    registerMaps["paPhaseSelectGroup1Channel6"]     = gbtx::regMap{"paPhaseSelectGroup1Channel6","Select sample phase channel 6",{0,0,0},{90,94,98}};
-    registerMaps["paPhaseSelectGroup1Channel7"]     = gbtx::regMap{"paPhaseSelectGroup1Channel7","Select sample phase channel 7",{4,4,4},{90,94,98}};
-    registerMaps["paPhaseSelectGroup6Channel4"]     = gbtx::regMap{"paPhaseSelectGroup6Channel4","Select sample phase channel 4",{0,0,0},{211,215,219}};
-    registerMaps["paPhaseSelectGroup3Channel0"]     = gbtx::regMap{"paPhaseSelectGroup3Channel0","Select sample phase channel 0",{0,0,0},{141,145,149}};
-    registerMaps["paPhaseSelectGroup5Channel2"]     = gbtx::regMap{"paPhaseSelectGroup5Channel2","Select sample phase channel 2",{0,0,0},{188,192,196}};
-    registerMaps["paPhaseSelectGroup3Channel2"]     = gbtx::regMap{"paPhaseSelectGroup3Channel2","Select sample phase channel 2",{0,0,0},{140,144,148}};
-    registerMaps["paPhaseSelectGroup3Channel3"]     = gbtx::regMap{"paPhaseSelectGroup3Channel3","Select sample phase channel 3",{4,4,4},{140,144,148}};
-    registerMaps["paPhaseSelectGroup3Channel1"]     = gbtx::regMap{"paPhaseSelectGroup3Channel1","Select sample phase channel 1",{4,4,4},{141,145,149}};
-    registerMaps["paPhaseSelectGroup3Channel6"]     = gbtx::regMap{"paPhaseSelectGroup3Channel6","Select sample phase channel 6",{0,0,0},{138,142,146}};
-    registerMaps["paPhaseSelectGroup3Channel7"]     = gbtx::regMap{"paPhaseSelectGroup3Channel7","Select sample phase channel 7",{4,4,4},{138,142,146}};
-    registerMaps["paPhaseSelectGroup3Channel4"]     = gbtx::regMap{"paPhaseSelectGroup3Channel4","Select sample phase channel 4",{0,0,0},{139,143,147}};
-    registerMaps["paPhaseSelectGroup3Channel5"]     = gbtx::regMap{"paPhaseSelectGroup3Channel5","Select sample phase channel 5",{4,4,4},{139,143,147}};
-    registerMaps["paPhaseSelectGroup0Channel1"]     = gbtx::regMap{"paPhaseSelectGroup0Channel1","Select sample phase channel 1",{4,4,4},{69,73,77}};
-    registerMaps["paPhaseSelectGroup0Channel0"]     = gbtx::regMap{"paPhaseSelectGroup0Channel0","Select sample phase channel 0",{0,0,0},{69,73,77}};
-    registerMaps["paPhaseSelectGroup0Channel3"]     = gbtx::regMap{"paPhaseSelectGroup0Channel3","Select sample phase channel 3",{4,4,4},{68,72,76}};
-    registerMaps["paPhaseSelectGroup0Channel2"]     = gbtx::regMap{"paPhaseSelectGroup0Channel2","Select sample phase channel 2",{0,0,0},{68,72,76}};
-    registerMaps["paPhaseSelectGroup0Channel5"]     = gbtx::regMap{"paPhaseSelectGroup0Channel5","Select sample phase channel 5",{4,4,4},{67,71,75}};
-    registerMaps["paPhaseSelectGroup0Channel7"]     = gbtx::regMap{"paPhaseSelectGroup0Channel7","Select sample phase channel 7",{4,4,4},{66,70,74}};
-    registerMaps["paPhaseSelectGroup0Channel6"]     = gbtx::regMap{"paPhaseSelectGroup0Channel6","Select sample phase channel 6",{0,0,0},{66,70,74}};
-    registerMaps["i2cResetTx"]                      = gbtx::regMap{"i2cResetTx","reset TX logic",{0,1,2},{54,54,54}};
-    registerMaps["cmReferenceClockSelect"]          = gbtx::regMap{"cmReferenceClockSelect","Selects global reference clock",{0,2,4},{281,281,281}};
-    registerMaps["cmXpllReferenceSelect"]           = gbtx::regMap{"cmXpllReferenceSelect","Selects Xpll reference clock",{0,2,4},{290,290,290}};
-    registerMaps["ePllRxReferenceFreq"]             = gbtx::regMap{"ePllRxReferenceFreq","Select EPLL-RX reference frequency",{0,2,4},{242,242,242}};
-    registerMaps["enableTermination3"]              = gbtx::regMap{"enableTermination3","enable Termination group3 channel 7",{0},{323}};
-    registerMaps["cmTxTestMuxSelect40"]             = gbtx::regMap{"cmTxTestMuxSelect40","Selects TX 40MHz clock C in Test mode",{0,0,0},{287,288,289}};
-    registerMaps["extLate7"]                        = gbtx::regMap{"extLate7"," ",{6},{23}};
-    registerMaps["extLate6"]                        = gbtx::regMap{"extLate6"," ",{6},{22}};
-    registerMaps["extLate5"]                        = gbtx::regMap{"extLate5"," ",{6},{21}};
-    registerMaps["extLate4"]                        = gbtx::regMap{"extLate4"," ",{6},{20}};
-    registerMaps["extLate3"]                        = gbtx::regMap{"extLate3"," ",{6},{19}};
-    registerMaps["extLate2"]                        = gbtx::regMap{"extLate2"," ",{6},{18}};
-    registerMaps["extLate1"]                        = gbtx::regMap{"extLate1"," ",{6},{17}};
-    registerMaps["extLate0"]                        = gbtx::regMap{"extLate0"," ",{6},{16}};
-    registerMaps["i2cRxFilterEnable"]               = gbtx::regMap{"i2cRxFilterEnable","i2cRxFilterEnable",{0,1,2},{45,45,45}};
-    registerMaps["modeEc"]                          = gbtx::regMap{"modeEc","mode EC channel",{4,5,6},{254,254,254}};
-    registerMaps["xPllControlOverride"]             = gbtx::regMap{"xPllControlOverride","Override XPLL control",{0,1,2},{318,318,318}};
-    registerMaps["paDllConfigGroup5"]               = gbtx::regMap{"paDllConfigGroup5","Set Phase-aligner dll",{0,4,0},{184,184,185}};
-    registerMaps["cmRxTestMuxSelect80"]             = gbtx::regMap{"cmRxTestMuxSelect80","Selects RX 80MHz clock C in Test mode",{2,2,2},{277,278,279}};
-    registerMaps["paDllConfigGroup4"]               = gbtx::regMap{"paDllConfigGroup4","Set Phase-aligner dll",{0,4,0},{160,160,161}};
-    registerMaps["ePllRxCap"]                       = gbtx::regMap{"ePllRxCap","Sets EPLL-RX Cap C in filter",{5,5,5},{307,308,309}};
-    registerMaps["ePllTxReset"]                     = gbtx::regMap{"ePllTxReset","Reset of EPLL-TX filter",{0,1,2},{303,303,303}};
-    registerMaps["i2cResetRx"]                      = gbtx::regMap{"i2cResetRx","reset RX logic",{3,4,5},{50,50,50}};
-    registerMaps["i2cRxSkipCycle"]                  = gbtx::regMap{"i2cRxSkipCycle","i2cRxSkipCycle",{0,1,2},{40,40,40}};
-    registerMaps["TXselectPosEdge"]                 = gbtx::regMap{"TXselectPosEdge","select +ve clock edge in TX synchroniser",{3,4,5},{244,244,244}};
-    registerMaps["xPllEnablePhaseDetector"]         = gbtx::regMap{"xPllEnablePhaseDetector","Enable XPLL Phase Detector",{4,5,6},{317,317,317}};
-    registerMaps["ePllRxEnablePhase"]               = gbtx::regMap{"ePllRxEnablePhase","Enable EPLL-RX phase",{0,0,0},{304,305,306}};
-    registerMaps["paDllConfigGroup1"]               = gbtx::regMap{"paDllConfigGroup1","Set Phase-aligner dll",{0,4,0},{88,88,89}};
-    registerMaps["ePllTxPhase160MHz"]               = gbtx::regMap{"ePllTxPhase160MHz","Sets EPLL-TX 160MHz phase",{0,0,0},{296,297,298}};
-    registerMaps["enableTermination5"]              = gbtx::regMap{"enableTermination5","enable Termination group5 channel 7",{0},{325}};
-    registerMaps["enableTermination4"]              = gbtx::regMap{"enableTermination4","enable Termination group4 channel 7",{0},{324}};
-    registerMaps["i2cTxReset"]                      = gbtx::regMap{"i2cTxReset","Reset TX control and serialiser",{0,1,2},{33,33,33}};
-    registerMaps["enableTermination1"]              = gbtx::regMap{"enableTermination1","enable Termination group1 channel 7",{0},{321}};
-    registerMaps["enableTermination0"]              = gbtx::regMap{"enableTermination0","enable Termination group0 channel 7",{0},{320}};
-    registerMaps["i2cRxSwap"]                       = gbtx::regMap{"i2cRxSwap","",{3,4,5},{40,40,40}};
-    registerMaps["enableTermination2"]              = gbtx::regMap{"enableTermination2","enable Termination group2 channel 7",{0},{322}};
-    registerMaps["cmRxTestMuxSelect160"]            = gbtx::regMap{"cmRxTestMuxSelect160","Selects RX 160MHz clock C in Test mode",{4,4,4},{277,278,279}};
-    registerMaps["cmRxTestMuxSelect40"]             = gbtx::regMap{"cmRxTestMuxSelect40","Selects RX 40MHz clock C in Test mode",{0,0,0},{277,278,279}};
-    registerMaps["xPllGmSelect"]                    = gbtx::regMap{"xPllGmSelect","Select XPLL Gm",{0,4,0},{316,316,317}};
-    registerMaps["paEnableEC"]                      = gbtx::regMap{"paEnableEC","Enable EC channel",{0,1,2},{248,248,248}};
-    registerMaps["cset1"]                           = gbtx::regMap{"cset1"," ",{4},{269}};
-    registerMaps["rxMaxInvalidHeaders"]             = gbtx::regMap{"rxMaxInvalidHeaders"," ",{0},{38}};
-    registerMaps["paDllConfigGroup3"]               = gbtx::regMap{"paDllConfigGroup3","Set Phase-aligner dll",{0,4,0},{136,136,137}};
-    registerMaps["paDllConfigGroup2"]               = gbtx::regMap{"paDllConfigGroup2","Set Phase-aligner dll",{0,4,0},{112,112,113}};
-    registerMaps["i2cRxSelectDataInPhase"]          = gbtx::regMap{"i2cRxSelectDataInPhase","",{3,4,5},{36,36,36}};
-    registerMaps["paDllConfigGroup0"]               = gbtx::regMap{"paDllConfigGroup0","Set Phase-aligner dll",{0,4,0},{64,64,65}};
-    registerMaps["clockBusFrequency4"]              = gbtx::regMap{"clockBusFrequency4","clock frequency group4",{2,2,2},{266,344,359}};
-    registerMaps["ePllTxReferenceFreq"]             = gbtx::regMap{"ePllTxReferenceFreq","Select EPLL-TX reference frequency",{0,2,4},{243,243,243}};
-    registerMaps["clockBusFrequency1"]              = gbtx::regMap{"clockBusFrequency1","clock frequency group1",{2,2,2},{257,335,350}};
-    registerMaps["clockBusFrequency2"]              = gbtx::regMap{"clockBusFrequency2","clock frequency group2",{2,2,2},{260,338,353}};
-    registerMaps["PSpllEnable"]                     = gbtx::regMap{"PSpllEnable","enable phase-shifter PLL",{0,1,2},{52,52,52}};
-    registerMaps["paDataRateGroup0"]                = gbtx::regMap{"paDataRateGroup0","Set Phase-aligner speed",{0,2,4},{63,63,63}};
-    registerMaps["paDataRateGroup1"]                = gbtx::regMap{"paDataRateGroup1","Set Phase-aligner speed",{0,2,4},{87,87,87}};
-    registerMaps["paDataRateGroup2"]                = gbtx::regMap{"paDataRateGroup2","Set Phase-aligner speed",{0,2,4},{111,111,111}};
-    registerMaps["paDataRateGroup3"]                = gbtx::regMap{"paDataRateGroup3","Set Phase-aligner speed",{0,2,4},{135,135,135}};
-    registerMaps["paDataRateGroup4"]                = gbtx::regMap{"paDataRateGroup4","Set Phase-aligner speed",{0,2,4},{159,159,159}};
-    registerMaps["paDataRateGroup5"]                = gbtx::regMap{"paDataRateGroup5","Set Phase-aligner speed",{0,2,4},{183,183,183}};
-    registerMaps["paDataRateGroup6"]                = gbtx::regMap{"paDataRateGroup6","Set Phase-aligner speed",{0,2,4},{207,207,207}};
-    registerMaps["cset5"]                           = gbtx::regMap{"cset5"," ",{4},{271}};
-    registerMaps["cset2"]                           = gbtx::regMap{"cset2"," ",{0},{270}};
-    registerMaps["cset3"]                           = gbtx::regMap{"cset3"," ",{4},{270}};
-    registerMaps["paEnableGroup1"]                  = gbtx::regMap{"paEnableGroup1","Enable channel 7",{0,0,0},{105,106,107}};
-    registerMaps["paEnableGroup0"]                  = gbtx::regMap{"paEnableGroup0","Enable channel 7",{0,0,0},{81,82,83}};
-    registerMaps["paEnableGroup3"]                  = gbtx::regMap{"paEnableGroup3","Enable channel 7",{0,0,0},{153,154,155}};
-    registerMaps["paEnableGroup2"]                  = gbtx::regMap{"paEnableGroup2","Enable channel 7",{0,0,0},{129,130,131}};
-    registerMaps["paEnableGroup5"]                  = gbtx::regMap{"paEnableGroup5","Enable channel 7",{0,0,0},{201,202,203}};
-    registerMaps["paEnableGroup4"]                  = gbtx::regMap{"paEnableGroup4","Enable channel 7",{0,0,0},{177,178,179}};
-    registerMaps["i2cStartRace"]                    = gbtx::regMap{"i2cStartRace","",{0,1,2},{42,42,42}};
-    registerMaps["cset6"]                           = gbtx::regMap{"cset6"," ",{0},{272}};
-    registerMaps["paDllConfigGroup6"]               = gbtx::regMap{"paDllConfigGroup6","Set Phase-aligner dll",{0,4,0},{208,208,209}};
-    registerMaps["cset7"]                           = gbtx::regMap{"cset7"," ",{4},{272}};
-    registerMaps["enableWatchdogFSM"]               = gbtx::regMap{"enableWatchdogFSM","enable watchdog",{0,1,2},{50,50,50}};
-    registerMaps["modeGroup2"]                      = gbtx::regMap{"modeGroup2","mode group2",{0,0,0},{260,338,353}};
-    registerMaps["cmRxPhase40MHz"]                  = gbtx::regMap{"cmRxPhase40MHz","Fine phase delay of RX 40MHz clock",{0,4,0},{274,274,275}};
-    registerMaps["PLLcp"]                           = gbtx::regMap{"PLLcp"," ",{0},{26}};
-    registerMaps["cset4"]                           = gbtx::regMap{"cset4"," ",{0},{271}};
-    registerMaps["i2cRxSelectI2Freq"]               = gbtx::regMap{"i2cRxSelectI2Freq"," freq detector" ,{0},{35}};
-    registerMaps["ePllTxEnablePhase"]               = gbtx::regMap{"ePllTxEnablePhase","Enable EPLL-TX phase",{0,0,0},{293,294,295}};
-    registerMaps["cmTxTestMuxSelect80"]             = gbtx::regMap{"cmTxTestMuxSelect80","Selects TX 80MHz clock C in Test mode",{2,2,2},{287,288,289}};
-    registerMaps["clkDriveStrength1"]               = gbtx::regMap{"clkDriveStrength1","set clock drive strength group 1",{0},{330}};
-    registerMaps["cmTxPhase40MHz"]                  = gbtx::regMap{"cmTxPhase40MHz","Fine phase delay of TX 40MHz clock",{0,4,0},{284,284,285}};
-    registerMaps["fuseBlowData"]                    = gbtx::regMap{"fuseBlowData","data to blow fuse",{0},{240}};
-    registerMaps["ePllTxIcp"]                       = gbtx::regMap{"ePllTxIcp","Sets EPLL-TX charge pump current",{0,0,0},{299,300,301}};
-    registerMaps["xPllChargePumpCurrent"]           = gbtx::regMap{"xPllChargePumpCurrent","xPll Charge Pump Current",{0,4,0},{235,235,236}};
-    registerMaps["dataPortEnableGroup2"]            = gbtx::regMap{"dataPortEnableGroup2","enable data group2 channel 7",{0,0,0},{262,340,355}};
-    registerMaps["PLLres"]                          = gbtx::regMap{"PLLres"," ",{4},{26}};
-    registerMaps["i2cRxFilterBypass"]               = gbtx::regMap{"i2cRxFilterBypass","",{1,2,3},{44,44,44}};
-    registerMaps["i2cRxControlOverride"]            = gbtx::regMap{"i2cRxControlOverride","",{0,1,2},{36,36,36}};
-    registerMaps["clockBusFrequencyEc"]             = gbtx::regMap{"clockBusFrequencyEc","clock frequency EC channel",{4,5,6},{257,257,257}};
-    registerMaps["ePllRxIcp"]                       = gbtx::regMap{"ePllRxIcp","Sets EPLL-RX charge pump current",{0,0,0},{310,311,312}};
-    registerMaps["paEnableGroup6"]                  = gbtx::regMap{"paEnableGroup6","Enable channel 7",{0,0,0},{225,226,227}};
-    registerMaps["paDllResetGroup3"]                = gbtx::regMap{"paDllResetGroup3","Reset Phase-aligner dll",{4,5,6},{137,137,137}};
-    registerMaps["paDllResetGroup2"]                = gbtx::regMap{"paDllResetGroup2","Reset Phase-aligner dll",{4,5,6},{113,113,113}};
-    registerMaps["paDllResetGroup1"]                = gbtx::regMap{"paDllResetGroup1","Reset Phase-aligner dll",{4,5,6},{89,89,89}};
-    registerMaps["paDllResetGroup0"]                = gbtx::regMap{"paDllResetGroup0","Reset Phase-aligner dll",{4,5,6},{65,65,65}};
-    registerMaps["paDllResetGroup6"]                = gbtx::regMap{"paDllResetGroup6","Reset Phase-aligner dll",{4,5,6},{209,209,209}};
-    registerMaps["paDllResetGroup5"]                = gbtx::regMap{"paDllResetGroup5","Reset Phase-aligner dll",{4,5,6},{185,185,185}};
-    registerMaps["paDllResetGroup4"]                = gbtx::regMap{"paDllResetGroup4","Reset Phase-aligner dll",{4,5,6},{161,161,161}};
-    registerMaps["paDllConfigEC"]                   = gbtx::regMap{"paDllConfigEC","Set EC Phase-aligner dll",{0,4,0},{231,231,232}};
-    registerMaps["rxSelectR"]                       = gbtx::regMap{"rxSelectR"," ",{0},{34}};
-    registerMaps["gbld_w1"]                         = gbtx::regMap{"gbld_w1","Value to write to GBLD",{0},{56}};
-    registerMaps["cmEpllRxReferenceSelect"]         = gbtx::regMap{"cmEpllRxReferenceSelect","Selects reference clock C for EPLL-RX",{0,2,4},{0,0,0}};
-    registerMaps["xPllEnableAutoRestart"]           = gbtx::regMap{"xPllEnableAutoRestart","Enable XPLL Auto restart",{3,4,5},{318,318,318}};
-    registerMaps["modeGroup0"]                      = gbtx::regMap{"modeGroup0","mode group0",{0,0,0},{254,332,347}};
-    registerMaps["ePllRxPhase320MHz"]               = gbtx::regMap{"ePllRxPhase320MHz","Sets EPLL-RX 320MHz phase",{0,4,4},{302,302,292}};
-    registerMaps["gbld_w4"]                         = gbtx::regMap{"gbld_w4","Value to write to GBLD",{0},{59}};
-    registerMaps["rxTestMode"]                      = gbtx::regMap{"rxTestMode","Select RX data source",{5,6,7},{49,49,49}};
-    registerMaps["gbld_w6"]                         = gbtx::regMap{"gbld_w6","Value to write to GBLD",{0},{61}};
-    registerMaps["modeGroup3"]                      = gbtx::regMap{"modeGroup3","mode group3",{0,0,0},{263,341,356}};
-    registerMaps["gbld_w0"]                         = gbtx::regMap{"gbld_w0","Value to write to GBLD",{0},{55}};
-    registerMaps["cmTxReferenceTestMuxSelect"]      = gbtx::regMap{"cmTxReferenceTestMuxSelect","Selects reference clock C for TX in Test mode",{0,2,4},{3,3,3}};
-    registerMaps["gbld_w2"]                         = gbtx::regMap{"gbld_w2","Value to write to GBLD",{0},{57}};
-    registerMaps["gbld_w3"]                         = gbtx::regMap{"gbld_w3","Value to write to GBLD",{0},{58}};
-    registerMaps["clockPortEnableGroup0"]           = gbtx::regMap{"clockPortEnableGroup0","enable clock group0 channel 7",{0,0,0},{255,333,348}};
-    registerMaps["i2cRxSelectI2Phase"]              = gbtx::regMap{"i2cRxSelectI2Phase"," phase detector" ,{4},{35}};
-    registerMaps["clockPortEnableGroup2"]           = gbtx::regMap{"clockPortEnableGroup2","enable clock group2 channel 7",{0,0,0},{261,339,354}};
-    registerMaps["stateForced"]                     = gbtx::regMap{"stateForced","select state of power-up sequence",{0},{51}};
-    registerMaps["clockPortEnableGroup4"]           = gbtx::regMap{"clockPortEnableGroup4","enable clock group4 channel 7",{0,0,0},{267,345,360}};
-    registerMaps["dataPortEnableGroup3"]            = gbtx::regMap{"dataPortEnableGroup3","enable data group3 channel 7",{0,0,0},{265,343,358}};
-    registerMaps["extS5"]                           = gbtx::regMap{"extS5"," ",{5},{13}};
-    registerMaps["extS4"]                           = gbtx::regMap{"extS4"," ",{5},{12}};
-    registerMaps["extS7"]                           = gbtx::regMap{"extS7"," ",{5},{15}};
-    registerMaps["txTestMode"]                      = gbtx::regMap{"txTestMode","Select TX data source",{0},{28}};
-    registerMaps["txEnableSoftLossOfLock"]          = gbtx::regMap{"txEnableSoftLossOfLock","Enable soft loss of lock",{6},{33}};
-    registerMaps["extS0"]                           = gbtx::regMap{"extS0"," ",{5},{8}};
-    registerMaps["extS3"]                           = gbtx::regMap{"extS3"," ",{5},{11}};
-    registerMaps["extS2"]                           = gbtx::regMap{"extS2"," ",{5},{10}};
-    registerMaps["bypssEportTX2"]                   = gbtx::regMap{"bypssEportTX2","bypass Eport TX group2",{6,7,0},{246,246,247}};
-    registerMaps["dllCoarseLockDetection"]          = gbtx::regMap{"dllCoarseLockDetection","dll coarse lock detection",{4,5,6},{233,233,233}};
-    registerMaps["bypssEportTX1"]                   = gbtx::regMap{"bypssEportTX1","bypass Eport TX group1",{3,4,5},{246,246,246}};
-    registerMaps["dataPortEnableGroup1"]            = gbtx::regMap{"dataPortEnableGroup1","enable data group1 channel 7",{0,0,0},{259,337,352}};
-    registerMaps["bypssEportTX4"]                   = gbtx::regMap{"bypssEportTX4","bypass Eport TX group4",{4,5,6},{247,247,247}};
-    registerMaps["iSel4"]                           = gbtx::regMap{"iSel4"," ",{0},{20}};
-    registerMaps["iSel5"]                           = gbtx::regMap{"iSel5"," ",{0},{21}};
-    registerMaps["iSel6"]                           = gbtx::regMap{"iSel6"," ",{0},{22}};
-    registerMaps["iSel7"]                           = gbtx::regMap{"iSel7"," ",{0},{23}};
-    registerMaps["iSel0"]                           = gbtx::regMap{"iSel0"," ",{0},{16}};
-    registerMaps["iSel1"]                           = gbtx::regMap{"iSel1"," ",{0},{17}};
-    registerMaps["iSel2"]                           = gbtx::regMap{"iSel2"," ",{0},{18}};
-    registerMaps["iSel3"]                           = gbtx::regMap{"iSel3"," ",{0},{19}};
-    registerMaps["cmRxPhase80MHz"]                  = gbtx::regMap{"cmRxPhase80MHz","Fine phase delay of RX 80MHz clock",{4,0,4},{275,276,276}};
-    registerMaps["loopbackF"]                       = gbtx::regMap{"loopbackF","enable loopbackF",{3,4,5},{234,234,234}};
-    registerMaps["clkDriveStrength4"]               = gbtx::regMap{"clkDriveStrength4","set clock drive strength group 4",{4},{331}};
-    registerMaps["i2cRxDac2"]                       = gbtx::regMap{"i2cRxDac2"," ",{0},{44}};
-    registerMaps["i2cRxDac1"]                       = gbtx::regMap{"i2cRxDac1"," ",{0},{43}};
-    registerMaps["scCset"]                          = gbtx::regMap{"scCset","Drive current control for SC-EC Eport",{0},{273}};
-    registerMaps["FDL6"]                            = gbtx::regMap{"FDL6"," ",{0},{7}};
-    registerMaps["FDL7"]                            = gbtx::regMap{"FDL7"," ",{4},{7}};
-    registerMaps["FDL4"]                            = gbtx::regMap{"FDL4"," ",{0},{6}};
-    registerMaps["FDL5"]                            = gbtx::regMap{"FDL5"," ",{4},{6}};
-    registerMaps["FDL2"]                            = gbtx::regMap{"FDL2"," ",{0},{5}};
-    registerMaps["FDL3"]                            = gbtx::regMap{"FDL3"," ",{4},{5}};
-    registerMaps["FDL0"]                            = gbtx::regMap{"FDL0"," ",{0},{4}};
-    registerMaps["FDL1"]                            = gbtx::regMap{"FDL1"," ",{4},{4}};
-    registerMaps["i2cRxForceVfEqVc"]                = gbtx::regMap{"i2cRxForceVfEqVc","",{3,4,5},{45,45,45}};
-    registerMaps["enableTestBar"]                   = gbtx::regMap{"enableTestBar"," ",{1},{25}};
-    registerMaps["CDL5"]                            = gbtx::regMap{"CDL5"," ",{0},{13}};
-    registerMaps["CDL4"]                            = gbtx::regMap{"CDL4"," ",{0},{12}};
-    registerMaps["CDL7"]                            = gbtx::regMap{"CDL7"," ",{0},{15}};
-    registerMaps["CDL6"]                            = gbtx::regMap{"CDL6"," ",{0},{14}};
-    registerMaps["CDL1"]                            = gbtx::regMap{"CDL1"," ",{0},{9}};
-    registerMaps["CDL0"]                            = gbtx::regMap{"CDL0"," ",{0},{8}};
-    registerMaps["CDL3"]                            = gbtx::regMap{"CDL3"," ",{0},{11}};
-    registerMaps["CDL2"]                            = gbtx::regMap{"CDL2"," ",{0},{10}};
-    registerMaps["resetBar1"]                       = gbtx::regMap{"resetBar1","Channel 1 reset",{1},{24}};
-    registerMaps["resetBar0"]                       = gbtx::regMap{"resetBar0","Channel 0 reset",{0},{24}};
-    registerMaps["resetBar3"]                       = gbtx::regMap{"resetBar3","Channel 3 reset",{3},{24}};
-    registerMaps["resetBar2"]                       = gbtx::regMap{"resetBar2","Channel 2 reset",{2},{24}};
-    registerMaps["resetBar5"]                       = gbtx::regMap{"resetBar5","Channel 5 reset",{5},{24}};
-    registerMaps["resetBar4"]                       = gbtx::regMap{"resetBar4","Channel 4 reset",{4},{24}};
-    registerMaps["resetBar7"]                       = gbtx::regMap{"resetBar7","Channel 7 reset",{7},{24}};
-    registerMaps["resetBar6"]                       = gbtx::regMap{"resetBar6","Channel 6 reset",{6},{24}};
-    registerMaps["gbld_w5"]                         = gbtx::regMap{"gbld_w5","Value to write to GBLD",{0},{60}};
-    registerMaps["dataPortEnableGroup0"]            = gbtx::regMap{"dataPortEnableGroup0","enable data group0 channel 7",{0,0,0},{256,334,349}};
-    registerMaps["rxSwitchesControl"]               = gbtx::regMap{"rxSwitchesControl","Select data path through RX logic",{0,0,0},{46,47,48}};
-    registerMaps["fuseBlowAddress2"]                = gbtx::regMap{"fuseBlowAddress2","address of fuse to blow",{0},{239}};
-    registerMaps["fuseBlowAddress1"]                = gbtx::regMap{"fuseBlowAddress1","address of fuse to blow",{0},{238}};
-    registerMaps["configDone"]                      = gbtx::regMap{"configDone","re-starts power-up sequence if set to AA hex",{0},{365}};
-    registerMaps["i2cRxControlReset"]               = gbtx::regMap{"i2cRxControlReset","FASM and LCSM reset",{0,1,2},{41,41,41}};
-    registerMaps["modeGroup4"]                      = gbtx::regMap{"modeGroup4","mode group4",{0,0,0},{266,344,359}};
-    registerMaps["ePllTxPhase320MHz"]               = gbtx::regMap{"ePllTxPhase320MHz","Sets EPLL-TX 320MHz phase",{0,4,0},{291,291,292}};
-    registerMaps["xPllFrequencyTrim"]               = gbtx::regMap{"xPllFrequencyTrim","Sets XPLL frequency trim",{0,0,0},{313,314,315}};
-    registerMaps["clockBusFrequency3"]              = gbtx::regMap{"clockBusFrequency3","clock frequency group3",{2,2,2},{263,341,356}};
-    registerMaps["xPllEnable"]                      = gbtx::regMap{"xPllEnable","Enables XPLL",{7,7,7},{313,314,315}};
-    registerMaps["i2cRxSelectI1"]                   = gbtx::regMap{"i2cRxSelectI1"," ",{4},{41}};
-    registerMaps["paDllResetEC"]                    = gbtx::regMap{"paDllResetEC","Reset EC Phase-aligner dll",{4,5,6},{232,232,232}};
-    registerMaps["enableTermination6"]              = gbtx::regMap{"enableTermination6","enable Termination group6 channel 7",{0},{326}};
-    registerMaps["cmTestOutSelect"]                 = gbtx::regMap{"cmTestOutSelect","Selects which signal to send to testClockOut from first subset",{0},{283}};
-    registerMaps["rxMinValidHeaders"]               = gbtx::regMap{"rxMinValidHeaders"," ",{0},{39}};
-    registerMaps["timeOutEnable"]                   = gbtx::regMap{"timeOutEnable","enable timeOuts",{3,4,5},{52,52,52}};
-    registerMaps["bypssEportTX3"]                   = gbtx::regMap{"bypssEportTX3","bypass Eport TX group3",{1,2,3},{247,247,247}};
-    registerMaps["cmTestMuxSelect"]                 = gbtx::regMap{"cmTestMuxSelect","Selects which signal to send to testClockOut from second subset",{0},{319}};
-    registerMaps["cmEpllTxReferenceSelect"]         = gbtx::regMap{"cmEpllTxReferenceSelect","Selects reference clock C for EPLL-TX",{0,2,4},{1,1,1}};
-    registerMaps["txPLLLockTime"]                   = gbtx::regMap{"txPLLLockTime","Set wait time for serialiser PLL to lock",{0},{32}};
-    registerMaps["modeGroup1"]                      = gbtx::regMap{"modeGroup1","mode group1",{0,0,0},{257,335,350}};
-    registerMaps["cmTxPhase80MHz"]                  = gbtx::regMap{"cmTxPhase80MHz","Fine phase delay of TX 80MHz clock",{4,0,4},{285,286,286}};
-    registerMaps["clockPortEnableGroup1"]           = gbtx::regMap{"clockPortEnableGroup1","enable clock group1 channel 7",{0,0,0},{258,336,351}};
-    registerMaps["selHiByteTX1"]                    = gbtx::regMap{"selHiByteTX1","select HiByte in bypassed Eport TX group1",{3,4,5},{249,249,249}};
-    registerMaps["loopbackE"]                       = gbtx::regMap{"loopbackE","enable loopbackE",{0,1,2},{234,234,234}};
-    registerMaps["enableBERT"]                      = gbtx::regMap{"enableBERT","Enable BERT in RX logic",{2,3,4},{49,49,49}};
-    registerMaps["clockPortEnableGroup3"]           = gbtx::regMap{"clockPortEnableGroup3","enable clock group3 channel 7",{0,0,0},{264,342,357}};
-    registerMaps["i2cRxDacEnable"]                  = gbtx::regMap{"i2cRxDacEnable","",{3,4,5},{42,42,42}};
-    registerMaps["cset0"]                           = gbtx::regMap{"cset0"," ",{0},{269}};
-    registerMaps["clkDriveStrength0"]               = gbtx::regMap{"clkDriveStrength0","set clock drive strength group 0",{4},{329}};
-    registerMaps["rxDisableDecoderTMR"]             = gbtx::regMap{"rxDisableDecoderTMR","Disable TMR in FEC decoder",{1},{49}};
-    registerMaps["driveStrength3"]                  = gbtx::regMap{"driveStrength3","set drive strength group 3",{4},{328}};
-    registerMaps["paMode"]                          = gbtx::regMap{"paMode","Phase-aligner track mode",{0,2,4},{62,62,62}};
-    registerMaps["cmPsReferenceSelect"]             = gbtx::regMap{"cmPsReferenceSelect","Selects Phase-Shifter reference clock",{0,2,4},{282,282,282}};
-    registerMaps["selHiByteTX0"]                    = gbtx::regMap{"selHiByteTX0","select HiByte in bypassed Eport TX group0",{0,1,2},{249,249,249}};
-    registerMaps["clkDriveStrength2"]               = gbtx::regMap{"clkDriveStrength2","set clock drive strength group 2",{4},{330}};
-    registerMaps["clkDriveStrength3"]               = gbtx::regMap{"clkDriveStrength3","set clock drive strength group 3",{0},{331}};
-    registerMaps["cmRxReferenceTestMuxSelect"]      = gbtx::regMap{"cmRxReferenceTestMuxSelect","Selects reference clock C for RX in Test mode",{0,2,4},{2,2,2}};
-    registerMaps["cmTxTestMuxSelect160"]            = gbtx::regMap{"cmTxTestMuxSelect160","Selects TX 160MHz clock C in Test mode",{4,4,4},{287,288,289}};
-    registerMaps["ePllRxReset"]                     = gbtx::regMap{"ePllRxReset","Reset of EPLL-RX filter",{4,5,6},{303,303,303}};
-    registerMaps["FREQ7"]                           = gbtx::regMap{"FREQ7"," ",{4},{23}};
-    registerMaps["FREQ6"]                           = gbtx::regMap{"FREQ6"," ",{4},{22}};
-    registerMaps["FREQ5"]                           = gbtx::regMap{"FREQ5"," ",{4},{21}};
-    registerMaps["FREQ4"]                           = gbtx::regMap{"FREQ4"," ",{4},{20}};
-    registerMaps["FREQ3"]                           = gbtx::regMap{"FREQ3"," ",{4},{19}};
-    registerMaps["FREQ2"]                           = gbtx::regMap{"FREQ2"," ",{4},{18}};
-    registerMaps["FREQ1"]                           = gbtx::regMap{"FREQ1"," ",{4},{17}};
-    registerMaps["FREQ0"]                           = gbtx::regMap{"FREQ0"," ",{4},{16}};
-    registerMaps["RXselectPosEdge"]                 = gbtx::regMap{"RXselectPosEdge","select +ve clock edge in RX synchroniser",{0,1,2},{244,244,244}};
-    registerMaps["extS6"]                           = gbtx::regMap{"extS6"," ",{5},{14}};
-    registerMaps["ePllTxCap"]                       = gbtx::regMap{"ePllTxCap","Sets EPLL-TX Cap C in filter",{5,5,5},{296,297,298}};
-    registerMaps["i2cldReset"]                      = gbtx::regMap{"i2cldReset","Controls state of ldReset pin",{3,4,5},{54,54,54}};
-    registerMaps["extS1"]                           = gbtx::regMap{"extS1"," ",{5},{9}};
-    registerMaps["selHiByteTX3"]                    = gbtx::regMap{"selHiByteTX3","select HiByte in bypassed Eport TX group3",{1,2,3},{250,250,250}};
-    registerMaps["ePllTxRes"]                       = gbtx::regMap{"ePllTxRes","Sets EPLL-TX Res C in filter",{4,4,4},{299,300,301}};
-    registerMaps["ePllRxRes"]                       = gbtx::regMap{"ePllRxRes","Sets EPLL-RX Res C in filter",{4,4,4},{310,311,312}};
-    registerMaps["dataPortEnableGroup4"]            = gbtx::regMap{"dataPortEnableGroup4","enable data group4 channel 7",{0,0,0},{268,346,361}};
-    registerMaps["cmTxTestMuxSelect320"]            = gbtx::regMap{"cmTxTestMuxSelect320","Selects TX 320MHz clock C in Test mode",{6,6,6},{287,288,289}};
-    registerMaps["ePllRxPhase160MHz"]               = gbtx::regMap{"ePllRxPhase160MHz","Sets EPLL-RX 160MHz phase",{0,0,0},{307,308,309}};
-    registerMaps["cmRxTestMuxSelect320"]            = gbtx::regMap{"cmRxTestMuxSelect320","Selects RX 320MHz clock C in Test mode",{6,6,6},{277,278,279}};
-    registerMaps["rxDacGain"]                       = gbtx::regMap{"rxDacGain","",{4,5,6},{34,34,34}};
-    registerMaps["resetPLLBar"]                     = gbtx::regMap{"resetPLLBar","PLL reset",{0},{25}};
-    registerMaps["SLVSoutTestSel"]                  = gbtx::regMap{"SLVSoutTestSel","Selects signal to drive SLVS output test (dOut32)",{6},{0}};
-    registerMaps["txSelectI"]                       = gbtx::regMap{"txSelectI"," ",{0},{27}};
-    registerMaps["txSelectR"]                       = gbtx::regMap{"txSelectR"," ",{4},{27}};
-    registerMaps["txEnableTest"]                    = gbtx::regMap{"txEnableTest"," ",{6},{27}};
-    registerMaps["extEarly3"]                       = gbtx::regMap{"extEarly3"," ",{7},{11}};
-    registerMaps["extEarly2"]                       = gbtx::regMap{"extEarly2"," ",{7},{10}};
-    registerMaps["extEarly1"]                       = gbtx::regMap{"extEarly1"," ",{7},{9}};
-    registerMaps["extEarly0"]                       = gbtx::regMap{"extEarly0"," ",{7},{8}};
-    registerMaps["extEarly7"]                       = gbtx::regMap{"extEarly7"," ",{7},{15}};
-    registerMaps["extEarly6"]                       = gbtx::regMap{"extEarly6"," ",{7},{14}};
-    registerMaps["extEarly5"]                       = gbtx::regMap{"extEarly5"," ",{7},{13}};
-    registerMaps["extEarly4"]                       = gbtx::regMap{"extEarly4"," ",{7},{12}};
-    registerMaps["selHiByteTX2"]                    = gbtx::regMap{"selHiByteTX2","select HiByte in bypassed Eport TX group2",{6,7,0},{249,249,250}};
-    registerMaps["bypssEportTX0"]                   = gbtx::regMap{"bypssEportTX0","bypass Eport TX group0",{0,1,2},{246,246,246}};
-    registerMaps["clockBusFrequency0"]              = gbtx::regMap{"clockBusFrequency0","clock frequency group0",{2,2,2},{254,332,347}};
-    registerMaps["selHiByteTX4"]                    = gbtx::regMap{"selHiByteTX4","select HiByte in bypassed Eport TX group4",{4,5,6},{250,250,250}};
-    registerMaps["driveStrength4"]                  = gbtx::regMap{"driveStrength4","set drive strength group 4",{0},{329}};
-    registerMaps["rxValidHeaders"]                  = gbtx::regMap{"rxValidHeaders"," ",{0},{37}};
-    registerMaps["driveStrength2"]                  = gbtx::regMap{"driveStrength2","set drive strength group 2",{0},{328}};
-    registerMaps["driveStrength1"]                  = gbtx::regMap{"driveStrength1","set drive strength group 1",{4},{327}};
-    registerMaps["driveStrength0"]                  = gbtx::regMap{"driveStrength0","set drive strength group 0",{0},{327}};
-    registerMaps["txSwitchesControl"]               = gbtx::regMap{"txSwitchesControl","Select data path through TX logic",{0,0,0},{29,30,31}};
-    registerMaps["testOutputSelect"]                = gbtx::regMap{"testOutputSelect","Selects the signal to drive testOutput",{0},{280}};
-    registerMaps["txForceLockState"]                = gbtx::regMap{"txForceLockState","Force serialiser control to locked state",{4},{32}};
-    registerMaps["txLossOfLockTime"]                = gbtx::regMap{"txLossOfLockTime","Set time limit on unlock",{5},{32}};
-    registerMaps["scEnableTermination"]             = gbtx::regMap{"scEnableTermination","Enable termination for SC-EC Eport",{5},{273}};
-    registerMaps["txDisableEncoderTMR"]             = gbtx::regMap{"txDisableEncoderTMR","Disable TMR in FEC encoder",{6},{28}};
-    registerMaps["bypassEportRX"]                   = gbtx::regMap{"bypassEportRX","bypass EportRX",{0,1,2},{252,252,252}};
-    registerMaps["gbld_ID"]                         = gbtx::regMap{"gbld_ID","i2c address of GBLD",{0},{253}};
-    registerMaps["i2cRxReset"]                      = gbtx::regMap{"i2cRxReset","(Conditional) reset of the CDR PLL",{0,2,4},{53,53,53}};
-
-    return registerMaps;
-}
+    {"paPhaseSelectGroup0Channel4",     {"paPhaseSelectGroup0Channel4","Select sample phase channel 4",{0,0,0},{67,71,75}}},
+    {"paPhaseSelectGroup5Channel4",     {"paPhaseSelectGroup5Channel4","Select sample phase channel 4",{0,0,0},{187,191,195}}},
+    {"paPhaseSelectGroup5Channel6",     {"paPhaseSelectGroup5Channel6","Select sample phase channel 6",{0,0,0},{186,190,194}}},
+    {"paPhaseSelectGroup5Channel7",     {"paPhaseSelectGroup5Channel7","Select sample phase channel 7",{4,4,4},{186,190,194}}},
+    {"paPhaseSelectGroup5Channel0",     {"paPhaseSelectGroup5Channel0","Select sample phase channel 0",{0,0,0},{189,193,197}}},
+    {"paPhaseSelectGroup5Channel5",     {"paPhaseSelectGroup5Channel5","Select sample phase channel 5",{4,4,4},{187,191,195}}},
+    {"paPhaseSelectGroup5Channel3",     {"paPhaseSelectGroup5Channel3","Select sample phase channel 3",{4,4,4},{188,192,196}}},
+    {"paPhaseSelectGroup2Channel3",     {"paPhaseSelectGroup2Channel3","Select sample phase channel 3",{4,4,4},{116,120,124}}},
+    {"paPhaseSelectGroup2Channel2",     {"paPhaseSelectGroup2Channel2","Select sample phase channel 2",{0,0,0},{116,120,124}}},
+    {"paPhaseSelectGroup2Channel1",     {"paPhaseSelectGroup2Channel1","Select sample phase channel 1",{4,4,4},{117,121,125}}},
+    {"paPhaseSelectGroup2Channel0",     {"paPhaseSelectGroup2Channel0","Select sample phase channel 0",{0,0,0},{117,121,125}}},
+    {"paPhaseSelectGroup2Channel7",     {"paPhaseSelectGroup2Channel7","Select sample phase channel 7",{4,4,4},{114,118,122}}},
+    {"paPhaseSelectGroup2Channel6",     {"paPhaseSelectGroup2Channel6","Select sample phase channel 6",{0,0,0},{114,118,122}}},
+    {"paPhaseSelectGroup2Channel5",     {"paPhaseSelectGroup2Channel5","Select sample phase channel 5",{4,4,4},{115,119,123}}},
+    {"paPhaseSelectGroup2Channel4",     {"paPhaseSelectGroup2Channel4","Select sample phase channel 4",{0,0,0},{115,119,123}}},
+    {"paPhaseSelectEC",                 {"paPhaseSelectEC","Select sample phase EC channel",{0,0,0},{233,237,241}}},
+    {"paPhaseSelectGroup4Channel5",     {"paPhaseSelectGroup4Channel5","Select sample phase channel 5",{4,4,4},{163,167,171}}},
+    {"paPhaseSelectGroup4Channel4",     {"paPhaseSelectGroup4Channel4","Select sample phase channel 4",{0,0,0},{163,167,171}}},
+    {"paPhaseSelectGroup4Channel7",     {"paPhaseSelectGroup4Channel7","Select sample phase channel 7",{4,4,4},{162,166,170}}},
+    {"paPhaseSelectGroup4Channel6",     {"paPhaseSelectGroup4Channel6","Select sample phase channel 6",{0,0,0},{162,166,170}}},
+    {"paPhaseSelectGroup4Channel1",     {"paPhaseSelectGroup4Channel1","Select sample phase channel 1",{4,4,4},{165,169,173}}},
+    {"paPhaseSelectGroup4Channel0",     {"paPhaseSelectGroup4Channel0","Select sample phase channel 0",{0,0,0},{165,169,173}}},
+    {"paPhaseSelectGroup4Channel3",     {"paPhaseSelectGroup4Channel3","Select sample phase channel 3",{4,4,4},{164,168,172}}},
+    {"paPhaseSelectGroup4Channel2",     {"paPhaseSelectGroup4Channel2","Select sample phase channel 2",{0,0,0},{164,168,172}}},
+    {"paPhaseSelectGroup6Channel7",     {"paPhaseSelectGroup6Channel7","Select sample phase channel 7",{4,4,4},{210,214,218}}},
+    {"paPhaseSelectGroup6Channel6",     {"paPhaseSelectGroup6Channel6","Select sample phase channel 6",{0,0,0},{210,214,218}}},
+    {"paPhaseSelectGroup6Channel5",     {"paPhaseSelectGroup6Channel5","Select sample phase channel 5",{4,4,4},{211,215,219}}},
+    {"paPhaseSelectGroup6Channel3",     {"paPhaseSelectGroup6Channel3","Select sample phase channel 3",{4,4,4},{212,216,220}}},
+    {"paPhaseSelectGroup6Channel2",     {"paPhaseSelectGroup6Channel2","Select sample phase channel 2",{0,0,0},{212,216,220}}},
+    {"paPhaseSelectGroup6Channel1",     {"paPhaseSelectGroup6Channel1","Select sample phase channel 1",{4,4,4},{213,217,221}}},
+    {"paPhaseSelectGroup6Channel0",     {"paPhaseSelectGroup6Channel0","Select sample phase channel 0",{0,0,0},{213,217,221}}},
+    {"paPhaseSelectGroup5Channel1",     {"paPhaseSelectGroup5Channel1","Select sample phase channel 1",{4,4,4},{189,193,197}}},
+    {"paPhaseSelectGroup1Channel0",     {"paPhaseSelectGroup1Channel0","Select sample phase channel 0",{0,0,0},{93,97,101}}},
+    {"paPhaseSelectGroup1Channel1",     {"paPhaseSelectGroup1Channel1","Select sample phase channel 1",{4,4,4},{93,97,101}}},
+    {"paPhaseSelectGroup1Channel2",     {"paPhaseSelectGroup1Channel2","Select sample phase channel 2",{0,0,0},{92,96,100}}},
+    {"paPhaseSelectGroup1Channel3",     {"paPhaseSelectGroup1Channel3","Select sample phase channel 3",{4,4,4},{92,96,100}}},
+    {"paPhaseSelectGroup1Channel4",     {"paPhaseSelectGroup1Channel4","Select sample phase channel 4",{0,0,0},{91,95,99}}},
+    {"paPhaseSelectGroup1Channel5",     {"paPhaseSelectGroup1Channel5","Select sample phase channel 5",{4,4,4},{91,95,99}}},
+    {"paPhaseSelectGroup1Channel6",     {"paPhaseSelectGroup1Channel6","Select sample phase channel 6",{0,0,0},{90,94,98}}},
+    {"paPhaseSelectGroup1Channel7",     {"paPhaseSelectGroup1Channel7","Select sample phase channel 7",{4,4,4},{90,94,98}}},
+    {"paPhaseSelectGroup6Channel4",     {"paPhaseSelectGroup6Channel4","Select sample phase channel 4",{0,0,0},{211,215,219}}},
+    {"paPhaseSelectGroup3Channel0",     {"paPhaseSelectGroup3Channel0","Select sample phase channel 0",{0,0,0},{141,145,149}}},
+    {"paPhaseSelectGroup5Channel2",     {"paPhaseSelectGroup5Channel2","Select sample phase channel 2",{0,0,0},{188,192,196}}},
+    {"paPhaseSelectGroup3Channel2",     {"paPhaseSelectGroup3Channel2","Select sample phase channel 2",{0,0,0},{140,144,148}}},
+    {"paPhaseSelectGroup3Channel3",     {"paPhaseSelectGroup3Channel3","Select sample phase channel 3",{4,4,4},{140,144,148}}},
+    {"paPhaseSelectGroup3Channel1",     {"paPhaseSelectGroup3Channel1","Select sample phase channel 1",{4,4,4},{141,145,149}}},
+    {"paPhaseSelectGroup3Channel6",     {"paPhaseSelectGroup3Channel6","Select sample phase channel 6",{0,0,0},{138,142,146}}},
+    {"paPhaseSelectGroup3Channel7",     {"paPhaseSelectGroup3Channel7","Select sample phase channel 7",{4,4,4},{138,142,146}}},
+    {"paPhaseSelectGroup3Channel4",     {"paPhaseSelectGroup3Channel4","Select sample phase channel 4",{0,0,0},{139,143,147}}},
+    {"paPhaseSelectGroup3Channel5",     {"paPhaseSelectGroup3Channel5","Select sample phase channel 5",{4,4,4},{139,143,147}}},
+    {"paPhaseSelectGroup0Channel1",     {"paPhaseSelectGroup0Channel1","Select sample phase channel 1",{4,4,4},{69,73,77}}},
+    {"paPhaseSelectGroup0Channel0",     {"paPhaseSelectGroup0Channel0","Select sample phase channel 0",{0,0,0},{69,73,77}}},
+    {"paPhaseSelectGroup0Channel3",     {"paPhaseSelectGroup0Channel3","Select sample phase channel 3",{4,4,4},{68,72,76}}},
+    {"paPhaseSelectGroup0Channel2",     {"paPhaseSelectGroup0Channel2","Select sample phase channel 2",{0,0,0},{68,72,76}}},
+    {"paPhaseSelectGroup0Channel5",     {"paPhaseSelectGroup0Channel5","Select sample phase channel 5",{4,4,4},{67,71,75}}},
+    {"paPhaseSelectGroup0Channel7",     {"paPhaseSelectGroup0Channel7","Select sample phase channel 7",{4,4,4},{66,70,74}}},
+    {"paPhaseSelectGroup0Channel6",     {"paPhaseSelectGroup0Channel6","Select sample phase channel 6",{0,0,0},{66,70,74}}},
+    {"i2cResetTx",                      {"i2cResetTx","reset TX logic",{0,1,2},{54,54,54}}},
+    {"cmReferenceClockSelect",          {"cmReferenceClockSelect","Selects global reference clock",{0,2,4},{281,281,281}}},
+    {"cmXpllReferenceSelect",           {"cmXpllReferenceSelect","Selects Xpll reference clock",{0,2,4},{290,290,290}}},
+    {"ePllRxReferenceFreq",             {"ePllRxReferenceFreq","Select EPLL-RX reference frequency",{0,2,4},{242,242,242}}},
+    {"enableTermination3",              {"enableTermination3","enable Termination group3 channel 7",{0},{323}}},
+    {"cmTxTestMuxSelect40",             {"cmTxTestMuxSelect40","Selects TX 40MHz clock C in Test mode",{0,0,0},{287,288,289}}},
+    {"extLate7",                        {"extLate7"," ",{6},{23}}},
+    {"extLate6",                        {"extLate6"," ",{6},{22}}},
+    {"extLate5",                        {"extLate5"," ",{6},{21}}},
+    {"extLate4",                        {"extLate4"," ",{6},{20}}},
+    {"extLate3",                        {"extLate3"," ",{6},{19}}},
+    {"extLate2",                        {"extLate2"," ",{6},{18}}},
+    {"extLate1",                        {"extLate1"," ",{6},{17}}},
+    {"extLate0",                        {"extLate0"," ",{6},{16}}},
+    {"i2cRxFilterEnable",               {"i2cRxFilterEnable","i2cRxFilterEnable",{0,1,2},{45,45,45}}},
+    {"modeEc",                          {"modeEc","mode EC channel",{4,5,6},{254,254,254}}},
+    {"xPllControlOverride",             {"xPllControlOverride","Override XPLL control",{0,1,2},{318,318,318}}},
+    {"paDllConfigGroup5",               {"paDllConfigGroup5","Set Phase-aligner dll",{0,4,0},{184,184,185}}},
+    {"cmRxTestMuxSelect80",             {"cmRxTestMuxSelect80","Selects RX 80MHz clock C in Test mode",{2,2,2},{277,278,279}}},
+    {"paDllConfigGroup4",               {"paDllConfigGroup4","Set Phase-aligner dll",{0,4,0},{160,160,161}}},
+    {"ePllRxCap",                       {"ePllRxCap","Sets EPLL-RX Cap C in filter",{5,5,5},{307,308,309}}},
+    {"ePllTxReset",                     {"ePllTxReset","Reset of EPLL-TX filter",{0,1,2},{303,303,303}}},
+    {"i2cResetRx",                      {"i2cResetRx","reset RX logic",{3,4,5},{50,50,50}}},
+    {"i2cRxSkipCycle",                  {"i2cRxSkipCycle","i2cRxSkipCycle",{0,1,2},{40,40,40}}},
+    {"TXselectPosEdge",                 {"TXselectPosEdge","select +ve clock edge in TX synchroniser",{3,4,5},{244,244,244}}},
+    {"xPllEnablePhaseDetector",         {"xPllEnablePhaseDetector","Enable XPLL Phase Detector",{4,5,6},{317,317,317}}},
+    {"ePllRxEnablePhase",               {"ePllRxEnablePhase","Enable EPLL-RX phase",{0,0,0},{304,305,306}}},
+    {"paDllConfigGroup1",               {"paDllConfigGroup1","Set Phase-aligner dll",{0,4,0},{88,88,89}}},
+    {"ePllTxPhase160MHz",               {"ePllTxPhase160MHz","Sets EPLL-TX 160MHz phase",{0,0,0},{296,297,298}}},
+    {"enableTermination5",              {"enableTermination5","enable Termination group5 channel 7",{0},{325}}},
+    {"enableTermination4",              {"enableTermination4","enable Termination group4 channel 7",{0},{324}}},
+    {"i2cTxReset",                      {"i2cTxReset","Reset TX control and serialiser",{0,1,2},{33,33,33}}},
+    {"enableTermination1",              {"enableTermination1","enable Termination group1 channel 7",{0},{321}}},
+    {"enableTermination0",              {"enableTermination0","enable Termination group0 channel 7",{0},{320}}},
+    {"i2cRxSwap",                       {"i2cRxSwap","",{3,4,5},{40,40,40}}},
+    {"enableTermination2",              {"enableTermination2","enable Termination group2 channel 7",{0},{322}}},
+    {"cmRxTestMuxSelect160",            {"cmRxTestMuxSelect160","Selects RX 160MHz clock C in Test mode",{4,4,4},{277,278,279}}},
+    {"cmRxTestMuxSelect40",             {"cmRxTestMuxSelect40","Selects RX 40MHz clock C in Test mode",{0,0,0},{277,278,279}}},
+    {"xPllGmSelect",                    {"xPllGmSelect","Select XPLL Gm",{0,4,0},{316,316,317}}},
+    {"paEnableEC",                      {"paEnableEC","Enable EC channel",{0,1,2},{248,248,248}}},
+    {"cset1",                           {"cset1"," ",{4},{269}}},
+    {"rxMaxInvalidHeaders",             {"rxMaxInvalidHeaders"," ",{0},{38}}},
+    {"paDllConfigGroup3",               {"paDllConfigGroup3","Set Phase-aligner dll",{0,4,0},{136,136,137}}},
+    {"paDllConfigGroup2",               {"paDllConfigGroup2","Set Phase-aligner dll",{0,4,0},{112,112,113}}},
+    {"i2cRxSelectDataInPhase",          {"i2cRxSelectDataInPhase","",{3,4,5},{36,36,36}}},
+    {"paDllConfigGroup0",               {"paDllConfigGroup0","Set Phase-aligner dll",{0,4,0},{64,64,65}}},
+    {"clockBusFrequency4",              {"clockBusFrequency4","clock frequency group4",{2,2,2},{266,344,359}}},
+    {"ePllTxReferenceFreq",             {"ePllTxReferenceFreq","Select EPLL-TX reference frequency",{0,2,4},{243,243,243}}},
+    {"clockBusFrequency1",              {"clockBusFrequency1","clock frequency group1",{2,2,2},{257,335,350}}},
+    {"clockBusFrequency2",              {"clockBusFrequency2","clock frequency group2",{2,2,2},{260,338,353}}},
+    {"PSpllEnable",                     {"PSpllEnable","enable phase-shifter PLL",{0,1,2},{52,52,52}}},
+    {"paDataRateGroup0",                {"paDataRateGroup0","Set Phase-aligner speed",{0,2,4},{63,63,63}}},
+    {"paDataRateGroup1",                {"paDataRateGroup1","Set Phase-aligner speed",{0,2,4},{87,87,87}}},
+    {"paDataRateGroup2",                {"paDataRateGroup2","Set Phase-aligner speed",{0,2,4},{111,111,111}}},
+    {"paDataRateGroup3",                {"paDataRateGroup3","Set Phase-aligner speed",{0,2,4},{135,135,135}}},
+    {"paDataRateGroup4",                {"paDataRateGroup4","Set Phase-aligner speed",{0,2,4},{159,159,159}}},
+    {"paDataRateGroup5",                {"paDataRateGroup5","Set Phase-aligner speed",{0,2,4},{183,183,183}}},
+    {"paDataRateGroup6",                {"paDataRateGroup6","Set Phase-aligner speed",{0,2,4},{207,207,207}}},
+    {"cset5",                           {"cset5"," ",{4},{271}}},
+    {"cset2",                           {"cset2"," ",{0},{270}}},
+    {"cset3",                           {"cset3"," ",{4},{270}}},
+    {"paEnableGroup1",                  {"paEnableGroup1","Enable channel 7",{0,0,0},{105,106,107}}},
+    {"paEnableGroup0",                  {"paEnableGroup0","Enable channel 7",{0,0,0},{81,82,83}}},
+    {"paEnableGroup3",                  {"paEnableGroup3","Enable channel 7",{0,0,0},{153,154,155}}},
+    {"paEnableGroup2",                  {"paEnableGroup2","Enable channel 7",{0,0,0},{129,130,131}}},
+    {"paEnableGroup5",                  {"paEnableGroup5","Enable channel 7",{0,0,0},{201,202,203}}},
+    {"paEnableGroup4",                  {"paEnableGroup4","Enable channel 7",{0,0,0},{177,178,179}}},
+    {"i2cStartRace",                    {"i2cStartRace","",{0,1,2},{42,42,42}}},
+    {"cset6",                           {"cset6"," ",{0},{272}}},
+    {"paDllConfigGroup6",               {"paDllConfigGroup6","Set Phase-aligner dll",{0,4,0},{208,208,209}}},
+    {"cset7",                           {"cset7"," ",{4},{272}}},
+    {"enableWatchdogFSM",               {"enableWatchdogFSM","enable watchdog",{0,1,2},{50,50,50}}},
+    {"modeGroup2",                      {"modeGroup2","mode group2",{0,0,0},{260,338,353}}},
+    {"cmRxPhase40MHz",                  {"cmRxPhase40MHz","Fine phase delay of RX 40MHz clock",{0,4,0},{274,274,275}}},
+    {"PLLcp",                           {"PLLcp"," ",{0},{26}}},
+    {"cset4",                           {"cset4"," ",{0},{271}}},
+    {"i2cRxSelectI2Freq",               {"i2cRxSelectI2Freq"," freq detector" ,{0},{35}}},
+    {"ePllTxEnablePhase",               {"ePllTxEnablePhase","Enable EPLL-TX phase",{0,0,0},{293,294,295}}},
+    {"cmTxTestMuxSelect80",             {"cmTxTestMuxSelect80","Selects TX 80MHz clock C in Test mode",{2,2,2},{287,288,289}}},
+    {"clkDriveStrength1",               {"clkDriveStrength1","set clock drive strength group 1",{0},{330}}},
+    {"cmTxPhase40MHz",                  {"cmTxPhase40MHz","Fine phase delay of TX 40MHz clock",{0,4,0},{284,284,285}}},
+    {"fuseBlowData",                    {"fuseBlowData","data to blow fuse",{0},{240}}},
+    {"ePllTxIcp",                       {"ePllTxIcp","Sets EPLL-TX charge pump current",{0,0,0},{299,300,301}}},
+    {"xPllChargePumpCurrent",           {"xPllChargePumpCurrent","xPll Charge Pump Current",{0,4,0},{235,235,236}}},
+    {"dataPortEnableGroup2",            {"dataPortEnableGroup2","enable data group2 channel 7",{0,0,0},{262,340,355}}},
+    {"PLLres",                          {"PLLres"," ",{4},{26}}},
+    {"i2cRxFilterBypass",               {"i2cRxFilterBypass","",{1,2,3},{44,44,44}}},
+    {"i2cRxControlOverride",            {"i2cRxControlOverride","",{0,1,2},{36,36,36}}},
+    {"clockBusFrequencyEc",             {"clockBusFrequencyEc","clock frequency EC channel",{4,5,6},{257,257,257}}},
+    {"ePllRxIcp",                       {"ePllRxIcp","Sets EPLL-RX charge pump current",{0,0,0},{310,311,312}}},
+    {"paEnableGroup6",                  {"paEnableGroup6","Enable channel 7",{0,0,0},{225,226,227}}},
+    {"paDllResetGroup3",                {"paDllResetGroup3","Reset Phase-aligner dll",{4,5,6},{137,137,137}}},
+    {"paDllResetGroup2",                {"paDllResetGroup2","Reset Phase-aligner dll",{4,5,6},{113,113,113}}},
+    {"paDllResetGroup1",                {"paDllResetGroup1","Reset Phase-aligner dll",{4,5,6},{89,89,89}}},
+    {"paDllResetGroup0",                {"paDllResetGroup0","Reset Phase-aligner dll",{4,5,6},{65,65,65}}},
+    {"paDllResetGroup6",                {"paDllResetGroup6","Reset Phase-aligner dll",{4,5,6},{209,209,209}}},
+    {"paDllResetGroup5",                {"paDllResetGroup5","Reset Phase-aligner dll",{4,5,6},{185,185,185}}},
+    {"paDllResetGroup4",                {"paDllResetGroup4","Reset Phase-aligner dll",{4,5,6},{161,161,161}}},
+    {"paDllConfigEC",                   {"paDllConfigEC","Set EC Phase-aligner dll",{0,4,0},{231,231,232}}},
+    {"rxSelectR",                       {"rxSelectR"," ",{0},{34}}},
+    {"gbld_w1",                         {"gbld_w1","Value to write to GBLD",{0},{56}}},
+    {"cmEpllRxReferenceSelect",         {"cmEpllRxReferenceSelect","Selects reference clock C for EPLL-RX",{0,2,4},{0,0,0}}},
+    {"xPllEnableAutoRestart",           {"xPllEnableAutoRestart","Enable XPLL Auto restart",{3,4,5},{318,318,318}}},
+    {"modeGroup0",                      {"modeGroup0","mode group0",{0,0,0},{254,332,347}}},
+    {"ePllRxPhase320MHz",               {"ePllRxPhase320MHz","Sets EPLL-RX 320MHz phase",{0,4,4},{302,302,292}}},
+    {"gbld_w4",                         {"gbld_w4","Value to write to GBLD",{0},{59}}},
+    {"rxTestMode",                      {"rxTestMode","Select RX data source",{5,6,7},{49,49,49}}},
+    {"gbld_w6",                         {"gbld_w6","Value to write to GBLD",{0},{61}}},
+    {"modeGroup3",                      {"modeGroup3","mode group3",{0,0,0},{263,341,356}}},
+    {"gbld_w0",                         {"gbld_w0","Value to write to GBLD",{0},{55}}},
+    {"cmTxReferenceTestMuxSelect",      {"cmTxReferenceTestMuxSelect","Selects reference clock C for TX in Test mode",{0,2,4},{3,3,3}}},
+    {"gbld_w2",                         {"gbld_w2","Value to write to GBLD",{0},{57}}},
+    {"gbld_w3",                         {"gbld_w3","Value to write to GBLD",{0},{58}}},
+    {"clockPortEnableGroup0",           {"clockPortEnableGroup0","enable clock group0 channel 7",{0,0,0},{255,333,348}}},
+    {"i2cRxSelectI2Phase",              {"i2cRxSelectI2Phase"," phase detector" ,{4},{35}}},
+    {"clockPortEnableGroup2",           {"clockPortEnableGroup2","enable clock group2 channel 7",{0,0,0},{261,339,354}}},
+    {"stateForced",                     {"stateForced","select state of power-up sequence",{0},{51}}},
+    {"clockPortEnableGroup4",           {"clockPortEnableGroup4","enable clock group4 channel 7",{0,0,0},{267,345,360}}},
+    {"dataPortEnableGroup3",            {"dataPortEnableGroup3","enable data group3 channel 7",{0,0,0},{265,343,358}}},
+    {"extS5",                           {"extS5"," ",{5},{13}}},
+    {"extS4",                           {"extS4"," ",{5},{12}}},
+    {"extS7",                           {"extS7"," ",{5},{15}}},
+    {"txTestMode",                      {"txTestMode","Select TX data source",{0},{28}}},
+    {"txEnableSoftLossOfLock",          {"txEnableSoftLossOfLock","Enable soft loss of lock",{6},{33}}},
+    {"extS0",                           {"extS0"," ",{5},{8}}},
+    {"extS3",                           {"extS3"," ",{5},{11}}},
+    {"extS2",                           {"extS2"," ",{5},{10}}},
+    {"bypssEportTX2",                   {"bypssEportTX2","bypass Eport TX group2",{6,7,0},{246,246,247}}},
+    {"dllCoarseLockDetection",          {"dllCoarseLockDetection","dll coarse lock detection",{4,5,6},{233,233,233}}},
+    {"bypssEportTX1",                   {"bypssEportTX1","bypass Eport TX group1",{3,4,5},{246,246,246}}},
+    {"dataPortEnableGroup1",            {"dataPortEnableGroup1","enable data group1 channel 7",{0,0,0},{259,337,352}}},
+    {"bypssEportTX4",                   {"bypssEportTX4","bypass Eport TX group4",{4,5,6},{247,247,247}}},
+    {"iSel4",                           {"iSel4"," ",{0},{20}}},
+    {"iSel5",                           {"iSel5"," ",{0},{21}}},
+    {"iSel6",                           {"iSel6"," ",{0},{22}}},
+    {"iSel7",                           {"iSel7"," ",{0},{23}}},
+    {"iSel0",                           {"iSel0"," ",{0},{16}}},
+    {"iSel1",                           {"iSel1"," ",{0},{17}}},
+    {"iSel2",                           {"iSel2"," ",{0},{18}}},
+    {"iSel3",                           {"iSel3"," ",{0},{19}}},
+    {"cmRxPhase80MHz",                  {"cmRxPhase80MHz","Fine phase delay of RX 80MHz clock",{4,0,4},{275,276,276}}},
+    {"loopbackF",                       {"loopbackF","enable loopbackF",{3,4,5},{234,234,234}}},
+    {"clkDriveStrength4",               {"clkDriveStrength4","set clock drive strength group 4",{4},{331}}},
+    {"i2cRxDac2",                       {"i2cRxDac2"," ",{0},{44}}},
+    {"i2cRxDac1",                       {"i2cRxDac1"," ",{0},{43}}},
+    {"scCset",                          {"scCset","Drive current control for SC-EC Eport",{0},{273}}},
+    {"FDL6",                            {"FDL6"," ",{0},{7}}},
+    {"FDL7",                            {"FDL7"," ",{4},{7}}},
+    {"FDL4",                            {"FDL4"," ",{0},{6}}},
+    {"FDL5",                            {"FDL5"," ",{4},{6}}},
+    {"FDL2",                            {"FDL2"," ",{0},{5}}},
+    {"FDL3",                            {"FDL3"," ",{4},{5}}},
+    {"FDL0",                            {"FDL0"," ",{0},{4}}},
+    {"FDL1",                            {"FDL1"," ",{4},{4}}},
+    {"i2cRxForceVfEqVc",                {"i2cRxForceVfEqVc","",{3,4,5},{45,45,45}}},
+    {"enableTestBar",                   {"enableTestBar"," ",{1},{25}}},
+    {"CDL5",                            {"CDL5"," ",{0},{13}}},
+    {"CDL4",                            {"CDL4"," ",{0},{12}}},
+    {"CDL7",                            {"CDL7"," ",{0},{15}}},
+    {"CDL6",                            {"CDL6"," ",{0},{14}}},
+    {"CDL1",                            {"CDL1"," ",{0},{9}}},
+    {"CDL0",                            {"CDL0"," ",{0},{8}}},
+    {"CDL3",                            {"CDL3"," ",{0},{11}}},
+    {"CDL2",                            {"CDL2"," ",{0},{10}}},
+    {"resetBar1",                       {"resetBar1","Channel 1 reset",{1},{24}}},
+    {"resetBar0",                       {"resetBar0","Channel 0 reset",{0},{24}}},
+    {"resetBar3",                       {"resetBar3","Channel 3 reset",{3},{24}}},
+    {"resetBar2",                       {"resetBar2","Channel 2 reset",{2},{24}}},
+    {"resetBar5",                       {"resetBar5","Channel 5 reset",{5},{24}}},
+    {"resetBar4",                       {"resetBar4","Channel 4 reset",{4},{24}}},
+    {"resetBar7",                       {"resetBar7","Channel 7 reset",{7},{24}}},
+    {"resetBar6",                       {"resetBar6","Channel 6 reset",{6},{24}}},
+    {"gbld_w5",                         {"gbld_w5","Value to write to GBLD",{0},{60}}},
+    {"dataPortEnableGroup0",            {"dataPortEnableGroup0","enable data group0 channel 7",{0,0,0},{256,334,349}}},
+    {"rxSwitchesControl",               {"rxSwitchesControl","Select data path through RX logic",{0,0,0},{46,47,48}}},
+    {"fuseBlowAddress2",                {"fuseBlowAddress2","address of fuse to blow",{0},{239}}},
+    {"fuseBlowAddress1",                {"fuseBlowAddress1","address of fuse to blow",{0},{238}}},
+    {"configDone",                      {"configDone","re-starts power-up sequence if set to AA hex",{0},{365}}},
+    {"i2cRxControlReset",               {"i2cRxControlReset","FASM and LCSM reset",{0,1,2},{41,41,41}}},
+    {"modeGroup4",                      {"modeGroup4","mode group4",{0,0,0},{266,344,359}}},
+    {"ePllTxPhase320MHz",               {"ePllTxPhase320MHz","Sets EPLL-TX 320MHz phase",{0,4,0},{291,291,292}}},
+    {"xPllFrequencyTrim",               {"xPllFrequencyTrim","Sets XPLL frequency trim",{0,0,0},{313,314,315}}},
+    {"clockBusFrequency3",              {"clockBusFrequency3","clock frequency group3",{2,2,2},{263,341,356}}},
+    {"xPllEnable",                      {"xPllEnable","Enables XPLL",{7,7,7},{313,314,315}}},
+    {"i2cRxSelectI1",                   {"i2cRxSelectI1"," ",{4},{41}}},
+    {"paDllResetEC",                    {"paDllResetEC","Reset EC Phase-aligner dll",{4,5,6},{232,232,232}}},
+    {"enableTermination6",              {"enableTermination6","enable Termination group6 channel 7",{0},{326}}},
+    {"cmTestOutSelect",                 {"cmTestOutSelect","Selects which signal to send to testClockOut from first subset",{0},{283}}},
+    {"rxMinValidHeaders",               {"rxMinValidHeaders"," ",{0},{39}}},
+    {"timeOutEnable",                   {"timeOutEnable","enable timeOuts",{3,4,5},{52,52,52}}},
+    {"bypssEportTX3",                   {"bypssEportTX3","bypass Eport TX group3",{1,2,3},{247,247,247}}},
+    {"cmTestMuxSelect",                 {"cmTestMuxSelect","Selects which signal to send to testClockOut from second subset",{0},{319}}},
+    {"cmEpllTxReferenceSelect",         {"cmEpllTxReferenceSelect","Selects reference clock C for EPLL-TX",{0,2,4},{1,1,1}}},
+    {"txPLLLockTime",                   {"txPLLLockTime","Set wait time for serialiser PLL to lock",{0},{32}}},
+    {"modeGroup1",                      {"modeGroup1","mode group1",{0,0,0},{257,335,350}}},
+    {"cmTxPhase80MHz",                  {"cmTxPhase80MHz","Fine phase delay of TX 80MHz clock",{4,0,4},{285,286,286}}},
+    {"clockPortEnableGroup1",           {"clockPortEnableGroup1","enable clock group1 channel 7",{0,0,0},{258,336,351}}},
+    {"selHiByteTX1",                    {"selHiByteTX1","select HiByte in bypassed Eport TX group1",{3,4,5},{249,249,249}}},
+    {"loopbackE",                       {"loopbackE","enable loopbackE",{0,1,2},{234,234,234}}},
+    {"enableBERT",                      {"enableBERT","Enable BERT in RX logic",{2,3,4},{49,49,49}}},
+    {"clockPortEnableGroup3",           {"clockPortEnableGroup3","enable clock group3 channel 7",{0,0,0},{264,342,357}}},
+    {"i2cRxDacEnable",                  {"i2cRxDacEnable","",{3,4,5},{42,42,42}}},
+    {"cset0",                           {"cset0"," ",{0},{269}}},
+    {"clkDriveStrength0",               {"clkDriveStrength0","set clock drive strength group 0",{4},{329}}},
+    {"rxDisableDecoderTMR",             {"rxDisableDecoderTMR","Disable TMR in FEC decoder",{1},{49}}},
+    {"driveStrength3",                  {"driveStrength3","set drive strength group 3",{4},{328}}},
+    {"paMode",                          {"paMode","Phase-aligner track mode",{0,2,4},{62,62,62}}},
+    {"cmPsReferenceSelect",             {"cmPsReferenceSelect","Selects Phase-Shifter reference clock",{0,2,4},{282,282,282}}},
+    {"selHiByteTX0",                    {"selHiByteTX0","select HiByte in bypassed Eport TX group0",{0,1,2},{249,249,249}}},
+    {"clkDriveStrength2",               {"clkDriveStrength2","set clock drive strength group 2",{4},{330}}},
+    {"clkDriveStrength3",               {"clkDriveStrength3","set clock drive strength group 3",{0},{331}}},
+    {"cmRxReferenceTestMuxSelect",      {"cmRxReferenceTestMuxSelect","Selects reference clock C for RX in Test mode",{0,2,4},{2,2,2}}},
+    {"cmTxTestMuxSelect160",            {"cmTxTestMuxSelect160","Selects TX 160MHz clock C in Test mode",{4,4,4},{287,288,289}}},
+    {"ePllRxReset",                     {"ePllRxReset","Reset of EPLL-RX filter",{4,5,6},{303,303,303}}},
+    {"FREQ7",                           {"FREQ7"," ",{4},{23}}},
+    {"FREQ6",                           {"FREQ6"," ",{4},{22}}},
+    {"FREQ5",                           {"FREQ5"," ",{4},{21}}},
+    {"FREQ4",                           {"FREQ4"," ",{4},{20}}},
+    {"FREQ3",                           {"FREQ3"," ",{4},{19}}},
+    {"FREQ2",                           {"FREQ2"," ",{4},{18}}},
+    {"FREQ1",                           {"FREQ1"," ",{4},{17}}},
+    {"FREQ0",                           {"FREQ0"," ",{4},{16}}},
+    {"RXselectPosEdge",                 {"RXselectPosEdge","select +ve clock edge in RX synchroniser",{0,1,2},{244,244,244}}},
+    {"extS6",                           {"extS6"," ",{5},{14}}},
+    {"ePllTxCap",                       {"ePllTxCap","Sets EPLL-TX Cap C in filter",{5,5,5},{296,297,298}}},
+    {"i2cldReset",                      {"i2cldReset","Controls state of ldReset pin",{3,4,5},{54,54,54}}},
+    {"extS1",                           {"extS1"," ",{5},{9}}},
+    {"selHiByteTX3",                    {"selHiByteTX3","select HiByte in bypassed Eport TX group3",{1,2,3},{250,250,250}}},
+    {"ePllTxRes",                       {"ePllTxRes","Sets EPLL-TX Res C in filter",{4,4,4},{299,300,301}}},
+    {"ePllRxRes",                       {"ePllRxRes","Sets EPLL-RX Res C in filter",{4,4,4},{310,311,312}}},
+    {"dataPortEnableGroup4",            {"dataPortEnableGroup4","enable data group4 channel 7",{0,0,0},{268,346,361}}},
+    {"cmTxTestMuxSelect320",            {"cmTxTestMuxSelect320","Selects TX 320MHz clock C in Test mode",{6,6,6},{287,288,289}}},
+    {"ePllRxPhase160MHz",               {"ePllRxPhase160MHz","Sets EPLL-RX 160MHz phase",{0,0,0},{307,308,309}}},
+    {"cmRxTestMuxSelect320",            {"cmRxTestMuxSelect320","Selects RX 320MHz clock C in Test mode",{6,6,6},{277,278,279}}},
+    {"rxDacGain",                       {"rxDacGain","",{4,5,6},{34,34,34}}},
+    {"resetPLLBar",                     {"resetPLLBar","PLL reset",{0},{25}}},
+    {"SLVSoutTestSel",                  {"SLVSoutTestSel","Selects signal to drive SLVS output test (dOut32)",{6},{0}}},
+    {"txSelectI",                       {"txSelectI"," ",{0},{27}}},
+    {"txSelectR",                       {"txSelectR"," ",{4},{27}}},
+    {"txEnableTest",                    {"txEnableTest"," ",{6},{27}}},
+    {"extEarly3",                       {"extEarly3"," ",{7},{11}}},
+    {"extEarly2",                       {"extEarly2"," ",{7},{10}}},
+    {"extEarly1",                       {"extEarly1"," ",{7},{9}}},
+    {"extEarly0",                       {"extEarly0"," ",{7},{8}}},
+    {"extEarly7",                       {"extEarly7"," ",{7},{15}}},
+    {"extEarly6",                       {"extEarly6"," ",{7},{14}}},
+    {"extEarly5",                       {"extEarly5"," ",{7},{13}}},
+    {"extEarly4",                       {"extEarly4"," ",{7},{12}}},
+    {"selHiByteTX2",                    {"selHiByteTX2","select HiByte in bypassed Eport TX group2",{6,7,0},{249,249,250}}},
+    {"bypssEportTX0",                   {"bypssEportTX0","bypass Eport TX group0",{0,1,2},{246,246,246}}},
+    {"clockBusFrequency0",              {"clockBusFrequency0","clock frequency group0",{2,2,2},{254,332,347}}},
+    {"selHiByteTX4",                    {"selHiByteTX4","select HiByte in bypassed Eport TX group4",{4,5,6},{250,250,250}}},
+    {"driveStrength4",                  {"driveStrength4","set drive strength group 4",{0},{329}}},
+    {"rxValidHeaders",                  {"rxValidHeaders"," ",{0},{37}}},
+    {"driveStrength2",                  {"driveStrength2","set drive strength group 2",{0},{328}}},
+    {"driveStrength1",                  {"driveStrength1","set drive strength group 1",{4},{327}}},
+    {"driveStrength0",                  {"driveStrength0","set drive strength group 0",{0},{327}}},
+    {"txSwitchesControl",               {"txSwitchesControl","Select data path through TX logic",{0,0,0},{29,30,31}}},
+    {"testOutputSelect",                {"testOutputSelect","Selects the signal to drive testOutput",{0},{280}}},
+    {"txForceLockState",                {"txForceLockState","Force serialiser control to locked state",{4},{32}}},
+    {"txLossOfLockTime",                {"txLossOfLockTime","Set time limit on unlock",{5},{32}}},
+    {"scEnableTermination",             {"scEnableTermination","Enable termination for SC-EC Eport",{5},{273}}},
+    {"txDisableEncoderTMR",             {"txDisableEncoderTMR","Disable TMR in FEC encoder",{6},{28}}},
+    {"bypassEportRX",                   {"bypassEportRX","bypass EportRX",{0,1,2},{252,252,252}}},
+    {"gbld_ID",                         {"gbld_ID","i2c address of GBLD",{0},{253}}},
+    {"i2cRxReset",                      {"i2cRxReset","(Conditional) reset of the CDR PLL",{0,2,4},{53,53,53}}},
+};
 
 #endif  // NSWCONFIGURATION_GBTXREGISTERMAP_H
 

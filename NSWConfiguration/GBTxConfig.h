@@ -58,7 +58,6 @@ namespace nsw{
 class GBTxConfig{
 private: 
     std::array<uint8_t,nsw::NUM_GBTX_WRITABLE_REGISTERS> m_config{};
-    std::unordered_map<std::string,gbtx::regMap> m_registerMaps;
     std::string m_gbtxType{};
     bool m_active{};
 

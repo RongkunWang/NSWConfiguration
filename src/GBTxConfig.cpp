@@ -15,8 +15,7 @@ namespace pt = boost::property_tree;
 
 nsw::GBTxConfig::GBTxConfig() :
     m_gbtxType("none"),
-    m_active(false),
-    m_registerMaps(compiledGbtxRegisterMap())
+    m_active(false)
 {
 }
 
@@ -46,7 +45,7 @@ void nsw::GBTxConfig::reset(const std::string& name, const std::size_t value){
     // Set the registers corresponding to name to 0x00
     // This is dangerous, because it may errase bits used for other settings. It should only be used carefully
     // Then, set the value of the register as normal
-    const gbtx::regMap rg = m_registerMaps.at(name);
+    const gbtx::regMap rg = GBTX_REGISTER_MAP.at(name);
     ERS_DEBUG(2, ">> Deleting "<<rg.name<<" full byte to 0x00");
     for (const auto& reg : rg.registers) {
         m_config.at(reg) = 0x00;
@@ -57,12 +56,12 @@ void nsw::GBTxConfig::reset(const std::string& name, const std::size_t value){
 
 void nsw::GBTxConfig::set(const std::string& name, const std::size_t value){
     // Sets the value in the config object for a given setting
-    if (m_registerMaps.find(name)==m_registerMaps.end()){
+    if (GBTX_REGISTER_MAP.find(name)==GBTX_REGISTER_MAP.end()){
         nsw::NSWBoardIssue issue(ERS_HERE, "Didn't find GBTx setting name " + name);
         ers::error(issue);
         throw issue;
     }
-    gbtx::regMap rg = m_registerMaps.at(name);
+    gbtx::regMap rg = GBTX_REGISTER_MAP.at(name);
     ERS_DEBUG(2, ">> Setting "<<rg.name<<" to "<<value);
     // number of registers to set
     const auto nReg = rg.registers.size();
