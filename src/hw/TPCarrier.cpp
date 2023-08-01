@@ -19,7 +19,7 @@ nsw::hw::TPCarrier::TPCarrier(OpcManager& manager, const boost::property_tree::p
 void nsw::hw::TPCarrier::writeConfiguration() const
 {
   const auto& regs = nsw::carrier::REGS;
-  writeAndReadbackRegister(regs.at("RJOUT_SEL"), RJOutSel());
+  writeRegister(regs.at("RJOUT_SEL"), RJOutSel());
   // writeAndReadbackRegister(regs.at("gbtPhaseAdjust"), m_config.get("gbtPhaseAdjust", 7)); // TODO: wait for Nathan to find the best value
 }
 
