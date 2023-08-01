@@ -56,6 +56,16 @@ namespace nsw::hw {
      */
     [[nodiscard]] bool hasConfigurationErrors() const;
 
+    /**
+     * \brief Get the \ref GBTxConfig object associated with this GBTx object
+     *
+     * Both const and non-const overloads are provided
+     */
+    // clang-format off
+    [[nodiscard]] GBTxConfig& getConfig() { return m_config; }
+    [[nodiscard]] const GBTxConfig& getConfig() const { return m_config; } //!< \overload
+    // clang-format on
+
   private:
     /**
      * @brief Ensure that the HW interface is valid

@@ -34,6 +34,46 @@ namespace nsw::hw {
      */
     void writeConfiguration();
 
+    /**
+     * \brief Get the \ref GBTxConfig object associated with this L1DDC object
+     *
+     * Both const and non-const overloads are provided
+     */
+    // clang-format off
+    [[nodiscard]] L1DDCConfig& getConfig() { return m_config; }
+    [[nodiscard]] const L1DDCConfig& getConfig() const { return m_config; } //!< \overload
+    // clang-format on
+
+    /**
+     * \brief Get the \ref GBTx0
+     *
+     * Both const and non-const overloads are provided
+     */
+    // clang-format off
+    [[nodiscard]] GBTxIC& getGbtx0() { return m_gbtxIc; }
+    [[nodiscard]] const GBTxIC& getGbtx0() const { return m_gbtxIc; }  //!< \overload
+    // clang-format on
+
+    /**
+     * \brief Get the \ref GBTx1
+     *
+     * Both const and non-const overloads are provided
+     */
+    // clang-format off
+    [[nodiscard]] GBTxI2c& getGbtx1() { return m_gbtxI2c.at(0); }
+    [[nodiscard]] const GBTxI2c& getGbtx1() const { return m_gbtxI2c.at(0); }  //!< \overload
+    // clang-format on
+
+    /**
+     * \brief Get the \ref GBTx2
+     *
+     * Both const and non-const overloads are provided
+     */
+    // clang-format off
+    [[nodiscard]] GBTxI2c& getGbtx2() { return m_gbtxI2c.at(1); }
+    [[nodiscard]] const GBTxI2c& getGbtx2() const { return m_gbtxI2c.at(1); }  //!< \overload
+    // clang-format on
+
   private:
     /**
      * @brief Configure all GBTx's which are supposed to be configured

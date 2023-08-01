@@ -9,12 +9,12 @@ nsw::hw::L1DDC::L1DDC(OpcManager& manager, const L1DDCConfig& config) :
 void nsw::hw::L1DDC::writeConfiguration()
 {
   if (m_config.getConfigureGBTx(0)) {
-    m_gbtxIc.writeConfiguration();
+    writeConfiguration(m_gbtxIc);
   }
   if (m_config.getConfigureGBTx(1)) {
-    m_gbtxI2c.at(0).writeConfiguration();
+    writeConfiguration(m_gbtxI2c.at(0));
   }
   if (m_config.getConfigureGBTx(2)) {
-    m_gbtxI2c.at(1).writeConfiguration();
+    writeConfiguration(m_gbtxI2c.at(1));
   }
 }
