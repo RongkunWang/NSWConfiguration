@@ -1,5 +1,6 @@
 #include "NSWConfiguration/NSWConfig.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 

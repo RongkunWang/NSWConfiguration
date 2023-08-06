@@ -11,6 +11,7 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/TPCarrier.h"
+#include "NSWConfiguration/TPConstants.h"
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>

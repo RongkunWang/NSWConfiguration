@@ -1,7 +1,7 @@
 #include "NSWConfiguration/hw/STGCTP.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/SCAX.h"
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/Utility.h"
 using namespace std::chrono_literals;
 

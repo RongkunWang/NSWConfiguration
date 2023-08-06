@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "NSWConfiguration/Utility.h"
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/I2cRegisterMappings.h"
 
 using boost::property_tree::ptree;
