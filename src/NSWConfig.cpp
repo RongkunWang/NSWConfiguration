@@ -31,10 +31,6 @@ nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     }
 }
 
-ptree nsw::NSWConfig::getConf() {
-  return m_reader->readConfig();
-}
-
 void nsw::NSWConfig::substituteConf(const ptree& tree) {
   m_reader  = std::make_unique<nsw::ConfigReader>(tree);
 }

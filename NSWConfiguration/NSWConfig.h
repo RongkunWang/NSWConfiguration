@@ -94,8 +94,8 @@ class NSWConfig {
     //! Exectue the connect step
     void connectRc();
 
-    //! Retrieve the ptree configuration
-    boost::property_tree::ptree getConf();
+    //! Retrieve the ConfigReader
+    const nsw::ConfigReader& getReader() const { return *m_reader; };
 
     void readConfigurationResource();
 

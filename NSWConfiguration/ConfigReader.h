@@ -29,23 +29,23 @@ class ConfigReader {
   explicit ConfigReader(const boost::property_tree::ptree& tree);
   explicit ConfigReader(const std::string& connection_string, const DeviceMap& devices);
 
-  boost::property_tree::ptree readConfig() {
+  boost::property_tree::ptree readConfig() const {
     return m_api->getConfig();
     // TODO(cyildiz): Verify there is "global config" and at least one VMM/FE instance
     // TODO(cyildiz): if (!m_components.empty()) Get Only relevant components config
   }
 
-  boost::property_tree::ptree readConfig(const std::string& element_name) {
+  boost::property_tree::ptree readConfig(const std::string& element_name) const {
     return m_api->read(element_name);
   }
 
   //! Get names of all Front end elements in the config database
-  std::set<std::string> getAllElementNames() {
+  std::set<std::string> getAllElementNames() const {
     return m_api->getAllElementNames();
   }
 
   //! Get names of all Front end elements that match with regular expression
-  std::set<std::string> getElementNames(const std::string& regexp) {
+  std::set<std::string> getElementNames(const std::string& regexp) const {
     return m_api->getElementNames(regexp);
   }
 
