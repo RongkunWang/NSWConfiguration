@@ -1,6 +1,6 @@
 #include "NSWConfiguration/monitoring/StgctpOutRunStatusRegisters.h"
 
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 
 nsw::mon::StgctpOutRunStatusRegisters::StgctpOutRunStatusRegisters(
   const nsw::hw::DeviceManager& deviceManager) :

@@ -8,7 +8,7 @@
 
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/OpcClient.h"
 
 #include <boost/program_options.hpp>

@@ -1,7 +1,6 @@
 #include "NSWConfiguration/hw/MMTP.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/SCAX.h"
-#include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
 
 nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& config):

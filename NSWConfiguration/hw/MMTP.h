@@ -10,10 +10,9 @@
 
 #include <ers/Issue.h>
 
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 #include "NSWConfiguration/hw/OpcConnectionBase.h"
-#include "NSWConfiguration/Constants.h"
-#include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 
 ERS_DECLARE_ISSUE(nsw,
@@ -46,7 +45,7 @@ namespace nsw::hw {
   {
   public:
     /**
-     * \brief Constrctor from a \ref MMTPConfig object
+     * \brief Constrctor from a \ref ptree object
      */
     MMTP(OpcManager& manager, const boost::property_tree::ptree& config);
 

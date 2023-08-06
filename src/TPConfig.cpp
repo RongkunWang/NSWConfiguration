@@ -1,4 +1,5 @@
 #include "NSWConfiguration/TPConfig.h"
+#include "NSWConfiguration/TPConstants.h"
 
 #include <iostream>
 

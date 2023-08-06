@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
-// #include "NSWConfiguration/TPConfig.h"
 #include "NSWConfiguration/OpcClient.h"
 
 #include <boost/program_options.hpp>
