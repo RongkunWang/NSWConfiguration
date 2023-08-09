@@ -104,7 +104,7 @@ int main(int argc, const char *argv[]) {
             std::cout << "... Testing the readout of a register via I2c..." << std::endl;
             if (newMode)  {
               auto p = new nsw::OpcClient(opc_ip);
-              auto outdata = nsw::hw::SCAX::readRegister(p, slaveAddr, 4);
+              auto outdata = nsw::hw::SCAX::readRegister(p, slaveAddr);
               std::cout << std::hex << outdata << std::dec << std::endl;
             } else {
               auto outdata = cs.readI2cAtAddress(opc_ip, slaveAddr, regAddrVec.data(), regAddrVec.size(), 4);
