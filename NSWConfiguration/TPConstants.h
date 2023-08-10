@@ -12,6 +12,7 @@
 #include <cmath>
 
 #include "NSWConfiguration/SCAxRegisters.h"
+#include <any>
 
 namespace nsw {
   namespace scax {
@@ -44,26 +45,28 @@ namespace nsw {
         "bus0.REG_ERR_BCID_MATCH",
         });
 
-    // to be corrected by however needed
-    // OPC&json name; value
-    constexpr auto registersToWrite = std::to_array({
-        std::make_tuple("bus0.IgnorePads", 0), 
-        std::make_tuple("bus0.IgnoreMM", 0),
-        std::make_tuple("bus0.DisableNSWMON", 0),
-        std::make_tuple("bus0.L1A_OPENING_OFFSET", 0x22),
-        std::make_tuple("bus0.L1A_REQUEST_OFFSET", 0x20),
-        std::make_tuple("bus0.L1A_CLOSING_OFFSET", 0x1e),
-        std::make_tuple("bus0.REG_L1A_TIMEOUT_WINDOW", 0x60),
-        std::make_tuple("bus0.L1A_PAD_EN", 1),
-        std::make_tuple("bus0.REG_L1A_MERGE_EN", 1),
-        std::make_tuple("bus0.REG_STGC_GLOSYNC_BCID_OFFSET", 0),
-        std::make_tuple("bus0.REG_BUSY", 0),
-        std::make_tuple("bus0.REG_MON_DISABLE", 0),
-        std::make_tuple("bus0.REG_NSW_MON_LIMIT", 10),
-        std::make_tuple("bus0.REG_MON_LIMIT", 100197),
-        std::make_tuple("bus0.REG_MM_NSW_MON_EN", 1),
-        std::make_tuple("bus0.REG_SMALL_SECTOR", 0),
-        std::make_tuple("bus0.REG_MM_NSW_MON_EN", 1),
+    // TODO: update with proper names 
+    // constexpr auto registersToWrite = std::to_array<std::tuple<std::string, std::any>>({
+    inline const std::vector<std::tuple<std::string, std::any>> registersToWrite({
+        std::make_tuple("bus0.IgnorePads", false),
+        std::make_tuple("bus0.IgnoreMM", false),
+        std::make_tuple("bus0.DisableNSWMON", false),
+        // });
+    // constexpr auto registersToWriteUint = std::to_array({
+        std::make_tuple("bus0.L1A_OPENING_OFFSET", 0x22u),
+        std::make_tuple("bus0.L1A_REQUEST_OFFSET", 0x20u),
+        std::make_tuple("bus0.L1A_CLOSING_OFFSET", 0x1eu),
+        std::make_tuple("bus0.REG_L1A_TIMEOUT_WINDOW", 0x60u),
+        std::make_tuple("bus0.L1A_PAD_EN", true),
+        std::make_tuple("bus0.REG_L1A_MERGE_EN", true),
+        std::make_tuple("bus0.REG_STGC_GLOSYNC_BCID_OFFSET", 0u),
+        std::make_tuple("bus0.REG_BUSY", false),
+        std::make_tuple("bus0.REG_MON_DISABLE", false),
+        std::make_tuple("bus0.REG_NSW_MON_LIMIT", 10u),
+        std::make_tuple("bus0.REG_MON_LIMIT", 100197u),
+        std::make_tuple("bus0.REG_MM_NSW_MON_EN", true),
+        std::make_tuple("bus0.REG_SMALL_SECTOR", 0u),
+        std::make_tuple("bus0.REG_NO_STRETCH", 0u),
         });
 
     constexpr auto REG_SECTOR           = "bus0.SectorID";
