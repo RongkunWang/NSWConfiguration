@@ -42,36 +42,34 @@ namespace nsw {
 
   namespace stgctp {
     constexpr auto registersToRead  = std::to_array({
-        "bus0.REG_ERR_BCID_MATCH",
+        "pad_only_mm_tp_regs.err_bcid_match_RO_0",
         });
 
     // TODO: update with proper names 
-    // constexpr auto registersToWrite = std::to_array<std::tuple<std::string, std::any>>({
     inline const std::vector<std::tuple<std::string, std::any>> registersToWrite({
-        std::make_tuple("bus0.IgnorePads", false),
-        std::make_tuple("bus0.IgnoreMM", false),
-        std::make_tuple("bus0.DisableNSWMON", false),
-        // });
-    // constexpr auto registersToWriteUint = std::to_array({
-        std::make_tuple("bus0.L1A_OPENING_OFFSET", 0x22u),
-        std::make_tuple("bus0.L1A_REQUEST_OFFSET", 0x20u),
-        std::make_tuple("bus0.L1A_CLOSING_OFFSET", 0x1eu),
-        std::make_tuple("bus0.REG_L1A_TIMEOUT_WINDOW", 0x60u),
-        std::make_tuple("bus0.L1A_PAD_EN", true),
-        std::make_tuple("bus0.REG_L1A_MERGE_EN", true),
-        std::make_tuple("bus0.REG_STGC_GLOSYNC_BCID_OFFSET", 0u),
-        std::make_tuple("bus0.REG_BUSY", false),
-        std::make_tuple("bus0.REG_MON_DISABLE", false),
-        std::make_tuple("bus0.REG_NSW_MON_LIMIT", 10u),
-        std::make_tuple("bus0.REG_MON_LIMIT", 100197u),
-        std::make_tuple("bus0.REG_MM_NSW_MON_EN", true),
-        std::make_tuple("bus0.REG_SMALL_SECTOR", 0u),
-        std::make_tuple("bus0.REG_NO_STRETCH", 0u),
+        std::make_tuple("pad_only_mm_tp_regs.ignore_pads_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.ignore_mm_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.disable_nsw_mon_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.stgc_mm_disable_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_opening_ofst_0", 0x22u),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_request_ofst_0", 0x20u),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_closing_ofst_0", 0x1eu),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_window_timeout_0", 0x60u),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_pad_en_0", true),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_merge_en_0", true),
+        std::make_tuple("pad_only_mm_tp_top_regs.glbl_sync_bcid_ofst_WO_0", 0u),
+        std::make_tuple("pad_only_mm_tp_regs.l1a_busy_i_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.mon_disable_0", false),
+        std::make_tuple("pad_only_mm_tp_regs.nsw_mon_limit_0", 10u),
+        std::make_tuple("pad_only_mm_tp_regs.mon_limit_0", 100197u),
+        std::make_tuple("pad_only_mm_tp_regs.mm_nsw_mon_en_0", true),
+        std::make_tuple("pad_only_mm_tp_regs.small_sector_0", 0u),
+        std::make_tuple("pad_only_mm_tp_regs.no_strech_0", 0u),
         });
 
-    constexpr auto REG_SECTOR           = "bus0.SectorID";
-    constexpr auto REG_RST_RX           = "bus0.RstRx";
-    constexpr auto REG_RST_TX           = "bus0.RstTx";
+    constexpr auto REG_SECTOR           = "pad_only_mm_tp_regs.sector_id_0";
+    constexpr auto REG_RST_RX           = "pad_only_mm_tp_top_regs.ctrl_rst_rx_WO_0";
+    constexpr auto REG_RST_TX           = "pad_only_mm_tp_top_regs.ctrl_rst_tx_WO_0";
     constexpr std::uint8_t REG_ERR_BCID_MATCH   = 0x00;
     // constexpr std::uint8_t REG_RST_RX           = 0x01;
     // constexpr std::uint8_t REG_RST_TX           = 0x02;
