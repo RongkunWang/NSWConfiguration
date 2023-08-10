@@ -71,11 +71,11 @@ int main(int ac, const char *av[]) {
     for (const auto& tp: stgc_tps) {
       std::cout << fmt::format("Found STGC TP {}", tp.getName()) << std::endl;
       if (readRegister != "") {
-        std::cout << fmt::format("Reg {}: read {:#010x}", readRegister, tp.readRegister(fmt::format("{}.{}", tp_name, readRegister))) << std::endl;
+        std::cout << fmt::format("Reg {}: read {:#010x}", readRegister, tp.readRegister(readRegister)) << std::endl;
       }
       if (writeRegister != "") {
         std::cout << fmt::format("Reg {}: write {:#010x}", writeRegister, writeValue) << std::endl;
-        tp.writeRegister(fmt::format("{}.{}", tp_name, writeRegister), writeValue);
+        tp.writeRegister( writeRegister, writeValue);
       }
       if (writeConfig) {
         std::cout << "Write configuration:" << std::endl;

@@ -11,6 +11,10 @@ ERS_DECLARE_ISSUE(nsw,
                   message,
                   ((const char *)message))
 
+  /**
+   * \brief The SCAX namespace provides an interface for write read std::uint32_t registeres. 
+   * Internally it uses functions from SCAInterfaces after SCAX module is fixed and behaves the same as SCA
+   */
 namespace nsw::hw::SCAX {
 
   // OLD interface has reg address before node name to allow for overload! (applicable to STGCTP, TPCarrier, MMTP now)
@@ -53,6 +57,8 @@ namespace nsw::hw::SCAX {
                                 const std::uint32_t regAddress,
                                 const std::uint32_t value,
                                 const std::uint32_t mask = nsw::scax::BITMASK_ALL);
+
+
 
 
 
