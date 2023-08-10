@@ -12,10 +12,12 @@ nsw::hw::STGCTP::STGCTP(OpcManager& manager, const boost::property_tree::ptree& 
   m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress())),
   m_skippedReg(nsw::hw::SCAX::SkipRegistersStr(m_config))
 {
+
 }
 
 void nsw::hw::STGCTP::writeConfiguration() const
 {
+
   doReset();
   // writeAndReadbackRegister(nsw::stgctp::REG_SECTOR,                   getSector(),               nsw::stgctp::MASK_SECTOR);
   // writeAndReadbackRegister(nsw::stgctp::REG_IGNORE_PADS,              getIgnorePads(),           nsw::stgctp::MASK_IGNORE_PADS);
@@ -38,8 +40,16 @@ void nsw::hw::STGCTP::writeConfiguration() const
   writeAndReadbackRegister(nsw::stgctp::REG_SECTOR,         getSector());
 
   for (const auto & [reg, defVal] : nsw::stgctp::registersToWrite) {
-    writeAndReadbackRegister(reg, m_config.get(reg, defVal));
+    if (defVal.type() == typeid(unsigned int)) {
+      writeAndReadbackRegister(reg, m_config.get(reg, boost::any_cast<unsigned int>(defVal)));
+    } else if (defVal.type() == typeid(bool)) {
+      writeAndReadbackRegister(reg, m_config.get(reg, boost::any_cast<bool>(defVal)));
+      // writeAndReadbackRegister(reg, m_config.get(reg, defVal));
+    }
   }
+  // for (const auto & [reg, defVal] : nsw::stgctp::registersToWriteUint) {
+    // writeAndReadbackRegister(reg, m_config.get(reg, defVal));
+  // }
   
   for (const auto& [reg, val]: readConfiguration()) {
     ERS_LOG(fmt::format("{} Reg {}: val = {:#010x}", m_name, reg, val));
