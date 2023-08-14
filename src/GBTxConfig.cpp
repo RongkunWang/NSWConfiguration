@@ -72,6 +72,24 @@ void nsw::GBTxConfig::set(const std::string& name, const std::size_t value){
     }
 }
 
+void nsw::GBTxConfig::enableTraining(const bool trainEc)
+{
+    setResetChannelsOn();
+    setTrainingRegistersOn();
+    if (trainEc) {
+        setEcTrainingRegisters(true);
+    }
+}
+
+void nsw::GBTxConfig::disableTraining(const bool trainEc)
+{
+    setResetChannelsOff();
+    setTrainingRegistersOff();
+    if (trainEc) {
+        setEcTrainingRegisters(false);
+    }
+}
+
 void nsw::GBTxConfig::setConfigFromPTree(const pt::ptree& pt){
     // update registers with ptree info
     ERS_DEBUG(2, ">> About to loop over ptree");

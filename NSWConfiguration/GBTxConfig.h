@@ -105,6 +105,20 @@ public:
     void set(const std::string& name, const std::size_t value);
 
     /**
+     * @brief Enable training
+     *
+     * @param trainEc Enable training of EC link
+     */
+    void enableTraining(bool trainEc);
+
+    /**
+     * @brief Disable training
+     *
+     * @param trainEc Disable training of EC link
+     */
+    void disableTraining(bool trainEc);
+
+    /**
      * \brief Set the EC e-link phase training register on to begin training EC
      * \param on wether to set on or off
      */
