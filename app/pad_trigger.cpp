@@ -9,8 +9,10 @@
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
+#include "NSWConfiguration/hw/DeviceManager.h"
 #include "NSWConfiguration/Constants.h"
 #include "NSWConfiguration/Utility.h"
+#include "NSWConfiguration/monitoring/PadTriggerRegisters.h"
 
 #include <boost/program_options.hpp>
 #include <fmt/core.h>
@@ -68,6 +70,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to read GT RX LOL subregister")
         ("readPFEBBcidError", po::bool_switch()->
          default_value(false), "Option to read PFEB bcid error registers")
+        ("monitor", po::bool_switch()->
+         default_value(false), "Option to read pad trigger monitoring")
         ("gpio_val", po::value<int>(&gpio_val)
          ->default_value(-1), "GPIO value for writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -93,6 +97,7 @@ int main(int argc, const char *argv[])
     const auto readSubRegisters     = vm["readSubRegisters"]    .as<bool>();
     const auto readGtRxLol          = vm["readGtRxLol"]         .as<bool>();
     const auto readPFEBBcidError    = vm["readPFEBBcidError"]   .as<bool>();
+    const auto monitor              = vm["monitor"]             .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -318,6 +323,18 @@ int main(int argc, const char *argv[])
         std::cout << fmt::format("PFEB BCID error (readout): {:#010x}", error_readout) << std::endl;
         std::cout << fmt::format("PFEB BCID error (trigger): {:#010x}", error_trigger) << std::endl;
       });
+    }
+
+    if (monitor) {
+      hws.clear();
+      nsw::hw::DeviceManager deviceManager;
+      for (const auto& cfg: configs) {
+        deviceManager.add(cfg);
+      }
+      auto mon = nsw::mon::PadTriggerRegisters{deviceManager};
+      for (const auto& dev: deviceManager.getPadTriggers()) {
+        std::cout << mon.getData(dev) << std::endl;
+      }
     }
 
     return 0;
