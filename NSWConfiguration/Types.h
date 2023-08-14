@@ -33,6 +33,7 @@ namespace gbtx {
     struct regMap {
         std::string name;
         std::string description;
+        std::size_t size{};
         std::vector<std::size_t> shifts;
         std::vector<std::size_t> registers;
     };
