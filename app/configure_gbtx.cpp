@@ -62,7 +62,7 @@ void write(std::list<nsw::hw::L1DDC>& l1ddcs, const bool parallel)
     threadPool.waitForCompletion();
   } else {
     auto counter{0};
-    for (auto& l1ddc : l1ddcs) {
+    for (const auto& l1ddc : l1ddcs) {
       fmt::print("Starting L1DDC configuration {}/{}\n", ++counter, std::size(l1ddcs));
       l1ddc.writeConfiguration();
       fmt::print("Done with configure_board for {}\n", l1ddc.getConfig().getName());
@@ -89,7 +89,7 @@ void train(std::list<nsw::hw::L1DDC>& l1ddcs, const bool parallel)
 
 void read(std::list<nsw::hw::L1DDC>& l1ddcs)
 {
-  for (auto& l1ddc : l1ddcs) {
+  for (const auto& l1ddc : l1ddcs) {
     fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getName());
     if (l1ddc.getConfig().getConfigureGBTx(0)) {
       fmt::print("GBTx0:\n");
