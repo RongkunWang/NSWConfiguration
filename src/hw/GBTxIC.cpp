@@ -14,12 +14,12 @@ nsw::hw::GBTxIC::GBTxIC(const L1DDCConfig& config) :
   m_name(config.getName())
 {}
 
-void nsw::hw::GBTxIC::writeConfiguration()
+void nsw::hw::GBTxIC::writeConfiguration() const
 {
   writeConfiguration(m_config);
 }
 
-void nsw::hw::GBTxIC::writeConfiguration(const GBTxConfig& config)
+void nsw::hw::GBTxIC::writeConfiguration(const GBTxConfig& config) const
 {
   const auto data = config.configAsVector();
 
@@ -27,7 +27,7 @@ void nsw::hw::GBTxIC::writeConfiguration(const GBTxConfig& config)
   m_tracker.update(data);
 }
 
-std::vector<std::uint8_t> nsw::hw::GBTxIC::readConfiguration()
+std::vector<std::uint8_t> nsw::hw::GBTxIC::readConfiguration() const
 {
   auto data = m_icConnection.readCfg();
   m_tracker.validate(data);
@@ -37,4 +37,9 @@ std::vector<std::uint8_t> nsw::hw::GBTxIC::readConfiguration()
 bool nsw::hw::GBTxIC::hasConfigurationErrors() const
 {
   return not m_tracker.getErrors().empty();
+}
+
+void nsw::hw::GBTxIC::train(const bool trainEc, const std::chrono::microseconds& sleepTime) const
+{
+  return;
 }

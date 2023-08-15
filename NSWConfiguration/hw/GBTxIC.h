@@ -24,19 +24,19 @@ namespace nsw::hw {
      *
      * \return std::vector<std::uint8_t> Vector of registers
      */
-    [[nodiscard]] std::vector<std::uint8_t> readConfiguration();
+    [[nodiscard]] std::vector<std::uint8_t> readConfiguration() const;
 
     /**
      * \brief Write the full GBTx configuration
      */
-    void writeConfiguration();
+    void writeConfiguration() const;
 
     /**
      * @brief Write the full GBTx configuration
      *
      * @param config Configuration to be written
      */
-    void writeConfiguration(const GBTxConfig& config);
+    void writeConfiguration(const GBTxConfig& config) const;
 
     /**
      * @brief Train the GBTx
@@ -46,7 +46,7 @@ namespace nsw::hw {
      * @param trainEc Train EC link
      * @param sleepTime Delay until nominal configuration is written again
      */
-    void train(bool trainEc, const std::chrono::microseconds& sleepTime);
+    void train(bool trainEc, const std::chrono::microseconds& sleepTime) const;
 
     /**
      * @brief Check if the configuration had errors
