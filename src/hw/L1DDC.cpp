@@ -6,7 +6,7 @@ nsw::hw::L1DDC::L1DDC(OpcManager& manager, const L1DDCConfig& config) :
   m_config{config}
 {}
 
-void nsw::hw::L1DDC::writeConfiguration()
+void nsw::hw::L1DDC::writeConfiguration() const
 {
   if (m_config.getConfigureGBTx(0)) {
     writeConfiguration(m_gbtxIc);

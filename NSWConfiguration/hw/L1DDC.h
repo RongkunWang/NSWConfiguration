@@ -32,7 +32,7 @@ namespace nsw::hw {
     /**
      * @brief Configure all GBTx's which are supposed to be configured
      */
-    void writeConfiguration();
+    void writeConfiguration() const;
 
     /**
      * \brief Get the \ref GBTxConfig object associated with this L1DDC object
@@ -79,8 +79,8 @@ namespace nsw::hw {
      * @brief Configure all GBTx's which are supposed to be configured
      */
     template<typename GBTx>
-    void writeConfiguration(GBTx& gbtx) requires(std::is_same_v<GBTx, GBTxIC> or
-                                                 std::is_same_v<GBTx, GBTxI2c>)
+    void writeConfiguration(const GBTx& gbtx) const
+      requires(std::is_same_v<GBTx, GBTxIC> or std::is_same_v<GBTx, GBTxI2c>)
     {
       for (std::size_t nTries = 0; nTries < MAX_ATTEMPTS; ++nTries) {
         gbtx.writeConfiguration();
