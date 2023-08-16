@@ -73,6 +73,7 @@ bool nsw::hw::internal::ConfigurationTrackerMap<Device>::check(const RegAddress 
       << ", since it is not part of the configuration. Probably a status register. Skipping.");
     return true;
   }
+  ERS_DEBUG(2, fmt::format("Result {} == {} is {}", m_currentData.at(reg), value, m_currentData.at(reg) == value));
   return m_currentData.at(reg) == value;
 }
 
