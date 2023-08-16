@@ -327,17 +327,26 @@ std::string nsw::getPrintableGbtxConfig(std::vector<uint8_t> data){
     }
 
     std::stringstream ss;
-    ss<<"\nreg |";
-    for (std::size_t i=0; i<data.size(); i++){
-        if (i%16==0) {
-            ss<<std::dec<<'\n'<<i;
-            if (i<10) ss<<" ";
-            if (i<100) ss<<" ";
-            ss<<" | ";
+    ss << "reg |";
+    for (std::size_t i = 0; i < data.size(); i++) {
+        if (i % 16 == 0) {
+            ss << fmt::format("\n{:3d} |", i);
         }
-        if (data.at(i)<std::uint8_t{0x10}) ss<<"0";
-        ss << std::hex << static_cast<int>(data.at(i)) << std::dec << " ";
+        ss << fmt::format(" {:02x}", data.at(i));
     }
+
+    // std::stringstream ss;
+    // ss<<"\nreg |";
+    // for (std::size_t i=0; i<data.size(); i++){
+    //     if (i%16==0) {
+    //         ss<<std::dec<<'\n'<<i;
+    //         if (i<10) ss<<" ";
+    //         if (i<100) ss<<" ";
+    //         ss<<" | ";
+    //     }
+    //     if (data.at(i)<std::uint8_t{0x10}) ss<<"0";
+    //     ss << std::hex << static_cast<int>(data.at(i)) << std::dec << " ";
+    // }
     ss<<'\n';
     return ss.str();
 }
