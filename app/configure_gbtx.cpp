@@ -170,11 +170,9 @@ int main(int argc, char* argv[])
 
   nsw::OpcManager manager{};
   std::list<nsw::hw::L1DDC> l1ddcs{};
-  std::ranges::transform(l1ddcConfigs,
-                         std::inserter(l1ddcs, std::end(l1ddcs)),
-                         [&manager](const auto& config) -> decltype(l1ddcs)::value_type {
-                           return {manager, config};
-                         });
+  for (const auto& l1ddc : l1ddcConfigs) {
+    l1ddcs.emplace(manager,l1ddc);
+  }
 
   switch (mode) {
   case Mode::READ:
