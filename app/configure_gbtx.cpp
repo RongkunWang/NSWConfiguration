@@ -93,15 +93,15 @@ void read(std::list<nsw::hw::L1DDC>& l1ddcs)
     fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getName());
     if (l1ddc.getConfig().getConfigureGBTx(0)) {
       fmt::print("GBTx0:\n");
-      fmt::print("{}", l1ddc.getGbtx0().readConfiguration());
+      fmt::print("{}", getPrintableGbtxConfig(l1ddc.getGbtx0().readConfiguration()));
     }
     if (l1ddc.getConfig().getConfigureGBTx(1)) {
       fmt::print("GBTx1:\n");
-      fmt::print("{}", l1ddc.getGbtx1().readConfiguration());
+      fmt::print("{}", getPrintableGbtxConfig(l1ddc.getGbtx1().readConfiguration()));
     }
     if (l1ddc.getConfig().getConfigureGBTx(2)) {
       fmt::print("GBTx2:\n");
-      fmt::print("{}", l1ddc.getGbtx2().readConfiguration());
+      fmt::print("{}", getPrintableGbtxConfig(l1ddc.getGbtx2().readConfiguration()));
     }
     fmt::print("\n");
   }
