@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
   nsw::OpcManager manager{};
   std::list<nsw::hw::L1DDC> l1ddcs{};
   for (const auto& l1ddc : l1ddcConfigs) {
-    l1ddcs.emplace(manager,l1ddc);
+    l1ddcs.emplace_back(manager,l1ddc);
   }
 
   switch (mode) {
