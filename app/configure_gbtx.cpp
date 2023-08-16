@@ -135,12 +135,13 @@ int main(int argc, char* argv[])
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
 
   if (vm.count("help") != 0U) {
     std::cout << desc << "\n";
     return 0;
   }
+
+  po::notify(vm);
 
   std::vector<nsw::L1DDCConfig> l1ddcConfigs;
 
