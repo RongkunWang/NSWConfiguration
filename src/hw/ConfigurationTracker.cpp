@@ -5,6 +5,9 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
 #include "NSWConfiguration/ConfigConverter.h"
 #include "NSWConfiguration/FEBConfig.h"
 
@@ -62,6 +65,7 @@ template<nsw::hw::internal::DeviceType Device>
 bool nsw::hw::internal::ConfigurationTrackerMap<Device>::check(const RegAddress reg,
                                                                const Value value) const
 {
+  ERS_DEBUG(3, fmt::format("Comparing {}: {} with {}", reg, value, m_currentData));
   if (m_currentData.find(reg) == std::cend(m_currentData)) {
     ERS_LOG(
       "Cannot validate "
