@@ -1,6 +1,7 @@
 // Sample program to read configuration from json and send to any front end module
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <iterator>
 #include <ranges>
@@ -10,6 +11,7 @@
 
 #include <boost/program_options.hpp>
 
+#include <fmt/chrono.h>
 #include <fmt/ranges.h>
 
 #include "NSWConfiguration/ConfigReader.h"
@@ -121,13 +123,14 @@ std::vector<std::string> differences(const std::vector<std::uint8_t>& readvals,
   std::vector<std::string> diffs{};
 
   const std::set<std::size_t> monset(std::cbegin(monregs), std::cend(monregs));
+  const auto now{std::chrono::system_clock::now()};
 
   for (std::size_t reg{0}; reg < checkvals.size(); ++reg) {
     if (not monset.contains(reg)) {
       continue;
     }
     if (checkvals.at(reg) != readvals.at(reg)) {
-      diffs.emplace_back(fmt::format("{} register {:03d} old={:02x} -> new={:02x}", boardname, reg, checkvals.at(reg), readvals.at(reg)));
+      diffs.emplace_back(fmt::format("{} register {:03d} (old)={:02x} -> ({:%d/%m/%y %T})={:02x}", boardname, reg, checkvals.at(reg), now, readvals.at(reg)));
     }
   }
   return diffs;
@@ -175,7 +178,7 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
           const auto diffs = differences(config, checkvals[idx], monregs, l1ddc_name);
 
           if (not diffs.empty()) {
-            fmt::print("{}::GBTx{}:\n{}\n", l1ddc_name, idx, fmt::join(diffs, "\n"));
+            fmt::print("{}\n", l1ddc_name, idx, fmt::join(diffs, "\n"));
             checkvals[idx] = config;
           }
         }
