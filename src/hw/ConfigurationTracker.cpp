@@ -65,7 +65,7 @@ template<nsw::hw::internal::DeviceType Device>
 bool nsw::hw::internal::ConfigurationTrackerMap<Device>::check(const RegAddress reg,
                                                                const Value value) const
 {
-  ERS_DEBUG(3, fmt::format("Comparing {}: {} with {}", reg, value, m_currentData));
+  ERS_DEBUG(3, fmt::format("Comparing register {}: {} with {}", reg, value, m_currentData));
   if (m_currentData.find(reg) == std::cend(m_currentData)) {
     ERS_LOG(
       "Cannot validate "
@@ -73,7 +73,7 @@ bool nsw::hw::internal::ConfigurationTrackerMap<Device>::check(const RegAddress 
       << ", since it is not part of the configuration. Probably a status register. Skipping.");
     return true;
   }
-  ERS_DEBUG(2, fmt::format("Result {} == {} is {}", m_currentData.at(reg), value, m_currentData.at(reg) == value));
+  ERS_DEBUG(2, fmt::format("Register {} result {} == {} is {}", reg, m_currentData.at(reg), value, m_currentData.at(reg) == value));
   return m_currentData.at(reg) == value;
 }
 
