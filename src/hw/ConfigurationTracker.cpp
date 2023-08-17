@@ -67,10 +67,7 @@ bool nsw::hw::internal::ConfigurationTrackerMap<Device>::check(const RegAddress 
 {
   ERS_DEBUG(3, fmt::format("Comparing register {}: {} with {}", reg, value, m_currentData));
   if (m_currentData.find(reg) == std::cend(m_currentData)) {
-    ERS_LOG(
-      "Cannot validate "
-      << reg
-      << ", since it is not part of the configuration. Probably a status register. Skipping.");
+    ERS_DEBUG(1, fmt::format("Cannot validate {}, since it is not part of the configuration. Probably a status register. Skipping.", reg));
     return true;
   }
   ERS_DEBUG(2, fmt::format("Register {} result {} == {} is {}", reg, m_currentData.at(reg), value, m_currentData.at(reg) == value));
