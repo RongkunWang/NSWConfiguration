@@ -111,6 +111,67 @@ void read(std::list<nsw::hw::L1DDC>& l1ddcs)
   }
 }
 
+std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>& readvals,
+                                                const std::vector<std::uint8_t>& checkvals)
+{
+  std::map<std::uint8_t, std::string> diffs{};
+
+  for (std::size_t reg{0}; reg < checkvals.size(); ++reg) {
+    if (checkvals.at(reg) != readvals.at(reg)) {
+      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("New value {} does not match old value {}", readvals.at(reg), checkvals.at(reg));
+    }
+  }
+  return diffs;
+}
+
+void monitor(std::list<nsw::hw::L1DDC>& l1ddcs)
+{
+  static constexpr auto wait_time{1s};
+
+  std::map<std::string, std::map<std::uint8_t, std::vector<std::uint8_t>>> configs{};
+
+  for (const auto& l1ddc : l1ddcs) {
+    configs[l1ddc.getConfig().getName()] = std::map<std::uint8_t, std::vector<std::uint8_t>>{};
+    auto& config = configs[l1ddc.getConfig().getName()];
+    if (l1ddc.getConfig().getConfigureGBTx(0)) {
+      config[0] = l1ddc.getGbtx0().readConfiguration();
+    }
+    if (l1ddc.getConfig().getConfigureGBTx(1)) {
+      config[1] = l1ddc.getGbtx1().readConfiguration();
+    }
+    if (l1ddc.getConfig().getConfigureGBTx(2)) {
+      config[2] = l1ddc.getGbtx2().readConfiguration();
+    }
+  }
+
+  while (true) {
+    for (const auto& l1ddc : l1ddcs) {
+      fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getName());
+      auto& checkvals = configs[l1ddc.getConfig().getName()];
+      if (l1ddc.getConfig().getConfigureGBTx(0)) {
+        const auto config = l1ddc.getGbtx0().readConfiguration();
+        fmt::print("GBTx0:\n");
+        fmt::print("{}", differences(config, checkvals[0]));
+        checkvals[0] = config;
+      }
+      if (l1ddc.getConfig().getConfigureGBTx(1)) {
+        const auto config = l1ddc.getGbtx1().readConfiguration();
+        fmt::print("GBTx1:\n");
+        fmt::print("{}", differences(config, checkvals[1]));
+        checkvals[1] = config;
+      }
+      if (l1ddc.getConfig().getConfigureGBTx(2)) {
+        const auto config = l1ddc.getGbtx2().readConfiguration();
+        fmt::print("GBTx2:\n");
+        fmt::print("{}", differences(config, checkvals[2]));
+        checkvals[2] = config;
+      }
+      fmt::print("\n");
+    }
+    nsw::snooze(wait_time);
+  }
+}
+
 int main(int argc, char* argv[])
 {
   std::string configFile{};
@@ -193,11 +254,7 @@ int main(int argc, char* argv[])
   }
 
   if (mode == Mode::MONITOR) {
-    static constexpr auto wait_time{1s};
-    while (true) {
-      read(l1ddcs);
-      nsw::snooze(wait_time);
-    }
+    monitor(l1ddcs);
   }
   return 0;
 }
