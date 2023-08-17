@@ -152,7 +152,6 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
 
   while (true) {
     for (const auto& l1ddc : l1ddcs) {
-      fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getNodeName());
       auto& checkvals = configs[l1ddc.getConfig().getNodeName()];
       for (std::size_t idx{0}; idx < NUM_MAX_GBTX; ++idx){
         if (l1ddc.getConfig().getConfigureGBTx(idx)) {
