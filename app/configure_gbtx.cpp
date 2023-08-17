@@ -113,12 +113,12 @@ void read(std::list<nsw::hw::L1DDC>& l1ddcs)
   }
 }
 
-std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>& readvals,
-                                                const std::vector<std::uint8_t>& checkvals,
-                                                const std::vector<std::size_t>& monregs,
-                                                const std::string& boardname)
+std::vector<std::string> differences(const std::vector<std::uint8_t>& readvals,
+                                     const std::vector<std::uint8_t>& checkvals,
+                                     const std::vector<std::size_t>& monregs,
+                                     const std::string& boardname)
 {
-  std::map<std::uint8_t, std::string> diffs{};
+  std::vector<std::string> diffs{};
 
   const std::set<std::size_t> monset(std::cbegin(monregs), std::cend(monregs));
 
@@ -127,7 +127,7 @@ std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>&
       continue;
     }
     if (checkvals.at(reg) != readvals.at(reg)) {
-      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("{} register {:03d} old={:02x} -> new={:02x}", boardname, reg, checkvals.at(reg), readvals.at(reg));
+      diffs.emplace_back(fmt::format("{} register {:03d} old={:02x} -> new={:02x}", boardname, reg, checkvals.at(reg), readvals.at(reg)));
     }
   }
   return diffs;
