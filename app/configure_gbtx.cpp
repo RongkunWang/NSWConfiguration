@@ -22,6 +22,8 @@
 namespace po = boost::program_options;
 using namespace std::chrono_literals;
 
+static constexpr std::size_t NUM_MAX_GBTX{3};
+
 enum class Mode {
   TRAIN,
   READ,
@@ -152,22 +154,31 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
     for (const auto& l1ddc : l1ddcs) {
       fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getNodeName());
       auto& checkvals = configs[l1ddc.getConfig().getNodeName()];
-      if (l1ddc.getConfig().getConfigureGBTx(0)) {
-        const auto config = l1ddc.getGbtx0().readConfiguration();
-        fmt::print("{}::GBTx0: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[0], monregs));
-        checkvals[0] = config;
+      for (std::size_t idx{0}; idx < NUM_MAX_GBTX; ++idx){
+        if (l1ddc.getConfig().getConfigureGBTx(idx)) {
+          const auto l1ddc_name = l1ddc.getConfig().getNodeName();
+
+          const auto config = [&l1ddc](const auto gbtIdx) {
+            switch(gbtIdx) {
+            case 0:
+              return l1ddc.getGbtx0().readConfiguration();
+            case 1:
+              return l1ddc.getGbtx1().readConfiguration();
+            case 2:
+              return l1ddc.getGbtx2().readConfiguration();
+            default:
+              throw std::runtime_error(fmt::format("Invalid GBTx specified: {}", gbtIdx));
+            }
+          }(idx);
+
+          const auto diffs = differences(config, checkvals[idx], monregs);
+
+          if (not diffs.empty()) {
+            fmt::print("{}::GBTx{}: {}\n", l1ddc_name, idx, diffs);
+            checkvals[idx] = config;
+          }
+        }
       }
-      if (l1ddc.getConfig().getConfigureGBTx(1)) {
-        const auto config = l1ddc.getGbtx1().readConfiguration();
-        fmt::print("{}::GBTx1: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[1], monregs));
-        checkvals[1] = config;
-      }
-      if (l1ddc.getConfig().getConfigureGBTx(2)) {
-        const auto config = l1ddc.getGbtx2().readConfiguration();
-        fmt::print("{}::GBTx2: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[2], monregs));
-        checkvals[2] = config;
-      }
-      fmt::print("\n");
     }
     nsw::snooze(std::chrono::milliseconds(wait_time));
   }
