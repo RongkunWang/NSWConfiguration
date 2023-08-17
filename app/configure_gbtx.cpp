@@ -118,16 +118,14 @@ std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>&
 
   for (std::size_t reg{0}; reg < checkvals.size(); ++reg) {
     if (checkvals.at(reg) != readvals.at(reg)) {
-      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("New value {} does not match old value {}", readvals.at(reg), checkvals.at(reg));
+      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("Register {:03d} value changed to {:02x} from {:02x}", reg, readvals.at(reg), checkvals.at(reg));
     }
   }
   return diffs;
 }
 
-void monitor(std::list<nsw::hw::L1DDC>& l1ddcs)
+void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time)
 {
-  static constexpr auto wait_time{1s};
-
   std::map<std::string, std::map<std::uint8_t, std::vector<std::uint8_t>>> configs{};
 
   for (const auto& l1ddc : l1ddcs) {
@@ -168,7 +166,7 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs)
       }
       fmt::print("\n");
     }
-    nsw::snooze(wait_time);
+    nsw::snooze(std::chrono::milliseconds(wait_time));
   }
 }
 
@@ -176,6 +174,7 @@ int main(int argc, char* argv[])
 {
   std::string configFile{};
   std::string name{};
+  int monsleep{};
   bool parallel{false};
   bool simulation{false};
   int trainGBTxPhaseWaitTime{1};
@@ -184,19 +183,15 @@ int main(int argc, char* argv[])
   Mode mode{};
 
   po::options_description desc("This program interfaces L1DDCs");
-  desc.add_options()("help,h", "produce help message")(
-    "mode", po::value<Mode>(&mode)->required(), "Mode (read, write, train)")(
-    "config,c", po::value<std::string>(&configFile)->required(), "Configuration file path")(
-    "name,n",
-    po::value<std::string>(&name)->default_value(""),
-    "Name of the L1DDC in the config file (all if empty)")(
-    "parallel,p", po::bool_switch(&parallel)->default_value(false), "Configure boards in parallel")(
-    "no-rim",
-    po::bool_switch(&noRim)->default_value(false),
-    "Do not configure RimL1DDCs (when no name provided)")(
-    "simulation,s",
-    po::bool_switch(&simulation)->default_value(false),
-    "Do not run any configuration");
+  desc.add_options()
+    ("help,h", "produce help message")
+    ("mode",po::value<Mode>(&mode)->required(), "Mode (read, write, train)")
+    ("config,c", po::value<std::string>(&configFile)->required(), "Configuration file path")
+    ("name,n",po::value<std::string>(&name)->default_value(""),"Name of the L1DDC in the config file (all if empty)")
+    ("monsleep",po::value<int>(&monsleep)->default_value(1000),"Time to wait between monitoring calls in ms (default 1000)")
+    ("parallel,p", po::bool_switch(&parallel)->default_value(false), "Configure boards in parallel")
+    ("no-rim",po::bool_switch(&noRim)->default_value(false),"Do not configure RimL1DDCs (when no name provided)")
+    ("simulation,s",po::bool_switch(&simulation)->default_value(false),"Do not run any configuration");
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -254,7 +249,7 @@ int main(int argc, char* argv[])
   }
 
   if (mode == Mode::MONITOR) {
-    monitor(l1ddcs);
+    monitor(l1ddcs, monsleep);
   }
   return 0;
 }
