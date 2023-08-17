@@ -113,12 +113,14 @@ void read(std::list<nsw::hw::L1DDC>& l1ddcs)
 
 std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>& readvals,
                                                 const std::vector<std::uint8_t>& checkvals,
-                                                const std::set<std::size_t>& monregs)
+                                                const std::vector<std::size_t>& monregs)
 {
   std::map<std::uint8_t, std::string> diffs{};
 
+  const std::set<std::size_t> monset(std::cbegin(monregs), std::cend(monregs));
+
   for (std::size_t reg{0}; reg < checkvals.size(); ++reg) {
-    if (not monregs.contains(reg)) {
+    if (not monset.contains(reg)) {
       continue;
     }
     if (checkvals.at(reg) != readvals.at(reg)) {
@@ -128,7 +130,7 @@ std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>&
   return diffs;
 }
 
-void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::set<std::size_t>& monregs)
+void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector<std::size_t>& monregs)
 {
   std::map<std::string, std::map<std::uint8_t, std::vector<std::uint8_t>>> configs{};
 
@@ -152,17 +154,17 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::set<st
       auto& checkvals = configs[l1ddc.getConfig().getNodeName()];
       if (l1ddc.getConfig().getConfigureGBTx(0)) {
         const auto config = l1ddc.getGbtx0().readConfiguration();
-        fmt::print("{}::GBTx0:\n {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[0], monregs), "\n"));
+        fmt::print("{}::GBTx0: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[0], monregs));
         checkvals[0] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(1)) {
         const auto config = l1ddc.getGbtx1().readConfiguration();
-        fmt::print("{}::GBTx1:\n {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[1], monregs), "\n"));
+        fmt::print("{}::GBTx1: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[1], monregs));
         checkvals[1] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(2)) {
         const auto config = l1ddc.getGbtx2().readConfiguration();
-        fmt::print("{}::GBTx2:\n {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[2], monregs), "\n"));
+        fmt::print("{}::GBTx2: {}\n", l1ddc.getConfig().getNodeName(), differences(config, checkvals[2], monregs));
         checkvals[2] = config;
       }
       fmt::print("\n");
@@ -175,7 +177,7 @@ int main(int argc, char* argv[])
 {
   std::string configFile{};
   std::string name{};
-  std::set<std::size_t> monregs{};
+  std::vector<std::size_t> monregs{};
   int monsleep{};
   bool parallel{false};
   bool simulation{false};
@@ -191,7 +193,7 @@ int main(int argc, char* argv[])
     ("config,c", po::value<std::string>(&configFile)->required(), "Configuration file path")
     ("name,n",po::value<std::string>(&name)->default_value(""),"Name of the L1DDC in the config file (all if empty)")
     ("monsleep",po::value<int>(&monsleep)->default_value(1000),"Time to wait between monitoring calls in ms (default 1000)")
-    ("monregs",po::value<std::set<std::size_t>>(&monregs)->default_value({}),"List of registers to monitor (default {})")
+    ("monregs",po::value<std::vector<std::size_t>>(&monregs)->multitoken(),"List of registers to monitor")
     ("parallel,p", po::bool_switch(&parallel)->default_value(false), "Configure boards in parallel")
     ("no-rim",po::bool_switch(&noRim)->default_value(false),"Do not configure RimL1DDCs (when no name provided)")
     ("simulation,s",po::bool_switch(&simulation)->default_value(false),"Do not run any configuration");
