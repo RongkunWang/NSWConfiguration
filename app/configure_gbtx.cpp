@@ -115,7 +115,8 @@ void read(std::list<nsw::hw::L1DDC>& l1ddcs)
 
 std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>& readvals,
                                                 const std::vector<std::uint8_t>& checkvals,
-                                                const std::vector<std::size_t>& monregs)
+                                                const std::vector<std::size_t>& monregs,
+                                                const std::string& boardname)
 {
   std::map<std::uint8_t, std::string> diffs{};
 
@@ -126,7 +127,7 @@ std::map<std::uint8_t, std::string> differences(const std::vector<std::uint8_t>&
       continue;
     }
     if (checkvals.at(reg) != readvals.at(reg)) {
-      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("Register {:03d} value changed to {:02x} from {:02x}", reg, readvals.at(reg), checkvals.at(reg));
+      diffs[static_cast<std::uint8_t>(reg)] = fmt::format("{} register {:03d} old={:02x} -> new={:02x}", boardname, reg, checkvals.at(reg), readvals.at(reg));
     }
   }
   return diffs;
@@ -137,8 +138,9 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
   std::map<std::string, std::map<std::uint8_t, std::vector<std::uint8_t>>> configs{};
 
   for (const auto& l1ddc : l1ddcs) {
-    configs[l1ddc.getConfig().getNodeName()] = std::map<std::uint8_t, std::vector<std::uint8_t>>{};
-    auto& config = configs[l1ddc.getConfig().getNodeName()];
+    const auto l1ddc_name = l1ddc.getConfig().getNodeName();
+    configs[l1ddc_name] = std::map<std::uint8_t, std::vector<std::uint8_t>>{};
+    auto& config = configs[l1ddc_name];
     if (l1ddc.getConfig().getConfigureGBTx(0)) {
       config[0] = l1ddc.getGbtx0().readConfiguration();
     }
@@ -152,10 +154,10 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
 
   while (true) {
     for (const auto& l1ddc : l1ddcs) {
-      auto& checkvals = configs[l1ddc.getConfig().getNodeName()];
+      const auto l1ddc_name = l1ddc.getConfig().getNodeName();
+      auto& checkvals = configs[l1ddc_name];
       for (std::size_t idx{0}; idx < NUM_MAX_GBTX; ++idx){
         if (l1ddc.getConfig().getConfigureGBTx(idx)) {
-          const auto l1ddc_name = l1ddc.getConfig().getNodeName();
 
           const auto config = [&l1ddc](const auto gbtIdx) {
             switch(gbtIdx) {
@@ -170,10 +172,10 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time, const std::vector
             }
           }(idx);
 
-          const auto diffs = differences(config, checkvals[idx], monregs);
+          const auto diffs = differences(config, checkvals[idx], monregs, l1ddc_name);
 
           if (not diffs.empty()) {
-            fmt::print("{}::GBTx{}: {}\n", l1ddc_name, idx, diffs);
+            fmt::print("{}::GBTx{}:\n{}\n", l1ddc_name, idx, fmt::join(diffs, "\n"));
             checkvals[idx] = config;
           }
         }
