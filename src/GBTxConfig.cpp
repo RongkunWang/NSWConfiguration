@@ -110,7 +110,8 @@ void nsw::GBTxConfig::setConfigFromFile(const std::string& iPath){
             if (iLine>=nsw::NUM_GBTX_WRITABLE_REGISTERS){
                 nsw::NSWBoardIssue issue(ERS_HERE, "Text config file is too long!");
                 ers::error(issue);
-                throw issue;
+                // throw issue;
+                continue;
             }
             m_config.at(iLine) = std::stoi(line,0,16);
             iLine+=1;

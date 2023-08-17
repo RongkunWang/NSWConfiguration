@@ -25,9 +25,10 @@ ERS_DECLARE_ISSUE(nsw,
               ((std::string)gbtx_type)
               )
 
-
 namespace nsw {
-    constexpr std::size_t NUM_GBTX_WRITABLE_REGISTERS = 436;
+    constexpr std::size_t NUM_GBTX_WRITABLE_REGISTERS{366};
+    constexpr std::size_t NUM_GBTX_READONLY_REGISTERS{70};
+    constexpr std::size_t NUM_GBTX_TOTAL_REGISTERS{NUM_GBTX_WRITABLE_REGISTERS + NUM_GBTX_READONLY_REGISTERS};
 }
 
 namespace nsw{
