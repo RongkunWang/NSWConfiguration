@@ -148,20 +148,17 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time)
       auto& checkvals = configs[l1ddc.getConfig().getName()];
       if (l1ddc.getConfig().getConfigureGBTx(0)) {
         const auto config = l1ddc.getGbtx0().readConfiguration();
-        fmt::print("GBTx0:\n");
-        fmt::print("{}", differences(config, checkvals[0]));
+        fmt::print("{}::GBTx0: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[0]), "\n"));
         checkvals[0] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(1)) {
         const auto config = l1ddc.getGbtx1().readConfiguration();
-        fmt::print("GBTx1:\n");
-        fmt::print("{}", differences(config, checkvals[1]));
+        fmt::print("{}::GBTx1: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[1]), "\n"));
         checkvals[1] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(2)) {
         const auto config = l1ddc.getGbtx2().readConfiguration();
-        fmt::print("GBTx2:\n");
-        fmt::print("{}", differences(config, checkvals[2]));
+        fmt::print("{}::GBTx2: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[2]), "\n"));
         checkvals[2] = config;
       }
       fmt::print("\n");
