@@ -49,8 +49,8 @@ void nsw::hw::internal::ConfigurationTrackerMap<Device>::validate(const Data& va
     for (const auto& [reg, value] : values) {
       validate(reg, value);
     }
-  } else {
-    ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
+  // } else {
+  //   ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
   }
 }
 
@@ -59,8 +59,8 @@ void nsw::hw::internal::ConfigurationTrackerMap<Device>::validate(const DataVect
 {
   if (not m_currentData.empty()) {
     validate(convertVector(values));
-  } else {
-    ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
+  // } else {
+  //   ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
   }
 }
 
