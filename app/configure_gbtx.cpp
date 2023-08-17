@@ -69,7 +69,7 @@ void write(std::list<nsw::hw::L1DDC>& l1ddcs, const bool parallel)
     for (const auto& l1ddc : l1ddcs) {
       fmt::print("Starting L1DDC configuration {}/{}\n", ++counter, std::size(l1ddcs));
       l1ddc.writeConfiguration();
-      fmt::print("Done with configure_board for {}\n", l1ddc.getConfig().getName());
+      fmt::print("Done with configure_board for {}\n", l1ddc.getConfig().getNodeName());
     }
   }
   fmt::print("Configuration done\n");
@@ -94,7 +94,7 @@ void train(std::list<nsw::hw::L1DDC>& l1ddcs, const bool parallel)
 void read(std::list<nsw::hw::L1DDC>& l1ddcs)
 {
   for (const auto& l1ddc : l1ddcs) {
-    fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getName());
+    fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getNodeName());
     if (l1ddc.getConfig().getConfigureGBTx(0)) {
       fmt::print("GBTx0:\n");
       fmt::print("{}", nsw::getPrintableGbtxConfig(l1ddc.getGbtx0().readConfiguration()));
@@ -129,8 +129,8 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time)
   std::map<std::string, std::map<std::uint8_t, std::vector<std::uint8_t>>> configs{};
 
   for (const auto& l1ddc : l1ddcs) {
-    configs[l1ddc.getConfig().getName()] = std::map<std::uint8_t, std::vector<std::uint8_t>>{};
-    auto& config = configs[l1ddc.getConfig().getName()];
+    configs[l1ddc.getConfig().getNodeName()] = std::map<std::uint8_t, std::vector<std::uint8_t>>{};
+    auto& config = configs[l1ddc.getConfig().getNodeName()];
     if (l1ddc.getConfig().getConfigureGBTx(0)) {
       config[0] = l1ddc.getGbtx0().readConfiguration();
     }
@@ -144,21 +144,21 @@ void monitor(std::list<nsw::hw::L1DDC>& l1ddcs, int wait_time)
 
   while (true) {
     for (const auto& l1ddc : l1ddcs) {
-      fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getName());
-      auto& checkvals = configs[l1ddc.getConfig().getName()];
+      fmt::print("Reading configuration of L1DDC {}\n", l1ddc.getConfig().getNodeName());
+      auto& checkvals = configs[l1ddc.getConfig().getNodeName()];
       if (l1ddc.getConfig().getConfigureGBTx(0)) {
         const auto config = l1ddc.getGbtx0().readConfiguration();
-        fmt::print("{}::GBTx0: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[0]), "\n"));
+        fmt::print("{}::GBTx0: {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[0]), "\n"));
         checkvals[0] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(1)) {
         const auto config = l1ddc.getGbtx1().readConfiguration();
-        fmt::print("{}::GBTx1: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[1]), "\n"));
+        fmt::print("{}::GBTx1: {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[1]), "\n"));
         checkvals[1] = config;
       }
       if (l1ddc.getConfig().getConfigureGBTx(2)) {
         const auto config = l1ddc.getGbtx2().readConfiguration();
-        fmt::print("{}::GBTx2: {}\n", l1ddc.getConfig().getName(), fmt::join(differences(config, checkvals[2]), "\n"));
+        fmt::print("{}::GBTx2: {}\n", l1ddc.getConfig().getNodeName(), fmt::join(differences(config, checkvals[2]), "\n"));
         checkvals[2] = config;
       }
       fmt::print("\n");
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 
   fmt::print("Configuring the following L1DDCs: {}",
              l1ddcConfigs |
-               std::views::transform([](const auto& config) { return config.getName(); }));
+               std::views::transform([](const auto& config) { return config.getNodeName(); }));
 
   if (simulation) {
     fmt::print(
