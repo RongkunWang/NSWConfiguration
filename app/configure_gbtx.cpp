@@ -20,10 +20,12 @@
 #include "NSWConfiguration/hw/L1DDC.h"
 
 namespace po = boost::program_options;
+using namespace std::chrono_literals;
 
 enum class Mode {
   TRAIN,
   READ,
+  MONITOR,
   WRITE,
 };
 
@@ -42,6 +44,8 @@ void validate(boost::any& v, const std::vector<std::string>& values, Mode* /*mod
     v = boost::any(Mode::TRAIN);
   } else if (s == "read") {
     v = boost::any(Mode::READ);
+  } else if (s == "monitor") {
+    v = boost::any(Mode::MONITOR);
   } else if (s == "write") {
     v = boost::any(Mode::WRITE);
   } else {
@@ -184,7 +188,16 @@ int main(int argc, char* argv[])
   case Mode::TRAIN:
     train(l1ddcs, parallel);
     break;
+  default:
+    break;
   }
 
+  if (mode == Mode::MONITOR) {
+    static constexpr auto wait_time{1s};
+    while (true) {
+      read(l1ddcs);
+      nsw::snooze(wait_time);
+    }
+  }
   return 0;
 }
