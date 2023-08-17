@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include <ers/ers.h>
+
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -43,15 +45,23 @@ void nsw::hw::internal::ConfigurationTrackerMap<Device>::validate(const RegAddre
 template<nsw::hw::internal::DeviceType Device>
 void nsw::hw::internal::ConfigurationTrackerMap<Device>::validate(const Data& values)
 {
-  for (const auto& [reg, value] : values) {
-    validate(reg, value);
+  if (not m_currentData.empty()) {
+    for (const auto& [reg, value] : values) {
+      validate(reg, value);
+    }
+  } else {
+    ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
   }
 }
 
 template<nsw::hw::internal::DeviceType Device>
 void nsw::hw::internal::ConfigurationTrackerMap<Device>::validate(const DataVector& values)
 {
-  validate(convertVector(values));
+  if (not m_currentData.empty()) {
+    validate(convertVector(values));
+  } else {
+    ers::warning(nsw::EmptyTrackedConfig(ERS_HERE));
+  }
 }
 
 template<nsw::hw::internal::DeviceType Device>

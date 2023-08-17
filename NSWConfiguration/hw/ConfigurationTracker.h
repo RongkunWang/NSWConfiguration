@@ -5,8 +5,12 @@
 #include <set>
 #include <string>
 
-#include <ers/ers.h>
+#include <ers/Issue.h>
 
+ERS_DECLARE_ISSUE(nsw,
+                  EmptyTrackedConfig,
+                  "No tracked configuration.",
+                  )
 
 namespace nsw::hw::internal {
   /**
