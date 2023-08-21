@@ -197,8 +197,8 @@ namespace nsw {
     constexpr std::uint8_t REG_DATE_CODE                = 0x09;
     constexpr std::uint8_t REG_GIT_HASH                 = 0x0a;
     constexpr std::uint8_t REG_INPUT_PHASE              = 0x0b;
-    constexpr std::uint8_t REG_INPUT_PHASEOFFSET        = 0x0c; // for ADDC
-    constexpr std::uint8_t REG_INPUT_PHASEL1OFFSET      = 0x32; // for L1DDC
+    constexpr std::uint8_t REG_INPUT_PHASEADDCOFFSET    = 0x0c; // for ADDC PCB3/6
+    constexpr std::uint8_t REG_INPUT_PHASEL1DDCOFFSET   = 0x32; // for L1DDC L/R
     constexpr std::uint8_t REG_FIBER_HOT_MUX            = 0x0d;
     constexpr std::uint8_t REG_FIBER_HOT_READ           = 0x0e;
     constexpr std::uint8_t REG_GBT_BCID_OK              = 0x0f;

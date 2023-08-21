@@ -26,7 +26,7 @@ void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_DISABLE},
     {nsw::mmtp::REG_FIBER_BC_OFFSET,          FiberBCOffset()},
     {nsw::mmtp::REG_INPUT_PHASE,              GlobalInputPhase()},
-    {nsw::mmtp::REG_INPUT_PHASEOFFSET,        GlobalInputOffset()},
+    {nsw::mmtp::REG_INPUT_PHASEADDCOFFSET,    GlobalInputOffset()},
     {nsw::mmtp::REG_SELFTRIGGER_DELAY,        SelfTriggerDelay()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      VmmMaskHotThresh()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH_HYST, VmmMaskHotThreshHyst()},
