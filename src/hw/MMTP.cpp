@@ -25,8 +25,8 @@ void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_ENABLE},
     {nsw::mmtp::REG_L1A_CONTROL,              nsw::mmtp::L1A_RESET_DISABLE},
     {nsw::mmtp::REG_FIBER_BC_OFFSET,          FiberBCOffset()},
-    {nsw::mmtp::REG_INPUT_PHASE,              GlobalInputPhase()},
-    {nsw::mmtp::REG_INPUT_PHASEADDCOFFSET,    GlobalInputOffset()},
+    {nsw::mmtp::REG_INPUT_PHASE,              m_config.get<std::uint32_t>("GlobalInputPhase")},
+    {nsw::mmtp::REG_INPUT_PHASEADDCOFFSET,    m_config.get<std::uint32_t>("GlobalInputOffset")},
     {nsw::mmtp::REG_SELFTRIGGER_DELAY,        SelfTriggerDelay()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH,      VmmMaskHotThresh()},
     {nsw::mmtp::REG_VMM_MASK_HOT_THRESH_HYST, VmmMaskHotThreshHyst()},
@@ -38,7 +38,7 @@ void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
     {nsw::mmtp::REG_LAT_TX_IDLE_STATE,        0},
     {nsw::mmtp::REG_LAT_TX_BCID_OFFSET,       m_config.get<std::uint32_t>("latTxBcidOffset", 100)},
     {nsw::mmtp::REG_FIBER_REMAP_SEL,          fiberRemapSel()},
-    {nsw::mmtp::REG_INPUT_PHASEL1DDCOFFSET,      m_config.get<std::uint32_t>("gbtL1ddPhaseOffset", 0)},
+    {nsw::mmtp::REG_INPUT_PHASEL1DDCOFFSET,   m_config.get<std::uint32_t>("gbtL1ddPhaseOffset", 0)},
   };
 
   const auto skippedReg = SkipRegisters();
