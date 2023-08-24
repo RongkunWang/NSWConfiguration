@@ -122,7 +122,9 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED
   pad_repeaters     # nsw_pad_repeaters
   router            # nsw_router
   tds_frame2Router  # nsw_tds_frame2Router
-  )
+  stgc_trigger_path_calib #nsw_stgc_trigger_path_calib 
+)
+
 
 
 foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO)
