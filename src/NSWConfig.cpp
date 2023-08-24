@@ -1,5 +1,6 @@
 #include "NSWConfiguration/NSWConfig.h"
 #include "NSWConfiguration/OpcClient.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/hw/FEB.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 
@@ -28,10 +29,6 @@ nsw::NSWConfig::NSWConfig(bool simulation):m_simulation {simulation} {
     if (m_simulation) {
         ERS_INFO("Running in simulation mode, no configuration will be sent");
     }
-}
-
-ptree nsw::NSWConfig::getConf() {
-  return m_reader->readConfig();
 }
 
 void nsw::NSWConfig::substituteConf(const ptree& tree) {
@@ -89,6 +86,9 @@ void nsw::NSWConfig::readConfigurationResource() {
                                 m_deviceManager);
     m_monitoringMap.try_emplace(std::string{nsw::mon::PadTriggerRegisters::NAME},
                                 std::in_place_type<nsw::mon::PadTriggerRegisters>,
+                                m_deviceManager);
+    m_monitoringMap.try_emplace(std::string{nsw::mon::CarriertpInRunStatusRegisters::NAME},
+                                std::in_place_type<nsw::mon::CarriertpInRunStatusRegisters>,
                                 m_deviceManager);
 }
 

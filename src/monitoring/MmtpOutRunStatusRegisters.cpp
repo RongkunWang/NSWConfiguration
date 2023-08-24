@@ -1,6 +1,6 @@
 #include "NSWConfiguration/monitoring/MmtpOutRunStatusRegisters.h"
 
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 
 nsw::mon::MmtpOutRunStatusRegisters::MmtpOutRunStatusRegisters(
   const nsw::hw::DeviceManager& deviceManager) :

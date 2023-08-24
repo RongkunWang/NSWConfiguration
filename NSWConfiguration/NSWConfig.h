@@ -20,6 +20,7 @@
 #include "NSWConfiguration/monitoring/StgctpInRunStatusRegisters.h"
 #include "NSWConfiguration/monitoring/StgctpOutRunStatusRegisters.h"
 #include "NSWConfiguration/monitoring/PadTriggerRegisters.h"
+#include "NSWConfiguration/monitoring/CarriertpInRunStatusRegisters.h"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -93,8 +94,8 @@ class NSWConfig {
     //! Exectue the connect step
     void connectRc();
 
-    //! Retrieve the ptree configuration
-    boost::property_tree::ptree getConf();
+    //! Retrieve the ConfigReader
+    const nsw::ConfigReader& getReader() const { return *m_reader; };
 
     void readConfigurationResource();
 
@@ -182,7 +183,8 @@ private:
       nsw::mon::RocStatusRegisters, nsw::mon::RocConfigurationRegisters, 
       nsw::mon::MmtpInRunStatusRegisters, nsw::mon::MmtpOutRunStatusRegisters,
       nsw::mon::StgctpInRunStatusRegisters, nsw::mon::StgctpOutRunStatusRegisters,
-      nsw::mon::PadTriggerRegisters>;
+      nsw::mon::PadTriggerRegisters,
+      nsw::mon::CarriertpInRunStatusRegisters>;
     std::map<std::string, MonitoringVariant> m_monitoringMap;
 
     // Database connection string

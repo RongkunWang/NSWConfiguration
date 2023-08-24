@@ -3,7 +3,7 @@
 
 #include <ers/Issue.h>
 
-#include "NSWConfiguration/Constants.h"
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/hw/SCAInterface.h"
 
 ERS_DECLARE_ISSUE(nsw,

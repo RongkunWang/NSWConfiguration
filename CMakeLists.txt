@@ -151,6 +151,7 @@ foreach(appsrc IN LISTS NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED)
   tdaq_add_executable(nsw_${appsrc} app/${appsrc}.cpp
     LINK_LIBRARIES nswconfig
     LINK_LIBRARIES nswhwinterface
+    LINK_LIBRARIES nswmonitoring
     LINK_LIBRARIES Boost::program_options
   )
 endforeach()
@@ -228,6 +229,7 @@ tdaq_add_library(nswmonitoring
                  src/monitoring/StgctpInRunStatusRegisters.cpp
                  src/monitoring/StgctpOutRunStatusRegisters.cpp
                  src/monitoring/PadTriggerRegisters.cpp
+                 src/monitoring/CarriertpInRunStatusRegisters.cpp
                  src/monitoring/IsPublisher.cpp
                  src/monitoring/Utility.cpp
   LINK_LIBRARIES nswconfig

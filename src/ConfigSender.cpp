@@ -6,6 +6,7 @@
 
 #include <ers/ers.h>
 
+#include "NSWConfiguration/TPConstants.h"
 #include "NSWConfiguration/Constants.h"
 #include "ic-handler/IChandler.h"
 

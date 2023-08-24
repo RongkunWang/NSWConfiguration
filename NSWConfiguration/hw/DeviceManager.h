@@ -267,7 +267,7 @@ namespace nsw::hw {
     void addAddc(const nsw::ADDCConfig& config);
 
     /**
-     * \brief Add MMTP from TPConfig object
+     * \brief Add MMTP from ptree object
      *
      * \param config config object
      */
