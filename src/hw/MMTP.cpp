@@ -14,7 +14,7 @@ nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& conf
 
 void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
 {
-  std::vector<std::pair<uint8_t, uint32_t> > list_of_messages = {
+  std::vector<std::pair<uint8_t, uint32_t>> list_of_messages = {
     {nsw::mmtp::REG_ADDC_EMU_DISABLE,         nsw::mmtp::ADDC_EMU_DISABLE},
     {nsw::mmtp::REG_L1A_OPENING_OFFSET,       L1AOpeningOffset()},
     {nsw::mmtp::REG_L1A_REQUEST_OFFSET,       L1ARequestOffset()},
