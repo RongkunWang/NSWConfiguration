@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "NSWConfiguration/ConfigReader.h"
-#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/DeviceManager.h"
 #include "NSWConfiguration/Constants.h"
@@ -116,21 +115,20 @@ int main(int argc, const char *argv[])
     }
 
     // make objects from json
-    const auto configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree>
-      (fmt::format("json://{}", config_filename), "PadTrigger", board_name);
-    if (configs.empty()) {
+    nsw::hw::DeviceManager deviceManager;
+    nsw::ConfigReader reader{fmt::format("json://{}", config_filename)};
+    for (const auto& name: reader.getAllElementNames()) {
+      if (nsw::getElementType(name) == "PadTrigger") {
+        deviceManager.add(reader.readConfig(name));
+      }
+    }
+    const auto& hws = deviceManager.getPadTriggers();
+    if (hws.empty()) {
       std::cerr << "You provided a JSON with no pad triggers! Exiting." << std::endl;
       return 1;
     }
 
-    // the hw objects
-    nsw::OpcManager opcManager{};
-    std::vector<nsw::hw::PadTrigger> hws;
-    hws.reserve(configs.size());
-    for (const auto& cfg: configs) {
-      hws.emplace_back(nsw::hw::PadTrigger(opcManager, cfg));
-    }
-
+    // announce
     for (const auto& hw: hws) {
       std::cout << fmt::format("Found {}\n with {} -> T = {}",
                                hw.getName(),
@@ -325,15 +323,11 @@ int main(int argc, const char *argv[])
       });
     }
 
+    // execute SCA monitoring
     if (monitor) {
-      hws.clear();
-      nsw::hw::DeviceManager deviceManager;
-      for (const auto& cfg: configs) {
-        deviceManager.add(cfg);
-      }
       auto mon = nsw::mon::PadTriggerRegisters{deviceManager};
-      for (const auto& dev: deviceManager.getPadTriggers()) {
-        std::cout << mon.getData(dev) << std::endl;
+      for (const auto& hw: hws) {
+        std::cout << mon.getData(hw) << std::endl;
       }
     }
 
