@@ -1,5 +1,5 @@
-## .gitlab-ci.yml
-## Configuration for CI/CD for NSWConfiguration
+# .gitlab-ci.yml
+# Configuration for CI/CD for NSWConfiguration
 
 variables:
   GIT_STRATEGY: fetch
