@@ -18,7 +18,7 @@ stages:
 
 include:
   - project: 'atlas-muon-nsw-daq/infrastructure/nsw-build-scripts'
-    ref: 'master'
+    ref: master
     file:
       - '.gitlab/ci/code-quality.yml'
       - '.gitlab/ci/build-and-test.yml'
