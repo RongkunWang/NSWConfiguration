@@ -1065,7 +1065,7 @@ void nsw::ConfigSender::sendTPConfig(const nsw::TPConfig& tp, bool quiet) {
       {nsw::mmtp::REG_HORX_ENV_MON_ADDR, static_cast<uint32_t>(tp.HorxEnvMonAddr())},
     };
     if (tp.GlobalInputOffset() != -1)
-      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_INPUT_PHASEOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));
+      list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_INPUT_PHASEADDCOFFSET,        static_cast<uint32_t>(tp.GlobalInputOffset())));
     if (tp.SelfTriggerDelay() != -1)
       list_of_messages.push_back(std::make_pair(nsw::mmtp::REG_SELFTRIGGER_DELAY,        static_cast<uint32_t>(tp.SelfTriggerDelay())));
     if (tp.VmmMaskHotThresh() != -1)
