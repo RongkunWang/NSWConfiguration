@@ -171,16 +171,6 @@ namespace nsw::hw {
     std::uint32_t FiberBCOffset() const { return m_config.get<std::uint32_t>("FiberBCOffset"); }
 
     /**
-     * \brief Get the "GlobalInputPhase" provided by the user configuration
-     */
-    std::uint32_t GlobalInputPhase() const { return m_config.get<std::uint32_t>("GlobalInputPhase"); }
-
-    /**
-     * \brief Get the "GlobalInputOffset" provided by the user configuration
-     */
-    std::uint32_t GlobalInputOffset() const { return m_config.get<std::uint32_t>("GlobalInputOffset"); }
-
-    /**
      * \brief Get the "SelfTriggerDelay" provided by the user configuration
      */
     std::uint32_t SelfTriggerDelay() const { return m_config.get<std::uint32_t>("SelfTriggerDelay"); }
@@ -250,6 +240,6 @@ namespace nsw::hw {
     std::string m_name;                   //!< Name composed of OPC and SCA addresses
 
   };
-}  // namespace nsw::hw
+} // namespace nsw::hw
 
 #endif
