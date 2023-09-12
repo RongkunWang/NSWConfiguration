@@ -57,20 +57,54 @@ int main(int argc, const char *argv[])
     nsw::hw::DeviceManager deviceManager;
     nsw::ConfigReader reader{fmt::format("json://{}", config_filename)};
     for (const auto& name: reader.getAllElementNames()) {
-       deviceManager.add(reader.readConfig(name));
+      if (nsw::getElementType(name) != "SFEB6" and nsw::getElementType(name) != "SFEB8")
+	 continue;
+      deviceManager.add(reader.readConfig(name));
+      std::cout << "test out 0" << std::endl;
     }
   //
     for (const auto& dev: deviceManager.getFebs()) {
-      if (nsw::getElementType(dev.getScaAddress()) != "PFEB") {
-        continue;
-      }
+      int i_tds = 0;
       for (const auto& tds : dev.getTdss()) {
+        i_tds++;
         if (bcid_offset_val > 0xFFF){
            std::cout << "BCID offset larger than expected (12b) " << std::endl;
-           return 1;
+           return 1;       
         }
+        std::cout << "test out for TDS: " << i_tds << "=============" << std::endl;
+        std::cout <<  tds.readValue("BCID_Offset") << std::endl;
+        std::cout << "test out 2" << std::endl;
         tds.writeValue("BCID_Offset", 1234);
-      }    
+	std::cout <<  tds.readValue("BCID_Offset") << std::endl;
+      
+	//std::string fe_name;
+	//fe_name = "SFEB6_L1Q1_IPL";
+	//nsw::ConfigReader reader1("json://" + config_filename);
+    	//auto config1 = reader1.readConfig();
+    	//auto feb_config_tree = reader1.readConfig(fe_name);
+    	//nsw::FEBConfig feb(feb_config_tree);
+
+	auto & roc = dev.getRoc();
+        for (unsigned int phase = 0; phase < 128; phase++)
+        {
+		std::cout <<  tds.readValue("strip_trigger_bcid") << std::endl;
+		roc.writeValue("ePllTdc.ePllPhase40MHz_0", phase);
+		roc.writeValue("ePllTdc.ePllPhase40MHz_1", phase);
+		roc.writeValue("ePllTdc.ePllPhase40MHz_2", phase);
+		roc.writeValue("ePllTdc.ePllPhase40MHz_3", phase);
+		sleep(1);
+        	std::cout <<  tds.readValue("strip_trigger_bcid") << std::endl;
+        	std::cout << roc.readValue("ePllTdc.ePllPhase40MHz_0") << std::endl;
+        	std::cout << roc.readValue("ePllTdc.ePllPhase40MHz_1") << std::endl;
+        	std::cout << roc.readValue("ePllTdc.ePllPhase40MHz_2") << std::endl;
+        	std::cout << roc.readValue("ePllTdc.ePllPhase40MHz_3") << std::endl;
+        }
+
+
+
+		
+
+	}    
     }
 
     return 0;
