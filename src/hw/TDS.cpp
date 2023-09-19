@@ -173,8 +173,7 @@ std::map<std::string, unsigned int> nsw::hw::TDS::readValues(
                  std::cend(regNames),
                  std::inserter(registerValues, std::begin(registerValues)),
                  [&](const auto& regName) -> std::pair<std::string, __uint128_t> {
-                   const auto byteVector = readRegister(static_cast<std::uint8_t>(
-                     std::distance(std::cbegin(TDS_REGISTERS), TDS_REGISTERS.find(regName))));
+                   const auto byteVector = readRegister(addressFromRegisterName(regName));
                    // byte vector to 128 bit integer conversion
                    __uint128_t result{0};
                    auto counter = byteVector.size();
@@ -191,4 +190,20 @@ std::map<std::string, unsigned int> nsw::hw::TDS::readValues(
   const auto values = configConverter.getValueBasedConfig();
 
   return transformPtreetoMap<unsigned int>(values);
+}
+
+std::uint8_t nsw::hw::TDS::addressFromRegisterName(const std::string& name) const
+{
+  // register15_READONLY -> 15
+  constexpr static std::string_view frontmatter{"register"};
+  const auto nameStripped = nsw::stripReadonly(name);
+  try {
+    const auto nameStrippedAgain
+      = nameStripped.substr(frontmatter.size(), nameStripped.size());
+    return std::stoul(nameStrippedAgain);
+  } catch (const std::exception&) {
+    nsw::TdsError issue(ERS_HERE, fmt::format("Cannot get address from: {}", name));
+    ers::error(issue);
+    throw issue;
+  }
 }
