@@ -1384,6 +1384,24 @@ static const i2c::AddressRegisterMap PADTRIGGER_REGISTERS = {
       {nsw::NOT_USED, 20},
       {"trig_bcid_select", 12},
     }},
+  {"01D_sem_monitoring_READONLY", {
+      {"fecc_parity_error[6:0]", 7},
+      {"fecc_two_bit_error[6:0]", 7},
+      {"fecc_one_bit_error[6:0]", 7},
+      {"status_heartbeat[2:0]", 3},
+      {"fecc_crc_error", 1},
+      {"status_injection", 1},
+      {"status_essential", 1},
+      {"status_uncorrectable", 1},
+      {"status_correction", 1},
+      {"status_classification", 1},
+      {"status_observation", 1},
+      {"status_initialization", 1},
+    }},
+  {"01E_sem_control", {
+      {"inject_address[39:36]", 4},
+      {"inject_address[27:0]", 28},
+    }},
   // --------------------------
   {"030_pfeb_00_mask_to_0_A", {
       {nsw::NOT_USED, 24},
