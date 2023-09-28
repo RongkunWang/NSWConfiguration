@@ -374,8 +374,12 @@
   <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
   <attribute name="ttc_l1a_rate" description="TTC L1A rate" type="u32" init-value="0"/>
   <attribute name="gt_rx_lol" description="GT RX LOL" type="u32" format="hex" init-value="0"/>
+  <attribute name="status_observation" description="SEM status observation" type="bool" init-value="0"/>
+  <attribute name="status_essential" description="SEM status essential" type="bool" init-value="0"/>
   <attribute name="status_heartbeat" description="SEM status heartbeat" type="u32" init-value="0"/>
   <attribute name="fecc_one_bit_error" description="SEM fecc one bit error" type="u32" init-value="0"/>
+  <attribute name="fecc_two_bit_error" description="SEM fecc two bit error" type="u32" init-value="0"/>
+  <attribute name="fecc_parity_error" description="SEM fecc parity error" type="u32" init-value="0"/>
  </class>
 
  <class name="MmtpInRunStatusRegisters">

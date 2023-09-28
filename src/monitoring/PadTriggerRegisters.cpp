@@ -62,7 +62,11 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.ttc_bcr_ocr_rate   = dev.readSubRegister("015_ttc_mon_0_READONLY", "ttc_bcr_ocr_rate");
   is.ttc_l1a_rate       = dev.readSubRegister("019_ttc_mon_1_READONLY", "ttc_l1a_rate");
   is.gt_rx_lol          = dev.readGtRxLol();
-  is.status_heartbeat   = dev.readSubRegister("01D_sem_monitoring_READONLY", "status_heartbeat");
-  is.fecc_one_bit_error = dev.readSubRegister("01D_sem_monitoring_READONLY", "fecc_one_bit_error");
+  is.status_observation = dev.readSubRegister("01D_sem_monitoring_READONLY", "status_observation");
+  is.status_essential   = dev.readSubRegister("01D_sem_monitoring_READONLY", "status_essential");
+  is.status_heartbeat   = dev.readSubRegister("01D_sem_monitoring_READONLY", "status_heartbeat[2:0]");
+  is.fecc_one_bit_error = dev.readSubRegister("01D_sem_monitoring_READONLY", "fecc_one_bit_error[6:0]");
+  is.fecc_two_bit_error = dev.readSubRegister("01D_sem_monitoring_READONLY", "fecc_two_bit_error[6:0]");
+  is.fecc_parity_error  = dev.readSubRegister("01D_sem_monitoring_READONLY", "fecc_parity_error[6:0]");
   return is;
 }
