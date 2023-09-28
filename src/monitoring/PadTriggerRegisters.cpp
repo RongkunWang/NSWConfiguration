@@ -62,5 +62,7 @@ nsw::mon::PadTriggerRegisters::getData(const nsw::hw::PadTrigger& dev)
   is.ttc_bcr_ocr_rate   = dev.readSubRegister("015_ttc_mon_0_READONLY", "ttc_bcr_ocr_rate");
   is.ttc_l1a_rate       = dev.readSubRegister("019_ttc_mon_1_READONLY", "ttc_l1a_rate");
   is.gt_rx_lol          = dev.readGtRxLol();
+  is.status_heartbeat   = dev.readSubRegister("01D_sem_monitoring_READONLY", "status_heartbeat");
+  is.fecc_one_bit_error = dev.readSubRegister("01D_sem_monitoring_READONLY", "fecc_one_bit_error");
   return is;
 }
