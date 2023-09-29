@@ -71,6 +71,8 @@ int main(int argc, const char *argv[])
          default_value(false), "Option to read PFEB bcid error registers")
         ("monitor", po::bool_switch()->
          default_value(false), "Option to read pad trigger monitoring")
+        ("sem", po::bool_switch()->
+         default_value(false), "Option to run SEM/SEU tests")
         ("gpio_val", po::value<int>(&gpio_val)
          ->default_value(-1), "GPIO value for writing. If no value given, will read-only.")
         ("i2c_reg", po::value<std::string>(&i2c_reg)
@@ -97,6 +99,7 @@ int main(int argc, const char *argv[])
     const auto readGtRxLol          = vm["readGtRxLol"]         .as<bool>();
     const auto readPFEBBcidError    = vm["readPFEBBcidError"]   .as<bool>();
     const auto monitor              = vm["monitor"]             .as<bool>();
+    const auto sem                  = vm["sem"]                 .as<bool>();
     if (vm.count("help") > 0) {
         std::cout << desc << "\n";
         return 0;
@@ -329,6 +332,29 @@ int main(int argc, const char *argv[])
       for (const auto& hw: hws) {
         std::cout << mon.getData(hw) << std::endl;
       }
+    }
+
+    // run SEM/SEU tests
+    if (sem) {
+      static constexpr std::string_view rname{"01D_sem_monitoring_READONLY"};
+      std::ranges::for_each(hws, [](const auto& hw){
+        const auto printSemMonitoring = [&](){
+          for (const auto& [addr, val]: hw.readConfigurationSubRegisters()) {
+            if (not nsw::contains(addr, std::string{rname})) {
+              continue;
+            }
+            std::cout << fmt::format("{} = {}", addr, val) << std::endl;
+          }
+        };
+        hw.SemSoftReset();
+        printSemMonitoring();
+        hw.SemInjectError();
+        printSemMonitoring();
+        hw.SemResetErrorCounters();
+        printSemMonitoring();
+        hw.SemSoftReset();
+        printSemMonitoring();
+      });
     }
 
     return 0;

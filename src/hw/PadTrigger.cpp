@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <regex>
 
+using namespace std::chrono_literals;
+
 nsw::hw::PadTrigger::PadTrigger(OpcManager& manager, const boost::property_tree::ptree& config):
   ScaAddressBase(config.get<std::string>("OpcNodeId")),
   OpcConnectionBase(manager, config.get<std::string>("OpcServerIp"), config.get<std::string>("OpcNodeId")),
@@ -764,6 +766,83 @@ void nsw::hw::PadTrigger::pushBackColumn(std::vector< std::vector<std::uint32_t 
   for (std::size_t it = 0; it < column.size(); it++) {
     matrix.at(it).push_back(column.at(it));
   }
+}
+
+bool nsw::hw::PadTrigger::SemCheckStatusObservation() const {
+  return readSubRegister("01D_sem_monitoring_READONLY", "status_observation");
+}
+
+bool nsw::hw::PadTrigger::SemCheckStatusInitialization() const {
+  return readSubRegister("01D_sem_monitoring_READONLY", "status_initialization");
+}
+
+void nsw::hw::PadTrigger::SemSetState(const std::uint32_t state) const {
+  static constexpr bool quiet{true};
+  writeSubRegister("01E_sem_control", "inject_address[39:36]", state, quiet);
+}
+
+void nsw::hw::PadTrigger::SemSetStateInject(const std::uint32_t value) const {
+  constexpr std::size_t bitpos{28};
+  writeFPGARegister(0x01E, (SEM_STATE_INJECT << bitpos) + value);
+}
+
+void nsw::hw::PadTrigger::SemInjectError() const {
+  ERS_LOG("SEM: inject error");
+  SemSetStateNull();
+  SemSetStateObservation();
+  nsw::snooze();
+  if (not SemCheckStatusObservation()) {
+    ERS_LOG("Bad status_observation, exiting");
+    return;
+  }
+  SemSetStateIdle();
+  nsw::snooze();
+  if (SemCheckStatusObservation()) {
+    ERS_LOG("Unexpected status_observation, exiting");
+    return;
+  }
+  constexpr std::uint32_t value{0xF640};
+  SemSetStateInject(value);
+  nsw::snooze(2s);
+  SemSetStateObservation();
+  nsw::snooze();
+  SemSetStateNull();
+}
+
+void nsw::hw::PadTrigger::SemSoftReset() const {
+  ERS_LOG("SEM: soft reset");
+  if (not SemCheckStatusObservation()) {
+    ERS_LOG("Bad status_observation, exiting");
+    return;
+  }
+  SemSetStateIdle();
+  nsw::snooze();
+  if (SemCheckStatusObservation()) {
+    ERS_LOG("Unexpected status_observation, exiting");
+    return;
+  }
+  SemSetStateReset();
+  nsw::snooze();
+  if (not SemCheckStatusInitialization()) {
+    ERS_LOG("Unexpected status_initialization, exiting");
+    return;
+  }
+  while (not SemCheckStatusObservation()) {
+    ERS_LOG("Waiting for status observation ...");
+    nsw::snooze(5s);
+  }
+  SemSetStateNull();
+}
+
+void nsw::hw::PadTrigger::SemResetErrorCounters() const {
+  ERS_LOG("SEM: reset error counters");
+  if (not SemCheckStatusObservation()) {
+    ERS_LOG("Bad status_observation, exiting");
+    return;
+  }
+  SemSetStateReset();
+  nsw::snooze();
+  SemSetStateNull();
 }
 
 std::uint8_t nsw::hw::PadTrigger::addressFromRegisterName(const std::string& name) const

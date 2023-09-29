@@ -603,6 +603,63 @@ namespace nsw::hw {
     std::uint32_t getMedianDelay(const std::uint32_t bcid,
                                  const std::vector<BcidVector>& bcidPerPfebPerDelay) const;
 
+    /*
+     * \brief Check the SEM observation status
+     */
+    bool SemCheckStatusObservation() const;
+
+    /*
+     * \brief Check the SEM initialization status
+     */
+    bool SemCheckStatusInitialization() const;
+
+    /*
+     * \brief Set the SEM state
+     * \param state the desired state
+     */
+    void SemSetState(const std::uint32_t state) const;
+
+    /*
+     * \brief Set the SEM state to null
+     */
+    void SemSetStateNull() const { SemSetState(SEM_STATE_NULL); };
+
+    /*
+     * \brief Set the SEM state to observation
+     */
+    void SemSetStateObservation() const { SemSetState(SEM_STATE_OBSERVATION); };
+
+    /*
+     * \brief Set the SEM state to reset
+     */
+    void SemSetStateReset() const { SemSetState(SEM_STATE_RESET); };
+
+    /*
+     * \brief Set the SEM state to inject with an injection location
+     * \param value Location for bit error to be injected
+     */
+    void SemSetStateInject(const std::uint32_t value) const;
+
+    /*
+     * \brief Set the SEM state to idle
+     */
+    void SemSetStateIdle() const { SemSetState(SEM_STATE_IDLE); };
+
+    /*
+     * \brief In the SEM logic, inject an error
+     */
+    void SemInjectError() const;
+
+    /*
+     * \brief In the SEM logic, soft reset
+     */
+    void SemSoftReset() const;
+
+    /*
+     * \brief In the SEM logic, reset error counters
+     */
+    void SemResetErrorCounters() const;
+
     /**
      * \brief Get the \ref PadTriggerConfig object associated with this PadTrigger object
      *
@@ -810,6 +867,12 @@ namespace nsw::hw {
     static constexpr std::string_view FPGA_PROGRAM{"FPGA_PROGRAM"};
     static constexpr std::string_view FPGA_INIT{"FPGA_INIT"};
     static constexpr std::string_view FPGA_DONE{"FPGA_DONE"};
+
+    static constexpr std::uint32_t SEM_STATE_NULL{0x0};
+    static constexpr std::uint32_t SEM_STATE_OBSERVATION{0xA};
+    static constexpr std::uint32_t SEM_STATE_RESET{0xB};
+    static constexpr std::uint32_t SEM_STATE_INJECT{0xC};
+    static constexpr std::uint32_t SEM_STATE_IDLE{0xE};
 
   };
 
