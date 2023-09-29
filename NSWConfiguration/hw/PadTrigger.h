@@ -96,6 +96,12 @@ namespace nsw::hw {
     void writeVTTxConfiguration() const;
 
     /**
+     * \brief Write a bitfile to the PadTrigger FPGA
+     * \param fw Path to the bitfile
+     */
+    void writeJTAGBitfileConfiguration(const std::string& fw) const;
+
+    /**
      * \brief Write the bitfile to the PadTrigger FPGA
      */
     void writeJTAGBitfileConfiguration() const;

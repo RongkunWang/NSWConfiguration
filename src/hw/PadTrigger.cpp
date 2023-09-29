@@ -102,6 +102,11 @@ void nsw::hw::PadTrigger::writeVTTxConfiguration() const
 
 }
 
+void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration(const std::string& fw) const
+{
+  nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
+}
+
 void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
 {
   const std::string& fw = firmware();
@@ -115,7 +120,7 @@ void nsw::hw::PadTrigger::writeJTAGBitfileConfiguration() const
     return;
   }
   ERS_LOG("Uploading bitfile via SCA JTAG, this will take a minute...");
-  nsw::hw::SCA::writeXilinxFpga(getConnection(), m_scaAddressJTAG, fw);
+  writeJTAGBitfileConfiguration(fw);
   nsw::snooze();
   if (not readGPIO(FPGA_DONE)) {
     throw nsw::PadTriggerConfigError
