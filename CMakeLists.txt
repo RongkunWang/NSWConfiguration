@@ -119,6 +119,7 @@ set(NSWCONFIG_EXE_WITH_BOOST_PO
 ## Executables linked against nswconfig and Boost::program_options, but renamed to nsw_<X>
 set(NSWCONFIG_EXE_WITH_BOOST_PO_RENAMED
   pad_trigger       # nsw_pad_trigger
+  pad_coincidences  # nsw_pad_coincidences
   pad_repeaters     # nsw_pad_repeaters
   router            # nsw_router
   tds_frame2Router  # nsw_tds_frame2Router
