@@ -46,7 +46,12 @@ namespace nsw {
     void prepareForRun(const daq::rc::TransitionCmd& /*cmd*/) override;
 
     /**
-     * \brief Ask configuration and monitoring controller to stop
+     * \brief Ask monitoring controller to stop
+     */
+    void stopROIB(const daq::rc::TransitionCmd& /*cmd*/) override;
+
+    /**
+     * \brief Ask configuration controller to stop
      */
     void stopRecording(const daq::rc::TransitionCmd& /*cmd*/) override;
 

@@ -93,6 +93,13 @@ void nsw::NSWSectorControllerRc::prepareForRun(const daq::rc::TransitionCmd& /*c
   ERS_LOG("End");
 }
 
+void nsw::NSWSectorControllerRc::stopROIB(const daq::rc::TransitionCmd& /*cmd*/)
+{
+  ERS_LOG("Start");
+  m_monitoringControllerSender.send(nsw::commands::STOP, 0);
+  ERS_LOG("End");
+}
+
 void nsw::NSWSectorControllerRc::stopRecording(const daq::rc::TransitionCmd& /*cmd*/)
 {
   ERS_LOG("Start");
@@ -100,7 +107,6 @@ void nsw::NSWSectorControllerRc::stopRecording(const daq::rc::TransitionCmd& /*c
   if (not opcConnected()) {
     ers::info(NSWConfigIssue(ERS_HERE, "OPC server disconnected while stopping."));
   }
-  m_monitoringControllerSender.send(nsw::commands::STOP, 0);
   ERS_LOG("End");
 }
 

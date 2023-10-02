@@ -9,6 +9,9 @@
 #include <memory>
 #include <ranges>
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
 // Header to the RC online services
 #include <RunControl/Common/OnlineServices.h>
 #include <RunControl/Common/RunControlCommands.h>
@@ -51,6 +54,7 @@ void nsw::NSWMonitoringControllerRc::configure(const daq::rc::TransitionCmd& /*c
                   std::make_unique<daq::rc::CommandSender>(m_ipcpartition, m_app->UID()));
 
   m_configs = mon::parseMonitoringGroups(m_partitionName, m_app->get_monitoringGroupSetName());
+
   m_scaServiceSender.send(nsw::commands::MON_IS_SERVER_NAME, {m_monitoringIsServerName});
 
   ERS_LOG("End");
@@ -58,7 +62,9 @@ void nsw::NSWMonitoringControllerRc::configure(const daq::rc::TransitionCmd& /*c
 
 void nsw::NSWMonitoringControllerRc::user(const daq::rc::UserCmd& usrCmd)
 {
-  ERS_LOG("User command received: " << usrCmd.commandName());
+  ERS_LOG(fmt::format("User command '{}' received ({})",
+                      usrCmd.commandName(),
+                      usrCmd.commandParameters()));
   if (usrCmd.commandName() == nsw::commands::START) {
     ERS_INFO("Starting Monitoring");
     startMonitoringAll();
@@ -75,7 +81,9 @@ void nsw::NSWMonitoringControllerRc::startMonitoringAll()
   stopMonitoringAll();
   m_threads = mon::startMonitoring(
     m_configs,
-    [this](const std::string& name) { m_scaServiceSender.send(nsw::commands::MONITOR, {name}, 0); },
+    [this](const std::string& name) {
+      m_scaServiceSender.send(nsw::commands::MONITOR, {name}, 0);
+    },
     m_isDictionary.get(),
     m_monitoringIsServerName,
     m_app->UID());
