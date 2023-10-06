@@ -10,6 +10,7 @@
 #include "NSWConfiguration/ARTConfig.h"
 
 namespace nsw {
+    // TODO remove this namespace below once ConfigSender is removed
   namespace addc {
     constexpr size_t NUM_ART_REGISTERS = 15;
     constexpr size_t NUM_GBTX_REGISTERS = 369;
@@ -19,6 +20,7 @@ namespace nsw {
   private:
     std::vector<ARTConfig> m_arts;
 
+    // TODO remove the 5 below once ConfigSender is removed
     static constexpr std::array<uint8_t, 4> m_ARTCoreregisters{9, 10, 11, 12};
 
     static constexpr std::array<uint8_t, nsw::addc::NUM_ART_REGISTERS> m_ARTregisters{
@@ -78,10 +80,15 @@ namespace nsw {
     const ARTConfig & getART(size_t i) const {return m_arts.at(i);}
     const std::vector<ARTConfig> & getARTs() const {return m_arts;}
 
+    [[deprecated("remove once ConfigSender is removed")]]
     auto ARTCoreregisters()       const -> decltype(m_ARTCoreregisters)       {return m_ARTCoreregisters;}
+    [[deprecated("remove once ConfigSender is removed")]]
     auto ARTregisters()           const -> decltype(m_ARTregisters)           {return m_ARTregisters;}
+    [[deprecated("remove once ConfigSender is removed")]]
     auto ARTregistervalues()      const -> decltype(m_ARTregistervalues)      {return m_ARTregistervalues;}
+    [[deprecated("remove once ConfigSender is removed")]]
     auto GBTx_eport_registers()   const -> decltype(m_GBTx_eport_registers)   {return m_GBTx_eport_registers;}
+    [[deprecated("remove once ConfigSender is removed")]]
     auto GBTx_ConfigurationData() const -> decltype(m_GBTx_ConfigurationData) {return m_GBTx_ConfigurationData;}
 };
 

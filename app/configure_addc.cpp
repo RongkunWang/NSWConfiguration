@@ -8,17 +8,23 @@
 #include <thread>
 #include <future>
 
+#include "NSWConfiguration/hw/OpcManager.h"
+#include "NSWConfiguration/hw/ADDC.h"
+#include "NSWConfiguration/hw/MMTP.h"
+
 #include "NSWConfiguration/ConfigReader.h"
 #include "NSWConfiguration/ConfigSender.h"
 #include "NSWConfiguration/ADDCConfig.h"
 #include "NSWConfiguration/Utility.h"
 
+#include <boost/property_tree/ptree.hpp>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
+namespace pt = boost::property_tree;
 
 int active_threads(std::vector< std::future<int> >* threads);
-int configure_addc(nsw::ADDCConfig feb, int iart);
+int configure_addc(const nsw::hw::ADDC& addc, int iart);
 int change_phase(nsw::ADDCConfig addc, uint phase, uint fine, std::vector<bool> aligned);
 std::string strf_time();
 
@@ -66,8 +72,8 @@ int main(int argc, const char *argv[])
     auto cfg = "json://" + config_filename;
     auto addc_configs = nsw::ConfigReader::makeObjects<nsw::ADDCConfig>(cfg, "ADDC", board_name);
 
-    // the sender
-    nsw::ConfigSender cs;
+    auto addcs = std::vector<nsw::hw::ADDC>{};
+    auto opcManager = nsw::OpcManager{};
 
     // announce
     for (auto & addc : addc_configs) {
@@ -79,12 +85,14 @@ int main(int argc, const char *argv[])
                       << " and TP_GBTxAlignmentBit " << art.TP_GBTxAlignmentBit()
                       << std::endl;
         }
+        addcs.emplace_back(opcManager, addc);
     }
+
 
     // configure
     auto threads = new std::vector< std::future<int> >();
     if (!dont_config) {
-        for (auto & addc : addc_configs) {
+        for (auto & addc : addcs) {
             std::cout << "Sending ADDC configuration... " << std::endl;
             threads->push_back(std::async(std::launch::async, configure_addc, addc, iart));
         }
@@ -126,11 +134,21 @@ int main(int argc, const char *argv[])
         size_t slp = 1;
 
         // collect all TPs from the ARTs
-        std::set< std::pair<std::string, std::string> > tps;
-        for (auto & addc : addc_configs)
-            for (auto art : addc.getARTs())
-                tps.emplace(std::make_pair(art.getOpcServerIp_TP(), art.getOpcNodeId_TP()));
-        for (auto tp : tps)
+        std::set< std::pair<std::string, std::string> > mmtp_configs;
+        for (const auto & addc : addc_configs)
+            for (const auto &art : addc.getARTs())
+                mmtp_configs.emplace(std::make_pair(art.getOpcServerIp_TP(), art.getOpcNodeId_TP()));
+
+        auto mmtps = std::vector<nsw::hw::MMTP>{};
+        for (const auto& config : mmtp_configs) {
+          pt::ptree ptree;
+          ptree.put("OpcServerIp", config.first);
+          ptree.put("OpcNodeId", config.second);
+
+          mmtps.emplace_back(opcManager, ptree);
+        }
+
+        for (const auto& tp : mmtp_configs)
             std::cout << "Found TP for alignment: " << tp.first << "/" << tp.second << std::endl;
 
         // output file
@@ -144,9 +162,10 @@ int main(int argc, const char *argv[])
         auto regAddrVec = nsw::hexStringToByteVector("0x02", 4, true);
         while (true) {
             myfile << "Time " << strf_time() << std::endl;
-            for (auto tp : tps) {
-                auto outdata = cs.readI2cAtAddress(tp.first, tp.second,
-                                                   regAddrVec.data(), regAddrVec.size(), 4);
+            for (const auto& tp : mmtps) {
+                // auto outdata = cs.readI2cAtAddress(tp.first, tp.second,
+                                                   // regAddrVec.data(), regAddrVec.size(), 4);
+                auto outdata = tp.readRegister(0x02);
                 for (auto & addc : addc_configs) {
                     for (auto art : addc.getARTs()) {
                         auto aligned = art.IsAlignedWithTP(outdata);
@@ -187,13 +206,14 @@ std::string strf_time() {
     return out;
 }
 
-int configure_addc(nsw::ADDCConfig addc, int iart) {
-    std::cout << "New thread in configure_frontend for " << addc.getAddress() << std::endl;
-    nsw::ConfigSender cs;
-    cs.sendAddcConfig(addc, iart);
+int configure_addc(const nsw::hw::ADDC& addc, int iart) {
+    std::cout << "New thread in configure_frontend for " << addc.getScaAddress() << " art index(indices) "<< iart << std::endl;
+    
+    addc.writeConfiguration(iart);
     return 0;
 }
 
+// TODO obsolete?
 int change_phase(nsw::ADDCConfig addc, uint phase, uint fine, std::vector<bool> aligned) {
     auto local_sender = std::make_unique<nsw::ConfigSender>();
     size_t gbtx_size = 3;

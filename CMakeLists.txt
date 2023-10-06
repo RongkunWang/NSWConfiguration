@@ -206,6 +206,7 @@ tdaq_add_library(nswhwinterface
                  src/hw/VMM.cpp
                  src/hw/TDS.cpp
                  src/hw/ART.cpp
+                 src/hw/ADDC.cpp
                  src/hw/PadTrigger.cpp
                  src/hw/Router.cpp
                  src/hw/SCAX.cpp

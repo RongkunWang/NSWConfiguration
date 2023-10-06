@@ -10,8 +10,9 @@
 
 #include "NSWConfiguration/Concepts.h"
 #include "NSWConfiguration/Issues.h"
+#include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/FEB.h"
-#include "NSWConfiguration/hw/ART.h"
+#include "NSWConfiguration/hw/ADDC.h"
 #include "NSWConfiguration/hw/PadTrigger.h"
 #include "NSWConfiguration/hw/Router.h"
 #include "NSWConfiguration/hw/MMTP.h"
@@ -63,7 +64,7 @@ namespace nsw::hw {
         addFeb(FEBConfig{config});
       }
       else if (type == "ADDC") {
-        addAddc(ADDCConfig{config});
+        addAddc(config);
       }
       else if (type == "MMTP") {
         addMMTp(config);
@@ -155,12 +156,12 @@ namespace nsw::hw {
     void resetSTGCTP();
 
     /**
-     * \brief Get all ARTs
+     * \brief Get all ADDCs
      *
-     * \return std::vector<ART>& ARTs
+     * \return std::vector<ADDC>& ADDCs
      */
-    std::vector<ART>& getArts() { return m_arts; }
-    const std::vector<ART>& getArts() const { return m_arts; }  //!< overload
+    std::vector<ADDC>& getAddcs() { return m_addcs; }
+    const std::vector<ADDC>& getAddcs() const { return m_addcs; }  //!< overload
 
     /**
      * \brief Get all STGCTPs
@@ -241,9 +242,9 @@ namespace nsw::hw {
 
   private:
     bool m_multithreaded{};
-    OpcManager m_opcManager{};
-    std::vector<nsw::hw::FEB> m_febs{};
-    std::vector<ART> m_arts{};
+    nsw::OpcManager m_opcManager{};
+    std::vector<FEB> m_febs{};
+    std::vector<ADDC> m_addcs{};
     std::vector<MMTP> m_mmtps{};
     std::vector<STGCTP> m_stgctps{};
     std::vector<Router> m_routers{};
@@ -264,7 +265,7 @@ namespace nsw::hw {
      *
      * \param config config object
      */
-    void addAddc(const nsw::ADDCConfig& config);
+    void addAddc(const boost::property_tree::ptree& config);
 
     /**
      * \brief Add MMTP from ptree object
