@@ -23,7 +23,7 @@ nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& conf
       m_registersToRead.emplace_back(name, bus, addr);
     }
     if(std::find(nsw::mmtp::registersToWrite.begin(), 
-          nsw::mmtp::registersToRead.end(), name) != nsw::mmtp::registersToRead.end()) {
+          nsw::mmtp::registersToWrite.end(), name) != nsw::mmtp::registersToWrite.end()) {
       m_registersToWrite.emplace_back(name, bus, addr, def);
     }
   }
@@ -68,7 +68,6 @@ void nsw::hw::MMTP::writeRegister(const std::uint32_t regAddress,
                                   const std::uint32_t value, 
                                   const std::uint8_t bus) const
 {
- std::cout << regAddress << " " << value << std::endl;
   nsw::hw::SCAX::writeRegister(getConnection(), 
       getBusAddress(bus), 
       regAddress, 

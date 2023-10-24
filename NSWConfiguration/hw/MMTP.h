@@ -116,7 +116,7 @@ namespace nsw::hw {
                                   std::uint8_t bus = 0) const;
 
     std::string getBusAddress(std::uint8_t bus) const {
-      return fmt::format("{0}.I2C_{1}.bus{1}", getScaAddress(), bus) ;
+      return fmt::format("{0}.I2C_{1:d}.bus{1:d}", getScaAddress(), bus) ;
     }
 
     /**
