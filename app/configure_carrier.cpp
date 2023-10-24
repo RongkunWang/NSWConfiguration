@@ -73,24 +73,14 @@ int main(int ac, const char *av[]) {
   nsw::OpcManager manager{};
   for (const auto& carrier_cfg: carriers) {
     nsw::hw::TPCarrier carrier_hw(manager, carrier_cfg);
-    std::cout << std::endl;
-    std::cout << ": RJOutSel = " << carrier_hw.RJOutSel() << std::endl;
-    std::cout << std::endl;
     if (!simulation) {
       if (writeConfig) {
         carrier_hw.writeConfiguration();
       } 
       if (readConfig) {
         for (const auto& [reg, val]: carrier_hw.readConfiguration()) {
-          std::string regName("");
-          for (const auto & [regNameRef, regRef]: nsw::carrier::REGS) {
-            if (regRef != reg) continue;
-            regName = regNameRef;
-            break;
-}
           std::cout << 
-            fmt::format("Reg {:<20}[{:#04x}]:", regName, reg) << 
-            fmt::format("val = {:#010x}", val) << std::endl;
+            fmt::format("Reg {:<30}: val = {:#010x}\n", reg, val); 
         }
       }
     }
@@ -98,4 +88,3 @@ int main(int ac, const char *av[]) {
 
   return 0;
 }
-

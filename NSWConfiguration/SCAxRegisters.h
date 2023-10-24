@@ -14,11 +14,9 @@
 #include <map>
 #include <cmath>
 
+// FIXME OBSOLETE! NEED TO DELETEE
 
 namespace nsw {
-
-
-
 
   namespace mmtp {
     // json name; bus; addr; default; R/W status
@@ -41,44 +39,8 @@ namespace nsw {
       std::make_tuple("gloSyncIdleState", 0, 0x28, 0x0, "RW"),
       std::make_tuple("gloSyncBcidOffset", 0, 0x29, 0x0, "RW"),
       std::make_tuple("fiberRemapSel", 0, 0x2a, 0x0, "RW"),
-      // historically read those
-      // REG_FIBER_ALIGNMENT,
-      // REG_FIBER_QPLL_RESET,
-      // REG_FIBER_BCIDS_00_07,
-      // REG_FIBER_BCIDS_08_15,
-      // REG_FIBER_BCIDS_16_23,
-      // REG_FIBER_BCIDS_24_31,
-      // REG_FIBER_BC_OFFSET,
-      // REG_DATE_CODE,
-      // REG_GIT_HASH,
-      // REG_L1A_CONTROL,
-      // REG_L1A_OPENING_OFFSET,
-      // REG_L1A_REQUEST_OFFSET,
-      // REG_L1A_CLOSING_OFFSET,
-      // REG_L1A_TIMEOUT_WINDOW,
-      // REG_TTC_ECR_CNT,
-      // REG_TTC_BCR_CNT,
-      // REG_TTC_L1A_CNT,
-      // REG_INPUT_PHASE,
-      // REG_INPUT_PHASEOFFSET,
-      // REG_FIBER_HOT_MUX,
-      // REG_FIBER_HOT_READ,
-      // REG_GBT_BCID_OK,
-      // REG_PIPELINE_OVERFLOW,
-      // REG_SELFTRIGGER_DELAY,
-      // REG_VMM_MASK_HOT_THRESH,
-      // REG_VMM_MASK_HOT_THRESH_HYST,
-      // REG_VMM_MASK_DRAIN_PERIOD,
-      // REG_CHAN_RATE_ENABLE,
-      // REG_HORX_ENV_MON_DATA,
-      // REG_GLO_SYNC_IDLE_STATE,
-      // REG_GLO_SYNC_BCID_OFFSET,
-      // REG_FIBER_REMAP_SEL,
-      // REG_OFFSET_MODE_BCID,
-      // REG_OFFSET_MODE_CNT,
+
     });
-
   }
-
 }  // namespace nsw
 #endif  // NSWCONFIGURATION_SCAXREGISTERS_H_

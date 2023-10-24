@@ -11,52 +11,44 @@ nsw::hw::MMTP::MMTP(OpcManager& manager, const boost::property_tree::ptree& conf
   m_name(fmt::format("{}/{}", getOpcServerIp(), getScaAddress())),
   m_skippedReg(nsw::hw::SCAX::SkipRegisters(m_config))
 {
-  for (const auto& [ name, bus, addr, def, rw ] : nsw::mmtp::REGS) {
-    if(std::find(nsw::mmtp::registersToRemember.begin(), 
-          nsw::mmtp::registersToRemember.end(), name) != nsw::mmtp::registersToRemember.end()) {
-      m_registersToRemember.emplace(name, std::make_pair(bus, addr));
-    }
-    
-    if(m_skippedReg.contains(addr)) continue;
-    if(std::find(nsw::mmtp::registersToRead.begin(), 
-          nsw::mmtp::registersToRead.end(), name) != nsw::mmtp::registersToRead.end()) {
-      m_registersToRead.emplace_back(name, bus, addr);
-    }
-    if(std::find(nsw::mmtp::registersToWrite.begin(), 
-          nsw::mmtp::registersToWrite.end(), name) != nsw::mmtp::registersToWrite.end()) {
-      m_registersToWrite.emplace_back(name, bus, addr, def);
-    }
-  }
 }
 
 void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
 {
-  for (const auto& [name, bus, addr, defVal]: m_registersToWrite) {
+  for (const auto& [reg, defVal]: nsw::mmtp::registersToWrite) {
+    if (m_skippedReg.contains(reg)) {
+      ERS_LOG(fmt::format("{}: skip writing to {}", m_name, reg));
+      continue;
+    }
     try {
-      writeRegister(addr, m_config.get(name, std::uint32_t{defVal}), bus);
+      writeRegister(reg, m_config.get(std::string(reg), std::uint32_t{defVal}));
     } catch (const std::exception& ex) {
-      const auto msg = fmt::format("Failed to write reg 0x{:08x}: {}", addr, ex.what());
+      const auto msg = fmt::format("Failed to write reg {}: {}", reg, ex.what());
       ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
       throw;
     }
   }
   toggleIdleStateHigh();
-  writeRegister("REG_L1A_CONTROL", nsw::mmtp::L1A_RESET_ENABLE);
-  writeRegister("REG_L1A_CONTROL", nsw::mmtp::L1A_RESET_DISABLE);
+  writeRegister(nsw::mmtp::REG_L1A_CONTROL, nsw::mmtp::L1A_RESET_ENABLE);
+  writeRegister(nsw::mmtp::REG_L1A_CONTROL, nsw::mmtp::L1A_RESET_DISABLE);
   if (doAlignArtGbtx) {
     alignArtGbtx();
   }
 }
 
-std::map<std::uint32_t, std::pair<std::string, std::uint32_t>> nsw::hw::MMTP::readConfiguration() const
+std::map<std::string, std::uint32_t> nsw::hw::MMTP::readConfiguration() const
 {
-  std::map<std::uint32_t, std::pair<std::string, std::uint32_t>> result;
-  for (const auto& [ name, bus, addr ] : m_registersToRead) {
+  std::map<std::string, std::uint32_t> result;
+  for (const auto& reg : nsw::mmtp::registersToRead) {
+    if (m_skippedReg.contains(reg)) {
+      ERS_LOG(fmt::format("{}: skip reading from {}", m_name, reg));
+      continue;
+    }
     // matching register number
     try {
-      result.emplace(addr, std::make_pair(name, readRegister(addr, bus)));
+      result.emplace(reg, readRegister(reg));
     } catch (const std::exception& ex) {
-      const auto msg = fmt::format("Failed to read reg {} at bus {} reg 0x{:08x}: {}", name, bus, addr, ex.what());
+      const auto msg = fmt::format("Failed to read reg {}: {}",  reg, ex.what());
       ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
       throw;
     }
@@ -64,58 +56,36 @@ std::map<std::uint32_t, std::pair<std::string, std::uint32_t>> nsw::hw::MMTP::re
   return result;
 }
 
-void nsw::hw::MMTP::writeRegister(const std::uint32_t regAddress,
-                                  const std::uint32_t value, 
-                                  const std::uint8_t bus) const
+void nsw::hw::MMTP::writeRegister(std::string_view regAddress,
+                                  const std::uint32_t value) const
 {
-  nsw::hw::SCAX::writeRegister(getConnection(), 
-      getBusAddress(bus), 
-      regAddress, 
+  ERS_LOG(fmt::format("About to write register {} = {}", regAddress, value));
+  nsw::hw::SCAX::writeRegister(getConnection(),
+      fmt::format("{}.{}", getScaAddress(), regAddress),
       value);
 }
 
-void nsw::hw::MMTP::writeRegister(const std::string regName, 
-                                  const std::uint32_t value) const
+std::uint32_t nsw::hw::MMTP::readRegister(std::string_view regAddress) const
 {
-  try {
-    const auto & val = m_registersToRemember.at(regName);
-    writeRegister(val.second, value, val.first);
-  } catch (const std::exception& ex) {
-    const auto msg = fmt::format("Failed to write reg by Name {}: {}", regName, ex.what());
-    ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
-    throw;
+  ERS_LOG(fmt::format("About to read register {}", regAddress));
+  if (m_skippedReg.contains(regAddress)) {
+    ERS_LOG(fmt::format("{}: skip reading {}, return dummy value {:#x}", m_name, regAddress, nsw::DEADBEEF));
+    return nsw::DEADBEEF;
   }
-}
-
-
-std::uint32_t nsw::hw::MMTP::readRegister(const std::uint32_t regAddress, std::uint8_t bus) const
-{
   return nsw::hw::SCAX::readRegister(getConnection(),
-      getBusAddress(bus),
-      regAddress
-      );
+      fmt::format("{}.{}", getScaAddress(), regAddress));
 }
 
-std::uint32_t nsw::hw::MMTP::readRegister(const std::string regName) const
+void nsw::hw::MMTP::writeAndReadbackRegister(std::string_view regAddress,
+                                             const std::uint32_t value) const
 {
-  try {
-    const auto & val = m_registersToRemember.at(regName);
-    return readRegister(val.second, val.first);
-  } catch (const std::exception& ex) {
-    const auto msg = fmt::format("Failed to read reg by Name {}: {}", regName, ex.what());
-    ers::error(nsw::MMTPReadWriteIssue(ERS_HERE, msg));
-    throw;
+  if (m_skippedReg.contains(regAddress)) {
+    ERS_LOG(fmt::format("{}: skip writing to {}", m_name, regAddress));
+    return;
   }
-}
-
-void nsw::hw::MMTP::writeAndReadbackRegister(const std::uint32_t regAddress,
-                                             const std::uint32_t value,
-                                             std::uint8_t bus) const
-{
-  ERS_LOG(fmt::format("{}: writing to {:#04x} with {:#10x}", m_name, regAddress, value));
-  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(), 
-      getBusAddress(bus), 
-      regAddress, 
+  ERS_LOG(fmt::format("{}: writing to {} with {:#010x}", m_name, regAddress, value));
+  nsw::hw::SCAX::writeAndReadbackRegister(getConnection(),
+      fmt::format("{}.{}", getScaAddress(), regAddress),
       value);
 }
 
@@ -141,7 +111,7 @@ std::vector<std::uint32_t> nsw::hw::MMTP::readAlignment(const size_t n_reads) co
 {
   auto aligned = std::vector<std::uint32_t>(nsw::mmtp::NUM_FIBERS);
   for (std::size_t read = 0; read < n_reads; read++) {
-    const auto word = readRegister("FIBER_ALIGNMENT");
+    const auto word = readRegister(nsw::mmtp::REG_FIBER_ALIGNMENT);
     for (std::size_t fiber = 0; fiber < nsw::mmtp::NUM_FIBERS; fiber++) {
       const bool align = ((word >> fiber) & 1);
       if (align) {

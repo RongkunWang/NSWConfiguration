@@ -165,7 +165,7 @@ int main(int argc, const char *argv[])
             for (const auto& tp : mmtps) {
                 // auto outdata = cs.readI2cAtAddress(tp.first, tp.second,
                                                    // regAddrVec.data(), regAddrVec.size(), 4);
-                auto outdata = tp.readRegister(0x02);
+                auto outdata = tp.readRegister(nsw::mmtp::REG_FIBER_ALIGNMENT);
                 for (auto & addc : addc_configs) {
                     for (auto art : addc.getARTs()) {
                         auto aligned = art.IsAlignedWithTP(outdata);

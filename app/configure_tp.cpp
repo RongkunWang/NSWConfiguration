@@ -84,7 +84,7 @@ int main(int ac, const char *av[]) {
       if (readConfig) {
         std::cout << "Read configuration:" << std::endl;
         for (const auto& [reg, val]: tp.readConfiguration()) {
-          std::cout << fmt::format("Reg {}: val = {:#010x}", reg, val) << std::endl;
+          std::cout << fmt::format("Reg {:<30}: val = {:#010x}", reg, val) << std::endl;
         }
       }
     }
@@ -101,7 +101,7 @@ int main(int ac, const char *av[]) {
       std::cout << "pre-write reading configuration of "<< tp.getName() << std::endl;
       if (writeConfig || readConfig) {
         for (const auto& [addr, val]: tp.readConfiguration()) {
-          fmt::print("{} {:#010x}: {:#010x}\n", val.first, addr, val.second);
+          fmt::print("{:<30}: {:#010x}\n",  addr, val);
         }
       }
 
@@ -119,7 +119,7 @@ int main(int ac, const char *av[]) {
 
         std::cout << "post-write reading configuration of "<< tp.getName() << std::endl;
         for (const auto& [addr, val]: tp.readConfiguration()) {
-          fmt::print("{} {:#010x}: {:#010x}\n", val.first, addr, val.second);
+          fmt::print("{:<30}: {:#010x}\n",  addr, val);
         }
       }
     }
@@ -132,4 +132,3 @@ int main(int ac, const char *av[]) {
 
     return 0;
 }
-
