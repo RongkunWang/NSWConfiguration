@@ -90,7 +90,7 @@ int main(int ac, const char *av[]) {
     }
 
     // MM TP
-    const auto mmtp_configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree> (json_filename, "MMTP", tp_name);
+    const auto mmtp_configs = nsw::ConfigReader::makeObjects<boost::property_tree::ptree> (json_filename, "TP", tp_name);
 
     // hw interface
     auto mmtps = std::vector<nsw::hw::MMTP>{};
@@ -103,6 +103,14 @@ int main(int ac, const char *av[]) {
         for (const auto& [addr, val]: tp.readConfiguration()) {
           fmt::print("{} {:#010x}: {:#010x}\n", val.first, addr, val.second);
         }
+      }
+
+      if (readRegister != "") {
+        std::cout << fmt::format("Reg {}: read {:#010x}", readRegister, tp.readRegister(readRegister)) << std::endl;
+      }
+      if (writeRegister != "") {
+        std::cout << fmt::format("Reg {}: write {:#010x}", writeRegister, writeValue) << std::endl;
+        tp.writeRegister( writeRegister, writeValue);
       }
 
       if (writeConfig) {

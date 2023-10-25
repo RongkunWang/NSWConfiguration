@@ -16,11 +16,9 @@ void nsw::hw::DeviceManager::addFeb(const nsw::FEBConfig& config)
   m_febs.emplace_back(m_opcManager, config);
 }
 
-void nsw::hw::DeviceManager::addAddc(const nsw::ADDCConfig& config)
+void nsw::hw::DeviceManager::addAddc(const boost::property_tree::ptree& config)
 {
-  for (std::size_t counter = 0; counter < config.getARTs().size(); counter++) {
-    m_arts.emplace_back(m_opcManager, config, counter);
-  }
+  m_addcs.emplace_back(m_opcManager, config);
 }
 
 void nsw::hw::DeviceManager::addMMTp(const boost::property_tree::ptree& config)
@@ -68,7 +66,7 @@ void nsw::hw::DeviceManager::configure(const std::span<const Options> options)
     std::find(std::cbegin(options), std::cend(options), Options::RESET_VMM) != std::cend(options),
     std::find(std::cbegin(options), std::cend(options), Options::RESET_TDS) != std::cend(options),
     std::find(std::cbegin(options), std::cend(options), Options::DISABLE_VMM_CAPTURE_INPUTS) != std::cend(options));
-  conf(m_arts, "ART");
+  conf(m_addcs, "ADDC");
   conf(m_mmtps, "MMTP");
   conf(m_routers, "Router");
   conf(m_padTriggers, "Pad Trigger");
@@ -171,7 +169,7 @@ void nsw::hw::DeviceManager::clear()
 {
   clearOpc();
   m_febs.clear();
-  m_arts.clear();
+  m_addcs.clear();
   m_mmtps.clear();
   m_stgctps.clear();
   m_routers.clear();

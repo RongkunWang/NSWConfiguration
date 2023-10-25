@@ -221,7 +221,7 @@ bool nsw::OpcManager::checkServerStatus(const std::string& server, const std::ve
   const auto tryConnect = [&server](const std::string& deviceName) {
     try {
       auto connection = OpcClient(server);
-      return OpcManager::testConnection(deviceName, &connection);
+      return testConnection(deviceName, &connection);
     } catch (const nsw::OpcConnectionIssue&) {
       return hw::ScaStatus::SERVER_OFFLINE;
     }

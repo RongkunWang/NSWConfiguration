@@ -51,7 +51,7 @@ void nsw::NSWConfig::readConfigurationResource() {
         }
         ERS_LOG(name << ", an instance of " << element);
         auto this_pair = std::make_pair(name, m_reader->readConfig(name));
-        if      (element == "ADDC")          { m_addcs.emplace(this_pair); }
+        if      (element == "ADDC")          { m_deviceManager.add(this_pair.second); }
         else if (element == "Router")        { m_deviceManager.add(this_pair.second); }
         else if (element == "PadTrigger")    { m_deviceManager.add(this_pair.second); }
         else if (element == "MMTP")          { m_deviceManager.add(this_pair.second); }
@@ -94,7 +94,6 @@ void nsw::NSWConfig::readConfigurationResource() {
 
 void nsw::NSWConfig::configureRc() {
     configureL1DDCs();        // Configure all l1ddc's
-    configureADDCs();         // Configure all ADDCs with ConfigSender
     if (!m_simulation) {
         std::vector<nsw::hw::DeviceManager::Options> result{hw::DeviceManager::Options::DISABLE_VMM_CAPTURE_INPUTS};
         if (m_resetvmm) {
@@ -256,12 +255,15 @@ bool nsw::NSWConfig::recoverOpc() {
     if (std::size(m_deviceManager.getFebs()) != 0) {
       return ping(m_deviceManager.getFebs().at(0).getRoc());
     }
-    if (std::size(m_deviceManager.getArts()) != 0) {
-      return ping(m_deviceManager.getArts().at(0));
+    if (std::size(m_deviceManager.getAddcs()) != 0) {
+      return ping(m_deviceManager.getAddcs().at(0));
     }
-    // if (std::size(m_deviceManager.getTps()) != 0) {
-    //   return ping(m_deviceManager.getTps().at(0));
-    // }
+    if (std::size(m_deviceManager.getMMTps()) != 0) {
+      return ping(m_deviceManager.getMMTps().at(0));
+    }
+    if (std::size(m_deviceManager.getSTGCTps()) != 0) {
+      return ping(m_deviceManager.getSTGCTps().at(0));
+    }
     if (std::size(m_deviceManager.getRouters()) != 0) {
       return ping(m_deviceManager.getRouters().at(0));
     }

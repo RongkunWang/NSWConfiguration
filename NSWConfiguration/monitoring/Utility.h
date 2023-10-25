@@ -35,6 +35,7 @@ ERS_DECLARE_ISSUE(
   ((std::string)group))
 
 namespace nsw::mon {
+
   /**
    * \brief Parse monitoring groups from OKS and create config objects
    *
@@ -77,16 +78,22 @@ namespace nsw::mon {
             std::chrono::duration_cast<std::chrono::milliseconds>(timeDiff).count());
           isDict->checkin(
             fmt::format("{}.{}.{}.{}", isServerName, KEY_STATS, config.m_name, appName), stats);
-          const auto sleepTime = std::max(
+          const auto requestedTime = std::max(
             0ms,
             std::chrono::duration_cast<std::chrono::milliseconds>(config.m_frequency - timeDiff));
-          if (sleepTime == 0s) {
+          if (requestedTime == 0s) {
             ers::warning(NSWMonitoringFrequency(
               ERS_HERE,
               config.m_name,
               config.m_frequency.count(),
               std::chrono::duration_cast<std::chrono::seconds>(timeDiff).count()));
           }
+
+          constexpr static auto MINIMUM_MONITORING_DELAY{500ms};
+
+          const auto sleepTime = std::max(
+            MINIMUM_MONITORING_DELAY,
+            std::chrono::duration_cast<std::chrono::milliseconds>(config.m_frequency - timeDiff));
           std::mutex mutex;
           std::unique_lock lock(mutex);
           std::condition_variable_any().wait_for(lock, stopToken, sleepTime, [] { return false; });

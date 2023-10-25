@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 // Header to the RC online services
 #include <RunControl/Common/OnlineServices.h>
@@ -42,6 +43,8 @@ bool nsw::NSWSCAServiceRc::simulationFromIS()
 
 void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 {
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   ERS_LOG("Start");
   // Retrieving the configuration db
   daq::rc::OnlineServices& rcSvc = daq::rc::OnlineServices::instance();
@@ -73,13 +76,20 @@ void nsw::NSWSCAServiceRc::configure(const daq::rc::TransitionCmd& /*cmd*/)
 
 void nsw::NSWSCAServiceRc::unconfigure(const daq::rc::TransitionCmd& /*cmd*/)
 {
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   m_NSWConfig->unconfigureRc();
 }
 
 void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
 {
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   const auto commandName = usrCmd.commandName();
-  ERS_LOG("User command received: " << commandName);
+  ERS_LOG(fmt::format("User command '{}' received in state '{}': {}",
+                      commandName,
+                      usrCmd.currentFSMState(),
+                      usrCmd.commandParameters()));
   const auto notifyScaUnavailable = [this, &commandName]() {
     ERS_INFO("SCA unavailable");
     m_isDictionary->checkin(buildScaAvailableKey(m_isDbName, m_sectorId), ISInfoBool(false));
@@ -163,4 +173,5 @@ void nsw::NSWSCAServiceRc::user(const daq::rc::UserCmd& usrCmd)
   } else {
     ers::warning(nsw::NSWUnkownCommand(ERS_HERE, commandName));
   }
+  ERS_LOG(fmt::format("Finished execution of user command '{}': {}", commandName, usrCmd.commandParameters()));
 }

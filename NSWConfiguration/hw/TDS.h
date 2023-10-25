@@ -10,6 +10,12 @@
 #include "NSWConfiguration/hw/OpcManager.h"
 #include "NSWConfiguration/hw/ScaAddressBase.h"
 
+ERS_DECLARE_ISSUE(nsw,
+                  TdsError,
+                  message,
+                  ((std::string)message)
+                  )
+
 namespace nsw::hw {
   /**
    * \brief Class representing a TDS
@@ -109,6 +115,15 @@ namespace nsw::hw {
   private:
     I2cMasterConfig m_config;   //!< I2cMasterConfig object associated with this TDS
     bool m_isPfeb;              //!< is this TDS on a PFEB or SFEB
+
+    /**
+     * \brief Get address from register name
+     *
+     * \param name register name
+     * \throws std::invalid_argument Improperly formatted register name, via std::stoul
+     */
+    [[nodiscard]]
+      std::uint8_t addressFromRegisterName(const std::string& name) const;
   };
 }  // namespace nsw::hw
 
