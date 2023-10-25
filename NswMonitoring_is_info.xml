@@ -351,8 +351,6 @@
   <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
   <attribute name="reachable_sca" description="Reachable SCA" type="bool" init-value="0"/>
   <attribute name="reachable_fpga" description="Reachable FPGA" type="bool" init-value="0"/>
-  <attribute name="fpga_program" description="FPGA program gpio" type="bool" init-value="0"/>
-  <attribute name="fpga_init" description="FPGA init gpio" type="bool" init-value="0"/>
   <attribute name="pfeb_delays" description="PFEB delay" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
   <attribute name="pfeb_statuses" description="PFEB statuses" type="u32" is-multi-value="yes"/>
@@ -372,7 +370,6 @@
   <attribute name="trig_bcid_rate_p2" description="BCID+2 trigger rate" type="u32" init-value="0"/>
   <attribute name="trig_bcid_rate_p3" description="BCID+3 trigger rate" type="u32" init-value="0"/>
   <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
-  <attribute name="ttc_l1a_rate" description="TTC L1A rate" type="u32" init-value="0"/>
   <attribute name="gt_rx_lol" description="GT RX LOL" type="u32" format="hex" init-value="0"/>
  </class>
 
@@ -404,15 +401,15 @@
   <attribute name="txFramePhase" description="The phase of frame aligned TxOutclk" type="u32"/>
   <attribute name="rxFramePhase" description="The phase of frame aligned RxOutclk" type="u32"/>
   <attribute name="rxGbtPhase" description="The phase of the Rx GBT data itself" type="u32"/>
-  <attribute name="bcrPhAlgn" description="bcrPhAlgn" type="u32"/>
+  <attribute name="bcrPhAlgn" description="bcrPhAlgn        " type="u32"/>
  </class>
 
  <class name="StgctpOutRunStatusRegisters">
   <superclass name="Info"/>
-  <attribute name="stgc_tp_regs_bcr_rate_RO_0" description="counts the BCR rate per second" type="u32"/>
-  <attribute name="stgc_tp_regs_sector_id_0" description="   " type="u32"/>
-  <attribute name="stgc_tp_regs_pad_idle_status_RO_0" description="   " type="bool"/>
-  <attribute name="stgc_tp_regs_mm_idle_status_RO_0" description="   " type="bool"/>
+  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
+  <attribute name="SectorID" description="sector ID" type="u32"/>
+  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
+  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
  </class>
 
  <class name="StgctpInRunStatusRegisters">
@@ -502,42 +499,42 @@
 	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_9" description="   " type="u32"/>
 	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_10" description="   " type="u32"/>
 	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_11" description="   " type="u32"/>
-	<attribute name="stgc_tp_regs_sector_id_0" description="sector ID" type="u32"/>
-	<attribute name="stgc_tp_regs_small_sector_0" description="Indicates if the sector is small(1) or large(0)  " type="bool"/>
-	<attribute name="stgc_tp_regs_mm_disable_0" description="MM trigger path enabled or disabled  " type="bool"/>
-	<attribute name="stgc_tp_regs_ignore_pads_0" description="sTGC pad in SL T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_ignore_mm_0" description="MM in Sector Logic T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_err_bcid_match_RO_0" description="errBCIDmatch" type="bool"/>
-	<attribute name="stgc_tp_regs_sticky_err_bcid_match_RO_0" description="Run sync was lost once T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_pad_hit_rate_RO_0" description="counts the pad hit rate per second" type="u32"/>
-	<attribute name="stgc_tp_regs_bcr_rate_RO_0" description="counts the BCR rate per second" type="u32"/>
-	<attribute name="stgc_tp_regs_bcid_sync_ok_RO_0" description="BCID is incrementing properly T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_mm_sync_ok_RO_0" description="Continous reception of MM BCID T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_pt_fifo_enpty_RO_0" description="Pad Trig. FIFO empty or not" type="bool"/>
-	<attribute name="stgc_tp_regs_pad_idle_status_RO_0" description="Pad idle T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_mm_idle_status_RO_0" description="MM idle T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_to_sl_hit_rate_RO_0" description="Samples the trigger rate decisions to SL per sec." type="u32"/>
-	<attribute name="stgc_tp_regs_pad_arrival_bc_RO_0" description="Counts from the moment OCR is received in sTGC TP until the pad_idle_flag goes low" type="u32"/>
-	<attribute name="stgc_tp_regs_mm_arrival_bc_RO_0" description="Counts from the moment OCR is received in sTGC TP until the mm_idle_flag goes low" type="u32"/>
-	<attribute name="stgc_tp_regs_mon_limit_0" description="Limit of the amount of NSW_MON segments to SL per sec." type="u32"/>
-	<attribute name="stgc_tp_regs_sl_latency_comp_0" description="Sector Logic Latancy comparison" type="u32"/>
-	<attribute name="stgc_tp_regs_disable_nsw_mon_0" description="Monitoring disabled T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_nsw_mon_limit_0" description="Limit of the amount of NSW_MON segments to SL per sec." type="u32"/>
-	<attribute name="stgc_tp_regs_mm_nsw_mon_en_0" description="NSW_MON coming from MM TP segments goes all the way to CTP. T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_l1a_busy_i_0" description="   " type="bool"/>
-	<attribute name="stgc_tp_regs_l1a_opening_ofst_0" description="L1A opening offset. should be bigger than l1a_request_offset and l1a_closing_offset. Initial value 0x22." type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_request_ofst_0" description="L1A request offset. should GT l1a_closing_offset and LT l1a_closing_offset. Initial value 0x20." type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_closing_ofst_0" description="L1A closing offset. should LT l1a_closing_offset and l1a_closing_offset. Initial value 0x1e." type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_window_timeout_0" description="L1A timeout window, should VGT l1a_opening_offset ~= l1a_request_offset + 0x20. Initial value 0x40." type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_busy_threshold_0" description=" " type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_busy_o_RO_0" description="Busy T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_l1a_pad_en_0" description="L1A pad stream packets enabled T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_l1a_merge_en_0" description="L1A merge stream packets enabled T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_mon_disable_0" description="Monitoring disabled T/F" type="bool"/>
-	<attribute name="stgc_tp_regs_no_strech_0" description="1 is stretching disabled, 0 is stretch is enabled." type="bool"/>
-	<attribute name="stgc_tp_regs_last_pt_data_bcid_RO_0" description="   " type="u32"/>
-	<attribute name="stgc_tp_regs_last_pt_data_l1a_bcid_RO_0" description="   " type="u32"/>
-	<attribute name="stgc_tp_regs_l1a_bcid_latency_diff_0" description="   " type="u32"/>
-	<attribute name="stgc_tp_regs_last_merge_vseg_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sector_id_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_small_sector_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_stgc_mm_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_pads_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_mm_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_sticky_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcr_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcid_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pt_fifo_enpty_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_to_sl_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_pad_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sl_latency_comp_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_disable_nsw_mon_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_nsw_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_nsw_mon_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_i_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_opening_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_request_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_closing_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_window_timeout_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_threshold_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_o_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_pad_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_merge_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mon_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_no_strech_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_l1a_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_bcid_latency_diff_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_merge_vseg_bcid_RO_0" description="   " type="u32"/>
 </class>
 </oks-schema>

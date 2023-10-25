@@ -27,7 +27,7 @@ nsw::mon::is::StgctpOutRunStatusRegisters nsw::mon::StgctpOutRunStatusRegisters:
   // is.SectorID = tp.readRegister(nsw::stgctp::REG_SECTOR,                 nsw::stgctp::MASK_SECTOR);
   // is.PadIdleStatus = (tp.readRegister(nsw::stgctp::REG_PAD_IDLE_STATUS,  nsw::stgctp::MASK_PAD_IDLE_STATUS) != 0U);
   // is.MMIdleStatus = (tp.readRegister(nsw::stgctp::REG_MM_IDLE_STATUS,    nsw::stgctp::MASK_MM_IDLE_STATUS) != 0U);
-
+  is.stgc_tp_regs_sector_id_0=tp.readRegister("stgc_tp_regs.sector_id_0");
   return is;
 }
 
