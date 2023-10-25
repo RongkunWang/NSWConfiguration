@@ -399,41 +399,6 @@
   <attribute name="rxArtFibersPower" description="32 RX fiber power reading in uW (4 unconnected channel should read 0)" type="float" is-multi-value="yes"/>
  </class>
 
- <class name="StgctpInRunStatusRegisters">
-  <superclass name="Info"/>
-  <attribute name="ErrBCIDmatch" description="errBCIDmatch" type="bool"/>
-  <attribute name="SLLatencyComp" description="Sector Logic Latancy comparison" type="u32"/>
-  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
-  <attribute name="PadBCidSyncOk" description="BCID is incrementing properly T/F" type="bool"/>
-  <attribute name="PadHitRate" description="counts the pad hit rate per second" type="u32"/>
-  <attribute name="MMDisable" description="mm trigger path enabled or disabled" type="bool"/>
-  <attribute name="ToSLHitRate" description="samples the trigger rate decisions to SL per sec." type="u32"/>
-  <attribute name="SectorID" description="sector ID" type="u32"/>
-  <attribute name="MMBCidSyncOk" description="continous reception of MM BCID T/F" type="bool"/>
-  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
-  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
-  <attribute name="PadArrivalBC" description="counts from the moment OCR is received in the sTGC TP until the pad_idle_flag goes low" type="u32"/>
-  <attribute name="MMArrivalBC" description="counts from the moment OCR is received in the sTGC TP until the mm_idle_flag goes low" type="u32"/>
-  <attribute name="IgnorePads" description="sTGC pad in SL T/F" type="bool"/>
-  <attribute name="IgnoreMM" description="MM in SL T/F" type="bool"/>
-  <attribute name="DisableNSWMon" description="Disabled the NSWMON bit transmission to SL. T/F" type="bool"/>
-  <attribute name="L1AOpeningOffset" description="L1A opening offset. should be bigger than l1a_request_offset and l1a_closing_offset. Initial value 0x22." type="u32"/>
-  <attribute name="L1ARequestOffset" description="L1A request offset. should GT l1a_closing_offset and LT l1a_closing_offset. Initial value 0x20." type="u32"/>
-  <attribute name="L1AClosingOffset" description="L1A closing offset. should LT l1a_closing_offset and l1a_closing_offset. Initial value 0x1e." type="u32"/>
-  <attribute name="L1ATimeoutWindow" description="L1A timeout window, should VGT l1a_opening_offset ~= l1a_request_offset + 0x20. Initial value 0x40." type="u32"/>
-  <attribute name="L1APadEnabled" description="L1A pad stream packets enabled T/F" type="bool"/>
-  <attribute name="L1AMergeEnabled" description="L1A merge stream packets enabled T/F" type="bool"/>
-  <attribute name="StickyErrBCIDmatch" description="Run sync was lost once T/F" type="bool"/>
-  <attribute name="Busy" description="Busy T/F" type="bool"/>
-  <attribute name="MonDisabled" description="Monitoring disabled T/F" type="bool"/>
-  <attribute name="NSWMonLimit" description="Limit of the amount of NSW_MON segments to SL per sec." type="u32"/>
-  <attribute name="MonLimit" description="Monitoring Limit on the Elink rate. default 1kHz" type="u32"/>
-  <attribute name="MM_NSWMonEnabled" description="NSW_MON coming from MM TP segments goes all the way to CTP. T/F" type="bool"/>
-  <attribute name="SmallSector" description="Indicates if the sector is small(1) or large(0)" type="bool"/>
-  <attribute name="NoStretch" description="1 is stretching disabled, 0 is stretch is enabled. " type="bool"/>
-  <attribute name="SyncFiFoEmpty" description="FIFO empty 1 if not TP reset hasnt been performed or perhaps SCAx comm lost.." type="bool"/>
- </class>
-
  <class name="CarriertpInRunStatusRegisters">
   <superclass name="Info"/>
   <attribute name="txFramePhase" description="The phase of frame aligned TxOutclk" type="u32"/>
@@ -444,12 +409,135 @@
 
  <class name="StgctpOutRunStatusRegisters">
   <superclass name="Info"/>
-  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
-  <attribute name="SectorID" description="sector ID" type="u32"/>
-  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
-  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
+  <attribute name="pad_only_mm_tp_regs_bcr_rate_RO_0" description="counts the BCR rate per second" type="u32"/>
+  <attribute name="pad_only_mm_tp_regs_sector_id_0" description="   " type="u32"/>
+  <attribute name="pad_only_mm_tp_regs_pad_idle_status_RO_0" description="   " type="bool"/>
+  <attribute name="pad_only_mm_tp_regs_mm_idle_status_RO_0" description="   " type="bool"/>
  </class>
 
-
-
+ <class name="StgctpInRunStatusRegisters">
+  <superclass name="Info"/>
+	<attribute name="horx_mgm_regs_env_mon_data_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sector_id_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_small_sector_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_stgc_mm_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_pads_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_mm_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_sticky_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcr_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcid_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pt_fifo_enpty_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_to_sl_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_pad_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sl_latency_comp_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_disable_nsw_mon_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_nsw_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_nsw_mon_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_i_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_opening_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_request_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_closing_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_window_timeout_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_threshold_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_o_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_pad_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_merge_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mon_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_no_strech_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_l1a_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_bcid_latency_diff_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_merge_vseg_bcid_RO_0" description="   " type="u32"/>
+</class>
 </oks-schema>
