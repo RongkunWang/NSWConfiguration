@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-schema version 2.2 -->
+
+
+<!DOCTYPE oks-schema [
+  <!ELEMENT oks-schema (info, (include)?, (comments)?, (class)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #IMPLIED
+      type CDATA #IMPLIED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "schema"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #IMPLIED
+      created-on CDATA #IMPLIED
+      creation-time CDATA #IMPLIED
+      last-modified-by CDATA #IMPLIED
+      last-modified-on CDATA #IMPLIED
+      last-modification-time CDATA #IMPLIED
+  >
+  <!ELEMENT include (file)+>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT comments (comment)+>
+  <!ELEMENT comment EMPTY>
+  <!ATTLIST comment
+      creation-time CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      author CDATA #REQUIRED
+      text CDATA #REQUIRED
+  >
+  <!ELEMENT class (superclass | attribute | relationship | method)*>
+  <!ATTLIST class
+      name CDATA #REQUIRED
+      description CDATA ""
+      is-abstract (yes|no) "no"
+  >
+  <!ELEMENT superclass EMPTY>
+  <!ATTLIST superclass name CDATA #REQUIRED>
+  <!ELEMENT attribute EMPTY>
+  <!ATTLIST attribute
+      name CDATA #REQUIRED
+      description CDATA ""
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class) #REQUIRED
+      range CDATA ""
+      format (dec|hex|oct) "dec"
+      is-multi-value (yes|no) "no"
+      init-value CDATA ""
+      is-not-null (yes|no) "no"
+      ordered (yes|no) "no"
+  >
+  <!ELEMENT relationship EMPTY>
+  <!ATTLIST relationship
+      name CDATA #REQUIRED
+      description CDATA ""
+      class-type CDATA #REQUIRED
+      low-cc (zero|one) #REQUIRED
+      high-cc (one|many) #REQUIRED
+      is-composite (yes|no) #REQUIRED
+      is-exclusive (yes|no) #REQUIRED
+      is-dependent (yes|no) #REQUIRED
+      ordered (yes|no) "no"
+  >
+  <!ELEMENT method (method-implementation*)>
+  <!ATTLIST method
+      name CDATA #REQUIRED
+      description CDATA ""
+  >
+  <!ELEMENT method-implementation EMPTY>
+  <!ATTLIST method-implementation
+      language CDATA #REQUIRED
+      prototype CDATA #REQUIRED
+      body CDATA ""
+  >
+]>
+
+<oks-schema>
+
+<info name="" type="" num-of-items="1" oks-format="schema" oks-version="oks-08-03-03 built &quot;May  3 2021&quot;" created-by="nswdaq" created-on="pcatlnswswrodvs.cern.ch" creation-time="20211104T131927" last-modified-by="nswdaq" last-modified-on="pcatlnswswrodvs.cern.ch" last-modification-time="20211115T093256"/>
+
+<include>
+ <file path="is/is.xml"/>
+</include>
+
+ <class name="Statistics" description="Statistics for monitoring group">
+  <superclass name="Info"/>
+  <attribute name="time" description="Time used by monitoring in ms" type="u64" format="dec" init-value="0"/>
+ </class>
+
+ <class name="RocStatus">
+  <superclass name="Info"/>
+  <attribute name="captureStatusVmm" description="Capture status of VMM0-7" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="parityCounterVmm" description="Parity error counter of VMM0-7" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="statusSroc" description="Status of sROC0-4" type="u8" format="hex" is-multi-value="yes" init-value="0"/>
+  <attribute name="seu" description="Single event upset flag" type="u8" format="hex" init-value="0"/>
+  <attribute name="seuCounter" description="SEU pulses counter" type="u8" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllInstantLock" description="VMM 0 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllInstantLock" description="VMM 1 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllInstantLock" description="TDC 1 Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllInstantLock" description="Core Pll lock status. Should be true" type="bool" format="hex" init-value="0"/>
+ </class>
+
+ <class name="RocConfiguration">
+  <superclass name="Info"/>
+  <attribute name="l1_first" description="Value for first L1ID" type="u32" format="hex" init-value="0"/>
+  <attribute name="even_parity" description="1 if even parity 0 if odd parity" type="u32" format="hex" init-value="0"/>
+  <attribute name="roc_id" description="ID to be used in null event headers" type="u32" format="hex" init-value="0"/>
+  <attribute name="elinkSpeed.sRoc0" description="ELink speed of SROC 0 0x0 = 640 Mb/s; 0x1 = 320 Mb/s; 0x2 = 160 Mb/s; 11 = 0x3 Mb/s" type="u32" format="hex" init-value="0"/>
+  <attribute name="elinkSpeed.sRoc1" description="ELink speed of SROC 1 0x0 = 640 Mb/s; 0x1 = 320 Mb/s; 0x2 = 160 Mb/s; 11 = 0x3 Mb/s" type="u32" format="hex" init-value="0"/>
+  <attribute name="elinkSpeed.sRoc2" description="ELink speed of SROC 2 0x0 = 640 Mb/s; 0x1 = 320 Mb/s; 0x2 = 160 Mb/s; 11 = 0x3 Mb/s" type="u32" format="hex" init-value="0"/>
+  <attribute name="elinkSpeed.sRoc3" description="ELink speed of SROC 3 0x0 = 640 Mb/s; 0x1 = 320 Mb/s; 0x2 = 160 Mb/s; 11 = 0x3 Mb/s" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm0" description="sROC 0 is connected to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm1" description="sROC 0 is connected to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm2" description="sROC 0 is connected to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm3" description="sROC 0 is connected to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm4" description="sROC 0 is connected to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm5" description="sROC 0 is connected to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm6" description="sROC 0 is connected to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc0VmmConnections.vmm7" description="sROC 0 is connected to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm0" description="sROC 1 is connected to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm1" description="sROC 1 is connected to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm2" description="sROC 1 is connected to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm3" description="sROC 1 is connected to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm4" description="sROC 1 is connected to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm5" description="sROC 1 is connected to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm6" description="sROC 1 is connected to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc1VmmConnections.vmm7" description="sROC 1 is connected to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm0" description="sROC 2 is connected to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm1" description="sROC 2 is connected to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm2" description="sROC 2 is connected to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm3" description="sROC 2 is connected to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm4" description="sROC 2 is connected to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm5" description="sROC 2 is connected to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm6" description="sROC 2 is connected to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc2VmmConnections.vmm7" description="sROC 2 is connected to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm0" description="sROC 3 is connected to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm1" description="sROC 3 is connected to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm2" description="sROC 3 is connected to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm3" description="sROC 3 is connected to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm4" description="sROC 3 is connected to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm5" description="sROC 3 is connected to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm6" description="sROC 3 is connected to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRoc3VmmConnections.vmm7" description="sROC 3 is connected to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="eopEnable.sRoc0" description="Sending of EOP is enabled for sROC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="eopEnable.sRoc1" description="Sending of EOP is enabled for sROC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="eopEnable.sRoc2" description="Sending of EOP is enabled for sROC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="eopEnable.sRoc3" description="Sending of EOP is enabled for sROC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="nullEventEnable.sRoc0" description="Sending of null event headers is enabled for sROC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="nullEventEnable.sRoc1" description="Sending of null event headers is enabled for sROC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="nullEventEnable.sRoc2" description="Sending of null event headers is enabled for sROC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="nullEventEnable.sRoc3" description="Sending of null event headers is enabled for sROC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="bypassMode" description="BCID pass-through from VMM" type="u32" format="hex" init-value="0"/>
+  <attribute name="timeoutEnable" description="Timeout logic enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="ttcStartBits" description="TTC starting bits" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRocEnable.sRoc0" description="sROC 0 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRocEnable.sRoc1" description="sROC 1 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRocEnable.sRoc2" description="sROC 2 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="sRocEnable.sRoc3" description="sROC 3 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm0" description="VMM 0 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm1" description="VMM 1 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm2" description="VMM 2 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm3" description="VMM 3 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm4" description="VMM 4 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm5" description="VMM 5 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm6" description="VMM 6 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnable.vmm7" description="VMM 7 is enabled" type="u32" format="hex" init-value="0"/>
+  <attribute name="timeout" description="Timeout for all the sROCs on wait for L0 data from a VMM in multiple of 2 BC" type="u32" format="hex" init-value="0"/>
+  <attribute name="tx_csel" description="Driver output current for eport tx" type="u32" format="hex" init-value="0"/>
+  <attribute name="bc_offset" description="Value which is loaded into the BCID counter when receiving BCR" type="u32" format="hex" init-value="0"/>
+  <attribute name="bc_rollover" description="Maximum value of the BCID counter" type="u32" format="hex" init-value="0"/>
+  <attribute name="eportEnable.sRoc0" description="Eport tx enable for sROC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="eportEnable.sRoc1" description="Eport tx enable for sROC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="eportEnable.sRoc2" description="Eport tx enable for sROC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="eportEnable.sRoc3" description="Eport tx enable for sROC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyEnable.sRoc0" description="Transmission of BUSY symbols enabled for sROC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyEnable.sRoc1" description="Transmission of BUSY symbols enabled for sROC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyEnable.sRoc2" description="Transmission of BUSY symbols enabled for sROC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyEnable.sRoc3" description="Transmission of BUSY symbols enabled for sROC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="tdcEnable.sRoc0" description="Transmission of TDC field in hits enabled for sROC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="tdcEnable.sRoc1" description="Transmission of TDC field in hits enabled for sROC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="tdcEnable.sRoc2" description="Transmission of TDC field in hits enabled for sROC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="tdcEnable.sRoc3" description="Transmission of TDC field in hits enabled for sROC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyOnLimit" description="Busy On threshold for the VMM Capture FIFOs" type="u32" format="hex" init-value="0"/>
+  <attribute name="busyOffLimit" description="Busy Off threshold for the VMM Capture FIFOs" type="u32" format="hex" init-value="0"/>
+  <attribute name="l1EventsWithoutComma" description="The maximum number of events sent back-to-back without commas between them" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm0" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm1" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm2" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm3" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm4" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm5" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm6" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="fakeVmmFailure.vmm7" description="Do not write incoming data into the corresponding VMM Capture FIFO" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase40MHz_0" description="40 MHz clock phase that goes from ROC to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase40MHz_1" description="40 MHz clock phase that goes from ROC to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase40MHz_2" description="40 MHz clock phase that goes from ROC to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase40MHz_3" description="40 MHz clock phase that goes from ROC to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase160MHz_0" description="160 MHz clock phase that goes from ROC to VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase160MHz_1" description="160 MHz clock phase that goes from ROC to VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase160MHz_2" description="160 MHz clock phase that goes from ROC to VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllPhase160MHz_3" description="160 MHz clock phase that goes from ROC to VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllReset" description="Reset VMM Pll 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.bypassPLL" description="Copy 40MHz TTC clock to VMM for VMM Pll 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllLockEn" description="If 0, GPIO lock pin will ignore VMM Pll 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllReferenceFrequency" description="Pll frequency (should be 0x2) for VMM Pll 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllCap" description="VMM Pll 0 Capacitor filter (should be 0x1)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllRes" description="VMM Pll 0 filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllIcp" description="VMM Pll 0 filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ePllEnablePhase" description="Disable a certain Pll phase of VMM Pll 0 (should be 0xFF)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_bypass_0" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_bypass_1" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_bypass_2" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_bypass_3" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_phase_0" description="Phase of 320 MHz clock for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_phase_1" description="Phase of 320 MHz clock for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_phase_2" description="Phase of 320 MHz clock for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tp_phase_3" description="Phase of 320 MHz clock for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_05delay_0" description="Invert clock for all TTC signals other than TP for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_05delay_1" description="Invert clock for all TTC signals other than TP for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_05delay_2" description="Invert clock for all TTC signals other than TP for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_05delay_3" description="Invert clock for all TTC signals other than TP for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_delay_0" description="Delay all TTC signals other than TP in steps of BCs for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_delay_1" description="Delay all TTC signals other than TP in steps of BCs for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_delay_2" description="Delay all TTC signals other than TP in steps of BCs for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_delay_3" description="Delay all TTC signals other than TP in steps of BCs for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_bypass_0" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_bypass_1" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_bypass_2" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_bypass_3" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_phase_0" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_phase_1" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_phase_2" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.ctrl_phase_3" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tx_enable" description="1 bit for each VMM, to disable all TTC from ROC to VMM (0-3)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm0.tx_csel" description="Driver output current for VMM Pll 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase40MHz_0" description="40 MHz clock phase that goes from ROC to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase40MHz_1" description="40 MHz clock phase that goes from ROC to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase40MHz_2" description="40 MHz clock phase that goes from ROC to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase40MHz_3" description="40 MHz clock phase that goes from ROC to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase160MHz_0" description="160 MHz clock phase that goes from ROC to VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase160MHz_1" description="160 MHz clock phase that goes from ROC to VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase160MHz_2" description="160 MHz clock phase that goes from ROC to VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllPhase160MHz_3" description="160 MHz clock phase that goes from ROC to VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllReset" description="Reset VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.bypassPLL" description="Copy 40MHz TTC clock to VMM for VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllLockEn" description="If 0, GPIO lock pin will ignore VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllReferenceFrequency" description="Pll frequency (should be 0x2) for VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllCap" description="VMM Pll 1 Capacitor filter (should be 0x1)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllRes" description="VMM Pll 1 filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllIcp" description="VMM Pll 1 filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ePllEnablePhase" description="Disable a certain Pll phase of VMM Pll 1 (should be 0xFF)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_bypass_0" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_bypass_1" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_bypass_2" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_bypass_3" description="Send TP at 40 MHz VMM clock phase if 0 for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_phase_0" description="Phase of 320 MHz clock for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_phase_1" description="Phase of 320 MHz clock for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_phase_2" description="Phase of 320 MHz clock for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tp_phase_3" description="Phase of 320 MHz clock for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_05delay_0" description="Invert clock for all TTC signals other than TP for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_05delay_1" description="Invert clock for all TTC signals other than TP for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_05delay_2" description="Invert clock for all TTC signals other than TP for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_05delay_3" description="Invert clock for all TTC signals other than TP for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_delay_0" description="Delay all TTC signals other than TP in steps of BCs for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_delay_1" description="Delay all TTC signals other than TP in steps of BCs for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_delay_2" description="Delay all TTC signals other than TP in steps of BCs for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_delay_3" description="Delay all TTC signals other than TP in steps of BCs for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_bypass_0" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_bypass_1" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_bypass_2" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_bypass_3" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_phase_0" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 4" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_phase_1" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 5" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_phase_2" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 6" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.ctrl_phase_3" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for VMM 7" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tx_enable" description="1 bit for each VMM, to disable all TTC from ROC to VMM (4-7)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllVmm1.tx_csel" description="Driver output current for VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase40MHz_0" description="40 MHz clock phase that goes from ROC to TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase40MHz_1" description="40 MHz clock phase that goes from ROC to TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase40MHz_2" description="40 MHz clock phase that goes from ROC to TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase40MHz_3" description="40 MHz clock phase that goes from ROC to TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase160MHz_0" description="160 MHz clock phase that goes from ROC to TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase160MHz_1" description="160 MHz clock phase that goes from ROC to TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase160MHz_2" description="160 MHz clock phase that goes from ROC to TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllPhase160MHz_3" description="160 MHz clock phase that goes from ROC to TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllReset" description="Reset TDC Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.bypassPLL" description="Copy 40MHz TTC clock to VMM for TDC Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllLockEn" description="If 0, GPIO lock pin will ignore TDC Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllReferenceFrequency" description="Pll frequency (should be 0x2) for TDC Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllCap" description="TDC Pll Capacitor filter (should be 0x1)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllRes" description="TDC Pll filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllIcp" description="TDC Pll filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ePllEnablePhase" description="Disable a certain Pll phase of TDC Pll (should be 0xFF)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.enable160MHzOnBCR" description="Enables 160 MHz clock on the BCR line" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.enable160MHzOn40MHz" description="Enables 160 MHz clock on the 40 MHz line" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.tx_enable_bcr" description="Enable BCR in the driver" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.tx_csel_bcr" description="Driver output current for VMM Pll 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_05delay_0" description="Invert clock for all TTC signals other than TP for TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_05delay_1" description="Invert clock for all TTC signals other than TP for TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_05delay_2" description="Invert clock for all TTC signals other than TP for TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_05delay_3" description="Invert clock for all TTC signals other than TP for TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_delay_0" description="Delay all TTC signals other than TP in steps of BCs for TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_delay_1" description="Delay all TTC signals other than TP in steps of BCs for TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_delay_2" description="Delay all TTC signals other than TP in steps of BCs for TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_delay_3" description="Delay all TTC signals other than TP in steps of BCs for TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_bypass_0" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_bypass_1" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_bypass_2" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_bypass_3" description="Same as tp_bypass for all TTC signals other than TP in steps of BCs for TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_phase_0" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for TDC 0" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_phase_1" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for TDC 1" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_phase_2" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for TDC 2" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.ctrl_phase_3" description="Same as tp_phase for all TTC signals other than TP in steps of BCs for TDC 3" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.tx_enable" description="1 bit for each TDC, to disable all TTC from ROC to TDC" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllTdc.tx_csel" description="Driver output current for TDC Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllReset" description="Reset core Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.bypassPLL" description="Copy 40MHz TTC clock to VMM for core Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllLockEn" description="If 0, GPIO lock pin will ignore core Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllReferenceFrequency" description="Pll frequency (should be 0x2) for core Pll" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllCap" description="Core Pll Capacitor filter (should be 0x1)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllRes" description="Core Pll filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllIcp" description="Core Pll filter parameters (should be 0x8)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllEnablePhase" description="Disable a certain Pll phase of core Pll (should be 0xFF)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase40MHz_0" description="40 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase40MHz_1" description="40 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase40MHz_2" description="40 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase160MHz_0" description="160 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase160MHz_1" description="160 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.ePllPhase160MHz_2" description="160 MHz internal clock phase (triplicated)" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.tp_bypass_global" description="Send TP on TTC clock instead of at the ROC clock phase adjustment" type="u32" format="hex" init-value="0"/>
+  <attribute name="ePllCore.tp_phase_global" description="Phase of 320MHz clock" type="u32" format="hex" init-value="0"/>
+  <attribute name="tdsBcrInvert" description="Inverts the BCR signal" type="u32" format="hex" init-value="0"/>
+  <attribute name="lockOutInvert" description="Changes polarity of Pll Lock output that goes to GPIO" type="u32" format="hex" init-value="0"/>
+  <attribute name="testOutEnable" description="Just for testing" type="u32" format="hex" init-value="0"/>
+  <attribute name="testOutMux" description="Just for testing" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmBcrInvert" description="Inverts BCR polarity to VMM" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmEnaInvert" description="Does same thing as Soft Reset, Each bit is 1 VMM. 1: VMM configuration mode, 0: VMM Acquisition mode" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmL0Invert" description="Invert L0 polarity to VMM" type="u32" format="hex" init-value="0"/>
+  <attribute name="vmmTpInvert" description="Invert TP polarity to VMM" type="u32" format="hex" init-value="0"/>
+ </class>
+
+ <class name="PadTriggerRegisters">
+  <superclass name="Info"/>
+  <attribute name="conf_bcid_offset" description="BCID offset" type="u32" format="hex" init-value="0"/>
+  <attribute name="conf_ro_bc_offset" description="Readout BC offset" type="u32" format="hex" init-value="0"/>
+  <attribute name="trigger_rate" description="Coincidence trigger rate" type="u32" init-value="0"/>
+  <attribute name="xadc_temp" description="xADC FPGA temperature" type="u32" init-value="0"/>
+  <attribute name="reachable_sca" description="Reachable SCA" type="bool" init-value="0"/>
+  <attribute name="reachable_fpga" description="Reachable FPGA" type="bool" init-value="0"/>
+  <attribute name="pfeb_delays" description="PFEB delay" type="u32" is-multi-value="yes"/>
+  <attribute name="pfeb_bcids" description="PFEB BCID" type="u32" is-multi-value="yes"/>
+  <attribute name="pfeb_statuses" description="PFEB statuses" type="u32" is-multi-value="yes"/>
+  <attribute name="pfeb_status" description="PFEB status" type="u32" format="hex" init-value="0"/>
+  <attribute name="pfeb_bcid_error" description="PFEB BCID alignment error" type="u32" format="hex" init-value="0"/>
+  <attribute name="pad_bcid_error" description="Pad BCID error" type="u32" init-value="0"/>
+  <attribute name="pad_bcid_error_dif" description="Pad BCID error diff" type="u32" init-value="0"/>
+  <attribute name="pt_2_tp_lat" description="PT-2-TP latency" type="u32" init-value="0"/>
+  <attribute name="tp_bcid_error" description="TP BCID error" type="u32" init-value="0"/>
+  <attribute name="tp_bcid_error_dif" description="TP BCID error diff" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_select" description="BCID trigger selected" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m3" description="BCID-3 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m2" description="BCID-2 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_m1" description="BCID-1 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate" description="BCID trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p1" description="BCID+1 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p2" description="BCID+2 trigger rate" type="u32" init-value="0"/>
+  <attribute name="trig_bcid_rate_p3" description="BCID+3 trigger rate" type="u32" init-value="0"/>
+  <attribute name="ttc_bcr_ocr_rate" description="TTC BCR/OCR rate" type="u32" init-value="0"/>
+  <attribute name="gt_rx_lol" description="GT RX LOL" type="u32" format="hex" init-value="0"/>
+ </class>
+
+ <class name="MmtpInRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="artFibersAlignment" description="32 fiber alignment status" type="bool" is-multi-value="yes"/>
+  <attribute name="artFibersBcidGood" description="32 fiber bcid the same as MMTP" type="bool" is-multi-value="yes"/>
+  <attribute name="nArtFibersAligned" description="N fibers aligned" type="u32"/>
+  <attribute name="nArtFibersBcidGood" description="N fibers with bcid the same as MMTP" type="u32"/>
+  <attribute name="idleState" description="Idle State Indicator" type="bool"/>
+  <attribute name="bcidOffset" description="BCID offset for BCID counter in Global Sync Module" type="u32"/>
+  <attribute name="suggestedBcidOffset" description="suggested BCID offset based on input ADDC BCID" type="u32"/>
+  <attribute name="nGoodOffset" description="number of ADDC that satisfies BCID offset" type="u32"/>
+  <attribute name="fiberBCIDs" description="Real time 4-bit LSB of BCID of each ART fiber" type="u8" is-multi-value="yes"/>
+ </class>
+
+ <class name="MmtpOutRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="txMicropodTemp" description="Temperature of 3 TX micropods, indexed in MTP order" type="float" is-multi-value="yes"/>
+  <attribute name="rxMicropodTemp" description="Temperature of 3 RX micropods, indexed in MTP order" type="float" is-multi-value="yes"/>
+  <attribute name="txLoss" description="Loss of 36 TX fibers" type="bool" is-multi-value="yes"/>
+  <attribute name="rxLoss" description="Loss of 36 RX fiber" type="bool" is-multi-value="yes"/>
+  <attribute name="txFibersPower" description="36 TX fiber power reading" type="float" is-multi-value="yes"/>
+  <attribute name="rxArtFibersPower" description="32 RX fiber power reading in uW (4 unconnected channel should read 0)" type="float" is-multi-value="yes"/>
+ </class>
+
+ <class name="CarriertpInRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="txFramePhase" description="The phase of frame aligned TxOutclk" type="u32"/>
+  <attribute name="rxFramePhase" description="The phase of frame aligned RxOutclk" type="u32"/>
+  <attribute name="rxGbtPhase" description="The phase of the Rx GBT data itself" type="u32"/>
+  <attribute name="bcrPhAlgn" description="bcrPhAlgn        " type="u32"/>
+ </class>
+
+ <class name="StgctpOutRunStatusRegisters">
+  <superclass name="Info"/>
+  <attribute name="bcrRate" description="counts the BCR rate per second" type="u32"/>
+  <attribute name="SectorID" description="sector ID" type="u32"/>
+  <attribute name="PadIdleStatus" description="Pad idle T/F" type="bool"/>
+  <attribute name="MMIdleStatus" description="MM idle T/F" type="bool"/>
+ </class>
+
+ <class name="StgctpInRunStatusRegisters">
+  <superclass name="Info"/>
+	<attribute name="horx_mgm_regs_env_mon_data_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_temp_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_temp_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx_loss_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx_loss_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx1_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx2_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_tx3_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx1_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx2_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_0" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_1" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_2" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_3" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_4" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_5" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_6" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_7" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_8" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_9" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_10" description="   " type="u32"/>
+	<attribute name="horx_mgm_regs_upod_rx3_opt_pwr_RO_11" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sector_id_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_small_sector_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_stgc_mm_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_pads_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_ignore_mm_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_sticky_err_bcid_match_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcr_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_bcid_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_sync_ok_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pt_fifo_enpty_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_pad_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mm_idle_status_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_to_sl_hit_rate_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_pad_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_arrival_bc_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_sl_latency_comp_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_disable_nsw_mon_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_nsw_mon_limit_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_mm_nsw_mon_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_i_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_opening_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_request_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_closing_ofst_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_window_timeout_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_threshold_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_busy_o_RO_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_pad_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_merge_en_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_mon_disable_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_no_strech_0" description="   " type="bool"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_pt_data_l1a_bcid_RO_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_l1a_bcid_latency_diff_0" description="   " type="u32"/>
+	<attribute name="pad_only_mm_tp_regs_last_merge_vseg_bcid_RO_0" description="   " type="u32"/>
+</class>
+</oks-schema>
