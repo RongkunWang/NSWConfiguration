@@ -230,8 +230,10 @@ namespace nsw {
     constexpr std::uint8_t REG_FIBER_REMAP_SEL          = 0x2a;
     constexpr std::uint8_t REG_OFFSET_MODE_BCID         = 0x2b;
     constexpr std::uint8_t REG_OFFSET_MODE_CNT          = 0x2c;
-    // determins the L1A
+    // determines the L1A
     constexpr std::uint8_t REG_LOCAL_BCID_OFFSET        = 0x2d;
+    // determines which BCID of the window to return for segment(also determines latency)
+    constexpr std::uint8_t REG_segmentBcidAdj           = 0x36;
     // should not contain Write-only, because attempting to read Write-Only register will fail.
     constexpr auto REGS = std::to_array({
       REG_ADDC_EMU_DISABLE,
