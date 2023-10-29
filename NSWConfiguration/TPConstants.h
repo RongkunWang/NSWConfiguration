@@ -233,6 +233,7 @@ namespace nsw {
     // determines the L1A
     constexpr std::uint8_t REG_LOCAL_BCID_OFFSET        = 0x2d;
     // determines which BCID of the window to return for segment(also determines latency)
+    constexpr std::uint8_t REG_phiBinInvert             = 0x35;
     constexpr std::uint8_t REG_segmentBcidAdj           = 0x36;
     // should not contain Write-only, because attempting to read Write-Only register will fail.
     constexpr auto REGS = std::to_array({

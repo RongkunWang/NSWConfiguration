@@ -40,6 +40,7 @@ void nsw::hw::MMTP::writeConfiguration(bool doAlignArtGbtx) const
     {nsw::mmtp::REG_FIBER_REMAP_SEL,          fiberRemapSel()},
     {nsw::mmtp::REG_INPUT_PHASEL1DDCOFFSET,   m_config.get<std::uint32_t>("gbtL1ddPhaseOffset", 0)},
     {nsw::mmtp::REG_segmentBcidAdj,           m_config.get<std::uint32_t>("segmentBcidAdj", 0)},
+    {nsw::mmtp::REG_phiBinInvert,             m_config.get<std::uint32_t>("phiBinInvert", 0)},
   };
 
   const auto skippedReg = SkipRegisters();
