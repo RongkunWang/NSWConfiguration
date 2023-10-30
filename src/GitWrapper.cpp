@@ -1,5 +1,6 @@
 #include "NSWConfiguration/GitWrapper.h"
 
+#include <array>
 #include <filesystem>
 
 #include <fmt/core.h>
