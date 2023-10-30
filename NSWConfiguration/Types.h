@@ -7,6 +7,7 @@
 #ifndef NSWCONFIGURATION_TYPES_H_
 #define NSWCONFIGURATION_TYPES_H_
 
+#include <cstdint>
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -15,13 +16,13 @@
 
 #include <boost/property_tree/ptree.hpp>
 namespace i2c {
-    using RegisterSizePair = std::pair<std::string_view, size_t>;
+    using RegisterSizePair = std::pair<std::string_view, std::size_t>;
 
     using RegisterSizeVector = std::vector<RegisterSizePair>;
 
     using AddressRegisterMap = std::map<std::string, RegisterSizeVector>;
 
-    using AddressSizeMap = std::map<std::string, size_t>;
+    using AddressSizeMap = std::map<std::string, std::size_t>;
 
     using AddressRegisterSizeMap = std::map<std::string, AddressSizeMap>;
 
