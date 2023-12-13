@@ -305,6 +305,7 @@ BOOST_AUTO_TEST_CASE(ByteVectorToWord32_InvalidSize_ThrowsRuntimeError) {
 BOOST_AUTO_TEST_CASE(GuessSector_ValidInput_ReturnsCorrectSector) {
     BOOST_TEST(nsw::guessSector("191A-A06-MM-Calib") == "A06");
     BOOST_TEST(nsw::guessSector("P1-C15-MM-Calib") == "C15");
+    BOOST_TEST(nsw::guessSector("NSW-STG-EA-S03-CalibApplication") == "A03");
 }
 
 BOOST_AUTO_TEST_CASE(GuessSector_InvalidInput_ReturnsEmpty) {
