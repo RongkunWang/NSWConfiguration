@@ -81,7 +81,7 @@ if(NOT UaoClient_FOUND)
   endif()
 endif()
 
-set(NSWCONFIG_FMT_VERSION 9.1.0 CACHE INTERNAL "Select the fmt version")
+set(NSWCONFIG_FMT_VERSION 10.1.1 CACHE INTERNAL "Select the fmt version")
 option(NSWCONFIG_USE_EXTERNAL_FMT "Use an external fmt library" OFF)
 if(NOT TARGET fmt::fmt-header-only)
     if(NSWCONFIG_USE_EXTERNAL_FMT)
