@@ -302,8 +302,9 @@ std::string nsw::guessSector(const std::string_view str) {
   };
   for (const auto& side : sides) {
     for (const auto& sector : sects) {
-      auto name = fmt::format("{}{}", side, sector);
-      if (str.find(name) != std::string::npos) {
+      const auto name = fmt::format("{}{}", side, sector);
+      const auto p1_name = fmt::format("E{}-S{}", side, sector);
+      if (str.find(name) != std::string::npos or str.find(p1_name) != std::string::npos) {
         return name;
       }
     }
