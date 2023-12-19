@@ -26,8 +26,11 @@ std::vector<nsw::mon::Config> nsw::mon::parseMonitoringGroups(const std::string&
   const auto groupsBase = groupSet->get_Contains();
   std::vector<mon::Config> configs{};
   configs.reserve(std::size(groupsBase));
-  const auto filter = [&partition](const auto* group) { return not group->disabled(*partition); };
-  std::ranges::transform(groupsBase | std::views::filter(filter),
+  const auto enabled = [&partition](const auto* group) { return not group->disabled(*partition); };
+  const auto valid = [&conf](const auto* group) {
+    return conf.cast<dal::NSW_MonitoringGroup>(group) != nullptr;
+  };
+  std::ranges::transform(groupsBase | std::views::filter(enabled) | std::views::filter(valid),
                          std::back_inserter(configs),
                          [&conf](const auto* groupBase) -> mon::Config {
                            const auto* group = conf.cast<dal::NSW_MonitoringGroup>(groupBase);
