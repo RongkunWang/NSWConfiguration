@@ -2,7 +2,6 @@
 #define NSWCONFIGURATION_NSWCONFIGURATION_MONITORING_HELPERS_H
 
 #include <cstddef>
-#include <execution>
 
 #include <is/infodictionary.h>
 #include <semaphore>

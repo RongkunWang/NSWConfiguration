@@ -8,7 +8,6 @@
 #include <stop_token>
 #include <thread>
 #include <utility>
-#include <execution>
 
 #include <fmt/core.h>
 #include <fmt/chrono.h>
