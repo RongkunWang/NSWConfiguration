@@ -1,20 +1,48 @@
-x86_64-*/
-i686-*/
-cmt/*
-!cmt/requirements
-*.o
-*.a
-*.so
-*.rpm
-*.class
-*.jar
-*.gz
-*.bz
-*.tar
-*~
-*.bak
-*.png
-*.pyc
-*swp
-cscope*
-tags
+# Ignore everything
+*
+
+# Don't ignore subdirectories
+!*/
+
+# Don't ignore special files
+!*.gitignore
+!*.gitmodules
+!*.gitattributes
+!.clang-format
+!.clang-tidy
+!.clangd
+
+# Don't ignore CI yaml
+!.gitlab-ci.yml
+!.gitlab/ci/*.yml
+
+# Don't ignore Makefiles and CMake files
+!Makefile
+!*.mk
+!CMakeLists.txt
+!*.cmake
+
+# Don't ignore source files
+!*.h
+!*.hpp
+!*.cpp
+!*.cxx
+!*.cc
+!*.py
+
+# Don't ignore templates
+!*.in
+
+# Don't ignore documentation files, etc
+!*.rst
+!*.md
+!*LICENSE
+!*CONTRIBUTING
+!*CONTRIBUTORS
+!*CODEOWNERS
+
+# Don't ignore docs templates
+!docs/css/*.css
+!docs/html/*.html
+!docs/js/*.js
+!docs/xml/*.xml
